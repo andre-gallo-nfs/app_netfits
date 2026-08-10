@@ -1,9 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Watch } from "lucide-react";
 import { activities } from "@/lib/feed-data";
-import netfitsMark from "@/assets/netfits-mark.png";
-import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 
 export const Route = createFileRoute("/activities")({
   head: () => ({
@@ -20,7 +16,6 @@ export const Route = createFileRoute("/activities")({
 });
 
 function ActivitiesPage() {
-  const [syncOpen, setSyncOpen] = useState(false);
   return (
     <div className="pb-4">
 
@@ -31,31 +26,7 @@ function ActivitiesPage() {
         </p>
       </section>
 
-      <section className="px-4 pb-6">
-        <div className="bg-foreground text-background rounded-2xl p-5 relative overflow-hidden">
-          <img
-            src={netfitsMark}
-            alt=""
-            className="absolute top-3 right-3 w-7 h-7 object-contain rounded-md bg-background/10 p-0.5 opacity-70"
-          />
-          <div className="flex items-center gap-2 mb-2">
-            <Watch className="size-4 text-brand" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-brand">
-              Conectar wearable
-            </span>
-          </div>
-          <p className="text-base font-semibold mb-3 max-w-[28ch]">
-            Sincronize Garmin, Apple Watch ou Strava em 1 toque.
-          </p>
-          <button
-            onClick={() => setSyncOpen(true)}
-            className="bg-brand text-brand-foreground text-xs font-bold py-2 px-4 rounded-full"
-          >
-            Conectar agora
-          </button>
 
-        </div>
-      </section>
 
       <section className="px-4">
         <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
@@ -82,7 +53,6 @@ function ActivitiesPage() {
         </ul>
       </section>
 
-      {syncOpen && <WearableSyncSheet onClose={() => setSyncOpen(false)} />}
     </div>
   );
 }
