@@ -16,8 +16,20 @@ const tabs = [
   { to: "/wallet", label: "Carteira", icon: Wallet },
 ] as const;
 
+import { useEffect } from "react";
+import { nativeBridge } from "@/lib/native-bridge";
+
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    // Registrar Service Worker para PWA Offline-First
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+    // Checagem de atualizações transparentes em nuvem (Over-The-Air)
+    nativeBridge.checkForLiveUpdates();
+  }, []);
 
   if (path === "/admin" || path.startsWith("/associado")) {
     return <>{children}</>;

@@ -13,6 +13,7 @@ import {
   validatePasswordRules,
   useAuth,
 } from "@/lib/auth-store";
+import { nativeBridge } from "@/lib/native-bridge";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -460,10 +461,12 @@ function AuthPage() {
           {/* Passkeys Biometric Login Button */}
           <button
             type="button"
-            onClick={() => {
-              toast.success("Biometria / Face ID confirmada com sucesso! Acessando o app...");
-              authStore.loginUser("atleta@netfits.com.br", "Pass@1234");
-              navigate({ to: "/" });
+            onClick={async () => {
+              const res = await nativeBridge.triggerBiometricAuth();
+              if (res.success) {
+                authStore.loginUser("atleta@netfits.com.br", "Pass@1234");
+                navigate({ to: "/" });
+              }
             }}
             className="w-full py-2.5 rounded-xl font-bold text-xs bg-zinc-100 dark:bg-zinc-800 text-foreground border border-border hover:bg-zinc-200 dark:hover:bg-zinc-700 transition flex items-center justify-center gap-2 active:scale-98 shadow-xs"
           >
