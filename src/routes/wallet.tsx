@@ -34,15 +34,28 @@ function WalletPage() {
             alt=""
             className="absolute top-4 right-4 w-8 h-8 object-contain rounded-md bg-background/10 p-0.5 opacity-70"
           />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
-            Saldo netfits
-          </p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold tracking-tight">{balance.toLocaleString("pt-BR")}</span>
-            <span className="text-brand font-semibold">nfs</span>
+          {/* Informação de Saldo em 2 Linhas */}
+          <div className="space-y-1 my-2">
+            {/* Linha 1: nfs */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 border border-lime-400/20 px-2.5 py-0.5 rounded-full">
+                nfs
+              </span>
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                • Pontos Acumulados
+              </span>
+            </div>
+
+            {/* Linha 2: Saldo Numérico */}
+            <div>
+              <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                {balance.toLocaleString("pt-BR")}
+              </span>
+            </div>
           </div>
+
           <p className="text-xs text-zinc-400 mt-1">
-            ≈ {balanceBRL} em resgates
+            ≈ {balanceBRL} em resgates no Shop
           </p>
           <div className="mt-5">
             <Link

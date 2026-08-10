@@ -61,49 +61,46 @@ function TopBar() {
 
   return (
     /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
-    <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-4 py-3 flex items-center justify-between shadow-sm">
-      <Link to="/" className="flex items-center gap-2" aria-label="netfits">
+    <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3 py-2.5 flex items-center justify-between shadow-xs">
+      <Link to="/" className="flex items-center gap-1.5 shrink-0" aria-label="netfits">
         <img
           src={netfitsMark}
           alt=""
-          className="h-9 w-9 object-contain rounded-lg bg-purple-600 p-1 shadow-lg shadow-purple-600/20"
+          className="h-7 w-7 object-contain rounded-md bg-purple-600 p-0.5 shadow-md shadow-purple-600/20 shrink-0"
         />
         <img
           src={netfitsLogo}
           alt="netfits"
-          className="h-[29px] w-auto object-contain [filter:brightness(0)]"
+          className="h-5 w-auto object-contain [filter:brightness(0)] shrink-0"
         />
       </Link>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 shrink-0">
         <Link
           to="/wallet"
-          className="bg-zinc-100 text-zinc-900 rounded-full pl-2 pr-3 py-1 flex items-center gap-1.5 ring-1 ring-zinc-200 hover:bg-zinc-200 transition"
+          className="bg-zinc-100 text-zinc-900 rounded-full px-2 py-0.5 flex items-center gap-1 ring-1 ring-zinc-200 hover:bg-zinc-200 transition"
         >
-          <div className="size-4 bg-brand rounded-full flex items-center justify-center">
-            <span className="text-[7px] font-extrabold text-white">nfs</span>
+          <div className="size-3.5 bg-purple-600 rounded-full flex items-center justify-center">
+            <span className="text-[6px] font-extrabold text-white">nfs</span>
           </div>
-          <span className="text-xs font-mono font-bold tracking-wider text-purple-700">{balance.toLocaleString("pt-BR")}</span>
+          <span className="text-[11px] font-mono font-extrabold tracking-wider text-purple-700">{balance.toLocaleString("pt-BR")}</span>
         </Link>
 
         <Link
           to="/levels"
-          className="bg-purple-50 text-purple-700 rounded-full pl-2 pr-3 py-1 flex items-center gap-1.5 ring-1 ring-purple-200 font-bold hover:bg-purple-100 transition-all"
+          className="bg-purple-50 text-purple-700 rounded-full px-2 py-0.5 flex items-center gap-1 ring-1 ring-purple-200 font-bold hover:bg-purple-100 transition-all text-[9px]"
         >
-          <Award className="size-3.5 text-purple-600" />
-          <span className="text-[10px] tracking-wide font-extrabold">{unlockedCount}/{totalCount} Badges</span>
+          <Award className="size-3 text-purple-600 shrink-0" />
+          <span className="font-extrabold">{unlockedCount}/{totalCount} Badges</span>
         </Link>
 
         <Link
           to="/profile"
           aria-label="Meu perfil"
-          className="size-8 rounded-full overflow-hidden ring-1 ring-zinc-200 shadow-sm hover:ring-purple-500 transition"
+          className="size-7 rounded-full overflow-hidden ring-1 ring-zinc-200 shadow-xs hover:ring-purple-500 transition shrink-0"
         >
           <img
             src={profileAvatar}
-            alt="Meu perfil"
-            width={32}
-            height={32}
-            loading="lazy"
+            alt="Foto do perfil"
             className="w-full h-full object-cover"
           />
         </Link>
