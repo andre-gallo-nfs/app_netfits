@@ -485,9 +485,7 @@ function AuthPage() {
             }`}
           >
             <Sparkles className={`size-4 ${acceptedTerms && acceptedLgpd ? "text-lime-400" : "text-zinc-400"}`} />
-            {acceptedTerms && acceptedLgpd
-              ? "Cadastrar & Ganhar +50 nfs"
-              : "Leia os 2 Aceites Obrigatórios para Habilitar"}
+            Cadastrar & Ganhar +50 nfs
             <ArrowRight className="size-4" />
           </button>
         </form>
