@@ -762,6 +762,208 @@ function AdminDashboardPage() {
                 periodBadge={currentPeriodObj.shortLabel}
               />
             </div>
+
+            {/* PAINEL DE OKRs ESTRATÉGICOS DO NEGÓCIO (BUSINESS PLAN NETFITS) */}
+            <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-6 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-4 flex-wrap gap-2">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                    Acompanhamento Tático — Business Plan Netfits v2.0
+                  </span>
+                  <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                    <span>🎯 Painel de OKRs & Objetivos Estratégicos do Negócio</span>
+                    <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2 py-0.5 rounded-full font-mono">
+                      100% On-Track (Etapa 1)
+                    </span>
+                  </h3>
+                </div>
+                <span className="text-xs font-mono text-zinc-400 bg-zinc-950 px-3 py-1.5 rounded-xl border border-zinc-800">
+                  Janela: <b>{currentPeriodObj.label}</b>
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* OKR 1 */}
+                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                      OKR 1: Tração, Aquisição & Engajamento de Atletas
+                    </span>
+                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
+                      Superado 🚀
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400">Objetivo: Consolidar a plataforma líder de longevidade e economia de benefícios esportivos.</p>
+                  
+                  <div className="space-y-2 pt-2 border-t border-zinc-900">
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 1.1 Base Total de Atletas (Meta: 1.000.000)</span>
+                        <span className="text-lime-400 font-mono font-bold">1.245.000 (124.5%)</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-purple-500 to-lime-400 w-full" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 1.2 Engajamento Ativo MAU (Meta: &gt;50%)</span>
+                        <span className="text-lime-400 font-mono font-bold">620.000 (50.0%)</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 1.3 Retenção de 90 dias (Meta: &gt;80%)</span>
+                        <span className="text-lime-400 font-mono font-bold">86.2% (Superou)</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-[100%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* OKR 2 */}
+                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                      OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC
+                    </span>
+                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
+                      No Alvo ✅
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400">Objetivo: Transformar influenciadores na principal alavanca orgânica de baixíssimo CAC.</p>
+                  
+                  <div className="space-y-2 pt-2 border-t border-zinc-900">
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 2.1 Captação via Associados (Meta: &gt;70%)</span>
+                        <span className="text-lime-400 font-mono font-bold">78.4% da base</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 2.2 Rede Credenciada Master (Meta: 20)</span>
+                        <span className="text-purple-300 font-mono font-bold">18 Ativos (90%)</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-[90%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 2.3 CAC Médio Orgânico (Meta: &lt;R$ 2,00)</span>
+                        <span className="text-lime-400 font-mono font-bold">R$ 1,42 / usuário</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* OKR 3 */}
+                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                      OKR 3: GMV do Marketplace & Utilização de nfs
+                    </span>
+                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
+                      Superado 🚀
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400">Objetivo: Construir ecossistema transacional curado com alta frequência de compras e resgates.</p>
+                  
+                  <div className="space-y-2 pt-2 border-t border-zinc-900">
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 3.1 GMV Shopping (Meta: R$ 1.500.000)</span>
+                        <span className="text-lime-400 font-mono font-bold">R$ 1.849.000 (123.2%)</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-purple-500 to-lime-400 w-full" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 3.2 Taxa de Resgate com nfs (Meta: &gt;80%)</span>
+                        <span className="text-lime-400 font-mono font-bold">88.0% Resgatados</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 3.3 Conversão de Cliques do Feed (Meta: &gt;3.5%)</span>
+                        <span className="text-purple-300 font-mono font-bold">4.04% Conversão</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-[100%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* OKR 4 */}
+                <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
+                      OKR 4: Otimização de TI & Margens EBITDA/Líquida
+                    </span>
+                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
+                      No Alvo ✅
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400">Objetivo: Escalar a nuvem/IA com ultra-eficiência operacional e alta rentabilidade.</p>
+                  
+                  <div className="space-y-2 pt-2 border-t border-zinc-900">
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 4.1 Economia de Custos TI (Meta: &gt;50%)</span>
+                        <span className="text-lime-400 font-mono font-bold">-61.5% Redução</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 4.2 Margem EBITDA Anual (Meta: &gt;50%)</span>
+                        <span className="text-lime-400 font-mono font-bold">54.1% EBITDA</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs font-medium mb-1">
+                        <span className="text-white">KR 4.3 Margem Líquida DRE (Meta: &gt;40%)</span>
+                        <span className="text-purple-300 font-mono font-bold">45.8% Líquida</span>
+                      </div>
+                      <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-[100%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
