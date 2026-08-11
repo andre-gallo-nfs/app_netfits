@@ -1,0 +1,23 @@
+{
+  "short_name": "Netfits",
+  "name": "Netfits — Onde Seu Hábito Vira Pontos",
+  "icons": [
+    {
+      "src": "/netfits-mark.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/netfits-mark.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#7c3aed",
+  "display": "standalone",
+  "orientation": "portrait",
+  "categories": ["fitness", "lifestyle", "shopping", "health"],
+  "description": "Plataforma de saúde, atividades e recompensas em pontos Netfits."
+}
