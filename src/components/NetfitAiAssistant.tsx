@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Send, X, ArrowRight, Infinity } from "lucide-react";
+import { Sparkles, Send, X, ArrowRight, Infinity, Wallet, ShoppingBag, Activity, Share2, ShieldCheck, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+import { useWallet } from "@/lib/wallet-store";
+import { useNavigate } from "@tanstack/react-router";
 
 export type Message = {
   id: string;
@@ -9,51 +11,16 @@ export type Message = {
   timestamp: string;
   action?: {
     label: string;
+    targetRoute?: string;
     onClick?: () => void;
   };
 };
-
-const KNOWLEDGE_RESPONSES: Array<{
-  keywords: string[];
-  response: string;
-  actionLabel?: string;
-}> = [
-  {
-    keywords: ["netfit", "netfits", "moeda", "ganhar", "pontos", "funciona", "como"],
-    response:
-      "A Netfits transforma sua vida em movimento em valor real! Você ganha netfits (nfs) ao interagir no Feed, ao manter consistência semanal de atividades e ao conectar seu wearable. Cada nível desbloqueia multiplicadores de pontos maiores (até 2x nfs)!",
-    actionLabel: "Ver minha Carteira",
-  },
-  {
-    keywords: ["loja", "market", "produto", "comprar", "tênis", "suplemento", "desconto", "shop"],
-    response:
-      "No Netfits Shop você troca seus netfits por produtos de alta performance (Asics Novablast, géis Gu, smartwatch, fones JBL) e serviços de especialistas credenciados da nossa rede!",
-    actionLabel: "Ir para o Netfits Shop",
-  },
-  {
-    keywords: ["nutrição", "nutri", "recuperação", "isabella", "alimentação", "comida", "pós-treino"],
-    response:
-      "A nutrição orientada ao healthspan foca em refeições equilibradas com carboidratos de absorção gradual e proteínas de qualidade pós-treino. Temos a Dra. Isabella (Nutrologia Esportiva) em nossa rede de especialistas parceiros!",
-    actionLabel: "Ver especialista no Feed",
-  },
-  {
-    keywords: ["wearable", "garmin", "strava", "apple watch", "sincronizar", "relogio"],
-    response:
-      "Conecte seu relógio ou app em 1 toque na aba de Atividades. O consentimento de dados é 100% transparente — usamos suas zonas de Frequência Cardíaca apenas para reconhecer sua consistência com bônus de nfs!",
-    actionLabel: "Conectar Wearable",
-  },
-  {
-    keywords: ["longevidade", "manifesto", "saúde", "propósito", "healthspan"],
-    response:
-      "Nosso propósito é fazer cada movimento valer mais! A jornada Netfits evolui em 3 etapas: Benefícios imediatos -> Hábitos recorrentes -> Longevidade ao longo da vida com autonomia e vitalidade.",
-  },
-];
 
 const INITIAL_MESSAGES: Message[] = [
   {
     id: "msg-1",
     sender: "ai",
-    text: "Olá! Sou a Netfit AI, sua assistente no ecossistema esportivo. Como posso ajudar sua jornada hoje?",
+    text: "Olá! Sou a Netfit AI v2.0, sua assistente inteligente no ecossistema esportivo. Como posso ajudar você hoje?",
     timestamp: "Agora",
   },
 ];
@@ -64,12 +31,107 @@ export function NetfitAiAssistant() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  
+  const { balance: nfsBalance, balanceBRL } = useWallet();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
+
+  const resolveSmartResponse = (query: string): { text: string; actionLabel?: string; route?: string } => {
+    const q = query.toLowerCase().trim();
+
+    // 1. Saldo e Extrato em Tempo Real
+    if (q.includes("saldo") || q.includes("quanto tenho") || q.includes("meus pontos") || q.includes("extrato") || q.includes("carteira")) {
+      return {
+        text: `Você possui atualmente **${nfsBalance.toLocaleString("pt-BR")} nfs** acumulados na sua carteira (equivalente a aproximadamente **${balanceBRL}** em resgates no Netfits Shop)!`,
+        actionLabel: "Abrir Minha Carteira",
+        route: "/wallet"
+      };
+    }
+
+    // 2. Cotação do Netfits (nfs)
+    if (q.includes("quanto vale") || q.includes("valor") || q.includes("conversão") || q.includes("cotação") || q.includes("1 nfs")) {
+      return {
+        text: "Cada ponto **1 nfs equivale a R$ 0,02** em resgates reais (ex: 50 nfs = R$ 1,00 | 1.000 nfs = R$ 20,00). No Netfits Shop você pode pagar 100% de um produto com nfs ou usá-los para obter descontos em marcas parceiras como Asics, Netshoes e Liquidz!",
+        actionLabel: "Explorar o Shop",
+        route: "/market"
+      };
+    }
+
+    // 3. Shop, Produtos e Suplementos
+    if (q.includes("loja") || q.includes("shop") || q.includes("comprar") || q.includes("tênis") || q.includes("suplemento") || q.includes("desconto") || q.includes("asics") || q.includes("gel")) {
+      return {
+        text: "No Netfits Shop você encontra tênis de alta performance (Asics Novablast com placa de carbono), isotônicos Liquidz, géis de carboidrato Gu Energy e relógios smartwatch com até 100% de desconto usando seus pontos nfs!",
+        actionLabel: "Ir para o Netfits Shop",
+        route: "/market"
+      };
+    }
+
+    // 4. Código de Indicação & Bônus de Amigos
+    if (q.includes("indicação") || q.includes("indicar") || q.includes("convite") || q.includes("amigo") || q.includes("código") || q.includes("ganhar pontos")) {
+      return {
+        text: "Para cada amigo que se cadastrar com seu código de indicação, ambos ganham **+50 nfs bônus** instantaneamente na carteira! Você também pode acompanhar comissões em PIX de até 10% no Portal de Associados.",
+        actionLabel: "Ver Portal de Associados",
+        route: "/associado"
+      };
+    }
+
+    // 5. Wearables & Sincronização
+    if (q.includes("wearable") || q.includes("garmin") || q.includes("strava") || q.includes("apple watch") || q.includes("relógio") || q.includes("sincronizar")) {
+      return {
+        text: "Você pode conectar seu relógio ou aplicativo (Garmin Connect, Apple Watch, Strava, Fitbit, Polar, Samsung Health) na aba de Atividades para transformar seus km percorridos, frequência cardíaca e sono em pontos nfs todos os dias!",
+        actionLabel: "Ver Minhas Atividades",
+        route: "/activities"
+      };
+    }
+
+    // 6. Smart Fit & Academias
+    if (q.includes("smart fit") || q.includes("academia") || q.includes("presença") || q.includes("treino")) {
+      return {
+        text: "Ao vincular sua conta da Smart Fit no app Netfits, você ganha **+15 nfs por cada treino validado** por catraca na academia, acumulando pontos automáticos todo mês!",
+        actionLabel: "Ver Atividades",
+        route: "/activities"
+      };
+    }
+
+    // 7. Senha, Login & Segurança / Biometria
+    if (q.includes("senha") || q.includes("esqueceu") || q.includes("login") || q.includes("biometria") || q.includes("face id") || q.includes("passkey")) {
+      return {
+        text: "Para recuperar sua senha, acesse a tela de Login e clique em 'Esqueceu sua senha?'. Você também pode ativar a autenticação nativa por Biometria / Face ID (Passkeys) para acessar a conta em 1 toque de forma ultra segura!",
+        actionLabel: "Ir para Login / Cadastro",
+        route: "/auth"
+      };
+    }
+
+    // 8. Nutrologia e Especialistas
+    if (q.includes("nutrição") || q.includes("nutri") || q.includes("isabella") || q.includes("consulta") || q.includes("alimentação")) {
+      return {
+        text: "Temos a Dra. Isabella Formigari (Nutrologia Esportiva) em nossa rede de especialistas credenciados. Você pode agendar orientações nutricionais focadas em longevidade e saúde esportiva diretamente no Feed e Shop!",
+        actionLabel: "Ver no Feed",
+        route: "/"
+      };
+    }
+
+    // 9. Como Ganhar Pontos / Como Funciona
+    if (q.includes("funciona") || q.includes("como ganho") || q.includes("o que é") || q.includes("propósito") || q.includes("netfits")) {
+      return {
+        text: "A Netfits transforma seus hábitos saudáveis em moedas digitais (nfs)! Você ganha pontos de 4 formas: 1) Curtindo e postando no Feed; 2) Mantendo treinos semanais; 3) Conectando seu wearable/Smart Fit; 4) Indicando novos amigos com seu código.",
+        actionLabel: "Ver minha Carteira",
+        route: "/wallet"
+      };
+    }
+
+    // Resposta padrão inteligente
+    return {
+      text: `Entendi sua dúvida sobre "${query}". Posso orientar você sobre seu saldo atual (${nfsBalance.toLocaleString("pt-BR")} nfs), cotação dos pontos, resgates no Shop ou como ganhar bônus indicando amigos! O que deseja saber?`,
+      actionLabel: "Explorar o Shop",
+      route: "/market"
+    };
+  };
 
   const handleSend = (textToSend?: string) => {
     const query = (textToSend || inputValue).trim();
@@ -87,28 +149,21 @@ export function NetfitAiAssistant() {
     setIsTyping(true);
 
     setTimeout(() => {
-      const lowerQuery = query.toLowerCase();
-      const matched = KNOWLEDGE_RESPONSES.find((item) =>
-        item.keywords.some((kw) => lowerQuery.includes(kw))
-      );
-
-      const responseText =
-        matched?.response ||
-        "Com a Netfits, cada movimento e hábito saudável traz recompensas reais em nfs. Como posso ajudar com seus treinos, saldo ou produtos no Netfits Shop?";
-
-      const actionLabel = matched?.actionLabel;
+      const resolved = resolveSmartResponse(query);
 
       const aiMsg: Message = {
         id: `ai-${Date.now()}`,
         sender: "ai",
-        text: responseText,
+        text: resolved.text,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        action: actionLabel
+        action: resolved.actionLabel && resolved.route
           ? {
-              label: actionLabel,
+              label: resolved.actionLabel,
+              targetRoute: resolved.route,
               onClick: () => {
-                toast.info(`Navegando para: ${actionLabel}`);
+                toast.info(`Navegando para: ${resolved.actionLabel}`);
                 setIsOpen(false);
+                navigate({ to: resolved.route as any });
               },
             }
           : undefined,
@@ -116,7 +171,7 @@ export function NetfitAiAssistant() {
 
       setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 600);
+    }, 500);
   };
 
   return (
@@ -167,22 +222,35 @@ export function NetfitAiAssistant() {
             {/* Quick Chips */}
             <div className="p-3 border-b border-zinc-800/60 bg-zinc-900/40 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
               <button
+                onClick={() => handleSend("Qual o meu saldo?")}
+                className="shrink-0 bg-purple-950/80 border border-purple-500/50 text-purple-200 font-semibold rounded-full px-3 py-1.5 transition-colors flex items-center gap-1"
+              >
+                <Wallet className="size-3.5 text-lime-400" />
+                Meu Saldo
+              </button>
+              <button
+                onClick={() => handleSend("Quanto vale 1 nfs?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+              >
+                💵 Cotação do nfs
+              </button>
+              <button
+                onClick={() => handleSend("Como funciona o bônus de indicação?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+              >
+                🎁 Indicar Amigos (+50 nfs)
+              </button>
+              <button
                 onClick={() => handleSend("Como ganho netfits?")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 hover:border-purple-500/50 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
               >
                 💡 Como ganho nfs?
               </button>
               <button
                 onClick={() => handleSend("Recomende produtos do Netfits Shop")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 hover:border-purple-500/50 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
               >
                 👟 Sugestões no Shop
-              </button>
-              <button
-                onClick={() => handleSend("O que é a visão de Longevidade?")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 hover:border-purple-500/50 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
-              >
-                ♾️ Longevidade
               </button>
             </div>
 
