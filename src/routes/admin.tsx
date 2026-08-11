@@ -38,7 +38,7 @@ const TIME_PERIODS: { id: PeriodType; label: string; shortLabel: string; factor:
   { id: "year", label: "🚀 No Ano (2026)", shortLabel: "Ano", factor: 11.40, desc: "Acumulado no ano de 2026" },
 ];
 
-type TabType = "overview" | "associados" | "params" | "feed" | "market" | "activities" | "users" | "partners" | "controls";
+type TabType = "overview" | "associados" | "params" | "feed" | "market" | "activities" | "users" | "partners" | "controls" | "results";
 
 const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: any; category: string }[] = [
   { id: "overview", label: "Visão Geral & Executivo", iconEmoji: "📊", icon: BarChart3, category: "Consolidado" },
@@ -49,7 +49,8 @@ const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: an
   { id: "activities", label: "Atividades & Sensor", iconEmoji: "⚡", icon: Activity, category: "Engajamento" },
   { id: "users", label: "Base de Usuários", iconEmoji: "👥", icon: Users, category: "Comunidade" },
   { id: "partners", label: "Parceiros & Assessorias", iconEmoji: "🤝", icon: Handshake, category: "Ecossistema" },
-  { id: "controls", label: "Controles & Finanças", iconEmoji: "🛡️", icon: Cpu, category: "Governança" },
+  { id: "controls", label: "Controles & OPEX TI", iconEmoji: "🛡️", icon: Cpu, category: "Governança" },
+  { id: "results", label: "Resultados & DRE", iconEmoji: "📈", icon: DollarSign, category: "Demonstrações Financeiras" },
 ];
 
 // Mock Realtime Data
@@ -1898,6 +1899,280 @@ function AdminDashboardPage() {
                       <td className="py-3.5 px-4 text-center text-lime-400 font-black">-61.5% REDUÇÃO</td>
                     </tr>
                   </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Resultados & DRE (Demonstração do Resultado do Exercício) */}
+        {(activeTab === "results" || activeTab === "controls") && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-lime-400">
+                  Demonstração do Resultado do Exercício (DRE Proforma 2026)
+                </span>
+                <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                  <span>📈 DRE Financeiro — Netfits Tecnologia S.A.</span>
+                  <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2 py-0.5 rounded-full font-mono">
+                    Margem EBITDA: 54.1%
+                  </span>
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Demonstrativo contábil proforma ajustado pelo fator temporal (<b>{currentPeriodObj.desc}</b>).
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 self-start md:self-auto">
+                <button
+                  onClick={() => toast.success("DRE Proforma exportado com sucesso em PDF/Excel!")}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md flex items-center gap-2 transition cursor-pointer"
+                >
+                  <Download className="size-3.5" />
+                  Exportar DRE (Excel/PDF)
+                </button>
+              </div>
+            </div>
+
+            {/* KPIs Financeiros de Topo do DRE */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <KpiCard
+                title="Receita Operacional Bruta"
+                value={`R$ ${(2510850 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change="+34.2%"
+                positive={true}
+                icon={DollarSign}
+                subtext="GMV + Mídias + Provas"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Receita Operacional Líquida"
+                value={`R$ ${(2360199 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change="94.0% da Bruta"
+                positive={true}
+                icon={Coins}
+                subtext="Após tributos (-6%)"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="EBITDA da Operação"
+                value={`R$ ${(1359474 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change="54.1% Margem"
+                positive={true}
+                icon={TrendingUp}
+                subtext="Lucro antes de impostos/juros"
+                highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Lucro Líquido do Exercício"
+                value={`R$ ${(1150793 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change="45.8% Margem Líq."
+                positive={true}
+                icon={Award}
+                subtext="Lucro final distribuível"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+
+            {/* Tabela Estruturada do DRE Contábil */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
+                <div>
+                  <h4 className="text-base font-bold text-white">Demonstração Estruturada do Resultado (DRE)</h4>
+                  <p className="text-xs text-zinc-400">Valores em R$ ajustados para o período acumulado ({currentPeriodObj.shortLabel})</p>
+                </div>
+                <span className="text-xs font-mono text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
+                  Exercício Proforma 2026
+                </span>
+              </div>
+
+              <div className="overflow-x-auto w-full max-w-full">
+                <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
+                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                    <tr>
+                      <th className="py-3 px-4">Linha da DRE (Conta Contábil)</th>
+                      <th className="py-3 px-4 text-right">Valor no Período (R$)</th>
+                      <th className="py-3 px-4 text-right">Análise Vertical (% Rec. Bruta)</th>
+                      <th className="py-3 px-4 text-center">Status / Tendência</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/80 font-medium">
+                    {/* RECEITA BRUTA */}
+                    <tr className="bg-purple-950/20 hover:bg-purple-950/40 transition font-bold text-white">
+                      <td className="py-3 px-4 text-purple-300">(+) RECEITA OPERACIONAL BRUTA</td>
+                      <td className="py-3 px-4 text-right text-purple-300 font-mono text-sm">
+                        R$ {(2510850 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3 px-4 text-right text-purple-300">100.0%</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">▲ Forte Crescimento</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Comissões Marketplace (15% Take-Rate GMV)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">R$ {(277350 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">11.0%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Recorrente</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Receita de Mídias & Anúncios Patrocinados (Feed)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">R$ {(384500 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">15.3%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Recorrente</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Inscrições em Provas & Eventos Esportivos Credenciados</td>
+                      <td className="py-2.5 px-4 text-right font-mono">R$ {(512000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">20.4%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Sazonal / Provas</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Assinaturas Netfits Club (Etapa 2 Projeção R$29/mês)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">R$ {(1337000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">53.3%</td>
+                      <td className="py-2.5 px-4 text-center text-purple-400">Recorrente (SaaS)</td>
+                    </tr>
+
+                    {/* DEDUÇÕES */}
+                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                      <td className="py-2.5 px-4">(-) DEDUÇÕES E IMPOSTOS SOBRE VENDAS (DAS / ISS / PIS / COFINS)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(150651 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-6.0%</td>
+                      <td className="py-2.5 px-4 text-center text-rose-400">Tributário</td>
+                    </tr>
+
+                    {/* RECEITA LÍQUIDA */}
+                    <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-700">
+                      <td className="py-3 px-4 font-black">(=) RECEITA OPERACIONAL LÍQUIDA</td>
+                      <td className="py-3 px-4 text-right font-mono text-lime-400 text-sm font-black">
+                        R$ {(2360199 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3 px-4 text-right text-lime-400 font-black">94.0%</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">Base Líquida</td>
+                    </tr>
+
+                    {/* CUSTOS DE SERVIÇOS / RESGATES */}
+                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                      <td className="py-2.5 px-4">(-) CUSTOS DOS SERVIÇOS PRESTADOS & RESGATES DE PONTOS (CSP)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(277605 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-11.1%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-400">Custo Direto</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Custo de Resgate de Pontos nfs no Shopping (CPP R$ 0,02)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(147200 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-5.9%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Resgate Shopping</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Repasse de Comissões em Dinheiro aos Associados VIP (30%)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(83205 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-3.3%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Comissão Captação</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Taxas de Meios de Pagamento & Gateway de Adquirencia</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(47200 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-1.9%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Adquirencia</td>
+                    </tr>
+
+                    {/* LUCRO BRUTO */}
+                    <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-700">
+                      <td className="py-3 px-4 font-black">(=) LUCRO BRUTO</td>
+                      <td className="py-3 px-4 text-right font-mono text-white text-sm font-black">
+                        R$ {(2082594 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3 px-4 text-right text-white font-black">82.9%</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">Margem Bruta 82,9%</td>
+                    </tr>
+
+                    {/* OPEX */}
+                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                      <td className="py-2.5 px-4">(-) DESPESAS OPERACIONAIS (OPEX MENSAL / ANUAL)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(723120 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-28.8%</td>
+                      <td className="py-2.5 px-4 text-center text-rose-400">Despesas Operacionais</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Infraestrutura de TI & Cloud Otimizada (1M Usuários)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(87120 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-3.5%</td>
+                      <td className="py-2.5 px-4 text-center text-lime-400 font-bold">R$ 7.260/mês (-61.5%)</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Pessoal, Engenharia de Software & Suporte Atleta</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(360000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-14.3%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Equipe Core</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Marketing de Performance & Aquisição (CAC Orgânico)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(180000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-7.2%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Mídia de Alta Eficiência</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(96000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-3.8%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Fixas G&A</td>
+                    </tr>
+
+                    {/* EBITDA */}
+                    <tr className="bg-lime-400/10 font-bold text-white border-y-2 border-lime-400/40">
+                      <td className="py-3.5 px-4 text-lime-300 font-black">(=) EBITDA (LUCRO ANTES DE JUROS, IMPOSTOS E DEPRECIAÇÃO)</td>
+                      <td className="py-3.5 px-4 text-right font-mono text-lime-400 text-base font-black">
+                        R$ {(1359474 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3.5 px-4 text-right text-lime-400 font-black text-sm">54.1%</td>
+                      <td className="py-3.5 px-4 text-center text-lime-400 font-black">★ Margem EBITDA 54,1%</td>
+                    </tr>
+
+                    {/* EBIT & LAIR */}
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-4 font-semibold text-zinc-300">(-) Depreciação e Amortização de Ativos Tecnológicos</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(24000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-1.0%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-500">Amortização P&D</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
+                      <td className="py-2.5 px-4">(=) EBIT (RESULTADO OPERACIONAL ANTES DOS IMPOSTOS)</td>
+                      <td className="py-2.5 px-4 text-right font-mono text-white">R$ {(1335474 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">53.1%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-400">EBIT 53,1%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                      <td className="py-2.5 px-4 font-semibold text-zinc-300">(+/-) Resultado Financeiro Líquido (Rendimentos de Caixa)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">R$ {(18400 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">+0.7%</td>
+                      <td className="py-2.5 px-4 text-center text-lime-400">Rendimento CDI</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
+                      <td className="py-2.5 px-4">(=) LAIR (LUCRO ANTES DO IMPOSTO DE RENDA E CSLL)</td>
+                      <td className="py-2.5 px-4 text-right font-mono text-white">R$ {(1353874 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 px-4 text-right">53.9%</td>
+                      <td className="py-2.5 px-4 text-center text-zinc-400">LAIR 53,9%</td>
+                    </tr>
+
+                    {/* IMPOSTO DE RENDA */}
+                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                      <td className="py-2.5 px-4">(-) IMPOSTO DE RENDA & CSLL (IRPJ / CSLL Lucro Presumido)</td>
+                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(203081 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                      <td className="py-2.5 px-4 text-right">-8.1%</td>
+                      <td className="py-2.5 px-4 text-center text-rose-400">Tributação IRPJ/CSLL</td>
+                    </tr>
+
+                    {/* LUCRO LÍQUIDO */}
+                    <tr className="bg-purple-900/40 font-bold text-white border-t-2 border-purple-500">
+                      <td className="py-4 px-4 text-purple-200 font-black text-sm">(=) LUCRO LÍQUIDO DO EXERCÍCIO (NETFITS TECNOLOGIA S.A.)</td>
+                      <td className="py-4 px-4 text-right font-mono text-lime-400 text-lg font-black">
+                        R$ {(1150793 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-4 px-4 text-right text-lime-400 font-black text-base">45.8%</td>
+                      <td className="py-4 px-4 text-center text-lime-400 font-black">★ Margem Líquida 45,8%</td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </div>
