@@ -970,23 +970,20 @@ function AdminDashboardPage() {
         {/* Tab: Feed & Conteúdo */}
         {activeTab === "feed" && (
           <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
                   Planejamento Estratégico & Mídia ({currentPeriodObj.shortLabel})
                 </span>
-                <h3 className="text-xl font-extrabold text-white">
+                <h3 className="text-sm font-bold text-white">
                   Indicadores de Feed, Anúncios & Emissão de Pontos
                 </h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Valores acumulados para a janela: <b>{currentPeriodObj.desc}</b>.
-                </p>
               </div>
               <button
                 onClick={() => toast.success(`Relatório do Feed (${currentPeriodObj.shortLabel}) exportado!`)}
-                className="px-4 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition self-start md:self-auto"
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 self-start md:self-auto shadow-md transition cursor-pointer"
               >
-                <Download className="size-4" />
+                <Download className="size-3.5" />
                 Exportar Relatório
               </button>
             </div>
@@ -1180,17 +1177,14 @@ function AdminDashboardPage() {
         {/* Tab: Marketplace */}
         {activeTab === "market" && (
           <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
                   Plano Estratégico de Marketplace ({currentPeriodObj.shortLabel})
                 </span>
-                <h3 className="text-xl font-extrabold text-white">
+                <h3 className="text-sm font-bold text-white">
                   Indicadores de Acompanhamento do Shopping
                 </h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Valores acumulados para o período: <b>{currentPeriodObj.desc}</b>.
-                </p>
               </div>
 
               <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-2xl border border-zinc-800">
@@ -1375,17 +1369,14 @@ function AdminDashboardPage() {
         {/* Tab: Gestão de Associados */}
         {activeTab === "associados" && (
           <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
                   Desempenho de Influenciadores ({currentPeriodObj.shortLabel})
                 </span>
-                <h3 className="text-xl font-extrabold text-white">
+                <h3 className="text-sm font-bold text-white">
                   Módulo de Acompanhamento das Carteiras de Associados
                 </h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Valores acumulados referentes ao período: <b>{currentPeriodObj.desc}</b>.
-                </p>
               </div>
 
               <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-2xl border border-zinc-800">
@@ -2110,20 +2101,17 @@ function AdminDashboardPage() {
         {/* Tab: Resultados & DRE (Demonstração do Resultado do Exercício) */}
         {(activeTab === "results" || activeTab === "controls") && (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
-                <span className="text-[9px] font-extrabold uppercase tracking-widest text-lime-400">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
                   Demonstração do Resultado do Exercício (DRE Proforma 2026)
                 </span>
-                <h3 className="text-lg font-extrabold text-white flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   <span>📈 DRE Financeiro — Netfits Tecnologia S.A.</span>
                   <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2 py-0.5 rounded-full font-mono">
                     Margem EBITDA: 54.1%
                   </span>
                 </h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Demonstrativo contábil proforma ajustado pelo fator temporal (<b>{currentPeriodObj.desc}</b>).
-                </p>
               </div>
 
               <div className="flex items-center gap-2 self-start md:self-auto">
