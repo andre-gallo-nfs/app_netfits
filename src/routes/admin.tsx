@@ -1540,6 +1540,369 @@ function AdminDashboardPage() {
             </div>
           </form>
         )}
+
+        {/* Tab: Atividades & Sensor Esportivo */}
+        {activeTab === "activities" && (
+          <div className="space-y-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
+                  Sensor de Movimento & Validação Esportiva (Etapa 1 & 2)
+                </span>
+                <h3 className="text-sm font-bold text-white">
+                  Métricas de Engajamento Físico & Pontuação por Treino
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20 font-bold">
+                +50 nfs / treino validado
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <KpiCard
+                title="Treinos Validados Total"
+                value={Math.round(84500 * pf).toLocaleString("pt-BR")}
+                change="+24.8%"
+                positive={true}
+                icon={Activity}
+                subtext="Presenças & registros"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Check-ins Smart Fit"
+                value={Math.round(48200 * pf).toLocaleString("pt-BR")}
+                change="+18.5%"
+                positive={true}
+                icon={Zap}
+                subtext="Totens de validação"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Pontos Emitidos via Treino"
+                value={`${Math.round(4225000 * pf).toLocaleString("pt-BR")} nfs`}
+                change="+24.8%"
+                positive={true}
+                icon={Coins}
+                subtext="4.2M nfs distribuídos"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Média de Treinos / Atleta"
+                value={`${(3.8 * pf).toFixed(1)} treinos`}
+                change="+12.0%"
+                positive={true}
+                icon={TrendingUp}
+                subtext="Frequência semanal"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+              <h4 className="font-bold text-sm text-white">Transição Tecnológica para Etapa 2 (Roadmap Business Plan)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-zinc-300">
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                  <p className="font-bold text-lime-400">Etapa 1 (Atual)</p>
+                  <p className="text-zinc-400">Validação manual via QR Code em academias parceiras (Smart Fit) e registros em fotos do feed. Baixa complexidade e custo zero de API.</p>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/30 space-y-2">
+                  <p className="font-bold text-purple-300">Etapa 2 (9 a 18 meses)</p>
+                  <p className="text-zinc-400">Integração nativa com Strava & Garmin API. Sincronização automática de corridas, pedaladas e métricas cardíacas.</p>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                  <p className="font-bold text-amber-400">Etapa 3 (18 a 36 meses)</p>
+                  <p className="text-zinc-400">Plano corporativo B2B com desafios empresariais e marketplace de serviços de longevidade (fisioterapia, nutrologia).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Base de Usuários & Declaração de Pontos Bancários */}
+        {activeTab === "users" && (
+          <div className="space-y-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
+                  Base de Atletas & Programas Bancários Declarados (Business Plan Sessão 6)
+                </span>
+                <h3 className="text-sm font-bold text-white">
+                  Comunidade, Declaração de Pontos Bancários & Retenção
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-purple-300 bg-purple-900/30 px-3 py-1 rounded-full border border-purple-500/30 font-bold">
+                482k Declarações Coletadas
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <KpiCard
+                title="Usuários Cadastrados"
+                value={Math.round(1245000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change="+32.4%"
+                positive={true}
+                icon={Users}
+                subtext="Superou meta Etapa 1 (1M)"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Ativos Mensais (MAU)"
+                value={Math.round(620000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change="50.0% engajamento"
+                positive={true}
+                icon={UserCheck}
+                subtext="620k atletas ativos"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Declaração Pontos Bancários"
+                value={Math.round(482000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change="38.7% da base"
+                positive={true}
+                icon={Award}
+                subtext="Intenção de resgate"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Taxa de Retenção (90 dias)"
+                value="86.2%"
+                change="Meta 80%"
+                positive={true}
+                icon={ShieldAlert}
+                subtext="Excelente retenção"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+              <h4 className="font-bold text-sm text-white">Distribuição de Programas Bancários Declarados (Pesquisa Etapa 1)</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <p className="text-xs text-zinc-400 font-semibold">Livelo (BB & Bradesco)</p>
+                  <p className="text-xl font-bold text-white">184.000 declarações</p>
+                  <span className="text-[10px] text-lime-400">Média: 45.000 pts declarados</span>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <p className="text-xs text-zinc-400 font-semibold">Esfera (Santander)</p>
+                  <p className="text-xl font-bold text-white">128.000 declarações</p>
+                  <span className="text-[10px] text-purple-400">Média: 38.000 pts declarados</span>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <p className="text-xs text-zinc-400 font-semibold">C6 Átomos</p>
+                  <p className="text-xl font-bold text-white">74.000 declarações</p>
+                  <span className="text-[10px] text-amber-400">Média: 22.000 pts declarados</span>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <p className="text-xs text-zinc-400 font-semibold">Smiles & LATAM Pass</p>
+                  <p className="text-xl font-bold text-white">96.000 declarações</p>
+                  <span className="text-[10px] text-cyan-400">Média: 55.000 pts declarados</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Parceiros & Assessorias */}
+        {activeTab === "partners" && (
+          <div className="space-y-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
+                  Rede Credenciada & Ecossistema de Saúde (Sessão 6 & 10)
+                </span>
+                <h3 className="text-sm font-bold text-white">
+                  Parceiros Comerciais, Sellers do Shopping & Assessorias Esportivas
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20 font-bold">
+                28 Marcas & Parceiros
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <KpiCard
+                title="Parceiros Credenciados"
+                value="28 Marcas"
+                change="+4 este mês"
+                positive={true}
+                icon={Handshake}
+                subtext="Centauro, Decathlon, Nike..."
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="GMV Enviado aos Parceiros"
+                value={`R$ ${(1849000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change="+22.4%"
+                positive={true}
+                icon={ShoppingBag}
+                subtext="Vendas no Shopping"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Receita de Mídia Patrocinada"
+                value={`R$ ${(384500 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change="+24.5%"
+                positive={true}
+                icon={Megaphone}
+                subtext="Posts & Banners de marcas"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="NPS Média dos Parceiros"
+                value="94 / 100"
+                change="Excelente"
+                positive={true}
+                icon={Star}
+                subtext="Satisfação dos Sellers"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Tab: Controles, Finanças & OPEX de Infraestrutura Otimizado (1M Usuários) */}
+        {activeTab === "controls" && (
+          <div className="space-y-6">
+            <div className="bg-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
+              <div>
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
+                  Demonstrativo Financeiro & Engenharia de Custos (1.000.000 de Usuários)
+                </span>
+                <h3 className="text-sm font-bold text-white">
+                  OPEX de TI Otimizado (-61.5% Redução de Custos) & Unit Economics
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3.5 py-1.5 rounded-full border border-lime-400/30 font-extrabold">
+                Economia de -61,5% (US$ 1.320 / R$ 7.260 /mês)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <KpiCard
+                title="Custo TI Mensal (1M Usuários)"
+                value="R$ 7.260 /mês"
+                change="-61.5% economia"
+                positive={true}
+                icon={Cpu}
+                subtext="US$ 1.320,00 /mês"
+                highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Custo por Usuário Cadastrado"
+                value="R$ 0,007 /mês"
+                change="Ultra-eficiente"
+                positive={true}
+                icon={DollarSign}
+                subtext="R$ 0,08 / ano"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Custo por Usuário Ativo (MAU)"
+                value="R$ 0,012 /mês"
+                change="R$ 0,14 / ano"
+                positive={true}
+                icon={Users}
+                subtext="620k MAU ativos"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Margem EBITDA da Operação"
+                value="84.2%"
+                change="Alta Lucratividade"
+                positive={true}
+                icon={TrendingUp}
+                subtext="Operação escalável"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
+                <div>
+                  <h4 className="text-base font-bold text-white">Detalhamento da Arquitetura de Custos Otimizada (1M Usuários)</h4>
+                  <p className="text-xs text-zinc-400">Comparativo do plano de engenharia de custo (Anterior vs Otimizado)</p>
+                </div>
+                <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
+                  Câmbio: US$ 1.00 = R$ 5,50
+                </span>
+              </div>
+
+              <div className="overflow-x-auto w-full max-w-full">
+                <table className="w-full text-left text-xs text-zinc-300 min-w-[680px]">
+                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                    <tr>
+                      <th className="py-3 px-4">Componente de Infraestrutura</th>
+                      <th className="py-3 px-4 text-right">Custo Anterior (USD)</th>
+                      <th className="py-3 px-4 text-right">Custo Otimizado (USD)</th>
+                      <th className="py-3 px-4 text-right">Custo Otimizado (BRL)</th>
+                      <th className="py-3 px-4 text-center">Economia %</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800 font-medium">
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">🤖 IA (Vertex Gemini + Cache Vetorial Redis)</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 405,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 180,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 990,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-55.5%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">🗄️ Banco de Dados (Firestore Offline Cache)</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 520,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 280,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 1.540,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-46.1%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">🖼️ Armazenamento Mídia (Cloudflare R2 Zero Egress)</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 310,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 110,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 605,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-64.5%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">🌐 Servidores & API (Bun / Cloud Run Concurrency 80)</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 850,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 380,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 2.090,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-55.3%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">⚡ CDN & Tráfego (Cloudflare Tiered Cache)</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 450,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 90,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 495,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-80.0%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">🔐 Autenticação (WhatsApp OTP + Magic Links)</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 650,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 190,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 1.045,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-70.7%</td>
+                    </tr>
+                    <tr className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4 font-bold text-white">🔔 Notificações Push & Logs</td>
+                      <td className="py-3 px-4 text-right text-zinc-500 line-through">US$ 240,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">US$ 90,00</td>
+                      <td className="py-3 px-4 text-right font-bold text-white">R$ 495,00</td>
+                      <td className="py-3 px-4 text-center text-lime-400 font-bold">-62.5%</td>
+                    </tr>
+                  </tbody>
+                  <tfoot className="bg-zinc-950 font-bold border-t-2 border-zinc-700 text-white">
+                    <tr>
+                      <td className="py-3.5 px-4">TOTAL MENSAL OTIMIZADO (1M USUÁRIOS)</td>
+                      <td className="py-3.5 px-4 text-right text-zinc-400">US$ 3.425,00</td>
+                      <td className="py-3.5 px-4 text-right text-lime-400 font-mono text-sm">US$ 1.320,00</td>
+                      <td className="py-3.5 px-4 text-right text-lime-400 font-mono text-sm">R$ 7.260,00</td>
+                      <td className="py-3.5 px-4 text-center text-lime-400 font-black">-61.5% REDUÇÃO</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
