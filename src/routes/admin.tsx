@@ -76,6 +76,8 @@ type AssociadoAdminItem = {
   handle: string;
   category: string;
   code: string;
+  isVerifiedSpecialist?: boolean;
+  specialistBadgeLabel?: string;
   capturedUsers: number;
   retentionRatePct: number;
   gmvBrl: number;
@@ -120,6 +122,8 @@ const ASSOCIADOS_DATABASE: AssociadoAdminItem[] = [
     handle: "@gallo.influencer",
     category: "Influenciador Master",
     code: "GALLO-NETFITS",
+    isVerifiedSpecialist: true,
+    specialistBadgeLabel: "Especialista Educação Física",
     capturedUsers: 1428,
     retentionRatePct: 87.4,
     gmvBrl: 184920.0,
@@ -141,6 +145,8 @@ const ASSOCIADOS_DATABASE: AssociadoAdminItem[] = [
     handle: "@marina.fitness",
     category: "Embaixadora Corrida",
     code: "MARINA-RUN",
+    isVerifiedSpecialist: false,
+    specialistBadgeLabel: "Embaixadora Corrida",
     capturedUsers: 2850,
     retentionRatePct: 89.1,
     gmvBrl: 380000.0,
@@ -162,6 +168,7 @@ const ASSOCIADOS_DATABASE: AssociadoAdminItem[] = [
     handle: "@lucas.runner",
     category: "Atleta Elite Trail",
     code: "LUCAS-TRAIL",
+    isVerifiedSpecialist: false,
     capturedUsers: 1920,
     retentionRatePct: 84.5,
     gmvBrl: 245000.0,
@@ -183,6 +190,8 @@ const ASSOCIADOS_DATABASE: AssociadoAdminItem[] = [
     handle: "@dra.isabella",
     category: "Especialista Médica",
     code: "DRA-ISABELLA",
+    isVerifiedSpecialist: true,
+    specialistBadgeLabel: "Dra. Nutrologia Esportiva",
     capturedUsers: 1150,
     retentionRatePct: 91.2,
     gmvBrl: 195000.0,
@@ -204,6 +213,8 @@ const ASSOCIADOS_DATABASE: AssociadoAdminItem[] = [
     handle: "@rafa.crossfit",
     category: "Head Coach Fitness",
     code: "RAFA-CROSS",
+    isVerifiedSpecialist: true,
+    specialistBadgeLabel: "Head Coach Fisiologia",
     capturedUsers: 890,
     retentionRatePct: 82.0,
     gmvBrl: 112000.0,
@@ -426,10 +437,30 @@ function AdminDashboardPage() {
   const [associadosPage, setAssociadosPage] = useState(1);
   const itemsPerPage = 3;
 
+  // Lista editável de Associados (para alteração do Selo Roxo em tempo real)
+  const [associadosList, setAssociadosList] = useState<AssociadoAdminItem[]>(ASSOCIADOS_DATABASE);
+
+  const toggleSpecialistBadge = (id: string) => {
+    setAssociadosList((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const nextState = !item.isVerifiedSpecialist;
+          toast.success(
+            nextState
+              ? `🟣 Selo Roxo de Verificado (Especialista Credenciado) ATIVADO para ${item.name}!`
+              : `⚪ Selo Roxo de Verificado DESATIVADO para ${item.name}.`
+          );
+          return { ...item, isVerifiedSpecialist: nextState };
+        }
+        return item;
+      })
+    );
+  };
+
   // Filtro de Associados
   const [selectedAssociadoId, setSelectedAssociadoId] = useState<string>("assoc_all");
   const selectedAssociado =
-    ASSOCIADOS_DATABASE.find((a) => a.id === selectedAssociadoId) || ASSOCIADOS_DATABASE[0];
+    associadosList.find((a) => a.id === selectedAssociadoId) || associadosList[0];
 
   // Filtro de Sellers do Marketplace
   const [selectedSellerId, setSelectedSellerId] = useState<string>("seller_all");
@@ -438,6 +469,11 @@ function AdminDashboardPage() {
 
   // Estado dos Parâmetros da Operação
   const [operationalParams, setOperationalParams] = useState({
+    nfsPerVideoPost: 15,
+    nfsPerTextPost: 10,
+    dailyRewardedPostLimit: 3,
+    weeklyRewardedPostLimit: 15,
+
     nfsPerPostView: 5,
     nfsPerLike: 5,
     nfsPerSave: 10,
@@ -1159,9 +1195,9 @@ function AdminDashboardPage() {
                   onChange={(e) => setSelectedAssociadoId(e.target.value)}
                   className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
                 >
-                  {ASSOCIADOS_DATABASE.map((a) => (
+                  {associadosList.map((a) => (
                     <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
-                      {a.name} ({a.handle})
+                      {a.name} ({a.handle}) {a.isVerifiedSpecialist ? "🟣 Especialista" : ""}
                     </option>
                   ))}
                 </select>
@@ -1212,19 +1248,20 @@ function AdminDashboardPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <h4 className="text-base font-bold text-white">Desempenho Comparativo dos Associados</h4>
-                  <p className="text-xs text-zinc-400">Tabela de associados com paginação para ajuste lateral</p>
+                  <p className="text-xs text-zinc-400">Gerencie a carteira e ative o Selo Roxo de Especialista Credenciado</p>
                 </div>
                 <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                  Página {associadosPage} de {Math.ceil(ASSOCIADOS_DATABASE.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
+                  Página {associadosPage} de {Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
                 </span>
               </div>
 
               <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
+                <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
                   <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
                     <tr>
                       <th className="py-3 px-4">Associado / Influenciador</th>
                       <th className="py-3 px-4">Código Unique</th>
+                      <th className="py-3 px-4 text-center">Selo Especialista</th>
                       <th className="py-3 px-4 text-right">Carteira (Atletas)</th>
                       <th className="py-3 px-4 text-right">GMV Gerado (R$)</th>
                       <th className="py-3 px-4 text-right">Receita Netfits (15%)</th>
@@ -1234,17 +1271,37 @@ function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800 font-medium">
-                    {ASSOCIADOS_DATABASE.filter((a) => a.id !== "assoc_all")
+                    {associadosList.filter((a) => a.id !== "assoc_all")
                       .slice((associadosPage - 1) * itemsPerPage, associadosPage * itemsPerPage)
                       .map((assoc) => (
                         <tr key={assoc.id} className="hover:bg-zinc-800/40 transition">
                           <td className="py-3 px-4">
                             <div>
-                              <p className="font-bold text-white">{assoc.name}</p>
+                              <p className="font-bold text-white flex items-center gap-1.5">
+                                {assoc.name}
+                                {assoc.isVerifiedSpecialist && (
+                                  <span className="text-[9px] font-extrabold bg-purple-600/30 text-purple-300 border border-purple-500/50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                                    🟣 Especialista
+                                  </span>
+                                )}
+                              </p>
                               <p className="text-[10px] text-purple-400">{assoc.handle}</p>
                             </div>
                           </td>
                           <td className="py-3 px-4 font-mono text-zinc-400">{assoc.code}</td>
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              onClick={() => toggleSpecialistBadge(assoc.id)}
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center justify-center gap-1 transition mx-auto ${
+                                assoc.isVerifiedSpecialist
+                                  ? "bg-purple-600/30 text-purple-300 border border-purple-500/50 hover:bg-purple-600/50 shadow-xs"
+                                  : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-purple-950 hover:text-purple-300 opacity-60 hover:opacity-100"
+                              }`}
+                              title="Clique para alterar a concessão do Selo Roxo"
+                            >
+                              {assoc.isVerifiedSpecialist ? "🟣 Verificado" : "⚪ Ativar Selo"}
+                            </button>
+                          </td>
                           <td className="py-3 px-4 text-right font-bold text-white">
                             {Math.round(assoc.capturedUsers * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
                           </td>
@@ -1318,6 +1375,46 @@ function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Novo Card: Recompensas do Feed & Limites Antifraude */}
+              <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
+                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
+                  <Rss className="size-5 text-purple-400" />
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                      Diretrizes do Feed & Moderação Antifraude
+                    </span>
+                    <h4 className="font-bold text-base text-white">Recompensas de Mídia & Limites de Postagem</h4>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <ParamInput
+                    label="Quantidade nfs por Post de VÍDEO"
+                    unit="nfs / vídeo"
+                    value={operationalParams.nfsPerVideoPost}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerVideoPost: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Quantidade nfs por TEXTO / FOTO"
+                    unit="nfs / post"
+                    value={operationalParams.nfsPerTextPost}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerTextPost: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Limite DIÁRIO de Posts Premiados"
+                    unit="posts / dia"
+                    value={operationalParams.dailyRewardedPostLimit}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, dailyRewardedPostLimit: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Limite SEMANAL de Posts Premiados"
+                    unit="posts / semana"
+                    value={operationalParams.weeklyRewardedPostLimit}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, weeklyRewardedPostLimit: Number(v) }))}
+                  />
+                </div>
+              </div>
+
               <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
                 <h4 className="font-bold text-sm text-white">Atribuição de Pontos & Comissões</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
