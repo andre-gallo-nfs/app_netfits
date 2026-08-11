@@ -1375,7 +1375,7 @@ function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Novo Card: Recompensas do Feed & Limites Antifraude */}
+              {/* Card 1: Recompensas do Feed & Limites Antifraude */}
               <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                   <Rss className="size-5 text-purple-400" />
@@ -1389,13 +1389,13 @@ function AdminDashboardPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ParamInput
-                    label="Quantidade nfs por Post de VÍDEO"
+                    label="Pontos nfs por Post de VÍDEO"
                     unit="nfs / vídeo"
                     value={operationalParams.nfsPerVideoPost}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerVideoPost: Number(v) }))}
                   />
                   <ParamInput
-                    label="Quantidade nfs por TEXTO / FOTO"
+                    label="Pontos nfs por TEXTO / FOTO"
                     unit="nfs / post"
                     value={operationalParams.nfsPerTextPost}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerTextPost: Number(v) }))}
@@ -1412,11 +1412,73 @@ function AdminDashboardPage() {
                     value={operationalParams.weeklyRewardedPostLimit}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, weeklyRewardedPostLimit: Number(v) }))}
                   />
+                  <ParamInput
+                    label="nfs por Visualização de Post"
+                    unit="nfs / view"
+                    value={operationalParams.nfsPerPostView}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerPostView: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="nfs por Curtida (Like)"
+                    unit="nfs / like"
+                    value={operationalParams.nfsPerLike}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLike: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="nfs por Compartilhamento"
+                    unit="nfs / share"
+                    value={operationalParams.nfsPerShare}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerShare: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="nfs por Post Salvo"
+                    unit="nfs / save"
+                    value={operationalParams.nfsPerSave}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerSave: Number(v) }))}
+                  />
                 </div>
               </div>
 
+              {/* Card 2: Engajamento, Treinos & Indicações */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
-                <h4 className="font-bold text-sm text-white">Atribuição de Pontos & Comissões</h4>
+                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
+                  <Zap className="size-5 text-lime-400" />
+                  <h4 className="font-bold text-sm text-white">Engajamento, Treinos & Indicações</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <ParamInput
+                    label="nfs por Treino Validadog (Smart Fit/GPS)"
+                    unit="nfs / treino"
+                    value={operationalParams.nfsPerWorkout}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerWorkout: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Bônus de Indicação de Amigo"
+                    unit="nfs / amigo"
+                    value={operationalParams.normalUserNewReferralBonusNfs}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, normalUserNewReferralBonusNfs: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Comissão de Indicação de Amigo"
+                    unit="% das compras"
+                    value={operationalParams.normalUserReferralSharePct}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, normalUserReferralSharePct: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="nfs por Vínculo de Programa Fidelidade"
+                    unit="nfs / vínculo"
+                    value={operationalParams.nfsPerLoyaltyDeclaration}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLoyaltyDeclaration: Number(v) }))}
+                  />
+                </div>
+              </div>
+
+              {/* Card 3: Comissões do Marketplace & Associados */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
+                  <Percent className="size-5 text-purple-400" />
+                  <h4 className="font-bold text-sm text-white">Atribuição do Marketplace & Repasses</h4>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <ParamInput
                     label="Take-Rate Netfits no Shopping"
@@ -1430,23 +1492,51 @@ function AdminDashboardPage() {
                     value={operationalParams.associadoStandardShareOfNetfitsRevenuePct}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, associadoStandardShareOfNetfitsRevenuePct: Number(v) }))}
                   />
+                  <ParamInput
+                    label="Repasse Ao Associado Master"
+                    unit="% da Receita Netfits"
+                    value={operationalParams.associadoMasterShareOfNetfitsRevenuePct}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, associadoMasterShareOfNetfitsRevenuePct: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Bônus 1ª Compra no Shopping"
+                    unit="nfs bônus"
+                    value={operationalParams.shopFirstPurchaseBonusNfs}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, shopFirstPurchaseBonusNfs: Number(v) }))}
+                  />
                 </div>
               </div>
 
-              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
-                <h4 className="font-bold text-sm text-white">Economia do Programa de Pontos</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Card 4: Economia, Resgate & Validade dos Pontos */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2">
+                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
+                  <Coins className="size-5 text-amber-400" />
+                  <h4 className="font-bold text-sm text-white">Economia do Programa de Pontos & Validade</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ParamInput
-                    label="CPP de Resgate em R$"
+                    label="CPP de Resgate (Cotação R$)"
                     unit="R$ / nfs"
                     value={operationalParams.cppResgateBrl}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, cppResgateBrl: Number(v) }))}
                   />
                   <ParamInput
-                    label="Netfits Ganhos por R$ 1,00"
+                    label="Netfits Ganhos por R$ 1,00 Gasto"
                     unit="nfs / R$"
                     value={operationalParams.nfsEarnedPerBrlSpent}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsEarnedPerBrlSpent: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Validade dos Pontos nfs"
+                    unit="meses"
+                    value={operationalParams.pointsValidityMonths}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, pointsValidityMonths: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Taxa Estimada de Expiração (Breakage)"
+                    unit="% ao ano"
+                    value={operationalParams.targetBreakagePct}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, targetBreakagePct: Number(v) }))}
                   />
                 </div>
               </div>
