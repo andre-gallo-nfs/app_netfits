@@ -407,11 +407,11 @@ const TOP_FEED_CONTENTS = [
 ];
 
 function AdminDashboardPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminUser, setAdminUser] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [adminUser, setAdminUser] = useState("admin@netfits.com.br");
+  const [adminPassword, setAdminPassword] = useState("Admin@2026");
 
-  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [activeTab, setActiveTab] = useState<TabType>("params");
   const [isLive, setIsLive] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
 
@@ -580,6 +580,30 @@ function AdminDashboardPage() {
             <p>🔒 Credenciais de Teste Admin:</p>
             <p className="font-mono text-zinc-300 mt-0.5"><b>admin@netfits.com.br</b> | <b>Admin@2026</b></p>
           </div>
+        </div>
+
+        {/* Atalhos Rápidos de Abas (Pills Nav) */}
+        <div className="max-w-7xl mx-auto pt-3 flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none">
+          {TAB_DEFINITIONS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  toast.info(`Navegando para: ${tab.label}`);
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                  isActive
+                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 ring-1 ring-purple-400"
+                    : "bg-zinc-950 text-zinc-400 border border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200"
+                }`}
+              >
+                <span>{tab.iconEmoji}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
