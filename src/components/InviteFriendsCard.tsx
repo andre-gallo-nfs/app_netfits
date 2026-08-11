@@ -125,7 +125,7 @@ export function InviteFriendsCard() {
           aria-label="Compartilhar convite"
         >
           <div
-            className="w-full max-w-md bg-background rounded-t-2xl p-5 pb-8"
+            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl p-5 pb-8 shadow-2xl border-t border-zinc-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto w-10 h-1 rounded-full bg-zinc-300 mb-4" />

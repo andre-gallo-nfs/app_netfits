@@ -77,9 +77,9 @@ export function ProductCheckoutSheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-background rounded-t-3xl max-h-[92vh] overflow-y-auto">
-        <div className="sticky top-0 bg-background px-5 pt-4 pb-3 flex items-center justify-between border-b border-black/5 z-10">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-white text-zinc-900 rounded-t-3xl max-h-[92vh] overflow-y-auto shadow-2xl border-t border-zinc-200">
+        <div className="sticky top-0 bg-white text-zinc-900 px-5 pt-4 pb-3 flex items-center justify-between border-b border-zinc-200 z-10">
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               Checkout · Netfits Marketplace

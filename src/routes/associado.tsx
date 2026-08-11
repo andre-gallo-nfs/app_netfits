@@ -442,16 +442,16 @@ function AssociadoDashboardPage() {
 
         {/* Modal de QR Code e Social Marketing Kit */}
         {showQrModal && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-zinc-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 text-left">
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-white text-zinc-900 border border-zinc-200 rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 text-left">
+              <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
                 <div className="flex items-center gap-2">
-                  <Share2 className="size-5 text-purple-400" />
-                  <h3 className="text-base font-extrabold text-white">QR Code & Kit de Mídia</h3>
+                  <Share2 className="size-5 text-purple-600" />
+                  <h3 className="text-base font-extrabold text-zinc-900">QR Code & Kit de Mídia</h3>
                 </div>
                 <button
                   onClick={() => setShowQrModal(false)}
-                  className="size-8 rounded-full bg-zinc-800 hover:bg-zinc-700 grid place-items-center text-zinc-400 transition"
+                  className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold"
                 >
                   ✕
                 </button>

@@ -50,7 +50,7 @@ export function WearableSyncSheet({ onClose }: { onClose: () => void }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-background rounded-t-3xl max-h-[92vh] flex flex-col"
+        className="w-full max-w-md bg-white text-zinc-900 rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl border-t border-zinc-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

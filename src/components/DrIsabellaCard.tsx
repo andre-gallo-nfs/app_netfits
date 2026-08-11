@@ -73,7 +73,7 @@ export function DrIsabellaCard() {
           aria-label="Vídeo Dra. Isabella Formigari"
         >
           <div
-            className="w-full max-w-md bg-background rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto"
+            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-zinc-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative">
