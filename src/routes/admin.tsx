@@ -349,6 +349,178 @@ const SELLERS_MARKETPLACE_DATABASE: SellerMarketplaceItem[] = [
   },
 ];
 
+interface PartnerAdminItem {
+  id: string;
+  name: string;
+  category: string;
+  iconEmoji: string;
+  status: "Ativo" | "Em Integração" | "Pendente";
+  contractTier: "Master Partner" | "Seller Credenciado" | "Assessoria Oficial" | "Clínica Especialista";
+  gmvBrl: number;
+  netfitsRevenueBrl: number;
+  activeCampaigns: number;
+  npsScore: number;
+  conversionRatePct: number;
+  exclusiveCoupon: string;
+}
+
+const PARTNERS_DATABASE: PartnerAdminItem[] = [
+  {
+    id: "partner_all",
+    name: "Todos os Parceiros & Assessorias (Consolidado)",
+    category: "Visão Consolidada da Rede (28 Marcas)",
+    iconEmoji: "🌐",
+    status: "Ativo",
+    contractTier: "Master Partner",
+    gmvBrl: 1849000.0,
+    netfitsRevenueBrl: 277350.0,
+    activeCampaigns: 42,
+    npsScore: 94,
+    conversionRatePct: 4.04,
+    exclusiveCoupon: "NETFITS_NETWORK_30",
+  },
+  {
+    id: "partner_centauro",
+    name: "Centauro Esportes",
+    category: "Varejo & Marketplace Esportivo",
+    iconEmoji: "👟",
+    status: "Ativo",
+    contractTier: "Master Partner",
+    gmvBrl: 540000.0,
+    netfitsRevenueBrl: 81000.0,
+    activeCampaigns: 12,
+    npsScore: 96,
+    conversionRatePct: 4.80,
+    exclusiveCoupon: "CENTAURO_NFS15",
+  },
+  {
+    id: "partner_decathlon",
+    name: "Decathlon Brasil",
+    category: "Equipamentos, Ciclismo & Outdoor",
+    iconEmoji: "🚴",
+    status: "Ativo",
+    contractTier: "Master Partner",
+    gmvBrl: 420000.0,
+    netfitsRevenueBrl: 63000.0,
+    activeCampaigns: 9,
+    npsScore: 95,
+    conversionRatePct: 4.20,
+    exclusiveCoupon: "DECATHLON_NETFITS10",
+  },
+  {
+    id: "partner_nike",
+    name: "Nike Store Oficial",
+    category: "Calçados & Vestuário de Alta Performance",
+    iconEmoji: "🏃",
+    status: "Ativo",
+    contractTier: "Master Partner",
+    gmvBrl: 380000.0,
+    netfitsRevenueBrl: 57000.0,
+    activeCampaigns: 6,
+    npsScore: 98,
+    conversionRatePct: 5.10,
+    exclusiveCoupon: "NIKE_PROMO_NFS20",
+  },
+  {
+    id: "partner_garmin",
+    name: "Garmin Brasil",
+    category: "Wearables, GPS & Telemetria",
+    iconEmoji: "⌚",
+    status: "Ativo",
+    contractTier: "Master Partner",
+    gmvBrl: 210000.0,
+    netfitsRevenueBrl: 31500.0,
+    activeCampaigns: 4,
+    npsScore: 97,
+    conversionRatePct: 3.90,
+    exclusiveCoupon: "GARMIN_CLUB_NFS",
+  },
+  {
+    id: "partner_smartfit",
+    name: "Smart Fit Academias",
+    category: "Rede de Academias & Fitness",
+    iconEmoji: "🏋️",
+    status: "Ativo",
+    contractTier: "Seller Credenciado",
+    gmvBrl: 145000.0,
+    netfitsRevenueBrl: 21750.0,
+    activeCampaigns: 5,
+    npsScore: 92,
+    conversionRatePct: 3.60,
+    exclusiveCoupon: "SMARTFIT_NETFITS_VIP",
+  },
+  {
+    id: "partner_liquidz",
+    name: "Liquidz Hydration",
+    category: "Suplementação & Hidratação",
+    iconEmoji: "🥤",
+    status: "Ativo",
+    contractTier: "Seller Credenciado",
+    gmvBrl: 84000.0,
+    netfitsRevenueBrl: 12600.0,
+    activeCampaigns: 3,
+    npsScore: 94,
+    conversionRatePct: 4.50,
+    exclusiveCoupon: "LIQUIDZ_HYDRATE15",
+  },
+  {
+    id: "partner_fibios",
+    name: "Clínica Fibios",
+    category: "Medicina Esportiva & Nutrologia",
+    iconEmoji: "🩺",
+    status: "Ativo",
+    contractTier: "Clínica Especialista",
+    gmvBrl: 42000.0,
+    netfitsRevenueBrl: 6300.0,
+    activeCampaigns: 2,
+    npsScore: 99,
+    conversionRatePct: 6.20,
+    exclusiveCoupon: "FIBIOS_SAUDE_PURPLE",
+  },
+  {
+    id: "partner_spotstudio",
+    name: "Spot Studio Recovery",
+    category: "Recovery & Crioterapia",
+    iconEmoji: "🧊",
+    status: "Ativo",
+    contractTier: "Clínica Especialista",
+    gmvBrl: 28000.0,
+    netfitsRevenueBrl: 4200.0,
+    activeCampaigns: 1,
+    npsScore: 96,
+    conversionRatePct: 5.50,
+    exclusiveCoupon: "RECOVERY_SPOT_NFS",
+  },
+  {
+    id: "partner_bioritmo",
+    name: "Bio Ritmo Assessorias",
+    category: "Assessoria Esportiva & Maratona",
+    iconEmoji: "🚩",
+    status: "Ativo",
+    contractTier: "Assessoria Oficial",
+    gmvBrl: 56000.0,
+    netfitsRevenueBrl: 8400.0,
+    activeCampaigns: 3,
+    npsScore: 93,
+    conversionRatePct: 4.10,
+    exclusiveCoupon: "BIORITMO_RUN50",
+  },
+  {
+    id: "partner_mpr",
+    name: "MPR Run Assessorias",
+    category: "Treinamento Personalizado de Corrida",
+    iconEmoji: "🏃‍♂️",
+    status: "Ativo",
+    contractTier: "Assessoria Oficial",
+    gmvBrl: 49000.0,
+    netfitsRevenueBrl: 7350.0,
+    activeCampaigns: 2,
+    npsScore: 95,
+    conversionRatePct: 4.40,
+    exclusiveCoupon: "MPRRUN_NETFITS2026",
+  },
+];
+
 const TOP_FEED_CONTENTS = [
   {
     id: "post_01",
@@ -467,6 +639,12 @@ function AdminDashboardPage() {
   const [selectedSellerId, setSelectedSellerId] = useState<string>("seller_all");
   const selectedSeller =
     SELLERS_MARKETPLACE_DATABASE.find((s) => s.id === selectedSellerId) || SELLERS_MARKETPLACE_DATABASE[0];
+
+  // Filtro de Parceiros & Assessorias
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string>("partner_all");
+  const selectedPartner =
+    PARTNERS_DATABASE.find((p) => p.id === selectedPartnerId) || PARTNERS_DATABASE[0];
+  const [partnersPage, setPartnersPage] = useState<number>(1);
 
   // Estado dos Parâmetros da Operação
   const [operationalParams, setOperationalParams] = useState({
@@ -1907,47 +2085,191 @@ function AdminDashboardPage() {
                   Parceiros Comerciais, Sellers do Shopping & Assessorias Esportivas
                 </h3>
               </div>
-              <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20 font-bold">
-                28 Marcas & Parceiros
-              </span>
+
+              {/* Seletor de Parceiro (Consolidado vs Individual) */}
+              <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-2xl border border-zinc-800 self-start md:self-auto">
+                <Handshake className="size-4 text-lime-400 ml-2" />
+                <select
+                  value={selectedPartnerId}
+                  onChange={(e) => {
+                    setSelectedPartnerId(e.target.value);
+                    const partner = PARTNERS_DATABASE.find((p) => p.id === e.target.value);
+                    toast.info(`Filtro alterado para: ${partner?.name}`);
+                  }}
+                  className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
+                >
+                  {PARTNERS_DATABASE.map((p) => (
+                    <option key={p.id} value={p.id} className="bg-zinc-900 text-white font-medium py-1">
+                      {p.iconEmoji} {p.name} [{p.contractTier}]
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
+            {/* KPIs do Filtro de Parceiro */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
-                title="Parceiros Credenciados"
-                value="28 Marcas"
-                change="+4 este mês"
+                title="Filtro Selecionado"
+                value={selectedPartner.name.split(" ")[0] + (selectedPartner.name.split(" ")[1] ? " " + selectedPartner.name.split(" ")[1] : "")}
+                change={selectedPartner.contractTier}
                 positive={true}
                 icon={Handshake}
-                subtext="Centauro, Decathlon, Nike..."
+                subtext={selectedPartner.category}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
-                title="GMV Enviado aos Parceiros"
-                value={`R$ ${(1849000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                title="GMV Transacionado"
+                value={`R$ ${(selectedPartner.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+22.4%"
                 positive={true}
                 icon={ShoppingBag}
-                subtext="Vendas no Shopping"
+                subtext="Vendas via plataforma"
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
-                title="Receita de Mídia Patrocinada"
-                value={`R$ ${(384500 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                title="Comissão Netfits (15%)"
+                value={`R$ ${(selectedPartner.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+24.5%"
                 positive={true}
-                icon={Megaphone}
-                subtext="Posts & Banners de marcas"
+                icon={DollarSign}
+                subtext="Receita direta gerada"
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
-                title="NPS Média dos Parceiros"
-                value="94 / 100"
-                change="Excelente"
+                title="NPS & Conversão"
+                value={`${selectedPartner.npsScore} / 100`}
+                change={`${selectedPartner.conversionRatePct}% conv.`}
                 positive={true}
                 icon={Star}
-                subtext="Satisfação dos Sellers"
+                subtext={`Cupom: ${selectedPartner.exclusiveCoupon}`}
                 periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+
+            {/* Tabela do Ecossistema de Parceiros & Assessorias */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
+                <div>
+                  <h4 className="text-base font-bold text-white">Tabela de Parceiros & Assessorias Credenciadas</h4>
+                  <p className="text-xs text-zinc-400">
+                    {selectedPartnerId === "partner_all"
+                      ? "Exibindo visão consolidada de todas as 28 marcas credenciadas no ecossistema"
+                      : `Exibindo desempenho individualizado de ${selectedPartner.name}`}
+                  </p>
+                </div>
+
+                {selectedPartnerId !== "partner_all" && (
+                  <button
+                    onClick={() => {
+                      setSelectedPartnerId("partner_all");
+                      toast.info("Filtro resetado para Visão Consolidada!");
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-lime-400 font-bold text-xs border border-zinc-700 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>🌐 Voltar para Consolidado</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="overflow-x-auto w-full max-w-full">
+                <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
+                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                    <tr>
+                      <th className="py-3 px-4">Parceiro / Assessoria</th>
+                      <th className="py-3 px-4">Categoria / Segmento</th>
+                      <th className="py-3 px-4 text-center">Nível do Contrato</th>
+                      <th className="py-3 px-4 text-right">GMV Transacionado (R$)</th>
+                      <th className="py-3 px-4 text-right">Comissão Netfits (R$)</th>
+                      <th className="py-3 px-4 text-center">Conversão</th>
+                      <th className="py-3 px-4 text-center">Cupom Exclusivo</th>
+                      <th className="py-3 px-4 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/80 font-medium">
+                    {PARTNERS_DATABASE.filter((p) => p.id !== "partner_all")
+                      .filter((p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId)
+                      .slice((partnersPage - 1) * itemsPerPage, partnersPage * itemsPerPage)
+                      .map((partner) => {
+                        const isSelected = selectedPartnerId === partner.id;
+                        return (
+                          <tr
+                            key={partner.id}
+                            className={`transition ${
+                              isSelected ? "bg-purple-950/40 border-l-4 border-l-lime-400" : "hover:bg-zinc-800/40"
+                            }`}
+                          >
+                            <td className="py-3 px-4 font-bold text-white flex items-center gap-2">
+                              <span className="text-base">{partner.iconEmoji}</span>
+                              <div>
+                                <p className="text-xs font-bold text-white">{partner.name}</p>
+                                <span className="text-[10px] text-lime-400 font-mono">NPS {partner.npsScore}/100</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-zinc-400 text-xs">{partner.category}</td>
+                            <td className="py-3 px-4 text-center">
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border font-mono ${
+                                  partner.contractTier === "Master Partner"
+                                    ? "bg-purple-900/40 text-purple-300 border-purple-500/40"
+                                    : partner.contractTier === "Clínica Especialista"
+                                    ? "bg-lime-900/40 text-lime-300 border-lime-500/40"
+                                    : "bg-zinc-800 text-zinc-300 border-zinc-700"
+                                }`}
+                              >
+                                {partner.contractTier}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono font-bold text-white">
+                              R$ {(partner.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono font-bold text-lime-400">
+                              R$ {(partner.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-4 text-center font-mono font-bold text-purple-300">
+                              {partner.conversionRatePct}%
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <code className="text-[10px] bg-zinc-950 px-2 py-1 rounded text-lime-400 border border-zinc-800 font-mono font-bold">
+                                {partner.exclusiveCoupon}
+                              </code>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <button
+                                onClick={() => {
+                                  setSelectedPartnerId(partner.id);
+                                  toast.success(`Filtro individual ativado para: ${partner.name}`);
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                                  isSelected
+                                    ? "bg-lime-400 text-zinc-950 shadow"
+                                    : "bg-zinc-800 hover:bg-purple-600 text-white"
+                                }`}
+                              >
+                                {isSelected ? "✓ Selecionado" : "Filtrar"}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+
+              <PaginationControls
+                currentPage={partnersPage}
+                totalPages={Math.ceil(
+                  PARTNERS_DATABASE.filter((p) => p.id !== "partner_all").filter(
+                    (p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId
+                  ).length / itemsPerPage
+                )}
+                onPageChange={setPartnersPage}
+                totalItems={
+                  PARTNERS_DATABASE.filter((p) => p.id !== "partner_all").filter(
+                    (p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId
+                  ).length
+                }
+                itemsPerPage={itemsPerPage}
               />
             </div>
           </div>
