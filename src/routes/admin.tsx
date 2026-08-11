@@ -719,33 +719,6 @@ function AdminDashboardPage() {
 
       {/* Main Body Container */}
       <main className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6 overflow-x-hidden">
-        {/* KPI Recommendation Bar com Destaque do Período */}
-        <section className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-xl flex items-center justify-between flex-wrap gap-4 w-full">
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-lime-400/10 border border-lime-400/30 grid place-items-center text-lime-400 font-bold shrink-0">
-              <Sparkles className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-white flex items-center gap-2 flex-wrap">
-                <span>Visualização Drill-Down: {currentTabObj.iconEmoji} {currentTabObj.label}</span>
-                <span className="text-xs bg-purple-900 text-purple-200 px-2 py-0.5 rounded-full border border-purple-700 font-mono">
-                  {currentPeriodObj.label}
-                </span>
-              </h2>
-              <p className="text-xs text-zinc-400 max-w-2xl">
-                Seletor drill-down ativo para a seção <b>{currentTabObj.label}</b> no período acumulado <b>{currentPeriodObj.desc}</b>.
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <span className="text-[10px] bg-purple-900/60 text-purple-200 border border-purple-700/50 font-mono px-2.5 py-1 rounded-md">
-              Fator: {pf.toFixed(3)}x
-            </span>
-            <span className="text-[10px] bg-lime-400/20 text-lime-300 border border-lime-400/30 font-mono px-2.5 py-1 rounded-md">
-              Janela: {currentPeriodObj.shortLabel}
-            </span>
-          </div>
-        </section>
 
         {/* Tab 1: Visão Geral */}
         {activeTab === "overview" && (
@@ -1380,20 +1353,20 @@ function AdminDashboardPage() {
         {/* Tab: Parâmetros da Operação */}
         {activeTab === "params" && (
           <form onSubmit={handleSaveParams} className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
                   Configuração Global da Operação
                 </span>
-                <h3 className="text-xl font-extrabold text-white">
+                <h3 className="text-sm font-bold text-white">
                   Parâmetros Operacionais & Economia do Programa de Pontos
                 </h3>
               </div>
               <button
                 type="submit"
-                className="px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 self-start md:self-auto"
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 self-start md:self-auto shadow-md transition cursor-pointer"
               >
-                <Save className="size-4" />
+                <Save className="size-3.5" />
                 Salvar Parâmetros
               </button>
             </div>
