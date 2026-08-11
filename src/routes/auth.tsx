@@ -51,6 +51,12 @@ function AuthPage() {
   } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
+  // Estados para Aceite Obrigatório dos Termos e LGPD
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedLgpd, setAcceptedLgpd] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showLgpdModal, setShowLgpdModal] = useState(false);
+
   // Ler código de indicação vindo da URL automaticamente (?ref=... ou ?code=...)
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -80,6 +86,11 @@ function AuthPage() {
 
     if (!pwdRules.isValid) {
       setFormError("A senha não preenche todos os critérios de segurança requeridos.");
+      return;
+    }
+
+    if (!acceptedTerms || !acceptedLgpd) {
+      setFormError("Por favor, leia e aceite os Termos de Uso e o Consentimento LGPD para concluir seu cadastro.");
       return;
     }
 
@@ -385,12 +396,98 @@ function AuthPage() {
             </div>
           )}
 
+          {/* Card de Aceite Obrigatório dos Termos de Uso e LGPD */}
+          <div className="bg-purple-600/5 border border-purple-600/20 rounded-2xl p-3.5 space-y-3 text-left">
+            <div className="flex items-start gap-2.5">
+              <div className="size-8 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
+                <ShieldCheck className="size-4" />
+              </div>
+              <div>
+                <p className="text-xs font-extrabold text-foreground leading-tight">
+                  Aceites Obrigatórios para Cadastro
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-normal">
+                  Para ativar o botão de cadastro e receber seus <b>+50 nfs bônus</b>, leia e aceite os 2 termos abaixo:
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-1 border-t border-purple-600/10">
+              {/* Passo 1: Termos de Uso */}
+              <div className="flex items-center justify-between bg-card p-2.5 rounded-xl border border-border">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  {acceptedTerms ? (
+                    <CheckCircle2 className="size-4 text-lime-500 shrink-0" />
+                  ) : (
+                    <span className="size-4 rounded-full border border-zinc-400 grid place-items-center text-[10px] font-bold text-zinc-500">1</span>
+                  )}
+                  <span className={acceptedTerms ? "text-lime-600 dark:text-lime-400 font-bold" : "text-foreground"}>
+                    Termos de Uso do Programa
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowTermsModal(true)}
+                  className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
+                    acceptedTerms
+                      ? "bg-lime-500/15 text-lime-600 dark:text-lime-400 border border-lime-500/30"
+                      : "bg-purple-600 text-white hover:bg-purple-700 shadow-xs active:scale-95"
+                  }`}
+                >
+                  {acceptedTerms ? "Concluído ✓" : "Ler & Aceitar"}
+                </button>
+              </div>
+
+              {/* Passo 2: Consentimento LGPD */}
+              <div className="flex items-center justify-between bg-card p-2.5 rounded-xl border border-border">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  {acceptedLgpd ? (
+                    <CheckCircle2 className="size-4 text-lime-500 shrink-0" />
+                  ) : (
+                    <span className="size-4 rounded-full border border-zinc-400 grid place-items-center text-[10px] font-bold text-zinc-500">2</span>
+                  )}
+                  <span className={acceptedLgpd ? "text-lime-600 dark:text-lime-400 font-bold" : "text-foreground"}>
+                    Privacidade e LGPD
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!acceptedTerms) {
+                      toast.info("Por favor, leia e aceite primeiro os Termos de Uso do Programa.");
+                      setShowTermsModal(true);
+                    } else {
+                      setShowLgpdModal(true);
+                    }
+                  }}
+                  className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
+                    acceptedLgpd
+                      ? "bg-lime-500/15 text-lime-600 dark:text-lime-400 border border-lime-500/30"
+                      : acceptedTerms
+                      ? "bg-purple-600 text-white hover:bg-purple-700 shadow-xs active:scale-95"
+                      : "bg-muted text-muted-foreground border border-border cursor-not-allowed opacity-60"
+                  }`}
+                >
+                  {acceptedLgpd ? "Concluído ✓" : "Ler & Aceitar"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Botão de Submissão de Cadastro */}
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl font-bold text-xs bg-purple-600 text-white hover:bg-purple-700 transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 active:scale-98"
+            disabled={!acceptedTerms || !acceptedLgpd}
+            className={`w-full py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all ${
+              acceptedTerms && acceptedLgpd
+                ? "bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20 active:scale-98 cursor-pointer"
+                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed border border-border shadow-none opacity-70"
+            }`}
           >
-            <Sparkles className="size-4 text-lime-400" />
-            Cadastrar & Ganhar +50 nfs
+            <Sparkles className={`size-4 ${acceptedTerms && acceptedLgpd ? "text-lime-400" : "text-zinc-400"}`} />
+            {acceptedTerms && acceptedLgpd
+              ? "Cadastrar & Ganhar +50 nfs"
+              : "Leia os 2 Aceites Obrigatórios para Habilitar"}
             <ArrowRight className="size-4" />
           </button>
         </form>
@@ -485,6 +582,28 @@ function AuthPage() {
 
       {showForgotPassword && (
         <ForgotPasswordCard onClose={() => setShowForgotPassword(false)} />
+      )}
+
+      {showTermsModal && (
+        <TermsOfServiceModal
+          onClose={() => setShowTermsModal(false)}
+          onAgree={() => {
+            setAcceptedTerms(true);
+            setShowTermsModal(false);
+            setShowLgpdModal(true);
+          }}
+        />
+      )}
+
+      {showLgpdModal && (
+        <LgpdPrivacyModal
+          onClose={() => setShowLgpdModal(false)}
+          onAgree={() => {
+            setAcceptedLgpd(true);
+            setShowLgpdModal(false);
+            toast.success("✨ Aceites dos Termos de Uso e LGPD registrados! O botão de cadastro está liberado.");
+          }}
+        />
       )}
     </div>
   );
@@ -734,6 +853,179 @@ function ForgotPasswordCard({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   MODAL 1: TERMOS E CONDIÇÕES DE USO DO PROGRAMA NETFITS
+   ============================================================================ */
+function TermsOfServiceModal({
+  onClose,
+  onAgree,
+}: {
+  onClose: () => void;
+  onAgree: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-white text-zinc-900 rounded-3xl p-6 shadow-2xl border border-zinc-200 space-y-4 max-h-[88vh] flex flex-col text-left">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-zinc-200 pb-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center">
+              <Sparkles className="size-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-zinc-900">Termos & Condições de Uso</h2>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Programa Netfits</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Scrollable Terms Content */}
+        <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 text-xs text-zinc-700 leading-relaxed border-b border-zinc-200 pb-4">
+          <div className="bg-purple-50 p-3 rounded-2xl border border-purple-100 text-[11px] text-purple-900">
+            <p className="font-bold">📌 Resumo dos Termos:</p>
+            <p>Este documento estabelece as regras de participação no Programa de Recompensas Netfits, acúmulo e resgate de pontos (nfs).</p>
+          </div>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">1. Objeto do Programa</h3>
+          <p>
+            O Programa Netfits é um ecossistema digital de recompensas operado pela Netfits Tecnologia S.A., destinado a incentivar a prática regular de atividades físicas, a nutrição saudável e hábitos de longevidade.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">2. Regras de Acúmulo de Pontos (nfs)</h3>
+          <p>
+            Os pontos denominados <b>"netfits" (nfs)</b> são concedidos aos atletas cadastrados mediante:
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Interações válidas e publicações no Feed do aplicativo;</li>
+            <li>Manutenção de consistência em treinos e rotinas de prevenção;</li>
+            <li>Validação presencial por catracas em redes de academias parceiras (ex: Smart Fit);</li>
+            <li>Sincronização voluntária de dados esportivos via wearables (Garmin, Apple Watch, Strava);</li>
+            <li>Indicação de novos usuários cadastrados com seu código pessoal (+50 nfs).</li>
+          </ul>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">3. Regras de Resgate no Netfits Shop</h3>
+          <p>
+            Cada ponto <b>1 nfs equivale a R$ 0,02 (dois centavos)</b> para fins de abatimento ou pagamento no Netfits Shop. Os pontos acumulados não possuem valor em moeda corrente fora da plataforma, não geram rendimentos financeiros e são inalienáveis e intransferíveis entre contas pessoais.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">4. Código de Conduta e Fraudes</h3>
+          <p>
+            Fica estritamente proibida a utilização de robôs, rotinas automatizadas, adulteração de dados GPS ou contas falsas para geração indevida de nfs. O descumprimento resultará no cancelamento imediato dos pontos e no banimento definitivo da conta.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">5. Alterações nos Termos</h3>
+          <p>
+            A Netfits reserva-se o direito de ajustar as regras de multiplicadores e elegibilidade do programa mediante notificação prévia de 30 dias na plataforma.
+          </p>
+        </div>
+
+        {/* Footer Action */}
+        <div className="shrink-0 pt-2 space-y-2">
+          <button
+            onClick={onAgree}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md shadow-purple-600/20 active:scale-98"
+          >
+            <CheckCircle2 className="size-4 text-lime-400" />
+            Eu concordo com os Termos de Uso (Ir para Passo 2)
+          </button>
+          <p className="text-[10px] text-center text-zinc-500">
+            Ao clicar em "Eu concordo", você será direcionado para o Consentimento LGPD.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================================
+   MODAL 2: POLÍTICA DE PRIVACIDADE E CONSENTIMENTO LGPD (LEI Nº 13.709/2018)
+   ============================================================================ */
+function LgpdPrivacyModal({
+  onClose,
+  onAgree,
+}: {
+  onClose: () => void;
+  onAgree: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-white text-zinc-900 rounded-3xl p-6 shadow-2xl border border-zinc-200 space-y-4 max-h-[88vh] flex flex-col text-left">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-zinc-200 pb-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-xl bg-lime-500/15 text-lime-600 grid place-items-center">
+              <ShieldCheck className="size-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-zinc-900">Consentimento LGPD & Privacidade</h2>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 2 de 2 · Lei Federal nº 13.709/2018</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Scrollable LGPD Content */}
+        <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 text-xs text-zinc-700 leading-relaxed border-b border-zinc-200 pb-4">
+          <div className="bg-lime-50 p-3 rounded-2xl border border-lime-200 text-[11px] text-lime-950">
+            <p className="font-bold">🔒 Transparência com seus Dados:</p>
+            <p>Respeitamos sua privacidade. Seus dados cadastrais e métricas esportivas são tratados com sigilo rigoroso e segurança de nível bancário.</p>
+          </div>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">1. Controlador e Finalidade do Tratamento</h3>
+          <p>
+            A <b>Netfits Tecnologia S.A.</b> atua como Controladora dos dados pessoais coletados. Os dados fornecidos no cadastro (Nome, E-mail, Celular, CPF e Senha) são tratados com as finalidades de:
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Autenticação segura da conta e prevenção contra acessos não autorizados;</li>
+            <li>Cálculo preciso do saldo de pontos netfits (nfs) e auditoria de recompensas;</li>
+            <li>Emissão de comprovantes de resgate e entrega de produtos no Netfits Shop.</li>
+          </ul>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">2. Tratamento de Dados Esportivos e de Saúde</h3>
+          <p>
+            A sincronização de métricas esportivas (frequência cardíaca, distância, zonas de treino e sono) via relógios e apps parceiros (Garmin, Apple Watch, Strava) ocorre <b>exclusivamente mediante consentimento explícito</b> do titular, sendo utilizada unicamente para atestar a consistência esportiva e conceder nfs bônus.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">3. Não Compartilhamento Sem Autorização</h3>
+          <p>
+            A Netfits <b>não vende, não aluga e não compartilha</b> seus dados pessoais ou históricos de treino com corretores de seguros, empresas de telemarketing ou terceiros não relacionados. O compartilhamento ocorre apenas com parceiros logísticos de entrega (ex: Netshoes, Asics) estritamente necessários para o despacho de pedidos realizados por você no Shop.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">4. Direitos do Titular (Art. 18 da LGPD)</h3>
+          <p>
+            Como titular dos dados, você pode a qualquer momento: a) Confirmar a existência de tratamento; b) Acessar e corrigir seus dados; c) Revogar este consentimento; d) Solicitar a exclusão definitiva de sua conta e dados dos nossos servidores pelo canal dpo@netfits.com.br.
+          </p>
+        </div>
+
+        {/* Footer Action */}
+        <div className="shrink-0 pt-2 space-y-2">
+          <button
+            onClick={onAgree}
+            className="w-full bg-lime-500 hover:bg-lime-400 text-zinc-950 font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-98"
+          >
+            <CheckCircle2 className="size-4" />
+            Eu concordo com o Tratamento de Dados (LGPD)
+          </button>
+          <p className="text-[10px] text-center text-zinc-500">
+            Ao aceitar, os 2 aceites estarão validados e o cadastro será habilitado.
+          </p>
+        </div>
       </div>
     </div>
   );
