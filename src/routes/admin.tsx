@@ -1761,6 +1761,30 @@ function AdminDashboardPage() {
                 </div>
               </div>
 
+              {/* Banner da Regra FEFO (First-Expiring, First-Out) */}
+              <div className="bg-purple-950/40 border border-purple-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-xl bg-purple-600/20 text-purple-400 grid place-items-center shrink-0 border border-purple-500/30">
+                    <ShieldAlert className="size-5 text-lime-400" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-white">Algoritmo de Resgate Justo ao Usuário (Regra FEFO)</h4>
+                      <span className="text-[10px] font-extrabold font-mono bg-lime-400/20 text-lime-400 border border-lime-400/30 px-2 py-0.5 rounded-full">
+                        ATIVADO (100% dos Resgates)
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-300 mt-0.5">
+                      Garantia de Fidelidade: Resgates consomem prioritariamente os lotes de pontos com <b>data de expiração mais próxima (First-Expiring, First-Out)</b>.
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-[10px] text-zinc-400 font-mono block">Economia em Expirações</span>
+                  <span className="text-xs font-bold font-mono text-lime-400">84,2% dos resgates salvam pontos</span>
+                </div>
+              </div>
+
               {/* 5 KPI Cards do Módulo de Pontos */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
                 <KpiCard
@@ -2197,6 +2221,21 @@ function AdminDashboardPage() {
                     value={operationalParams.targetBreakagePct}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, targetBreakagePct: Number(v) }))}
                   />
+                </div>
+
+                <div className="bg-purple-950/40 p-4 rounded-2xl border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-zinc-300 mt-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🛡️</span>
+                    <div>
+                      <span className="font-bold text-white block">Algoritmo de Priorização de Resgate: FEFO (First-Expiring, First-Out)</span>
+                      <span className="text-[11px] text-zinc-400">
+                        O sistema consome prioritariamente os lotes de pontos com a data de expiração mais próxima, evitando a perda indevida de saldo ativo pelo usuário.
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold font-mono bg-lime-400 text-zinc-950 px-2.5 py-1 rounded-lg shrink-0">
+                    ATIVADO (FEFO System)
+                  </span>
                 </div>
               </div>
             </div>

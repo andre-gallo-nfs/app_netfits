@@ -29,7 +29,55 @@ export type OperationalParams = {
   shopFirstPurchaseBonusNfs: number;
   pointsValidityMonths: number;
   targetBreakagePct: number;
+
+  // Algoritmo de Resgate Justo ao Usuário (FEFO: First-Expiring, First-Out)
+  redemptionPolicy: "FEFO";
+  redemptionPolicyName: string;
 };
+
+export type PointBatch = {
+  id: string;
+  source: string; // ex: "Cashback Shop", "Workout Garmin", "Indicação"
+  amount: number;
+  earnedDate: string;
+  expirationDate: string; // ISO String ou YYYY-MM-DD
+  daysRemaining: number;
+};
+
+/**
+ * Função utilitária para consumo de pontos seguindo o Algoritmo FEFO
+ * (First-Expiring, First-Out). Ordena os lotes de pontos pela data de expiração
+ * mais próxima e consome os pontos daquele lote antes dos lotes mais novos.
+ */
+export function deductPointsFEFO(
+  batches: PointBatch[],
+  pointsToDeduct: number
+): { updatedBatches: PointBatch[]; deductedLog: { batchId: string; source: string; amountDeducted: number }[] } {
+  // Ordena os lotes por dias restantes para expiração (crescente -> o mais próximo de vencer vem primeiro)
+  const sortedBatches = [...batches].sort((a, b) => a.daysRemaining - b.daysRemaining);
+  let remainingToDeduct = pointsToDeduct;
+  const deductedLog: { batchId: string; source: string; amountDeducted: number }[] = [];
+
+  const updatedBatches = sortedBatches.map((batch) => {
+    if (remainingToDeduct <= 0 || batch.amount <= 0) return batch;
+
+    const amountDeducted = Math.min(batch.amount, remainingToDeduct);
+    remainingToDeduct -= amountDeducted;
+
+    deductedLog.push({
+      batchId: batch.id,
+      source: batch.source,
+      amountDeducted,
+    });
+
+    return {
+      ...batch,
+      amount: batch.amount - amountDeducted,
+    };
+  }).filter((batch) => batch.amount > 0);
+
+  return { updatedBatches, deductedLog };
+}
 
 export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   nfsPerVideoPost: 15,
@@ -57,6 +105,9 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   shopFirstPurchaseBonusNfs: 150,
   pointsValidityMonths: 24,
   targetBreakagePct: 12.0,
+
+  redemptionPolicy: "FEFO",
+  redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
 };
 
 const STORAGE_KEY = "netfits_operational_params_v1";
