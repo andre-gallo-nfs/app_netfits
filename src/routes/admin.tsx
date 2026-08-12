@@ -39,11 +39,12 @@ const TIME_PERIODS: { id: PeriodType; label: string; shortLabel: string; factor:
   { id: "year", label: "🚀 No Ano (2026)", shortLabel: "Ano", factor: 11.40, desc: "Acumulado no ano de 2026" },
 ];
 
-type TabType = "overview" | "associados" | "params" | "feed" | "market" | "activities" | "users" | "partners" | "controls" | "results";
+type TabType = "overview" | "associados" | "params" | "points" | "feed" | "market" | "activities" | "users" | "partners" | "controls" | "results";
 
 const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: any; category: string }[] = [
   { id: "overview", label: "Visão Geral & Executivo", iconEmoji: "📊", icon: BarChart3, category: "Consolidado" },
   { id: "associados", label: "Gestão de Associados", iconEmoji: "👑", icon: Award, category: "Influenciadores" },
+  { id: "points", label: "Programa de Pontos", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo" },
   { id: "params", label: "Parâmetros da Operação", iconEmoji: "⚙️", icon: Sliders, category: "Regras Operacionais" },
   { id: "feed", label: "Feed & Conteúdo", iconEmoji: "📰", icon: Rss, category: "Mídias & Anúncios" },
   { id: "market", label: "Marketplace (Shop)", iconEmoji: "🛍️", icon: ShoppingBag, category: "Vendas & Sellers" },
@@ -1708,6 +1709,292 @@ function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Tab: Programa de Pontos (Fidelidade, Emissão, Resgate & Provisão Passiva) */}
+        {activeTab === "points" && (() => {
+          const totalEmitidos = Math.round(12840000 * pf);
+          const totalResgatados = Math.round(2415000 * pf);
+          const totalExpirados = Math.round(1540800 * pf);
+          const baldeValidos = totalEmitidos - totalResgatados - totalExpirados;
+          const provisaoBrl = baldeValidos * (operationalParams.costPerProvisionedPointBrl ?? 0.008);
+
+          const emissaoBreakdown = [
+            { key: "shop", label: "Cashback por Compras no Shopping", count: Math.round(4120000 * pf), pct: 32.1, icon: "🛍️", color: "#84cc16" },
+            { key: "referral", label: "Indicação de Amigos (Member Get Member)", count: Math.round(2840000 * pf), pct: 22.1, icon: "👥", color: "#7c3aed" },
+            { key: "views", label: "Visualização de Anúncios no Feed", count: Math.round(2150000 * pf), pct: 16.7, icon: "👁️", color: "#3b82f6" },
+            { key: "clicks", label: "Cliques em Conteúdos Patrocinados", count: Math.round(1850000 * pf), pct: 14.4, icon: "🖱️", color: "#e11d48" },
+            { key: "workouts", label: "Treinos & Atividades Físicas (GPS/Smart Fit)", count: Math.round(1280000 * pf), pct: 10.0, icon: "🏃", color: "#f59e0b" },
+            { key: "loyalty", label: "Vínculo com Programa de Fidelidade", count: Math.round(600000 * pf), pct: 4.7, icon: "🤝", color: "#10b981" },
+          ];
+
+          const resgateBreakdown = [
+            { key: "shop", label: "Desconto em Compras no Marketplace Netfits", count: Math.round(1180000 * pf), pct: 48.9, icon: "🛒", color: "#84cc16" },
+            { key: "health", label: "Consultas Médicas & Especialistas (Fibios/Spot)", count: Math.round(540000 * pf), pct: 22.4, icon: "🩺", color: "#7c3aed" },
+            { key: "gym", label: "Mensalidades & Passes em Academias (Smart Fit)", count: Math.round(420000 * pf), pct: 17.4, icon: "🏋️", color: "#3b82f6" },
+            { key: "races", label: "Inscrições em Assessorias & Provas (MPR Run)", count: Math.round(275000 * pf), pct: 11.3, icon: "🏃‍♂️", color: "#f59e0b" },
+          ];
+
+          return (
+            <div className="space-y-6">
+              {/* Header Card */}
+              <div className="bg-gradient-to-r from-amber-950/60 via-zinc-900 to-zinc-900 border border-amber-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-400">
+                    Módulo de Gestão do Programa de Pontos ({currentPeriodObj.shortLabel})
+                  </span>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>🪙 Balanço de Emissão, Resgate & Provisão Passiva do Programa nfs</span>
+                    <span className="text-xs bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-mono font-bold">
+                      Breakage: {operationalParams.targetBreakagePct}%
+                    </span>
+                  </h3>
+                </div>
+
+                <div className="flex items-center gap-2 self-start md:self-auto">
+                  <button
+                    onClick={() => toast.success("Relatório de pontos exportado com sucesso!")}
+                    className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md flex items-center gap-2 transition cursor-pointer"
+                  >
+                    <Download className="size-3.5" />
+                    Exportar Extrato (PDF)
+                  </button>
+                </div>
+              </div>
+
+              {/* 5 KPI Cards do Módulo de Pontos */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+                <KpiCard
+                  title="Total Pontos Emitidos"
+                  value={`${totalEmitidos.toLocaleString("pt-BR")} nfs`}
+                  change="+28.4%"
+                  positive={true}
+                  icon={Coins}
+                  subtext="Cashback, feed e treinos"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+
+                <KpiCard
+                  title="Total Pontos Resgatados"
+                  value={`${totalResgatados.toLocaleString("pt-BR")} nfs`}
+                  change="18.8% de resgate"
+                  positive={true}
+                  icon={Gift}
+                  subtext="Shopping e parceiros"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+
+                <KpiCard
+                  title="Pontos Expirados"
+                  value={`${totalExpirados.toLocaleString("pt-BR")} nfs`}
+                  change={`${operationalParams.targetBreakagePct}% breakage`}
+                  positive={false}
+                  icon={RotateCcw}
+                  subtext="Validade 24 meses"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+
+                <KpiCard
+                  title="Balde Final (Válidos)"
+                  value={`${baldeValidos.toLocaleString("pt-BR")} nfs`}
+                  change="Em circulação"
+                  positive={true}
+                  icon={Sparkles}
+                  subtext="Saldo ativo acumulado"
+                  highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+
+                <KpiCard
+                  title="Provisão Passivo (R$)"
+                  value={`R$ ${provisaoBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  change={`CPP R$ ${operationalParams.costPerProvisionedPointBrl}`}
+                  positive={true}
+                  icon={ShieldAlert}
+                  subtext="Retido na DRE"
+                  highlightColor="border-purple-500/40 ring-1 ring-purple-500/20 bg-purple-950/20"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+              </div>
+
+              {/* Seção Estratificação: Emissão vs Resgate (2 Colunas) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Coluna 1: Estratificação por Tipo de Emissão */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Coins className="size-5 text-lime-400" />
+                      <div>
+                        <h4 className="text-base font-bold text-white">Estratificação de Emissão por Origem</h4>
+                        <p className="text-xs text-zinc-400">Total: {totalEmitidos.toLocaleString("pt-BR")} nfs emitidos</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                    <div className="sm:col-span-5 h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={emissaoBreakdown}
+                            dataKey="count"
+                            nameKey="label"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={65}
+                            paddingAngle={3}
+                          >
+                            {emissaoBreakdown.map((item, idx) => (
+                              <Cell key={`cell-e-${idx}`} fill={item.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(value: any) => [`${Number(value).toLocaleString("pt-BR")} nfs`, "Pontos"]}
+                            contentStyle={{ backgroundColor: "#18181b", borderColor: "#27272a", borderRadius: "12px", fontSize: "11px" }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="sm:col-span-7 space-y-2">
+                      {emissaoBreakdown.map((item) => (
+                        <div key={item.key} className="bg-zinc-950/80 p-2.5 rounded-xl border border-zinc-800 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <span className="text-base shrink-0">{item.icon}</span>
+                            <span className="font-semibold text-zinc-300 truncate">{item.label}</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-mono font-bold text-white block">{item.count.toLocaleString("pt-BR")} nfs</span>
+                            <span className="text-[10px] text-lime-400 font-bold">{item.pct}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coluna 2: Estratificação por Tipo de Resgate */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Gift className="size-5 text-purple-400" />
+                      <div>
+                        <h4 className="text-base font-bold text-white">Estratificação de Resgate por Destino</h4>
+                        <p className="text-xs text-zinc-400">Total: {totalResgatados.toLocaleString("pt-BR")} nfs resgatados</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                    <div className="sm:col-span-5 h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={resgateBreakdown}
+                            dataKey="count"
+                            nameKey="label"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={65}
+                            paddingAngle={3}
+                          >
+                            {resgateBreakdown.map((item, idx) => (
+                              <Cell key={`cell-r-${idx}`} fill={item.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(value: any) => [`${Number(value).toLocaleString("pt-BR")} nfs`, "Pontos"]}
+                            contentStyle={{ backgroundColor: "#18181b", borderColor: "#27272a", borderRadius: "12px", fontSize: "11px" }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="sm:col-span-7 space-y-2">
+                      {resgateBreakdown.map((item) => (
+                        <div key={item.key} className="bg-zinc-950/80 p-2.5 rounded-xl border border-zinc-800 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <span className="text-base shrink-0">{item.icon}</span>
+                            <span className="font-semibold text-zinc-300 truncate">{item.label}</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-mono font-bold text-white block">{item.count.toLocaleString("pt-BR")} nfs</span>
+                            <span className="text-[10px] text-purple-400 font-bold">{item.pct}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Destaque: Equação do Balde Final & Provisão Financeira Retida */}
+              <div className="bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-5">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="size-12 rounded-2xl bg-purple-600/20 text-purple-400 grid place-items-center border border-purple-500/30 shrink-0">
+                      <ShieldAlert className="size-6 text-lime-400" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                        Balanço Financeiro de Passivo do Programa de Lealdade
+                      </span>
+                      <h3 className="text-lg font-bold text-white">
+                        Equação do Balde de Pontos & Valoração do Passivo
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-950/90 px-4 py-2 rounded-2xl border border-purple-500/30 text-right">
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold block">Passivo Financeiro Total</span>
+                    <span className="text-xl font-black text-lime-400 font-mono">
+                      R$ {provisaoBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                  <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold">1. Pontos Emitidos Válidos</span>
+                    <p className="text-lg font-black text-white font-mono mt-1">+{totalEmitidos.toLocaleString("pt-BR")}</p>
+                    <span className="text-[10px] text-zinc-500">Acumulado no Período</span>
+                  </div>
+
+                  <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold">2. Pontos Resgatados</span>
+                    <p className="text-lg font-black text-rose-400 font-mono mt-1">-{totalResgatados.toLocaleString("pt-BR")}</p>
+                    <span className="text-[10px] text-zinc-500">Baixados em Benefícios</span>
+                  </div>
+
+                  <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800">
+                    <span className="text-[10px] text-zinc-400 uppercase font-bold">3. Pontos Expirados (Breakage)</span>
+                    <p className="text-lg font-black text-amber-400 font-mono mt-1">-{totalExpirados.toLocaleString("pt-BR")}</p>
+                    <span className="text-[10px] text-zinc-500">Baixados por Validade</span>
+                  </div>
+
+                  <div className="bg-lime-400/10 p-4 rounded-2xl border border-lime-400/30">
+                    <span className="text-[10px] text-lime-400 uppercase font-bold">4. Balde Final em Circulação</span>
+                    <p className="text-xl font-black text-lime-400 font-mono mt-1">={baldeValidos.toLocaleString("pt-BR")}</p>
+                    <span className="text-[10px] text-lime-300 font-semibold">Pontos Válidos Ativos</span>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-950/90 p-4 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-300">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="size-4 text-purple-400 shrink-0" />
+                    <span>
+                      Custo Unitário da Provisão: <b className="text-white font-mono">R$ {operationalParams.costPerProvisionedPointBrl} / nfs</b> (Parametrizado via Admin).
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20 shrink-0">
+                    ✓ Sincronizado com a linha redutora da DRE
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Tab: Parâmetros da Operação */}
         {activeTab === "params" && (
