@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
+import { operationalParamsStore, useOperationalParams } from "@/lib/operational-params-store";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -646,33 +647,13 @@ function AdminDashboardPage() {
     PARTNERS_DATABASE.find((p) => p.id === selectedPartnerId) || PARTNERS_DATABASE[0];
   const [partnersPage, setPartnersPage] = useState<number>(1);
 
-  // Estado dos Parâmetros da Operação
-  const [operationalParams, setOperationalParams] = useState({
-    nfsPerVideoPost: 15,
-    nfsPerTextPost: 10,
-    dailyRewardedPostLimit: 3,
-    weeklyRewardedPostLimit: 15,
+  // Estado dos Parâmetros da Operação (Sincronizado via Store Reativo Global)
+  const storedParams = useOperationalParams();
+  const [operationalParams, setOperationalParams] = useState(storedParams);
 
-    nfsPerPostView: 5,
-    nfsPerLike: 5,
-    nfsPerSave: 10,
-    nfsPerShare: 10,
-    nfsPerWorkout: 50,
-    nfsPerLoyaltyDeclaration: 20,
-
-    netfitsTakeRatePctFromGmv: 15.0,
-    associadoStandardShareOfNetfitsRevenuePct: 30.0,
-    associadoMasterShareOfNetfitsRevenuePct: 35.0,
-    normalUserReferralSharePct: 10.0,
-    normalUserNewReferralBonusNfs: 50,
-
-    cppResgateBrl: 0.02,
-    nfsEarnedPerBrlSpent: 0.50,
-    nfsEarnedPerBrlSpentDouble: 1.00,
-    shopFirstPurchaseBonusNfs: 150,
-    pointsValidityMonths: 24,
-    targetBreakagePct: 12.0,
-  });
+  useEffect(() => {
+    setOperationalParams(storedParams);
+  }, [storedParams]);
 
   // Métricas do Feed ajustadas pelo fator de período (pf)
   const feedMetrics = {
@@ -691,7 +672,13 @@ function AdminDashboardPage() {
 
   const handleSaveParams = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("🎉 Parâmetros operacionais salvos com sucesso!");
+    operationalParamsStore.updateParams(operationalParams);
+    toast.success("🎉 Parâmetros operacionais salvos e sincronizados em tempo real com o Painel do Associado, Feed, Shop e Wallet!");
+  };
+
+  const handleResetParams = () => {
+    operationalParamsStore.resetParams();
+    toast.info("🔄 Parâmetros operacionais restaurados para os valores padrão do Business Plan.");
   };
 
   useEffect(() => {
@@ -1734,13 +1721,23 @@ function AdminDashboardPage() {
                   Parâmetros Operacionais & Economia do Programa de Pontos
                 </h3>
               </div>
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 self-start md:self-auto shadow-md transition cursor-pointer"
-              >
-                <Save className="size-3.5" />
-                Salvar Parâmetros
-              </button>
+              <div className="flex items-center gap-2 self-start md:self-auto">
+                <button
+                  type="button"
+                  onClick={handleResetParams}
+                  className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer border border-zinc-700"
+                >
+                  <RotateCcw className="size-3.5 text-zinc-400" />
+                  Restaurar Padrões
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
+                >
+                  <Save className="size-3.5" />
+                  Salvar Parâmetros
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

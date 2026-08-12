@@ -9,6 +9,7 @@ import {
 import netfitsLogo from "@/assets/netfits-logo.png";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { toast } from "sonner";
+import { useOperationalParams } from "@/lib/operational-params-store";
 
 export const Route = createFileRoute("/associado")({
   head: () => ({
@@ -135,13 +136,21 @@ function AssociadoDashboardPage() {
 
   // Estado do Modal de QR Code / Social Kit
   const [showQrModal, setShowQrModal] = useState(false);
-
+  const params = useOperationalParams();
   const associado = MOCK_ASSOCIADO_DATA;
 
-  // Cálculo da Projeção de Renda Passiva Mensal (4.5% do GMV Total)
+  // Parâmetros em tempo real vindos do Admin
+  const takeRatePct = params.netfitsTakeRatePctFromGmv;
+  const associadoSharePct = params.associadoMasterShareOfNetfitsRevenuePct;
+  const effectivePct = ((takeRatePct / 100) * (associadoSharePct / 100) * 100).toFixed(2);
+
+  const netfitsRevenueBrl = associado.monthlyGmvBrl * (takeRatePct / 100);
+  const monthlyCommissionBrl = netfitsRevenueBrl * (associadoSharePct / 100);
+
+  // Cálculo da Projeção de Renda Passiva Mensal
   const simulatedGmv = simulatedAthletes * simulatedSpendBrl;
-  const simulatedNetfitsRevenue = simulatedGmv * (associado.netfitsTakeRatePct / 100);
-  const simulatedAssociadoCommission = simulatedNetfitsRevenue * (associado.associadoShareOfNetfitsRevenuePct / 100);
+  const simulatedNetfitsRevenue = simulatedGmv * (takeRatePct / 100);
+  const simulatedAssociadoCommission = simulatedNetfitsRevenue * (associadoSharePct / 100);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(associado.exclusiveUrl);
@@ -165,26 +174,27 @@ function AssociadoDashboardPage() {
       <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-center items-center px-4 py-12">
         <div className="w-full max-w-md bg-zinc-900 border border-purple-500/30 rounded-3xl p-8 shadow-2xl space-y-6">
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-2 p-2.5 bg-foreground rounded-2xl shadow-xl mb-2">
-              <img src={netfitsMark} alt="" className="size-8 object-contain" />
-              <img src={netfitsLogo} alt="Netfits" className="h-6 w-auto filter brightness-0 invert" />
+            <div className="size-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-lime-400 p-0.5 mx-auto shadow-xl mb-3">
+              <div className="w-full h-full bg-zinc-950 rounded-[14px] grid place-items-center">
+                <Lock className="size-7 text-lime-400" />
+              </div>
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">
-              Portal do Associado & Influenciador
+            <h1 className="text-xl font-black text-white tracking-tight">
+              Acesso do Associado — Netfits
             </h1>
-            <p className="text-xs text-zinc-400 max-w-xs mx-auto">
-              Acesso exclusivo para associados credenciados acompanharem a receita e carteira de atletas.
+            <p className="text-xs text-zinc-400">
+              Digite suas credenciais de influenciador credenciado para acessar seu extrato de comissões.
             </p>
           </div>
 
-          <form onSubmit={handleLoginSubmit} className="space-y-4 pt-2">
+          <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-zinc-300">Código ou E-mail do Associado *</label>
               <input
                 type="text"
                 value={loginCode}
                 onChange={(e) => setLoginCode(e.target.value)}
-                placeholder="Ex: GALLO-NETFITS ou gallo@netfits.com.br"
+                placeholder="GALLO-NETFITS"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
@@ -196,7 +206,7 @@ function AssociadoDashboardPage() {
                 type="password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                placeholder="Sua senha de Associado"
+                placeholder="••••••••••••"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
@@ -206,13 +216,13 @@ function AssociadoDashboardPage() {
               type="submit"
               className="w-full py-3.5 rounded-xl font-bold text-xs bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2"
             >
-              <Lock className="size-4" />
-              Acessar Painel Financeiro
+              <LogIn className="size-4" />
+              Entrar no Painel do Associado
             </button>
           </form>
 
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 text-[11px] text-zinc-400 text-center">
-            <p>🔒 Login de Teste Associado:</p>
+            <p>🔑 Credenciais de Teste Associado:</p>
             <p className="font-mono text-zinc-300 mt-0.5"><b>GALLO-NETFITS</b> | <b>Pass@1234</b></p>
           </div>
         </div>
@@ -271,10 +281,10 @@ function AssociadoDashboardPage() {
                   Regra de Comissionamento Transparente:
                 </p>
                 <p>
-                  • A Netfits retém <b>{associado.netfitsTakeRatePct}% do GMV do Shopping</b> como receita bruta de marketplace.
+                  • A Netfits retém <b>{takeRatePct}% do GMV do Shopping</b> como receita bruta de marketplace.
                 </p>
                 <p>
-                  • Você recebe <b className="text-lime-400">{associado.associadoShareOfNetfitsRevenuePct}% sobre essa receita da Netfits</b> gerada pela sua carteira de usuários!
+                  • Você recebe <b className="text-lime-400">{associadoSharePct}% sobre essa receita da Netfits</b> gerada pela sua carteira de usuários!
                 </p>
               </div>
             </div>
@@ -283,7 +293,7 @@ function AssociadoDashboardPage() {
             <div className="bg-zinc-950/80 border border-purple-500/30 rounded-2xl p-4 min-w-[320px] space-y-3 shadow-xl">
               <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-400">
                 <span>Seu Link Exclusivo de Captação</span>
-                <span className="text-lime-400">{associado.associadoShareOfNetfitsRevenuePct}% da Receita Netfits</span>
+                <span className="text-lime-400">{associadoSharePct}% da Receita Netfits</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-zinc-900 rounded-xl px-3 py-2 text-xs font-mono text-white truncate border border-zinc-800">
@@ -328,16 +338,16 @@ function AssociadoDashboardPage() {
           />
 
           <KpiCard
-            title="Receita Netfits (15% GMV)"
-            value={`R$ ${associado.netfitsRevenueBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+            title={`Receita Netfits (${takeRatePct}% GMV)`}
+            value={`R$ ${netfitsRevenueBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
             subtext="Valor bruto retido pela plataforma"
             icon={<Coins className="size-5 text-purple-400" />}
             highlightColor="border-purple-500/30"
           />
 
           <KpiCard
-            title="Sua Comissão (30% Receita)"
-            value={`R$ ${associado.monthlyCommissionBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+            title={`Sua Comissão (${associadoSharePct}% Receita)`}
+            value={`R$ ${monthlyCommissionBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
             subtext="Seu repasse líquido a receber este mês"
             icon={<DollarSign className="size-5 text-lime-400" />}
             highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
@@ -362,7 +372,7 @@ function AssociadoDashboardPage() {
               </div>
             </div>
             <span className="text-xs bg-lime-400/10 text-lime-400 px-3 py-1 rounded-full border border-lime-400/20 font-bold hidden sm:inline-block">
-              Comissão Líquida: 4.5% do GMV
+              Comissão Líquida: {effectivePct}% do GMV
             </span>
           </div>
 
@@ -428,12 +438,12 @@ function AssociadoDashboardPage() {
                   <b className="text-white font-mono">R$ {simulatedGmv.toLocaleString("pt-BR")}</b>
                 </div>
                 <div className="flex justify-between">
-                  <span>Receita Retida Netfits (15%):</span>
-                  <b className="text-purple-400 font-mono">R$ {simulatedNetfitsRevenue.toLocaleString("pt-BR")}</b>
+                  <span>Receita Retida Netfits ({takeRatePct}%):</span>
+                  <b className="text-purple-400 font-mono">R$ {simulatedNetfitsRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
                 </div>
                 <div className="flex justify-between">
-                  <span>Seu Repasse (30% da Receita):</span>
-                  <b className="text-lime-400 font-mono">R$ {simulatedAssociadoCommission.toLocaleString("pt-BR")}</b>
+                  <span>Seu Repasse ({associadoSharePct}% da Receita):</span>
+                  <b className="text-lime-400 font-mono">R$ {simulatedAssociadoCommission.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
                 </div>
               </div>
             </div>
@@ -582,7 +592,7 @@ function AssociadoDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-base font-bold text-white">Usuários Recentes na sua Carteira</h3>
-              <p className="text-xs text-zinc-400">Detalhamento individual das conversões: GMV &rarr; Receita Netfits (15%) &rarr; Comissão (30%)</p>
+              <p className="text-xs text-zinc-400">Detalhamento individual das conversões: GMV &rarr; Receita Netfits ({takeRatePct}%) &rarr; Comissão ({associadoSharePct}%)</p>
             </div>
             <span className="text-xs font-semibold text-purple-400 bg-purple-950 px-3 py-1 rounded-full border border-purple-800">
               Total: {associado.totalCapturedUsers} usuários
@@ -597,36 +607,40 @@ function AssociadoDashboardPage() {
                   <th className="py-3 px-4">Data de Entrada</th>
                   <th className="py-3 px-4">Engajamento</th>
                   <th className="py-3 px-4 text-right">GMV Compras (R$)</th>
-                  <th className="py-3 px-4 text-right">Receita Netfits (15%)</th>
-                  <th className="py-3 px-4 text-right">Comissão Associado (30%)</th>
+                  <th className="py-3 px-4 text-right">Receita Netfits ({takeRatePct}%)</th>
+                  <th className="py-3 px-4 text-right">Comissão Associado ({associadoSharePct}%)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800 font-medium">
-                {associado.recentCapturedUsers.map((u) => (
-                  <tr key={u.id} className="hover:bg-zinc-800/40 transition">
-                    <td className="py-3 px-4">
-                      <div>
-                        <p className="font-bold text-white">{u.name}</p>
-                        <p className="text-[10px] text-zinc-500">{u.email}</p>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-zinc-400">{u.joinDate}</td>
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
-                        {u.engagementLevel}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-right font-bold text-white">
-                      R$ {u.purchasesBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="py-3 px-4 text-right text-purple-300">
-                      R$ {u.netfitsRevBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="py-3 px-4 text-right font-bold text-lime-400">
-                      +R$ {u.commissionGeneratedBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                ))}
+                {associado.recentCapturedUsers.map((u) => {
+                  const uNetfitsRev = u.purchasesBrl * (takeRatePct / 100);
+                  const uCommission = uNetfitsRev * (associadoSharePct / 100);
+                  return (
+                    <tr key={u.id} className="hover:bg-zinc-800/40 transition">
+                      <td className="py-3 px-4">
+                        <div>
+                          <p className="font-bold text-white">{u.name}</p>
+                          <p className="text-[10px] text-zinc-500">{u.email}</p>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-zinc-400">{u.joinDate}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
+                          {u.engagementLevel}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-bold text-white">
+                        R$ {u.purchasesBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3 px-4 text-right text-purple-300">
+                        R$ {uNetfitsRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3 px-4 text-right font-bold text-lime-400">
+                        +R$ {uCommission.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -3,6 +3,8 @@ import { ArrowDownLeft, ArrowUpRight, ShoppingBag } from "lucide-react";
 import { useWallet } from "@/lib/wallet-store";
 import netfitsMark from "@/assets/netfits-mark.png";
 
+import { useOperationalParams } from "@/lib/operational-params-store";
+
 export const Route = createFileRoute("/wallet")({
   head: () => ({
     meta: [
@@ -19,7 +21,8 @@ export const Route = createFileRoute("/wallet")({
 
 function WalletPage() {
   const { balance, txs } = useWallet();
-  const balanceBRL = (balance * 0.02).toLocaleString("pt-BR", {
+  const params = useOperationalParams();
+  const balanceBRL = (balance * params.cppResgateBrl).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
