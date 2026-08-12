@@ -23,6 +23,7 @@ export type OperationalParams = {
 
   // Point Economics
   cppResgateBrl: number;
+  costPerProvisionedPointBrl: number;
   nfsEarnedPerBrlSpent: number;
   nfsEarnedPerBrlSpentDouble: number;
   shopFirstPurchaseBonusNfs: number;
@@ -50,6 +51,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   normalUserNewReferralBonusNfs: 50,
 
   cppResgateBrl: 0.02,
+  costPerProvisionedPointBrl: 0.008,
   nfsEarnedPerBrlSpent: 0.50,
   nfsEarnedPerBrlSpentDouble: 1.00,
   shopFirstPurchaseBonusNfs: 150,

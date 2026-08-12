@@ -1879,7 +1879,7 @@ function AdminDashboardPage() {
                   <Coins className="size-5 text-amber-400" />
                   <h4 className="font-bold text-sm text-white">Economia do Programa de Pontos & Validade</h4>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <ParamInput
                     label="CPP de Resgate (Cotação R$)"
                     unit="R$ / nfs"
@@ -1887,7 +1887,13 @@ function AdminDashboardPage() {
                     onChange={(v) => setOperationalParams((p) => ({ ...p, cppResgateBrl: Number(v) }))}
                   />
                   <ParamInput
-                    label="Netfits Ganhos por R$ 1,00 Gasto"
+                    label="Custo Provisão Pontos Válidos"
+                    unit="R$ / nfs"
+                    value={operationalParams.costPerProvisionedPointBrl}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, costPerProvisionedPointBrl: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Netfits por R$ 1,00 Gasto"
                     unit="nfs / R$"
                     value={operationalParams.nfsEarnedPerBrlSpent}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsEarnedPerBrlSpent: Number(v) }))}
@@ -1899,7 +1905,7 @@ function AdminDashboardPage() {
                     onChange={(v) => setOperationalParams((p) => ({ ...p, pointsValidityMonths: Number(v) }))}
                   />
                   <ParamInput
-                    label="Taxa Estimada de Expiração (Breakage)"
+                    label="Expiração Estimada (Breakage)"
                     unit="% ao ano"
                     value={operationalParams.targetBreakagePct}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, targetBreakagePct: Number(v) }))}
@@ -2418,275 +2424,347 @@ function AdminDashboardPage() {
         )}
 
         {/* Tab: Resultados & DRE (Demonstração do Resultado do Exercício) */}
-        {(activeTab === "results" || activeTab === "controls") && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
-                  Demonstração do Resultado do Exercício (DRE Proforma 2026)
-                </span>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span>📈 DRE Financeiro — Netfits Tecnologia S.A.</span>
-                  <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2 py-0.5 rounded-full font-mono">
-                    Margem EBITDA: 54.1%
-                  </span>
-                </h3>
-              </div>
+        {(activeTab === "results" || activeTab === "controls") && (() => {
+          // Cálculos Financeiros Dinâmicos da DRE
+          const dreGrossRev = 2510850 * pf;
+          const dreSalesTaxes = 150651 * pf; // -6.0% DAS/ISS/PIS/COFINS
+          const dreGrossNetRev = dreGrossRev - dreSalesTaxes; // R$ 2.360.199
 
-              <div className="flex items-center gap-2 self-start md:self-auto">
-                <button
-                  onClick={() => toast.success("DRE Proforma exportado com sucesso em PDF/Excel!")}
-                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md flex items-center gap-2 transition cursor-pointer"
-                >
-                  <Download className="size-3.5" />
-                  Exportar DRE (Excel/PDF)
-                </button>
-              </div>
-            </div>
+          // Provisão do Passivo de Pontos Emitidos Válidos Não Resgatados
+          const validIssuedPointsCount = Math.round(12840000 * pf);
+          const provisionCostPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.008;
+          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint;
+          const provisionPctOfGross = (drePointsProvision / dreGrossRev) * 100;
 
-            {/* KPIs Financeiros de Topo do DRE */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-              <KpiCard
-                title="Receita Operacional Bruta"
-                value={`R$ ${(2510850 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+34.2%"
-                positive={true}
-                icon={DollarSign}
-                subtext="GMV + Mídias + Provas"
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Receita Operacional Líquida"
-                value={`R$ ${(2360199 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="94.0% da Bruta"
-                positive={true}
-                icon={Coins}
-                subtext="Após tributos (-6%)"
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="EBITDA da Operação"
-                value={`R$ ${(1359474 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="54.1% Margem"
-                positive={true}
-                icon={TrendingUp}
-                subtext="Lucro antes de impostos/juros"
-                highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Lucro Líquido do Exercício"
-                value={`R$ ${(1150793 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="45.8% Margem Líq."
-                positive={true}
-                icon={Award}
-                subtext="Lucro final distribuível"
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-            </div>
+          // Receita Operacional Líquida Ajustada (após a Provisão de Pontos Válidos)
+          const dreAdjustedNetRev = dreGrossNetRev - drePointsProvision;
+          const adjustedNetRevPctOfGross = (dreAdjustedNetRev / dreGrossRev) * 100;
 
-            {/* Tabela Estruturada do DRE Contábil */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
+          // Custos Diretos dos Serviços & Resgates (CSP)
+          const dreShoppingRedemptionCost = 147200 * pf;
+          const dreAssociadoCommissionCost = 83205 * pf;
+          const dreAcquiringFeesCost = 47200 * pf;
+          const dreTotalCsp = dreShoppingRedemptionCost + dreAssociadoCommissionCost + dreAcquiringFeesCost; // R$ 277.605
+
+          // Lucro Bruto Ajustado
+          const dreAdjustedGrossProfit = dreAdjustedNetRev - dreTotalCsp;
+          const adjustedGrossMarginPct = (dreAdjustedGrossProfit / dreGrossRev) * 100;
+
+          // OPEX
+          const dreCloudCost = 87120 * pf;
+          const drePayrollCost = 360000 * pf;
+          const dreMarketingCost = 180000 * pf;
+          const dreGaCost = 96000 * pf;
+          const dreTotalOpex = dreCloudCost + drePayrollCost + dreMarketingCost + dreGaCost; // R$ 723.120
+
+          // EBITDA Ajustado
+          const dreAdjustedEbitda = dreAdjustedGrossProfit - dreTotalOpex;
+          const adjustedEbitdaMarginPct = (dreAdjustedEbitda / dreGrossRev) * 100;
+
+          // EBIT & LAIR
+          const dreDepreciation = 24000 * pf;
+          const dreEbit = dreAdjustedEbitda - dreDepreciation;
+          const dreFinancialResult = 18400 * pf;
+          const dreEbt = dreEbit + dreFinancialResult;
+          const dreIncomeTaxes = Math.round(dreEbt * 0.150); // 15% tributos IRPJ/CSLL
+          const dreAdjustedNetProfit = dreEbt - dreIncomeTaxes;
+          const adjustedNetMarginPct = (dreAdjustedNetProfit / dreGrossRev) * 100;
+
+          return (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-base font-bold text-white">Demonstração Estruturada do Resultado (DRE)</h4>
-                  <p className="text-xs text-zinc-400">Valores em R$ ajustados para o período acumulado ({currentPeriodObj.shortLabel})</p>
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
+                    Demonstração do Resultado do Exercício (DRE Proforma 2026)
+                  </span>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>📈 DRE Financeiro — Netfits Tecnologia S.A.</span>
+                    <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2 py-0.5 rounded-full font-mono">
+                      Margem EBITDA Ajustada: {adjustedEbitdaMarginPct.toFixed(1)}%
+                    </span>
+                  </h3>
                 </div>
-                <span className="text-xs font-mono text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                  Exercício Proforma 2026
-                </span>
+
+                <div className="flex items-center gap-2 self-start md:self-auto">
+                  <button
+                    onClick={() => toast.success("DRE Proforma exportado com sucesso em PDF/Excel!")}
+                    className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md flex items-center gap-2 transition cursor-pointer"
+                  >
+                    <Download className="size-3.5" />
+                    Exportar DRE (Excel/PDF)
+                  </button>
+                </div>
               </div>
 
-              <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
-                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                    <tr>
-                      <th className="py-3 px-4">Linha da DRE (Conta Contábil)</th>
-                      <th className="py-3 px-4 text-right">Valor no Período (R$)</th>
-                      <th className="py-3 px-4 text-right">Análise Vertical (% Rec. Bruta)</th>
-                      <th className="py-3 px-4 text-center">Status / Tendência</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800/80 font-medium">
-                    {/* RECEITA BRUTA */}
-                    <tr className="bg-purple-950/20 hover:bg-purple-950/40 transition font-bold text-white">
-                      <td className="py-3 px-4 text-purple-300">(+) RECEITA OPERACIONAL BRUTA</td>
-                      <td className="py-3 px-4 text-right text-purple-300 font-mono text-sm">
-                        R$ {(2510850 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 px-4 text-right text-purple-300">100.0%</td>
-                      <td className="py-3 px-4 text-center text-lime-400 font-bold">▲ Forte Crescimento</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Comissões Marketplace (15% Take-Rate GMV)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">R$ {(277350 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">11.0%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Recorrente</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Receita de Mídias & Anúncios Patrocinados (Feed)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">R$ {(384500 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">15.3%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Recorrente</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Inscrições em Provas & Eventos Esportivos Credenciados</td>
-                      <td className="py-2.5 px-4 text-right font-mono">R$ {(512000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">20.4%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Sazonal / Provas</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Assinaturas Netfits Club (Etapa 2 Projeção R$29/mês)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">R$ {(1337000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">53.3%</td>
-                      <td className="py-2.5 px-4 text-center text-purple-400">Recorrente (SaaS)</td>
-                    </tr>
+              {/* KPIs Financeiros de Topo do DRE */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                <KpiCard
+                  title="Receita Operacional Bruta"
+                  value={`R$ ${dreGrossRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  change="+34.2%"
+                  positive={true}
+                  icon={DollarSign}
+                  subtext="GMV + Mídias + Provas"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+                <KpiCard
+                  title="Receita Líquida Ajustada"
+                  value={`R$ ${dreAdjustedNetRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  change={`${adjustedNetRevPctOfGross.toFixed(1)}% da Bruta`}
+                  positive={true}
+                  icon={Coins}
+                  subtext="Após tributos e provisão de pontos"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+                <KpiCard
+                  title="EBITDA Ajustado da Operação"
+                  value={`R$ ${dreAdjustedEbitda.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  change={`${adjustedEbitdaMarginPct.toFixed(1)}% Margem`}
+                  positive={true}
+                  icon={TrendingUp}
+                  subtext="Lucro operacional líquido"
+                  highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+                <KpiCard
+                  title="Lucro Líquido do Exercício"
+                  value={`R$ ${dreAdjustedNetProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  change={`${adjustedNetMarginPct.toFixed(1)}% Margem Líq.`}
+                  positive={true}
+                  icon={Award}
+                  subtext="Lucro final distribuível"
+                  periodBadge={currentPeriodObj.shortLabel}
+                />
+              </div>
 
-                    {/* DEDUÇÕES */}
-                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
-                      <td className="py-2.5 px-4">(-) DEDUÇÕES E IMPOSTOS SOBRE VENDAS (DAS / ISS / PIS / COFINS)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(150651 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-6.0%</td>
-                      <td className="py-2.5 px-4 text-center text-rose-400">Tributário</td>
-                    </tr>
+              {/* Tabela Estruturada do DRE Contábil */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
+                  <div>
+                    <h4 className="text-base font-bold text-white">Demonstração Estruturada do Resultado (DRE)</h4>
+                    <p className="text-xs text-zinc-400">Valores em R$ ajustados para o período acumulado ({currentPeriodObj.shortLabel})</p>
+                  </div>
+                  <span className="text-xs font-mono text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
+                    Exercício Proforma 2026
+                  </span>
+                </div>
 
-                    {/* RECEITA LÍQUIDA */}
-                    <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-700">
-                      <td className="py-3 px-4 font-black">(=) RECEITA OPERACIONAL LÍQUIDA</td>
-                      <td className="py-3 px-4 text-right font-mono text-lime-400 text-sm font-black">
-                        R$ {(2360199 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 px-4 text-right text-lime-400 font-black">94.0%</td>
-                      <td className="py-3 px-4 text-center text-lime-400 font-bold">Base Líquida</td>
-                    </tr>
+                <div className="overflow-x-auto w-full max-w-full">
+                  <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
+                    <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                      <tr>
+                        <th className="py-3 px-4">Linha da DRE (Conta Contábil)</th>
+                        <th className="py-3 px-4 text-right">Valor no Período (R$)</th>
+                        <th className="py-3 px-4 text-right">Análise Vertical (% Rec. Bruta)</th>
+                        <th className="py-3 px-4 text-center">Status / Tendência</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/80 font-medium">
+                      {/* RECEITA BRUTA */}
+                      <tr className="bg-purple-950/20 hover:bg-purple-950/40 transition font-bold text-white">
+                        <td className="py-3 px-4 text-purple-300">(+) RECEITA OPERACIONAL BRUTA</td>
+                        <td className="py-3 px-4 text-right text-purple-300 font-mono text-sm">
+                          R$ {dreGrossRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3 px-4 text-right text-purple-300">100.0%</td>
+                        <td className="py-3 px-4 text-center text-lime-400 font-bold">▲ Forte Crescimento</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Comissões Marketplace ({operationalParams.netfitsTakeRatePctFromGmv}% Take-Rate GMV)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">R$ {(277350 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">11.0%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Recorrente</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Receita de Mídias & Anúncios Patrocinados (Feed)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">R$ {(384500 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">15.3%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Recorrente</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Inscrições em Provas & Eventos Esportivos Credenciados</td>
+                        <td className="py-2.5 px-4 text-right font-mono">R$ {(512000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">20.4%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Sazonal / Provas</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Assinaturas Netfits Club (Etapa 2 Projeção R$29/mês)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">R$ {(1337000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">53.3%</td>
+                        <td className="py-2.5 px-4 text-center text-purple-400">Recorrente (SaaS)</td>
+                      </tr>
 
-                    {/* CUSTOS DE SERVIÇOS / RESGATES */}
-                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
-                      <td className="py-2.5 px-4">(-) CUSTOS DOS SERVIÇOS PRESTADOS & RESGATES DE PONTOS (CSP)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(277605 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-11.1%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-400">Custo Direto</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Custo de Resgate de Pontos nfs no Shopping (CPP R$ 0,02)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(147200 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-5.9%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Resgate Shopping</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Repasse de Comissões em Dinheiro aos Associados VIP (30%)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(83205 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-3.3%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Comissão Captação</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Taxas de Meios de Pagamento & Gateway de Adquirencia</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(47200 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-1.9%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Adquirencia</td>
-                    </tr>
+                      {/* DEDUÇÕES FISCAIS */}
+                      <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                        <td className="py-2.5 px-4">(-) DEDUÇÕES E IMPOSTOS SOBRE VENDAS (DAS / ISS / PIS / COFINS)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreSalesTaxes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-6.0%</td>
+                        <td className="py-2.5 px-4 text-center text-rose-400">Tributário (-6%)</td>
+                      </tr>
 
-                    {/* LUCRO BRUTO */}
-                    <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-700">
-                      <td className="py-3 px-4 font-black">(=) LUCRO BRUTO</td>
-                      <td className="py-3 px-4 text-right font-mono text-white text-sm font-black">
-                        R$ {(2082594 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3 px-4 text-right text-white font-black">82.9%</td>
-                      <td className="py-3 px-4 text-center text-lime-400 font-bold">Margem Bruta 82,9%</td>
-                    </tr>
+                      {/* RECEITA LÍQUIDA BRUTA */}
+                      <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-800">
+                        <td className="py-2.5 px-4 font-bold">(=) RECEITA OPERACIONAL LÍQUIDA (BRUTA DA PROVISÃO)</td>
+                        <td className="py-2.5 px-4 text-right font-mono text-zinc-200 text-xs font-bold">
+                          R$ {dreGrossNetRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-2.5 px-4 text-right text-zinc-300">94.0%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-400 font-semibold">Antes da Provisão</td>
+                      </tr>
 
-                    {/* OPEX */}
-                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
-                      <td className="py-2.5 px-4">(-) DESPESAS OPERACIONAIS (OPEX MENSAL / ANUAL)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(723120 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-28.8%</td>
-                      <td className="py-2.5 px-4 text-center text-rose-400">Despesas Operacionais</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Infraestrutura de TI & Cloud Otimizada (1M Usuários)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(87120 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-3.5%</td>
-                      <td className="py-2.5 px-4 text-center text-lime-400 font-bold">R$ 7.260/mês (-61.5%)</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Pessoal, Engenharia de Software & Suporte Atleta</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(360000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-14.3%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Equipe Core</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Marketing de Performance & Aquisição (CAC Orgânico)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(180000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-7.2%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Mídia de Alta Eficiência</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(96000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-3.8%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Fixas G&A</td>
-                    </tr>
+                      {/* NOVA LINHA REDUTORA DA RECEITA LÍQUIDA: PROVISÃO DE PONTOS VÁLIDOS NÃO RESGATADOS */}
+                      <tr className="bg-purple-950/30 hover:bg-purple-950/50 transition text-purple-300 font-bold border-y border-purple-500/30">
+                        <td className="py-3 px-4 text-purple-300">
+                          (-) PROVISÃO DE PASSIVO DE PONTOS EMITIDOS VÁLIDOS NÃO RESGATADOS
+                          <span className="block text-[10px] text-purple-400 font-normal mt-0.5">
+                            └─ {validIssuedPointsCount.toLocaleString("pt-BR")} nfs emitidos válidos × R$ {provisionCostPerPoint.toFixed(3)} (Custo da Provisão)
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right font-mono text-purple-300 text-sm font-bold">
+                          (R$ {drePointsProvision.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})
+                        </td>
+                        <td className="py-3 px-4 text-right text-purple-300">-{provisionPctOfGross.toFixed(1)}%</td>
+                        <td className="py-3 px-4 text-center text-purple-400 font-bold">🛡️ Redutora da Rec. Líquida</td>
+                      </tr>
 
-                    {/* EBITDA */}
-                    <tr className="bg-lime-400/10 font-bold text-white border-y-2 border-lime-400/40">
-                      <td className="py-3.5 px-4 text-lime-300 font-black">(=) EBITDA (LUCRO ANTES DE JUROS, IMPOSTOS E DEPRECIAÇÃO)</td>
-                      <td className="py-3.5 px-4 text-right font-mono text-lime-400 text-base font-black">
-                        R$ {(1359474 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-3.5 px-4 text-right text-lime-400 font-black text-sm">54.1%</td>
-                      <td className="py-3.5 px-4 text-center text-lime-400 font-black">★ Margem EBITDA 54,1%</td>
-                    </tr>
+                      {/* RECEITA LÍQUIDA AJUSTADA */}
+                      <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-700">
+                        <td className="py-3 px-4 font-black">(=) RECEITA OPERACIONAL LÍQUIDA AJUSTADA</td>
+                        <td className="py-3 px-4 text-right font-mono text-lime-400 text-sm font-black">
+                          R$ {dreAdjustedNetRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3 px-4 text-right text-lime-400 font-black">{adjustedNetRevPctOfGross.toFixed(1)}%</td>
+                        <td className="py-3 px-4 text-center text-lime-400 font-bold">Base Líquida Final</td>
+                      </tr>
 
-                    {/* EBIT & LAIR */}
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-4 font-semibold text-zinc-300">(-) Depreciação e Amortização de Ativos Tecnológicos</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(24000 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-1.0%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-500">Amortização P&D</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
-                      <td className="py-2.5 px-4">(=) EBIT (RESULTADO OPERACIONAL ANTES DOS IMPOSTOS)</td>
-                      <td className="py-2.5 px-4 text-right font-mono text-white">R$ {(1335474 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">53.1%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-400">EBIT 53,1%</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                      <td className="py-2.5 px-4 font-semibold text-zinc-300">(+/-) Resultado Financeiro Líquido (Rendimentos de Caixa)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">R$ {(18400 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">+0.7%</td>
-                      <td className="py-2.5 px-4 text-center text-lime-400">Rendimento CDI</td>
-                    </tr>
-                    <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
-                      <td className="py-2.5 px-4">(=) LAIR (LUCRO ANTES DO IMPOSTO DE RENDA E CSLL)</td>
-                      <td className="py-2.5 px-4 text-right font-mono text-white">R$ {(1353874 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 px-4 text-right">53.9%</td>
-                      <td className="py-2.5 px-4 text-center text-zinc-400">LAIR 53,9%</td>
-                    </tr>
+                      {/* CUSTOS DE SERVIÇOS / RESGATES */}
+                      <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                        <td className="py-2.5 px-4">(-) CUSTOS DOS SERVIÇOS PRESTADOS & RESGATES DE PONTOS (CSP)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreTotalCsp.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-11.1%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-400">Custo Direto</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Custo de Resgate de Pontos nfs no Shopping (CPP R$ {operationalParams.cppResgateBrl})</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreShoppingRedemptionCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-5.9%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Resgate Shopping</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Repasse de Comissões em Dinheiro aos Associados ({operationalParams.associadoMasterShareOfNetfitsRevenuePct}%)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreAssociadoCommissionCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-3.3%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Comissão Captação</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Taxas de Meios de Pagamento & Gateway de Adquirencia</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreAcquiringFeesCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-1.9%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Adquirencia</td>
+                      </tr>
 
-                    {/* IMPOSTO DE RENDA */}
-                    <tr className="hover:bg-zinc-800/40 transition text-rose-300">
-                      <td className="py-2.5 px-4">(-) IMPOSTO DE RENDA & CSLL (IRPJ / CSLL Lucro Presumido)</td>
-                      <td className="py-2.5 px-4 text-right font-mono">(R$ {(203081 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                      <td className="py-2.5 px-4 text-right">-8.1%</td>
-                      <td className="py-2.5 px-4 text-center text-rose-400">Tributação IRPJ/CSLL</td>
-                    </tr>
+                      {/* LUCRO BRUTO AJUSTADO */}
+                      <tr className="bg-zinc-950 font-bold text-white border-y border-zinc-700">
+                        <td className="py-3 px-4 font-black">(=) LUCRO BRUTO AJUSTADO</td>
+                        <td className="py-3 px-4 text-right font-mono text-white text-sm font-black">
+                          R$ {dreAdjustedGrossProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3 px-4 text-right text-white font-black">{adjustedGrossMarginPct.toFixed(1)}%</td>
+                        <td className="py-3 px-4 text-center text-lime-400 font-bold">Margem Bruta {adjustedGrossMarginPct.toFixed(1)}%</td>
+                      </tr>
 
-                    {/* LUCRO LÍQUIDO */}
-                    <tr className="bg-purple-900/40 font-bold text-white border-t-2 border-purple-500">
-                      <td className="py-4 px-4 text-purple-200 font-black text-sm">(=) LUCRO LÍQUIDO DO EXERCÍCIO (NETFITS TECNOLOGIA S.A.)</td>
-                      <td className="py-4 px-4 text-right font-mono text-lime-400 text-lg font-black">
-                        R$ {(1150793 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-4 px-4 text-right text-lime-400 font-black text-base">45.8%</td>
-                      <td className="py-4 px-4 text-center text-lime-400 font-black">★ Margem Líquida 45,8%</td>
-                    </tr>
-                  </tbody>
-                </table>
+                      {/* OPEX */}
+                      <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                        <td className="py-2.5 px-4">(-) DESPESAS OPERACIONAIS (OPEX MENSAL / ANUAL)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreTotalOpex.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-28.8%</td>
+                        <td className="py-2.5 px-4 text-center text-rose-400">Despesas Operacionais</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Infraestrutura de TI & Cloud Otimizada (1M Usuários)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreCloudCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-3.5%</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400 font-bold">R$ 7.260/mês (-61.5%)</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Pessoal, Engenharia de Software & Suporte Atleta</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {drePayrollCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-14.3%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Equipe Core</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Marketing de Performance & Aquisição (CAC Orgânico)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreMarketingCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-7.2%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Mídia de Alta Eficiência</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreGaCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-3.8%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Fixas G&A</td>
+                      </tr>
+
+                      {/* EBITDA */}
+                      <tr className="bg-lime-400/10 font-bold text-white border-y-2 border-lime-400/40">
+                        <td className="py-3.5 px-4 text-lime-300 font-black">(=) EBITDA AJUSTADO (LUCRO ANTES DE JUROS, IMPOSTOS E DEPRECIAÇÃO)</td>
+                        <td className="py-3.5 px-4 text-right font-mono text-lime-400 text-base font-black">
+                          R$ {dreAdjustedEbitda.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3.5 px-4 text-right text-lime-400 font-black text-sm">{adjustedEbitdaMarginPct.toFixed(1)}%</td>
+                        <td className="py-3.5 px-4 text-center text-lime-400 font-black">★ Margem EBITDA {adjustedEbitdaMarginPct.toFixed(1)}%</td>
+                      </tr>
+
+                      {/* EBIT & LAIR */}
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-4 font-semibold text-zinc-300">(-) Depreciação e Amortização de Ativos Tecnológicos</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreDepreciation.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-1.0%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">Amortização P&D</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
+                        <td className="py-2.5 px-4">(=) EBIT (RESULTADO OPERACIONAL ANTES DOS IMPOSTOS)</td>
+                        <td className="py-2.5 px-4 text-right font-mono text-white">R$ {dreEbit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">{((dreEbit / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-400">EBIT {((dreEbit / dreGrossRev) * 100).toFixed(1)}%</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
+                        <td className="py-2.5 px-4 font-semibold text-zinc-300">(+/-) Resultado Financeiro Líquido (Rendimentos de Caixa)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">R$ {dreFinancialResult.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">+0.7%</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400">Rendimento CDI</td>
+                      </tr>
+                      <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
+                        <td className="py-2.5 px-4">(=) LAIR (LUCRO ANTES DO IMPOSTO DE RENDA E CSLL)</td>
+                        <td className="py-2.5 px-4 text-right font-mono text-white">R$ {dreEbt.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td className="py-2.5 px-4 text-right">{((dreEbt / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-400">LAIR {((dreEbt / dreGrossRev) * 100).toFixed(1)}%</td>
+                      </tr>
+
+                      {/* IMPOSTO DE RENDA */}
+                      <tr className="hover:bg-zinc-800/40 transition text-rose-300">
+                        <td className="py-2.5 px-4">(-) IMPOSTO DE RENDA & CSLL (IRPJ / CSLL Lucro Presumido/Real)</td>
+                        <td className="py-2.5 px-4 text-right font-mono">(R$ {dreIncomeTaxes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right">-{(dreIncomeTaxes / dreGrossRev * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-center text-rose-400">Tributação IRPJ/CSLL</td>
+                      </tr>
+
+                      {/* LUCRO LÍQUIDO */}
+                      <tr className="bg-purple-900/40 font-bold text-white border-t-2 border-purple-500">
+                        <td className="py-4 px-4 text-purple-200 font-black text-sm">(=) LUCRO LÍQUIDO DO EXERCÍCIO (NETFITS TECNOLOGIA S.A.)</td>
+                        <td className="py-4 px-4 text-right font-mono text-lime-400 text-lg font-black">
+                          R$ {dreAdjustedNetProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-4 px-4 text-right text-lime-400 font-black text-base">{adjustedNetMarginPct.toFixed(1)}%</td>
+                        <td className="py-4 px-4 text-center text-lime-400 font-black">★ Margem Líquida {adjustedNetMarginPct.toFixed(1)}%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </main>
     </div>
   );
