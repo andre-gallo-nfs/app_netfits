@@ -3328,18 +3328,21 @@ function AdminDashboardPage() {
                     <Infinity className="size-16 mx-auto text-lime-400 animate-pulse" />
                   </div>
                   <h2 className="text-2xl font-black text-white">NETFITS TECNOLOGIA S.A.</h2>
-                  <p className="text-base text-zinc-300 max-w-xl mx-auto font-medium">
-                    O ecossistema definitivo que une treino gamificado, recomendação médica/especialista, marketplace esportivo e programa de pontos de alto engajamento.
+                  <p className="text-sm font-mono text-lime-400 font-bold uppercase tracking-widest">
+                    Slogan Oficial: "Fazer cada movimento valer mais."
+                  </p>
+                  <p className="text-sm text-zinc-300 max-w-xl mx-auto font-medium">
+                    Plataforma de benefícios, hábitos e longevidade para quem escolhe viver de forma ativa — hoje e ao longo da vida.
                   </p>
                   <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
-                    <span className="bg-lime-400/10 text-lime-300 border border-lime-400/30 px-3 py-1 rounded-full text-xs font-bold">
-                      Retenção Gamificada FEFO
-                    </span>
                     <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold">
-                      Margem EBITDA 50,5% (Fase 2)
+                      1. Benefícios (Imediato)
+                    </span>
+                    <span className="bg-lime-400/10 text-lime-300 border border-lime-400/30 px-3 py-1 rounded-full text-xs font-bold">
+                      2. Hábitos (Recorrente)
                     </span>
                     <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 px-3 py-1 rounded-full text-xs font-bold">
-                      1M Usuários SOM
+                      3. Longevidade (Para Sempre)
                     </span>
                   </div>
                 </div>
