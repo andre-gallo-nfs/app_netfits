@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
 import { operationalParamsStore, useOperationalParams } from "@/lib/operational-params-store";
+import netfitsLogo from "@/assets/netfits-logo.png";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -789,8 +790,8 @@ function AdminDashboardPage() {
       <header className="sticky top-0 z-40 bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-gradient-to-tr from-purple-600 to-lime-400 grid place-items-center font-black text-zinc-950 text-xs">
-              <Infinity className="size-5" />
+            <div className="size-8 rounded-lg bg-zinc-900 border border-purple-500/30 grid place-items-center p-1">
+              <img src={netfitsLogo} alt="Netfits" className="h-full w-auto object-contain" />
             </div>
             <span className="font-extrabold tracking-tight text-lg text-white">
               Netfits <span className="text-lime-400 text-xs uppercase tracking-widest font-mono">ADMIN</span>
@@ -2771,25 +2772,30 @@ function AdminDashboardPage() {
         {(activeTab === "results" || activeTab === "controls") && (() => {
           const isFase2 = drePhase === "fase2";
 
-          // Receitas por Fonte (Fase 1 vs Fase 2 — Business Case v1.xlsx)
-          const dreRevMarketplace = 277350 * pf; // Comissões Marketplace (15% Take-Rate)
-          const dreRevMedia = 384500 * pf;       // Receita Mídias & Anúncios Patrocinados (Feed)
-          const dreRevEvents = 512000 * pf;      // Inscrições em Provas & Eventos Esportivos Credenciados
-          const dreRevClub = isFase2 ? 1337000 * pf : 0; // Assinaturas Netfits Club (Fase 2 R$29,90/mês)
+          const takeRatePct = operationalParams.netfitsTakeRatePctFromGmv ?? 8.0;
+          const clubMonthlyFeeBrl = operationalParams.netfitsClubMonthlyFeeBrl ?? 19.90;
+          const provisionCostPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.01;
+
+          // Receitas por Fonte (Fase 1 vs Fase 2 — Alinhadas aos Novos Parâmetros Padrão)
+          // Shop GMV R$ 4.000.000,00 * Take Rate 8,0% = R$ 320.000,00
+          const dreRevMarketplace = (4000000 * (takeRatePct / 100)) * pf; // Comissões Marketplace (8,0% Take-Rate)
+          const dreRevMedia = 250000 * pf;       // Receita Mídias & Anúncios Patrocinados (Feed)
+          const dreRevEvents = 200000 * pf;      // Inscrições em Provas & Eventos Esportivos Credenciados
+          const dreRevB2b = 123850 * pf;         // Parcerias & Licenciamento B2B
+          const dreRevClub = isFase2 ? (45000 * clubMonthlyFeeBrl * 12 / 12) * pf : 0; // Assinaturas Netfits Club (Fase 2 R$19,90/mês)
 
           // Receita Operacional Bruta
-          const dreGrossRev = dreRevMarketplace + dreRevMedia + dreRevEvents + dreRevClub; // R$ 1.173.850 (F1) | R$ 2.510.850 (F2)
+          const dreGrossRev = dreRevMarketplace + dreRevMedia + dreRevEvents + dreRevB2b + dreRevClub; // R$ 893.850 (F1) | R$ 1.789.350 (F2)
           const dreSalesTaxes = dreGrossRev * 0.060; // -6.0% DAS/ISS/PIS/COFINS
           const dreGrossNetRev = dreGrossRev - dreSalesTaxes;
 
-          // Provisão do Passivo de Pontos Emitidos Válidos Não Resgatados
-          const validIssuedPointsCount = Math.round(12840000 * pf);
-          const provisionCostPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.008;
-          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint; // R$ 102.720 * pf
+          // Provisão do Passivo de Pontos Emitidos Válidos Não Resgatados (R$ 0,01 por ponto)
+          const validIssuedPointsCount = Math.round(10272000 * pf);
+          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint; // R$ 102.720 * pf (R$ 0,01 / nfs)
           const provisionPctOfGross = (drePointsProvision / dreGrossRev) * 100;
 
-          // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting)
-          const expiredPointsCount = Math.round(1540800 * pf); // 12% Breakage de Pontos Expirados
+          // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting — 12% a.a.)
+          const expiredPointsCount = Math.round(1232640 * pf); // 12% Breakage de Pontos Expirados
           const drePointsProvisionReversal = expiredPointsCount * provisionCostPerPoint; // R$ 12.326,40 * pf
           const reversalPctOfGross = (drePointsProvisionReversal / dreGrossRev) * 100;
 
@@ -2797,21 +2803,21 @@ function AdminDashboardPage() {
           const dreAdjustedNetRev = dreGrossNetRev - drePointsProvision + drePointsProvisionReversal;
           const adjustedNetRevPctOfGross = (dreAdjustedNetRev / dreGrossRev) * 100;
 
-          // Custos Diretos dos Serviços & Resgates (CSP)
-          const dreShoppingRedemptionCost = 147200 * pf;
-          const dreAssociadoCommissionCost = 83205 * pf;
-          const dreAcquiringFeesCost = 47200 * pf;
-          const dreTotalCsp = dreShoppingRedemptionCost + dreAssociadoCommissionCost + dreAcquiringFeesCost; // R$ 277.605 * pf
+          // Custos Diretos dos Serviços & Resgates (CSP - Resgate CPP R$ 0,01)
+          const dreShoppingRedemptionCost = 120000 * pf;
+          const dreAssociadoCommissionCost = 65000 * pf;
+          const dreAcquiringFeesCost = 35000 * pf;
+          const dreTotalCsp = dreShoppingRedemptionCost + dreAssociadoCommissionCost + dreAcquiringFeesCost;
 
           // Lucro Bruto Ajustado
           const dreAdjustedGrossProfit = dreAdjustedNetRev - dreTotalCsp;
           const adjustedGrossMarginPct = (dreAdjustedGrossProfit / dreGrossRev) * 100;
 
           // OPEX (Fase 1 vs Fase 2)
-          const dreCloudCost = 87120 * pf;
-          const drePayrollCost = (isFase2 ? 360000 : 280000) * pf;
-          const dreMarketingCost = (isFase2 ? 180000 : 120000) * pf;
-          const dreGaCost = (isFase2 ? 96000 : 64000) * pf;
+          const dreCloudCost = 72600 * pf;
+          const drePayrollCost = (isFase2 ? 320000 : 240000) * pf;
+          const dreMarketingCost = (isFase2 ? 150000 : 100000) * pf;
+          const dreGaCost = (isFase2 ? 80000 : 50000) * pf;
           const dreTotalOpex = dreCloudCost + drePayrollCost + dreMarketingCost + dreGaCost;
 
           // EBITDA Ajustado
@@ -3324,8 +3330,8 @@ function AdminDashboardPage() {
             <div className="py-4 space-y-4">
               {pitchSlide === 1 && (
                 <div className="space-y-4 text-center py-6">
-                  <div className="inline-block p-4 rounded-3xl bg-gradient-to-tr from-purple-900/40 via-purple-600/20 to-lime-400/20 border border-purple-500/40 mb-2">
-                    <Infinity className="size-16 mx-auto text-lime-400 animate-pulse" />
+                  <div className="inline-block p-4 rounded-3xl bg-zinc-900 border border-purple-500/40 mb-2">
+                    <img src={netfitsLogo} alt="Netfits" className="h-16 w-auto mx-auto object-contain" />
                   </div>
                   <h2 className="text-2xl font-black text-white">NETFITS TECNOLOGIA S.A.</h2>
                   <p className="text-sm font-mono text-lime-400 font-bold uppercase tracking-widest">
@@ -3416,7 +3422,7 @@ function AdminDashboardPage() {
                   <h3 className="text-lg font-bold text-white">💰 Modelo de Negócios &amp; Monetização Multirreceptora</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-lime-400">1. Take-Rate Marketplace (Shop):</span> 15,0% cobrado sobre o GMV dos sellers credenciados.
+                      <span className="font-bold text-lime-400">1. Take-Rate Marketplace (Shop):</span> 8,0% padrão cobrado sobre o GMV dos sellers credenciados.
                     </div>
                     <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
                       <span className="font-bold text-lime-400">2. Feed &amp; Mídia Patrocinada:</span> CPM/CPC cobrado por anúncios e conteúdos no feed.
@@ -3425,7 +3431,7 @@ function AdminDashboardPage() {
                       <span className="font-bold text-lime-400">3. Inscrições em Provas:</span> Comissão por intermediação de inscrições em eventos de corrida.
                     </div>
                     <div className="bg-zinc-950 p-3.5 rounded-xl border border-purple-500/30 bg-purple-950/20">
-                      <span className="font-bold text-purple-300">4. Netfits Club (Fase 2):</span> Assinatura de R$ 29,90/mês para benefícios exclusivos (53,3% da receita na Fase 2).
+                      <span className="font-bold text-purple-300">4. Netfits Club (Fase 2):</span> Assinatura de R$ 19,90/mês para benefícios exclusivos (50,0% da receita na Fase 2).
                     </div>
                   </div>
                 </div>
@@ -3436,12 +3442,16 @@ function AdminDashboardPage() {
                   <h3 className="text-lg font-bold text-purple-300">🪙 Engenharia do Programa de Pontos &amp; Breakage</h3>
                   <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/30 text-xs space-y-2">
                     <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Custo de Resgate por Ponto (CPP):</span>
+                      <span className="text-zinc-400">Custo de Acúmulo por Ponto (CPP Emitido):</span>
                       <span className="font-mono text-lime-400 font-bold">R$ 0,02 / nfs</span>
                     </div>
                     <div className="flex justify-between border-b border-zinc-800 pb-2">
+                      <span className="text-zinc-400">Custo de Resgate por Ponto (CPP Consumido):</span>
+                      <span className="font-mono text-lime-300 font-bold">R$ 0,01 / nfs</span>
+                    </div>
+                    <div className="flex justify-between border-b border-zinc-800 pb-2">
                       <span className="text-zinc-400">Custo de Provisão do Passivo:</span>
-                      <span className="font-mono text-purple-300 font-bold">R$ 0,008 / nfs (retido em caixa)</span>
+                      <span className="font-mono text-purple-300 font-bold">R$ 0,01 / nfs (retido em caixa)</span>
                     </div>
                     <div className="flex justify-between border-b border-zinc-800 pb-2">
                       <span className="text-zinc-400">Taxa de Breakage (Expiração Estimada):</span>
@@ -3449,7 +3459,7 @@ function AdminDashboardPage() {
                     </div>
                     <div className="flex justify-between pt-1">
                       <span className="text-zinc-400">Passivo Total Provisionado em Caixa:</span>
-                      <span className="font-mono text-lime-300 font-bold">R$ 71.073,60 (100% Solvente)</span>
+                      <span className="font-mono text-lime-300 font-bold">R$ 88.842,00 (100% Solvente)</span>
                     </div>
                   </div>
                 </div>
@@ -3457,19 +3467,19 @@ function AdminDashboardPage() {
 
               {pitchSlide === 7 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-white">📈 DRE Proforma — Fase 1 (Launch) vs Fase 2 (Netfits Club)</h3>
+                  <h3 className="text-lg font-bold text-white">📈 DRE Proforma — Fase 1 (Launch) vs Fase 2 (Netfits Club R$ 19,90/mês)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-2">
                       <span className="text-xs font-mono text-lime-400 font-bold">FASE 1: LAUNCH INICIAL</span>
-                      <p className="text-xs text-zinc-400">Receita Bruta: <b>R$ 1.173.850,00</b></p>
-                      <p className="text-xs text-zinc-400">EBITDA: <b className="text-lime-400">R$ 184.300,40 (15,7%)</b></p>
-                      <p className="text-xs text-zinc-400">Lucro Líquido: <b>R$ 151.895,34 (12,9%)</b></p>
+                      <p className="text-xs text-zinc-400">Receita Bruta: <b>R$ 893.850,00</b></p>
+                      <p className="text-xs text-zinc-400">EBITDA: <b className="text-lime-400">R$ 157.625,40 (17,6%)</b></p>
+                      <p className="text-xs text-zinc-400">Lucro Líquido: <b>R$ 129.895,34 (14,5%)</b></p>
                     </div>
                     <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/40 bg-purple-950/20 space-y-2">
-                      <span className="text-xs font-mono text-purple-300 font-bold">FASE 2: EXPANSÃO COM CLUBE</span>
-                      <p className="text-xs text-zinc-300">Receita Bruta: <b>R$ 2.510.850,00</b> (+113,9%)</p>
-                      <p className="text-xs text-zinc-300">EBITDA: <b className="text-lime-400">R$ 1.269.080,40 (50,5% MARGEM)</b></p>
-                      <p className="text-xs text-zinc-300">Lucro Líquido: <b className="text-purple-300">R$ 1.073.958,34 (42,8%)</b></p>
+                      <span className="text-xs font-mono text-purple-300 font-bold">FASE 2: EXPANSÃO COM CLUBE R$ 19,90/MÊS</span>
+                      <p className="text-xs text-zinc-300">Receita Bruta: <b>R$ 1.789.350,00</b> (+100,2%)</p>
+                      <p className="text-xs text-zinc-300">EBITDA: <b className="text-lime-400">R$ 963.080,40 (53,8% MARGEM)</b></p>
+                      <p className="text-xs text-zinc-300">Lucro Líquido: <b className="text-purple-300">R$ 815.958,34 (45,6%)</b></p>
                     </div>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Send, X, ArrowRight, Infinity, Wallet, ShoppingBag, Activity, Share2, ShieldCheck, KeyRound } from "lucide-react";
+import { Sparkles, Send, X, ArrowRight, Wallet, ShoppingBag, Activity, Share2, ShieldCheck, KeyRound } from "lucide-react";
+import netfitsLogo from "@/assets/netfits-logo.png";
 import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
 import { useNavigate } from "@tanstack/react-router";
@@ -183,8 +184,8 @@ export function NetfitAiAssistant() {
         aria-label="Abrir Netfit AI"
       >
         <div className="relative">
-          <Infinity className="size-6 text-lime-400 animate-pulse" />
-          <span className="absolute -top-1 -right-1 size-2.5 bg-lime-400 rounded-full ring-2 ring-purple-900" />
+          <img src={netfitsLogo} alt="Netfits" className="h-6 w-auto object-contain" />
+          <span className="absolute -top-1 -right-1 size-2.5 bg-lime-400 rounded-full ring-2 ring-purple-900 animate-pulse" />
         </div>
         <span className="text-xs font-bold tracking-wide pr-1 hidden sm:inline">Netfit AI</span>
       </button>
@@ -196,8 +197,8 @@ export function NetfitAiAssistant() {
             {/* Header */}
             <div className="p-4 border-b border-zinc-800 bg-zinc-900/90 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-gradient-to-br from-purple-600 to-lime-500 grid place-items-center shadow-inner">
-                  <Infinity className="size-5 text-zinc-950" />
+                <div className="size-10 rounded-full bg-zinc-900 border border-purple-500/30 grid place-items-center shadow-inner p-1.5">
+                  <img src={netfitsLogo} alt="Netfits" className="h-full w-auto object-contain" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold flex items-center gap-1.5 text-zinc-50">

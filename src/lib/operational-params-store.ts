@@ -22,8 +22,10 @@ export type OperationalParams = {
   normalUserNewReferralBonusNfs: number;
 
   // Point Economics
+  cppAcumuloBrl: number;
   cppResgateBrl: number;
   costPerProvisionedPointBrl: number;
+  netfitsClubMonthlyFeeBrl: number;
   nfsEarnedPerBrlSpent: number;
   nfsEarnedPerBrlSpentDouble: number;
   shopFirstPurchaseBonusNfs: number;
@@ -92,14 +94,16 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   nfsPerWorkout: 50,
   nfsPerLoyaltyDeclaration: 20,
 
-  netfitsTakeRatePctFromGmv: 15.0,
+  netfitsTakeRatePctFromGmv: 8.0,
   associadoStandardShareOfNetfitsRevenuePct: 30.0,
   associadoMasterShareOfNetfitsRevenuePct: 35.0,
   normalUserReferralSharePct: 10.0,
   normalUserNewReferralBonusNfs: 50,
 
-  cppResgateBrl: 0.02,
-  costPerProvisionedPointBrl: 0.008,
+  cppAcumuloBrl: 0.02,
+  cppResgateBrl: 0.01,
+  costPerProvisionedPointBrl: 0.01,
+  netfitsClubMonthlyFeeBrl: 19.90,
   nfsEarnedPerBrlSpent: 0.50,
   nfsEarnedPerBrlSpentDouble: 1.00,
   shopFirstPurchaseBonusNfs: 150,
@@ -110,7 +114,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
 };
 
-const STORAGE_KEY = "netfits_operational_params_v1";
+const STORAGE_KEY = "netfits_operational_params_v2";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
