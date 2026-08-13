@@ -2768,8 +2768,13 @@ function AdminDashboardPage() {
           const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint; // R$ 102.720 * pf
           const provisionPctOfGross = (drePointsProvision / dreGrossRev) * 100;
 
-          // Receita Operacional Líquida Ajustada (após a Provisão de Pontos Válidos)
-          const dreAdjustedNetRev = dreGrossNetRev - drePointsProvision; // R$ 1.000.699 * pf
+          // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting)
+          const expiredPointsCount = Math.round(1540800 * pf); // 12% Breakage de Pontos Expirados
+          const drePointsProvisionReversal = expiredPointsCount * provisionCostPerPoint; // R$ 12.326.40 * pf
+          const reversalPctOfGross = (drePointsProvisionReversal / dreGrossRev) * 100;
+
+          // Receita Operacional Líquida Ajustada (após a Provisão e a Reversão de Pontos Expirados)
+          const dreAdjustedNetRev = dreGrossNetRev - drePointsProvision + drePointsProvisionReversal; // R$ 1.013.025,40 * pf
           const adjustedNetRevPctOfGross = (dreAdjustedNetRev / dreGrossRev) * 100;
 
           // Custos Diretos dos Serviços & Resgates (CSP)
@@ -2961,6 +2966,21 @@ function AdminDashboardPage() {
                         </td>
                         <td className="py-3 px-4 text-right text-purple-300">-{provisionPctOfGross.toFixed(1)}%</td>
                         <td className="py-3 px-4 text-center text-purple-400 font-bold">🛡️ Redutora da Rec. Líquida</td>
+                      </tr>
+
+                      {/* REVERSÃO DE PROVISÃO: PONTOS EXPIRADOS (BREAKAGE) */}
+                      <tr className="bg-lime-950/20 hover:bg-lime-950/40 transition text-lime-400 font-bold border-y border-lime-500/30">
+                        <td className="py-3 px-4 text-lime-300">
+                          (+) REVERSÃO DE PROVISÃO (PONTOS EXPIRADOS / BREAKAGE)
+                          <span className="block text-[10px] text-lime-400 font-normal mt-0.5">
+                            └─ {expiredPointsCount.toLocaleString("pt-BR")} nfs expirados × R$ {provisionCostPerPoint.toFixed(3)} (Baixa de Passivo por Expiração)
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right font-mono text-lime-400 text-sm font-bold">
+                          +R$ {drePointsProvisionReversal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3 px-4 text-right text-lime-400">+{reversalPctOfGross.toFixed(1)}%</td>
+                        <td className="py-3 px-4 text-center text-lime-400 font-bold">♻️ Reversão do Passivo (Breakage)</td>
                       </tr>
 
                       {/* RECEITA LÍQUIDA AJUSTADA */}
