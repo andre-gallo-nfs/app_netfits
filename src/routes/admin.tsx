@@ -651,6 +651,10 @@ function AdminDashboardPage() {
   // Seleção de Fase da DRE (Fase 1 Launch vs Fase 2 Com Clube - Business Case v1)
   const [drePhase, setDrePhase] = useState<"fase1" | "fase2">("fase1");
 
+  // Estado do Modal de Apresentação de Investidores (Pitch Deck)
+  const [showPitchDeckModal, setShowPitchDeckModal] = useState<boolean>(false);
+  const [pitchSlide, setPitchSlide] = useState<number>(1);
+
   // Estado dos Parâmetros da Operação (Sincronizado via Store Reativo Global)
   const storedParams = useOperationalParams();
   const [operationalParams, setOperationalParams] = useState(storedParams);
@@ -803,6 +807,17 @@ function AdminDashboardPage() {
             <span className="font-mono text-zinc-300">{isLive ? "REALTIME ON" : "PAUSADO"}</span>
             <span className="text-[10px] text-zinc-500">• {lastUpdated}</span>
           </div>
+
+          <button
+            onClick={() => {
+              setShowPitchDeckModal(true);
+              toast.info("Apresentação de Investidores (Pitch Deck Seed/Series A) aberta!");
+            }}
+            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 flex items-center gap-2 transition cursor-pointer"
+          >
+            <TrendingUp className="size-4" />
+            <span>🚀 Pitch Deck Investidores</span>
+          </button>
 
           <button
             onClick={() => {
@@ -3260,6 +3275,253 @@ function AdminDashboardPage() {
           );
         })()}
       </main>
+
+      {/* Modal Interativo de Apresentação de Investidores (Pitch Deck) */}
+      {showPitchDeckModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl flex flex-col justify-between">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-lime-400">
+                  Investor Pitch Deck — Rodada Seed / Series A
+                </span>
+                <h3 className="text-xl font-black text-white flex items-center gap-2">
+                  <span>🚀 Netfits Tecnologia S.A.</span>
+                  <span className="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-mono">
+                    Slide {pitchSlide} de 12
+                  </span>
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowPitchDeckModal(false)}
+                className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Slide Navigation Buttons */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none pb-2 border-b border-zinc-800/80">
+              {[
+                "1. Capa", "2. Problema", "3. Solução", "4. Mercado TAM", "5. Modelo de Negócio",
+                "6. Programa nfs", "7. DRE Proforma", "8. Unit Economics", "9. Canais B2B2C", "10. Moat Tech", "11. Captação", "12. Equipe & Visão"
+              ].map((name, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setPitchSlide(idx + 1)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+                    pitchSlide === idx + 1
+                      ? "bg-purple-600 text-white font-black shadow-md shadow-purple-600/30"
+                      : "bg-zinc-950 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                  }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+
+            {/* Slide Content Dynamic Viewer */}
+            <div className="py-4 space-y-4">
+              {pitchSlide === 1 && (
+                <div className="space-y-4 text-center py-6">
+                  <div className="inline-block p-4 rounded-3xl bg-gradient-to-tr from-purple-900/40 via-purple-600/20 to-lime-400/20 border border-purple-500/40 mb-2">
+                    <Infinity className="size-16 mx-auto text-lime-400 animate-pulse" />
+                  </div>
+                  <h2 className="text-2xl font-black text-white">NETFITS TECNOLOGIA S.A.</h2>
+                  <p className="text-base text-zinc-300 max-w-xl mx-auto font-medium">
+                    O ecossistema definitivo que une treino gamificado, recomendação médica/especialista, marketplace esportivo e programa de pontos de alto engajamento.
+                  </p>
+                  <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
+                    <span className="bg-lime-400/10 text-lime-300 border border-lime-400/30 px-3 py-1 rounded-full text-xs font-bold">
+                      Retenção Gamificada FEFO
+                    </span>
+                    <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold">
+                      Margem EBITDA 50,5% (Fase 2)
+                    </span>
+                    <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 px-3 py-1 rounded-full text-xs font-bold">
+                      1M Usuários SOM
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 2 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-rose-400 flex items-center gap-2">
+                    <span>⚠️ O Problema do Mercado (The Problem)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-rose-500/20 space-y-2">
+                      <h4 className="font-bold text-white text-sm">1. Churn Elevado (&gt;65%)</h4>
+                      <p className="text-xs text-zinc-400">Mais de 65% dos praticantes abandonam academias/apps nos primeiros 90 dias por falta de incentivos tangíveis.</p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-rose-500/20 space-y-2">
+                      <h4 className="font-bold text-white text-sm">2. CAC Explosivo</h4>
+                      <p className="text-xs text-zinc-400">Marcas esportivas e clínicas gastam fortunas em mídia paga tradicional com conversão cada vez menor.</p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-rose-500/20 space-y-2">
+                      <h4 className="font-bold text-white text-sm">3. Pontos Tradicionais Quebrados</h4>
+                      <p className="text-xs text-zinc-400">Pontos expirados sem aviso e regras punitivas desestimulam a fidelização do consumidor.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 3 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-lime-400 flex items-center gap-2">
+                    <span>💡 A Solução Netfits (The Solution)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-lime-400/20 space-y-2">
+                      <h4 className="font-bold text-white text-sm">SuperApp 4 em 1</h4>
+                      <p className="text-xs text-zinc-400">GPS de treino inteligente, Feed Social com anúncios remunerados, Marketplace e Clube de Benefícios.</p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-lime-400/20 space-y-2">
+                      <h4 className="font-bold text-white text-sm">Algoritmo FEFO Protegido</h4>
+                      <p className="text-xs text-zinc-400">First-Expiring, First-Out: o ponto mais próximo da expiração é resgatado primeiro, gerando a maior taxa de satisfação do setor.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 4 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-purple-300">📊 O Mercado Endereçável (TAM / SAM / SOM)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-xs font-mono text-zinc-400 uppercase">TAM Brasil</span>
+                      <h4 className="text-xl font-black text-white mt-1">R$ 85 Bilhões</h4>
+                      <p className="text-[11px] text-zinc-500 mt-1">Mercado total de saúde, academias, suplementos e nutrição no Brasil.</p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-xs font-mono text-purple-400 uppercase">SAM Operacional</span>
+                      <h4 className="text-xl font-black text-purple-300 mt-1">R$ 18 Bilhões</h4>
+                      <p className="text-[11px] text-zinc-500 mt-1">14 Milhões de brasileiros com wearables e apps de corrida/academia.</p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-lime-400/30 text-center bg-lime-400/5">
+                      <span className="text-xs font-mono text-lime-400 uppercase">SOM Meta 3 Anos</span>
+                      <h4 className="text-xl font-black text-lime-300 mt-1">R$ 450M GMV</h4>
+                      <p className="text-[11px] text-zinc-400 mt-1">1 Milhão de usuários ativos transacionando no ecossistema Netfits.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 5 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white">💰 Modelo de Negócios &amp; Monetização Multirreceptora</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-lime-400">1. Take-Rate Marketplace (Shop):</span> 15,0% cobrado sobre o GMV dos sellers credenciados.
+                    </div>
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-lime-400">2. Feed &amp; Mídia Patrocinada:</span> CPM/CPC cobrado por anúncios e conteúdos no feed.
+                    </div>
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-lime-400">3. Inscrições em Provas:</span> Comissão por intermediação de inscrições em eventos de corrida.
+                    </div>
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-purple-500/30 bg-purple-950/20">
+                      <span className="font-bold text-purple-300">4. Netfits Club (Fase 2):</span> Assinatura de R$ 29,90/mês para benefícios exclusivos (53,3% da receita na Fase 2).
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 6 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-purple-300">🪙 Engenharia do Programa de Pontos &amp; Breakage</h3>
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/30 text-xs space-y-2">
+                    <div className="flex justify-between border-b border-zinc-800 pb-2">
+                      <span className="text-zinc-400">Custo de Resgate por Ponto (CPP):</span>
+                      <span className="font-mono text-lime-400 font-bold">R$ 0,02 / nfs</span>
+                    </div>
+                    <div className="flex justify-between border-b border-zinc-800 pb-2">
+                      <span className="text-zinc-400">Custo de Provisão do Passivo:</span>
+                      <span className="font-mono text-purple-300 font-bold">R$ 0,008 / nfs (retido em caixa)</span>
+                    </div>
+                    <div className="flex justify-between border-b border-zinc-800 pb-2">
+                      <span className="text-zinc-400">Taxa de Breakage (Expiração Estimada):</span>
+                      <span className="font-mono text-white font-bold">12,0% ao ano (24 meses validade)</span>
+                    </div>
+                    <div className="flex justify-between pt-1">
+                      <span className="text-zinc-400">Passivo Total Provisionado em Caixa:</span>
+                      <span className="font-mono text-lime-300 font-bold">R$ 71.073,60 (100% Solvente)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 7 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white">📈 DRE Proforma — Fase 1 (Launch) vs Fase 2 (Netfits Club)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                      <span className="text-xs font-mono text-lime-400 font-bold">FASE 1: LAUNCH INICIAL</span>
+                      <p className="text-xs text-zinc-400">Receita Bruta: <b>R$ 1.173.850,00</b></p>
+                      <p className="text-xs text-zinc-400">EBITDA: <b className="text-lime-400">R$ 184.300,40 (15,7%)</b></p>
+                      <p className="text-xs text-zinc-400">Lucro Líquido: <b>R$ 151.895,34 (12,9%)</b></p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/40 bg-purple-950/20 space-y-2">
+                      <span className="text-xs font-mono text-purple-300 font-bold">FASE 2: EXPANSÃO COM CLUBE</span>
+                      <p className="text-xs text-zinc-300">Receita Bruta: <b>R$ 2.510.850,00</b> (+113,9%)</p>
+                      <p className="text-xs text-zinc-300">EBITDA: <b className="text-lime-400">R$ 1.269.080,40 (50,5% MARGEM)</b></p>
+                      <p className="text-xs text-zinc-300">Lucro Líquido: <b className="text-purple-300">R$ 1.073.958,34 (42,8%)</b></p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide >= 8 && (
+                <div className="space-y-4 bg-zinc-950 p-6 rounded-2xl border border-zinc-800 text-xs">
+                  <h3 className="text-base font-bold text-white">
+                    {pitchSlide === 8 && "⚙️ Unit Economics & Eficiência Operacional (1M Usuários Cloudflare R$ 7.260/mês)"}
+                    {pitchSlide === 9 && "🤝 Canais de Distribuição B2B2C & Partilha de Receita 30%-35% com Associados"}
+                    {pitchSlide === 10 && "🛡️ Moat Competitivo Tecnológico (PWA Casca Nativa + FEFO Protected)"}
+                    {pitchSlide === 11 && "🚀 Alocação de Recursos (45% Mídia, 35% P&D, 20% Capital de Giro)"}
+                    {pitchSlide === 12 && "👥 Equipe Executiva, Governança & Visão 2030 (10M Usuários LATAM)"}
+                  </h3>
+                  <p className="text-zinc-400">
+                    Todas as informações contábeis e operacionais completas estão disponíveis no documento impresso em formato Word e no repositório <code className="text-lime-400">pitch_deck_netfits_investidores.md</code>.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer Controls */}
+            <div className="flex items-center justify-between border-t border-zinc-800 pt-4 gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={pitchSlide === 1}
+                  onClick={() => setPitchSlide((s) => Math.max(1, s - 1))}
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white font-bold text-xs transition cursor-pointer"
+                >
+                  ← Anterior
+                </button>
+                <button
+                  disabled={pitchSlide === 12}
+                  onClick={() => setPitchSlide((s) => Math.min(12, s + 1))}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold text-xs transition cursor-pointer"
+                >
+                  Próximo →
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    toast.success("Apresentação de Investidores exportada em Word!");
+                  }}
+                  className="px-4 py-2 rounded-xl bg-lime-400 text-zinc-950 hover:bg-lime-300 font-extrabold text-xs shadow-md transition cursor-pointer flex items-center gap-2"
+                >
+                  <Download className="size-3.5" />
+                  <span>Baixar Apresentação (.docx)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
