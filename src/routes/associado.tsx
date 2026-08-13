@@ -30,14 +30,14 @@ const MOCK_ASSOCIADO_DATA = {
   id: "assoc_001",
   name: "André Gallo",
   handle: "@gallo.influencer",
-  category: "Associado Master · Influenciador Fitness",
+  category: "Associado Netfits · Influenciador Fitness",
   referralCode: "GALLO-NETFITS",
   exclusiveUrl: "https://netfits.app/r/GALLO-NETFITS",
   
   // Modelo Financeiro do Business Plan:
-  // GMV Shopping -> Netfits Take-Rate (15%) -> Repasse ao Associado (30% da Receita Netfits)
-  netfitsTakeRatePct: 15.0, // Netfits cobra 15% do GMV do Shopping
-  associadoShareOfNetfitsRevenuePct: 30.0, // Associado recebe 30% da receita da Netfits
+  // GMV Shopping -> Netfits Take-Rate (8%) -> Repasse ao Associado (10% da Receita Netfits)
+  netfitsTakeRatePct: 8.0, // Netfits cobra 8% do GMV do Shopping
+  associadoShareOfNetfitsRevenuePct: 10.0, // Associado recebe 10% da receita da Netfits
   
   totalCapturedUsers: 1428,
   activeUsersThisMonth: 1248,
@@ -141,7 +141,7 @@ function AssociadoDashboardPage() {
 
   // Parâmetros em tempo real vindos do Admin
   const takeRatePct = params.netfitsTakeRatePctFromGmv;
-  const associadoSharePct = params.associadoMasterShareOfNetfitsRevenuePct;
+  const associadoSharePct = params.associadoShareOfNetfitsRevenuePct;
   const effectivePct = ((takeRatePct / 100) * (associadoSharePct / 100) * 100).toFixed(2);
 
   const netfitsRevenueBrl = associado.monthlyGmvBrl * (takeRatePct / 100);
@@ -240,7 +240,7 @@ function AssociadoDashboardPage() {
             <img src={netfitsLogo} alt="Netfits" className="h-4 w-auto filter brightness-0 invert" />
           </div>
           <span className="hidden sm:inline-block text-xs bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full border border-purple-500/20 font-semibold">
-            Painel do Associado Master
+            Painel do Associado Netfits
           </span>
         </div>
 

@@ -2183,16 +2183,10 @@ function AdminDashboardPage() {
                     onChange={(v) => setOperationalParams((p) => ({ ...p, netfitsTakeRatePctFromGmv: Number(v) }))}
                   />
                   <ParamInput
-                    label="Repasse Ao Associado Padrão"
+                    label="Comissão Padrão do Associado Netfits"
                     unit="% da Receita Netfits"
-                    value={operationalParams.associadoStandardShareOfNetfitsRevenuePct}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, associadoStandardShareOfNetfitsRevenuePct: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="Repasse Ao Associado Master"
-                    unit="% da Receita Netfits"
-                    value={operationalParams.associadoMasterShareOfNetfitsRevenuePct}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, associadoMasterShareOfNetfitsRevenuePct: Number(v) }))}
+                    value={operationalParams.associadoShareOfNetfitsRevenuePct}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, associadoShareOfNetfitsRevenuePct: Number(v) }))}
                   />
                   <ParamInput
                     label="Bônus 1ª Compra no Shopping"
@@ -3054,7 +3048,7 @@ function AdminDashboardPage() {
                         <td className="py-2.5 px-4 text-center text-zinc-500">Resgate Shopping</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                        <td className="py-2.5 px-6">└─ Repasse de Comissões em Dinheiro aos Associados ({operationalParams.associadoMasterShareOfNetfitsRevenuePct}%)</td>
+                        <td className="py-2.5 px-6">└─ Repasse de Comissões em Dinheiro aos Associados ({operationalParams.associadoShareOfNetfitsRevenuePct}%)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreAssociadoCommissionCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
                         <td className="py-2.5 px-4 text-right">-{((dreAssociadoCommissionCost / dreGrossRev) * 100).toFixed(1)}%</td>
                         <td className="py-2.5 px-4 text-center text-zinc-500">Comissão Captação</td>
