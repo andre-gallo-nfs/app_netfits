@@ -897,7 +897,7 @@ function TermsOfServiceModal({
 
           <h3 className="font-extrabold text-zinc-900 text-sm">1. Objeto do Programa</h3>
           <p>
-            O Programa Netfits é um ecossistema digital de recompensas operado pela Netfits Tecnologia S.A., destinado a incentivar a prática regular de atividades físicas, a nutrição saudável e hábitos de longevidade.
+            O Programa Netfits é um ecossistema digital de recompensas operado pela Netfits Fidelidade Ltda., destinado a incentivar a prática regular de atividades físicas, a nutrição saudável e hábitos de longevidade.
           </p>
 
           <h3 className="font-extrabold text-zinc-900 text-sm">2. Regras de Acúmulo de Pontos (nfs)</h3>
@@ -987,7 +987,7 @@ function LgpdPrivacyModal({
 
           <h3 className="font-extrabold text-zinc-900 text-sm">1. Controlador e Finalidade do Tratamento</h3>
           <p>
-            A <b>Netfits Tecnologia S.A.</b> atua como Controladora dos dados pessoais coletados. Os dados fornecidos no cadastro (Nome, E-mail, Celular, CPF e Senha) são tratados com as finalidades de:
+            A <b>Netfits Fidelidade Ltda.</b> atua como Controladora dos dados pessoais coletados. Os dados fornecidos no cadastro (Nome, E-mail, Celular, CPF e Senha) são tratados com as finalidades de:
           </p>
           <ul className="list-disc pl-5 space-y-1">
             <li>Autenticação segura da conta e prevenção contra acessos não autorizados;</li>

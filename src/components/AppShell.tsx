@@ -1,8 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, ShoppingBag, Activity, Wallet, Award } from "lucide-react";
 import type { ReactNode } from "react";
-import netfitsLogo from "@/assets/netfits-logo.png";
-import netfitsMark from "@/assets/netfits-mark.png";
+import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import profileAvatar from "@/assets/profile-avatar.jpg";
 import { useWallet } from "@/lib/wallet-store";
 import { useBadges, badgesStore } from "@/lib/badges-store";
@@ -74,17 +73,15 @@ function TopBar() {
   return (
     /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
     <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3 py-2.5 flex items-center justify-between shadow-xs">
-      <Link to="/" className="flex items-center gap-1.5 shrink-0" aria-label="netfits">
+      <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Netfits">
         <img
-          src={netfitsMark}
-          alt=""
-          className="h-7 w-7 object-contain rounded-md bg-purple-600 p-0.5 shadow-md shadow-purple-600/20 shrink-0"
+          src={netfitsDarkLogo}
+          alt="Netfits"
+          className="h-8 w-auto object-contain shrink-0 rounded-lg shadow-sm"
         />
-        <img
-          src={netfitsLogo}
-          alt="netfits"
-          className="h-5 w-auto object-contain [filter:brightness(0)] shrink-0"
-        />
+        <span className="font-extrabold tracking-tight text-xl text-zinc-900">
+          Netfits
+        </span>
       </Link>
       <div className="flex items-center gap-1.5 shrink-0">
         <Link
