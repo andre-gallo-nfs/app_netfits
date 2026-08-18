@@ -1,88 +1,110 @@
 # 🚀 Pitch Deck de Investidores — Netfits Fidelidade Ltda.
-> **Versão Executiva v2.0** — Totalmente Alinhada aos Novos Parâmetros Financeiros Padrão & Manifesto Netfits v2.0
-> **Rodada Solicitada**: Seed / Series A (R$ 4,0 Milhões a R$ 8,0 Milhões)
+> **Versão Executiva v2.0** — Totalmente Alinhada ao **Manifesto Netfits v2.0** e ao **Business Plan v2 Gallo**  
+> **Rodada Solicitada**: Seed / Series A (R$ 4,0 Milhões a R$ 8,0 Milhões)  
+> **Razão Social**: Netfits Fidelidade Ltda.
 
 ---
 
-## 📌 Resumo Executivo & Tese do Negócio
+## 📌 Resumo Executivo & Tese de Investimento
 
-A **Netfits Fidelidade Ltda.** é a primeira camada de valor e fidelidade verticalizada para a **vida em movimento**. Conectamos o esportista amador, marcas esportivas, prestadores de serviços de saúde/bem-estar e associados em uma plataforma unificada.
+A **Netfits Fidelidade Ltda.** é a primeira camada de valor e fidelidade verticalizada para a **vida em movimento** na América Latina. Conectamos o esportista amador, marcas esportivas, prestadores de serviços de saúde/bem-estar e associados em um ecossistema unificado.
 
-> **Slogan Oficial**: *"Fazer cada movimento valer mais."*
-
-### 🚀 Evolução em 3 Etapas Estratégicas:
-1. **Etapa 1 — Benefícios & Loyalty (Dia 1)**: Feed editorial & transacional (+5 nfs ler, +10 nfs compartilhar, +50 nfs comprar), carteira de pontos e Netfits Shop (8,0% Take-Rate padrão).
-2. **Etapa 2 — Hábitos & Wearables (9 a 18 meses)**: Netfits Club (R$ 19,90/mês para benefícios exclusivos), integração consentida com wearables (Garmin/Strava) e desafios de consistência.
-3. **Etapa 3 — Longevidade & Saúde Preventiva (18 a 36 meses)**: Curadoria e navegação por especialistas (nutrologia, medicina esportiva, fisioterapia/recovery) e programas B2B corporativos.
+> **Slogan Oficial**: *"Fazer cada movimento valer mais."*  
+> **MTP (Massive Transformative Purpose)**: *"Recompensar quem se movimenta."*  
+> **Posicionamento**: A plataforma de benefícios e loyalty para o estilo de vida ativo e a longevidade consciente.
 
 ---
 
-## 📊 12 Slides da Apresentação Executiva
+## 📊 Estrutura dos 12 Slides da Apresentação Executiva
 
 ### Slide 1: Capa & Tese de Investimento
 - **Empresa**: Netfits Fidelidade Ltda.
 - **Slogan**: *"Fazer cada movimento valer mais."*
-- **Posicionamento**: Healthspan e estilo de vida ativo com retenção atuarial por pontos.
+- **MTP**: Recompensar quem se movimenta.
+- **Posicionamento**: Healthspan e estilo de vida ativo com retenção atuarial por pontos `nfs`.
 - **Meta de Captação**: R$ 4,0 Milhões a R$ 8,0 Milhões (Runway para 12 a 18 meses).
 
-### Slide 2: O Problema do Mercado (The Problem)
-- **Churn Elevado (>65%)**: Praticantes ativos abandonam academias e apps nos primeiros 90 dias por falta de incentivos tangíveis.
-- **CAC Explosivo**: Marcas e clínicas gastam fortunas em mídia paga com conversão declinante.
-- **Pontos Tradicionais Quebrados**: Pontos expirados sem aviso e regras punitivas desestimulam o consumidor.
+### Slide 2: O Problema — A Jornada Fragmentada da Vida Ativa
+- **Valor Disperso**: O esportista amador gera atenção, consumo, engajamento, dados e frequência, mas esse valor fica espalhado entre plataformas que não se conversam (redes sociais, WhatsApp, e-commerce genérico, pontos bancários).
+- **Sem Retorno ao Usuário**: Os pontos tradicionais de bancos não dialogam com os interesses esportivos e raramente recompensam a consistência de quem se exercita.
 
-### Slide 3: A Solução Netfits (The Solution)
-- **SuperApp 4 em 1**: Feed editorial, carteira de pontos, marketplace e clube de benefícios.
-- **Algoritmo FEFO Protegido**: *First-Expiring, First-Out* — garante que o ponto mais próximo do vencimento seja consumido primeiro.
-- **Healthspan**: Vitalidade e consistência sustentável sem culpa, medicalização ou comparações corporais.
+### Slide 3: A Solução Netfits — Ecossistema 4 em 1 & As 3 Camadas de Evolução
+- **Ecossistema Unificado**:
+  1. **Feed Editorial Curado**: Conteúdo transacional que recompensa leitura e compartilhamento com pontos `nfs`.
+  2. **Netfits Shop (Marketplace Esportivo)**: Compra em marcas parceiras com cashback em pontos e Take Rate padrão de **8,0%**.
+  3. **Carteira nfs & Interoperabilidade**: Acúmulo, resgate e declaração de programas de pontos parceiros.
+  4. **Rede de Associados Netfits**: Sistema de indicação B2B2C com remuneração vitalícia de **10,0%**.
+- **Jornada em 3 Camadas Cumulativas**:
+  - **Camada 1 (Benefícios & Commerce)**: Recompensa imediata via Shop e pontos.
+  - **Camada 2 (Hábitos & Wearables)**: Validação de consistência de treino via integrações com Garmin, Strava e Apple Health.
+  - **Camada 3 (Longevidade Consciente)**: Serviços premium, diagnósticos de vitalidade e healthspan.
 
-### Slide 4: Mercado Endereçável (TAM / SAM / SOM)
-- **TAM Brasil**: R$ 85 Bilhões (Saúde, Academias, Suplementos e Eventos).
-- **SAM Operacional**: R$ 18 Bilhões — 14 Milhões de praticantes ativos com wearables.
-- **SOM Meta 3 Anos**: R$ 450 Milhões em GMV movimentado com 1 Milhão de usuários ativos.
+### Slide 4: Tamanho de Mercado (TAM / SAM / SOM)
+- **TAM (Brasil)**: **25 a 35 Milhões** de praticantes de esportes amadores (corrida, ciclismo, musculação, beach tennis, triathlon e outdoor).
+- **SAM**: **R$ 4,0 Bilhões** transacionados anualmente em e-commerce esportivo, suplementação, provas e wearables.
+- **SOM Target**: **R$ 100M a R$ 150M de GMV** no Ano 2 ➔ **R$ 400M a R$ 700M de GMV** no Ano 3.
 
-### Slide 5: Modelo de Negócios & Monetização Multirreceptora
-- **1. Take-Rate Marketplace (Shop)**: 8,0% padrão cobrado sobre o GMV dos sellers credenciados.
-- **2. Feed & Mídia Patrocinada**: CPM/CPC cobrado por anúncios e conteúdos no feed.
-- **3. Inscrições em Provas**: Comissão por intermediação de inscrições em eventos de corrida.
-- **4. Netfits Club (Fase 2)**: Assinatura de R$ 19,90/mês para benefícios exclusivos (50,0% da receita na Fase 2).
+### Slide 5: Modelo de Negócio & 5 Pools de Receita
+1. **Take Rate Marketplace Shop**: **8,0%** sobre o GMV das vendas parceiras.
+2. **Netfits Club (Assinatura)**: **R$ 19,90 / mês** para multiplicadores de pontos e frete/benefícios exclusivos.
+3. **Mídia & Campanhas Patrocinadas**: Ativação de marcas esportivas no Feed editorial curado.
+4. **Protocolo B2B2C & Associados**: Captação recorrente via criadores e assessorias esportivas.
+5. **Serviços Premium de Longevidade (Fase 3)**: Curadoria de saúde executiva e healthspan.
 
-### Slide 6: Engenharia do Programa de Pontos & Passivo Atuarial
-- **CPP de Acúmulo (Custo por Ponto Emitido)**: R$ 0,02 / nfs
-- **CPP de Resgate (Custo por Ponto Consumido)**: R$ 0,01 / nfs
-- **Custo de Provisão do Passivo**: R$ 0,01 / nfs (retido em caixa)
-- **Taxa de Breakage (Expiração Estimada)**: 12,0% ao ano (24 meses validade)
-- **Reversão de Provisão DRE**: +R$ 12.326,40 acrescentada à Receita Líquida no vencimento dos pontos.
-- **Passivo Retido e Provisionado em Caixa**: R$ 88.842,00 (100% Solvente).
+### Slide 6: Engenharia Atuarial dos Pontos `nfs` (Algoritmo FEFO & Sustentabilidade)
+- **Regra de Ouro**: *"Pontos emitidos sem funding viram passivo; pontos emitidos com funding viram motor de crescimento"*.
+- **Algoritmo FEFO (First-Expiring, First-Out)**: Resgate automático do ponto mais próximo de vencer, protegendo o usuário e liberando provisões retidas na DRE ao expirar.
+- **Parâmetros Atuariais Definitivos**:
+  - **CPP Acúmulo (Pontos Emitidos)**: R$ 0,02 / nfs
+  - **CPP Resgate (Pontos Consumidos)**: R$ 0,01 / nfs
+  - **CPP Provisionamento (Passivo Retido em Caixa)**: R$ 0,01 / nfs
+  - **Validade dos Pontos**: 24 meses (Breakage Atuarial de 12,0%)
 
-### Slide 7: DRE Proforma — Fase 1 (Launch) vs Fase 2 (Netfits Club R$ 19,90/mês)
-| Linha da DRE | Fase 1 (Launch Inicial) | Fase 2 (Com Clube R$ 19,90/mês) | Variação % |
-| :--- | :---: | :---: | :---: |
-| **Receita Operacional Bruta** | **R$ 893.850,00** | **R$ 1.789.350,00** | **+100,2%** |
-| (-) Impostos sobre Vendas (-6% DAS) | (R$ 53.631,00) | (R$ 107.361,00) | +100,2% |
-| (-) Provisão Passiva de Pontos | (R$ 102.720,00) | (R$ 102.720,00) | 0,0% |
-| (+) Reversão Breakage Pontos Expirados | +R$ 12.326,40 | +R$ 12.326,40 | 0,0% |
-| **Receita Operacional Líquida Ajustada** | **R$ 749.825,40** | **R$ 1.591.595,40** | **+112,3%** |
-| Custos Diretos dos Serviços (CSP) | (R$ 220.000,00) | (R$ 220.000,00) | 0,0% |
-| **Lucro Bruto Ajustado** | **R$ 529.825,40 (59,3%)** | **R$ 1.371.595,40 (76,7%)** | **+158,9%** |
-| Despesas Operacionais (OPEX Total) | (R$ 372.200,00) | (R$ 408.515,00) | +9,8% |
-| **EBITDA Ajustado** | **R$ 157.625,40 (17,6%)** | **R$ 963.080,40 (53,8%)** | **+511,0%** |
-| **Lucro Líquido do Exercício** | **R$ 129.895,34 (14,5%)** | **R$ 815.958,34 (45,6%)** | **+528,2%** |
+### Slide 7: DRE Financeiro Proforma (Fase 1 Launch vs Fase 2 Com Clube)
+| Linha DRE Sintética | Fase 1 Launch (R$) | Fase 1 (%) | Fase 2 Clube (R$) | Fase 2 (%) | Variação (%) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Receita Bruta Total** | **R$ 893.850,00** | **100,0%** | **R$ 1.789.350,00** | **100,0%** | **+100,2%** |
+| Deduções Fiscais (-6,0%) | (R$ 53.631,00) | -6,0% | (R$ 107.361,00) | -6,0% | - |
+| Provisão Líquida de Pontos | (R$ 88.842,00) | -9,9% | (R$ 88.842,00) | -5,0% | - |
+| **Lucro Bruto Ajustado** | **R$ 559.577,00** | **62,6%** | **R$ 1.418.947,00** | **79,3%** | **+153,6%** |
+| Despesas Operacionais (OPEX) | (R$ 401.951,60) | -45,0% | (R$ 455.866,60) | -25,5% | - |
+| **EBITDA Ajustado** | **R$ 157.625,40** | **17,6%** | **R$ 963.080,40** | **53,8%** | **+511,0%** |
+| **Lucro Líquido do Exercício** | **R$ 129.895,34** | **14,5%** | **R$ 815.958,34** | **45,6%** | **+528,2%** |
+
+- **Reserva do Passivo Retido em Caixa (FEFO)**: **R$ 88.842,00** (`8.884.200 nfs × R$ 0,01`).
 
 ### Slide 8: Unit Economics & Eficiência Operacional
-- **Infraestrutura Serverless (Cloudflare)**: Custo previsível de R$ 72.600,00/ano para 1M de usuários.
-- **LTV / CAC**: LTV de R$ 380,00 vs CAC Orgânico de R$ 18,50 (Relação LTV/CAC > 20x).
+- **CAC Orgânico / B2B2C**: **R$ 18,50** (viabilizado por Associados e indicação MGM).
+- **LTV Estimado**: **R$ 380,00** (Netfits Club + compras no Shop + serviços).
+- **Relação LTV / CAC**: **> 20x**.
+- **Payback do CAC**: **< 2,5 meses**.
 
-### Slide 9: Canais de Distribuição B2B2C & Partilha com Associados
-- **Repasse aos Associados Netfits**: **10,0% de comissão padrão** sobre a receita gerada na categoria única de Associados Netfits.
-- **Escala B2B2C**: Studios, assessorias de corrida, médicos esportivos e influenciadores integrados à plataforma.
+### Slide 9: Canais B2B2C, Associados Netfits & MGM (Member-Get-Member)
+- **Categoria Única de Associados Netfits**: **10,0% de comissão padrão** sobre a receita gerada pela rede de indicação.
+- **Atribuição Vitalícia de Carteira**: Remuneração contínua para treinadores, assessorias, médicos esportivos e influenciadores digitais.
+- **MGM (Member-Get-Member)**: Gamificação do convite de amigos com bônus de 50 `nfs` no primeiro cadastro e 150 `nfs` na primeira compra.
 
-### Slide 10: Moat Competitivo Tecnológico
-- **Defensabilidade**: Algoritmo FEFO protegido, ecossistema 4 em 1 e first-mover vantagem no Brasil.
+### Slide 10: Moat Competitivo & Defensabilidade Tecnológica
+1. **Verticalização Exclusiva**: Foco 100% no esportista amador e no estilo de vida ativo.
+2. **Algoritmo FEFO Protegido**: Gestão atuarial de passivos e expiração inteligente.
+3. **Efeito de Rede B2B2C**: Carteiras compartilhadas com Associados geram barreira de saída.
+4. **Inteligência de Hábitos**: Dados comportamentais e de wearables consentidos.
+5. **Transição para Longevidade**: Extensão do LTV do usuário por toda a vida.
 
-### Slide 11: Rodada de Captação & Alocação do Capital Solicitado
-- **Rodada Seed**: R$ 4,0 Milhões a R$ 8,0 Milhões.
-- **Alocação**: 40% Tech & Produto | 25% Growth & CAC | 15% Comercial | 10% BI & Antifraude | 10% G&A.
+### Slide 11: Destinação do Capital Solicitado (Uso dos Recursos)
+- **Aporte Solicitado**: **R$ 4,0 Milhões a R$ 8,0 Milhões** (Runway para 12 a 18 meses).
+- **Alocação Estratégica**:
+  - 🛠️ **40% Produto e Tecnologia**: App native-shell, motor FEFO e infraestrutura.
+  - 🚀 **25% Aquisição e Crescimento**: Marketing de comunidade, eventos e MGM.
+  - 🤝 **15% Parcerias & Rede de Associados**: Expansão do canal B2B2C e comissionamento de 10,0%.
+  - 📊 **10% BI, Antifraude & Wearables**: Motor de inteligência de dados e conectores de saúde.
+  - ⚖️ **10% Jurídico, Compliance & Operações**: Estrutura regulatória e governança.
 
-### Slide 12: Equipe Executiva & Visão 2030
-- **Liderança**: Time executivo com histórico comprovado em Loyalty, E-commerce e Healthtech.
-- **Visão 2030**: 10 Milhões de usuários ativos na América Latina.
+### Slide 12: Manifesto de Cultura, Visão de Longo Prazo & Equipe
+- **O Código Netfits (Nossos Valores)**:
+  1. *Usuário antes do ego*
+  2. *Clareza antes da complexidade*
+  3. *Evidência antes da convicção*
+  4. *Velocidade com responsabilidade*
+- **Visão de Longo Prazo**: Ser a plataforma líder na América Latina a acompanhar a jornada ativa do primeiro treino à gestão da longevidade.
+- **Governança & Fundadores**: Equipe executiva com larga experiência em loyalty, tecnologia, mercado esportivo e gestão financeira.

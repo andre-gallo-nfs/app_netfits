@@ -3479,17 +3479,105 @@ function AdminDashboardPage() {
                 </div>
               )}
 
-              {pitchSlide >= 8 && (
-                <div className="space-y-4 bg-zinc-950 p-6 rounded-2xl border border-zinc-800 text-xs">
-                  <h3 className="text-base font-bold text-white">
-                    {pitchSlide === 8 && "⚙️ Unit Economics & Eficiência Operacional (1M Usuários Cloudflare R$ 7.260/mês)"}
-                    {pitchSlide === 9 && "🤝 Canais de Distribuição B2B2C & Partilha de Receita 30%-35% com Associados"}
-                    {pitchSlide === 10 && "🛡️ Moat Competitivo Tecnológico (PWA Casca Nativa + FEFO Protected)"}
-                    {pitchSlide === 11 && "🚀 Alocação de Recursos (45% Mídia, 35% P&D, 20% Capital de Giro)"}
-                    {pitchSlide === 12 && "👥 Equipe Executiva, Governança & Visão 2030 (10M Usuários LATAM)"}
-                  </h3>
-                  <p className="text-zinc-400">
-                    Todas as informações contábeis e operacionais completas estão disponíveis no documento impresso em formato Word e no repositório <code className="text-lime-400">pitch_deck_netfits_investidores.md</code>.
+              {pitchSlide === 8 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-lime-400">🎯 Unit Economics &amp; Eficiência Operacional</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                      <span className="text-zinc-400">CAC Orgânico / B2B2C:</span>
+                      <h4 className="text-lg font-mono text-lime-400 font-bold">R$ 18,50 / usuário ativo</h4>
+                      <p className="text-[11px] text-zinc-500">Aquisição por rede de Associados e indicação de amigos (MGM).</p>
+                    </div>
+                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                      <span className="text-zinc-400">LTV Estimado:</span>
+                      <h4 className="text-lg font-mono text-purple-300 font-bold">R$ 380,00 / usuário</h4>
+                      <p className="text-[11px] text-zinc-500">Recorrência do Netfits Club + compras no Shop + serviços.</p>
+                    </div>
+                  </div>
+                  <div className="bg-zinc-950 p-3.5 rounded-xl border border-lime-400/30 text-xs flex justify-between items-center">
+                    <span className="font-bold text-white">Relação LTV / CAC:</span>
+                    <span className="font-mono text-lime-400 font-black text-sm">&gt; 20x | Payback &lt; 2,5 meses</span>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 9 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white">🤝 Canais B2B2C, Associados Netfits &amp; MGM</h3>
+                  <div className="space-y-2 text-xs">
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-purple-300">Categoria Única de Associados Netfits:</span> 10,0% de comissão padrão sobre receitas atreladas à sua rede.
+                    </div>
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-purple-300">Atribuição Vitalícia de Carteira:</span> Remuneração contínua para criadores, treinadores e médicos esportivos.
+                    </div>
+                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-lime-400">Programa Member-Get-Member (MGM):</span> Bônus de 50 nfs no cadastro de amigo + 150 nfs na 1ª compra.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 10 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-purple-300">🛡️ Moat Competitivo &amp; Defensabilidade Tecnológica</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-white">1. Verticalização no Esporte:</span> Foco 100% no esportista amador e no estilo de vida ativo.
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-white">2. Algoritmo FEFO Protegido:</span> Gestão atuarial de passivos e expiração inteligente sem risco de caixa.
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-white">3. Efeito de Rede B2B2C:</span> Carteiras compartilhadas com Associados criam barreira de saída inigualável.
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+                      <span className="font-bold text-white">4. Transição para Longevidade:</span> Extensão do LTV do usuário por toda a vida consciente.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 11 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-lime-400">💰 Alocação dos Recursos Solicitados (R$ 4,0M a R$ 8,0M)</h3>
+                  <div className="space-y-2 text-xs">
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-lime-400/30 flex justify-between items-center">
+                      <span className="font-bold text-white">🛠️ 40% — Produto e Tecnologia:</span>
+                      <span className="text-lime-300 font-mono">Native-shell, FEFO &amp; Data Pipeline</span>
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-purple-500/30 flex justify-between items-center">
+                      <span className="font-bold text-white">🚀 25% — Aquisição e Crescimento:</span>
+                      <span className="text-purple-300 font-mono">MKT de comunidade, Eventos &amp; MGM</span>
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
+                      <span className="font-bold text-white">🤝 15% — Parcerias &amp; Associados:</span>
+                      <span className="text-zinc-300 font-mono">Expansão B2B2C &amp; Comissão 10%</span>
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
+                      <span className="font-bold text-white">📊 10% — BI, Antifraude &amp; Wearables:</span>
+                      <span className="text-zinc-300 font-mono">Ingestão Garmin/Apple &amp; IA</span>
+                    </div>
+                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
+                      <span className="font-bold text-white">⚖️ 10% — Jurídico &amp; Operações:</span>
+                      <span className="text-zinc-300 font-mono">Regulatório &amp; Governança</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {pitchSlide === 12 && (
+                <div className="space-y-4 text-center py-4">
+                  <h3 className="text-lg font-bold text-white">🌟 O Código Netfits &amp; Visão de Longo Prazo</h3>
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/40 max-w-xl mx-auto space-y-2 text-xs text-left">
+                    <p className="font-bold text-purple-300">O Código Netfits (Nossos Valores):</p>
+                    <p className="text-zinc-300">• 1. Usuário antes do ego</p>
+                    <p className="text-zinc-300">• 2. Clareza antes da complexidade</p>
+                    <p className="text-zinc-300">• 3. Evidência antes da convicção</p>
+                    <p className="text-zinc-300">• 4. Velocidade com responsabilidade</p>
+                  </div>
+                  <p className="text-xs text-lime-400 font-mono font-bold">
+                    Netfits Fidelidade Ltda. — diretoria@netfits.com.br — www.netfits.com.br
                   </p>
                 </div>
               )}
