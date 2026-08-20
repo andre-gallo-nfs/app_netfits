@@ -413,15 +413,15 @@ function ParceirosRegistrationPage() {
           Conecte sua marca a milhares de praticantes ativos de esportes
         </h1>
         <p className="text-sm text-zinc-300 max-w-[42ch] leading-relaxed mb-6">
-          Cadastre sua academia, assessoria esportiva, clínica de recovery, consultório de nutrição ou medicina do esporte com validação cadastral garantida.
+          Cadastre sua academia, assessoria esportiva, clínica de recovery, consultório de nutrição ou medicina do esporte com <strong>credenciamento 100% gratuito e zero mensalidade</strong>. Remuneração 100% baseada em contratações por evento.
         </p>
 
         {/* Value Highlights Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-3.5 space-y-1">
             <Users className="size-5 text-lime-400" />
-            <p className="text-xs font-bold text-white">Público Qualificado</p>
-            <p className="text-[11px] text-zinc-400">Atletas e praticantes focados em longevidade e saúde.</p>
+            <p className="text-xs font-bold text-white">Zero Mensalidade</p>
+            <p className="text-[11px] text-zinc-400">Remuneração 100% por evento / serviços contratados.</p>
           </div>
 
           <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-3.5 space-y-1">

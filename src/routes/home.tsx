@@ -199,13 +199,13 @@ function InstitutionalHomePage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">
             <span className="text-xs font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20">
-              Credenciamento B2B Aberto
+              Credenciamento 100% Gratuito · Zero Mensalidade
             </span>
             <h2 className="text-3xl font-extrabold text-white">
               Sua Academia, Clínica ou Assessoria no ecossistema Netfits
             </h2>
             <p className="text-sm text-zinc-300 leading-relaxed">
-              Conecte seu estabelecimento a milhares de praticantes ativos de alta renda e ofereça benefícios com validação cadastral garantida.
+              Sem mensalidades ou taxas fixas. Conecte seus serviços à nossa comunidade e seja remunerado diretamente por cada evento ou consulta contratada pelos nossos usuários.
             </p>
           </div>
 
