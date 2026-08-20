@@ -3382,6 +3382,8 @@ function AdminDashboardPage() {
                         <td className="py-3.5 px-4 text-right text-purple-300">42,8%</td>
                         <td className="py-3.5 px-4 text-center text-lime-400 font-extrabold">+607,0% Lucro Líq. ⭐</td>
                       </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
