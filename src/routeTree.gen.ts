@@ -14,6 +14,9 @@ import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AssociadoRouteImport } from './routes/associado'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as LevelsRouteImport } from './routes/levels'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
@@ -43,6 +46,21 @@ const AssociadoRoute = AssociadoRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LevelsRoute = LevelsRouteImport.update({
@@ -77,6 +95,9 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/associado': typeof AssociadoRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
+  '/faq': typeof FaqRoute
+  '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
   '/parceiros': typeof ParceirosRoute
@@ -89,6 +110,9 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/associado': typeof AssociadoRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
+  '/faq': typeof FaqRoute
+  '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
   '/parceiros': typeof ParceirosRoute
@@ -102,6 +126,9 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/associado': typeof AssociadoRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
+  '/faq': typeof FaqRoute
+  '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
   '/parceiros': typeof ParceirosRoute
@@ -116,6 +143,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/associado'
     | '/auth'
+    | '/contato'
+    | '/faq'
+    | '/home'
     | '/levels'
     | '/market'
     | '/parceiros'
@@ -128,6 +158,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/associado'
     | '/auth'
+    | '/contato'
+    | '/faq'
+    | '/home'
     | '/levels'
     | '/market'
     | '/parceiros'
@@ -140,6 +173,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/associado'
     | '/auth'
+    | '/contato'
+    | '/faq'
+    | '/home'
     | '/levels'
     | '/market'
     | '/parceiros'
@@ -153,6 +189,9 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AssociadoRoute: typeof AssociadoRoute
   AuthRoute: typeof AuthRoute
+  ContatoRoute: typeof ContatoRoute
+  FaqRoute: typeof FaqRoute
+  HomeRoute: typeof HomeRoute
   LevelsRoute: typeof LevelsRoute
   MarketRoute: typeof MarketRoute
   ParceirosRoute: typeof ParceirosRoute
@@ -195,6 +234,27 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/levels': {
@@ -241,6 +301,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AssociadoRoute: AssociadoRoute,
   AuthRoute: AuthRoute,
+  ContatoRoute: ContatoRoute,
+  FaqRoute: FaqRoute,
+  HomeRoute: HomeRoute,
   LevelsRoute: LevelsRoute,
   MarketRoute: MarketRoute,
   ParceirosRoute: ParceirosRoute,

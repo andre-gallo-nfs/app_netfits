@@ -30,7 +30,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     nativeBridge.checkForLiveUpdates();
   }, []);
 
-  if (path === "/admin" || path.startsWith("/associado")) {
+  if (
+    path === "/admin" || 
+    path.startsWith("/associado") || 
+    path === "/home" || 
+    path === "/faq" || 
+    path === "/contato" || 
+    path === "/parceiros"
+  ) {
     return <>{children}</>;
   }
 
@@ -73,7 +80,7 @@ function TopBar() {
   return (
     /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
     <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3 py-2.5 flex items-center justify-between shadow-xs">
-      <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Netfits">
+      <Link to="/home" className="flex items-center gap-2 shrink-0" aria-label="Netfits Homepage Institucional">
         <img
           src={netfitsDarkLogo}
           alt="Netfits"
@@ -100,15 +107,6 @@ function TopBar() {
         >
           <Award className="size-3 text-purple-600 shrink-0" />
           <span className="font-extrabold">{unlockedCount}/{totalCount} Badges</span>
-        </Link>
-
-        <Link
-          to="/parceiros"
-          aria-label="Cadastrar Parceiro Comercial"
-          className="bg-lime-400 text-black hover:bg-lime-500 font-extrabold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs transition shrink-0 flex items-center gap-1"
-        >
-          <Building2 className="size-3" />
-          Parceiros
         </Link>
 
         <Link
