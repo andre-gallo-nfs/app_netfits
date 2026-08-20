@@ -71,11 +71,11 @@ A **Netfits Fidelidade Ltda.** é a primeira plataforma de loyalty, commerce e l
 - **SAM**: **R$ 4,0 Bilhões** transacionados anualmente em e-commerce esportivo, suplementação, provas e wearables.
 - **SOM Target**: **R$ 100M a R$ 150M de GMV** no Ano 2 ➔ **R$ 400M a R$ 700M de GMV** no Ano 3.
 
-### Slide 8: Unit Economics & Eficiência Operacional
+### Slide 8: Unit Economics & Eficiência da Cloud Enterprise (Modelo Cloud v2.4)
 - **CAC Orgânico / B2B2C**: **R$ 18,50** (viabilizado por Associados e indicação MGM).
-- **LTV Estimado**: **R$ 380,00** (Netfits Club + compras no Shop + serviços).
-- **Relação LTV / CAC**: **> 20x**.
-- **Payback do CAC**: **< 2,5 meses**.
+- **LTV Estimado**: **R$ 380,00** (Netfits Club + compras no Shop + serviços de longevidade).
+- **Relação LTV / CAC**: **> 20x** (Payback < 2,5 meses).
+- **Infraestrutura Cloud Enterprise (v2.4)**: **US$ 9.600 / mês (R$ 48.000,00 / mês)** para 1.000.000 de usuários (600.000 MAU e 25.000 usuários simultâneos no pico), representando apenas **1,65% da Receita Bruta Mensal** e garantindo **41,3% de Margem EBITDA**.
 
 ### Slide 9: Canais B2B2C, Associados Netfits & MGM (Member-Get-Member)
 - **Categoria Única de Associados Netfits**: **10,0% de comissão padrão** sobre a receita gerada pela rede de indicação.
