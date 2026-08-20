@@ -40,10 +40,11 @@ const TIME_PERIODS: { id: PeriodType; label: string; shortLabel: string; factor:
   { id: "year", label: "🚀 No Ano (2026)", shortLabel: "Ano", factor: 11.40, desc: "Acumulado no ano de 2026" },
 ];
 
-type TabType = "overview" | "associados" | "params" | "points" | "feed" | "market" | "activities" | "users" | "partners" | "controls" | "results";
+type TabType = "overview" | "xml" | "associados" | "params" | "points" | "feed" | "market" | "activities" | "users" | "partners" | "controls" | "results";
 
 const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: any; category: string }[] = [
   { id: "overview", label: "Visão Geral & Executivo", iconEmoji: "📊", icon: BarChart3, category: "Consolidado" },
+  { id: "xml", label: "Arquivos XML Contábeis", iconEmoji: "📑", icon: FileText, category: "Fiscal & Contabilidade" },
   { id: "associados", label: "Gestão de Associados", iconEmoji: "👑", icon: Award, category: "Influenciadores" },
   { id: "points", label: "Programa de Pontos", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo" },
   { id: "params", label: "Parâmetros da Operação", iconEmoji: "⚙️", icon: Sliders, category: "Regras Operacionais" },
@@ -906,9 +907,123 @@ function AdminDashboardPage() {
       {/* Main Body Container */}
       <main className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6 overflow-x-hidden">
 
+        {/* Tab XML Contábeis Dedicada */}
+        {activeTab === "xml" && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-950 border border-purple-500/30 rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-1 rounded-full border border-lime-400/20">
+                    Integração Fiscal & Contábil Oficial
+                  </span>
+                  <h4 className="text-xl font-extrabold text-white mt-1 flex items-center gap-2">
+                    <FileText className="size-6 text-purple-400" />
+                    Exportação de Arquivos XML para o Escritório de Contabilidade
+                  </h4>
+                  <p className="text-xs text-zinc-300">
+                    Pacotes de arquivos XML padronizados (NFS-e ABRASF v2.04, Ledger de Solvência de Pontos nfs e Fechamento Mensal SPED Consolidado).
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">NFS-e ABRASF v2.04</span>
+                    <h5 className="text-sm font-bold text-white pt-1">Take-Rate Marketplace (8%)</h5>
+                    <p className="text-xs text-zinc-400">XML de Nota Fiscal de Serviços de intermediação de vendas do Netfits Shop.</p>
+                  </div>
+                  <a
+                    href="/docs/xml_contabilidade/xml_nfse_take_rate_marketplace.xml"
+                    download="xml_nfse_take_rate_marketplace.xml"
+                    className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                  >
+                    <Download className="size-4" />
+                    Baixar XML Take-Rate
+                  </a>
+                </div>
+
+                <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-lime-500/40 transition">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-lime-400 bg-lime-400/10 px-2 py-0.5 rounded">NFS-e ABRASF v2.04</span>
+                    <h5 className="text-sm font-bold text-white pt-1">Serviços / Eventos Parceiros</h5>
+                    <p className="text-xs text-zinc-400">XML de taxa de intermediação por contratação por evento (sem mensalidade).</p>
+                  </div>
+                  <a
+                    href="/docs/xml_contabilidade/xml_nfse_servicos_eventos.xml"
+                    download="xml_nfse_servicos_eventos.xml"
+                    className="w-full py-2.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                  >
+                    <Download className="size-4" />
+                    Baixar XML Serviços
+                  </a>
+                </div>
+
+                <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-cyan-500/40 transition">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded">Ledger Audit XML</span>
+                    <h5 className="text-sm font-bold text-white pt-1">Solvência Atuarial nfs</h5>
+                    <p className="text-xs text-zinc-400">Extrato auditável do passivo de pontos (reserva R$ 0,01/ponto e expiração FEFO).</p>
+                  </div>
+                  <a
+                    href="/docs/xml_contabilidade/xml_ledger_pontos_solvencia.xml"
+                    download="xml_ledger_pontos_solvencia.xml"
+                    className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                  >
+                    <Download className="size-4" />
+                    Baixar XML Ledger
+                  </a>
+                </div>
+
+                <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-amber-500/40 transition">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">Fechamento SPED</span>
+                    <h5 className="text-sm font-bold text-white pt-1">Fechamento Mensal Consolidado</h5>
+                    <p className="text-xs text-zinc-400">Integração direta com Domínio, Contmatic, Alterdata e Totvs.</p>
+                  </div>
+                  <a
+                    href="/docs/xml_contabilidade/xml_fechamento_mensal_contabil.xml"
+                    download="xml_fechamento_mensal_contabil.xml"
+                    className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                  >
+                    <Download className="size-4" />
+                    Baixar Fechamento XML
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab 1: Visão Geral */}
         {activeTab === "overview" && (
           <div className="space-y-6">
+            {/* Banner de Arquivos XML de Destaque no Visão Geral */}
+            <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-950 border border-purple-500/40 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
+                  Novo Módulo Fiscal & Contábil
+                </span>
+                <h4 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <FileText className="size-5 text-purple-400" />
+                  Arquivos XML para o Escritório de Contabilidade Disponíveis
+                </h4>
+                <p className="text-xs text-zinc-400">
+                  NFS-e ABRASF v2.04 (Take-Rate e Serviços por Evento), Extrato Ledger de Solvência de Pontos e Fechamento SPED.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setActiveTab("xml")}
+                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-lg shadow-purple-600/30"
+                >
+                  <FileText className="size-4" />
+                  Abrir Central de XMLs →
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Usuários Ativos (DAU/MAU)"
