@@ -998,29 +998,56 @@ function AdminDashboardPage() {
         {/* Tab 1: Visão Geral */}
         {activeTab === "overview" && (
           <div className="space-y-6">
-            {/* Banner de Arquivos XML de Destaque no Visão Geral */}
-            <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-950 border border-purple-500/40 rounded-3xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
-                  Novo Módulo Fiscal & Contábil
-                </span>
-                <h4 className="text-base font-extrabold text-white flex items-center gap-2">
-                  <FileText className="size-5 text-purple-400" />
-                  Arquivos XML para o Escritório de Contabilidade Disponíveis
-                </h4>
-                <p className="text-xs text-zinc-400">
-                  NFS-e ABRASF v2.04 (Take-Rate e Serviços por Evento), Extrato Ledger de Solvência de Pontos e Fechamento SPED.
-                </p>
+            {/* Banner de Arquivos XML & Otimização FinOps */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-950 border border-purple-500/40 rounded-3xl p-5 shadow-xl flex flex-col justify-between space-y-3">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
+                    Integração Fiscal & Contábil
+                  </span>
+                  <h4 className="text-base font-extrabold text-white flex items-center gap-2 pt-1">
+                    <FileText className="size-5 text-purple-400" />
+                    Arquivos XML para Contabilidade
+                  </h4>
+                  <p className="text-xs text-zinc-400">
+                    NFS-e ABRASF v2.04 (Take-Rate e Serviços por Evento), Extrato Ledger de Solvência de Pontos e Fechamento SPED.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setActiveTab("xml")}
+                    className="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-lg shadow-purple-600/30"
+                  >
+                    <FileText className="size-4" />
+                    Abrir Central de XMLs →
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => setActiveTab("xml")}
-                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-lg shadow-purple-600/30"
+              {/* Card FinOps Implantado (-51,4%) */}
+              <div className="bg-gradient-to-r from-lime-950/60 via-zinc-900 to-zinc-950 border border-lime-500/40 rounded-3xl p-5 shadow-xl flex flex-col justify-between space-y-3">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
+                    FinOps Implantação Ativa (-51,4%)
+                  </span>
+                  <h4 className="text-base font-extrabold text-white flex items-center gap-2 pt-1">
+                    <TrendingUp className="size-5 text-lime-400" />
+                    Custos de Nuvem Otimizados: R$ 23.500/mês
+                  </h4>
+                  <p className="text-xs text-zinc-300">
+                    Redução de R$ 56.000 para R$ 23.500/mês (Cloud Run CUDs + PgBouncer + FCM Push + OpenTelemetry Sampling), gerando <strong className="text-lime-400">+R$ 294.000,00/ano de EBITDA adicional</strong>.
+                  </p>
+                </div>
+
+                <a
+                  href="/docs/plano_otimizacao_custos_finops_netfits.md"
+                  target="_blank"
+                  className="w-full py-2 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition shadow-lg"
                 >
-                  <FileText className="size-4" />
-                  Abrir Central de XMLs →
-                </button>
+                  <Download className="size-4" />
+                  Ver Plano FinOps Completo
+                </a>
               </div>
             </div>
 

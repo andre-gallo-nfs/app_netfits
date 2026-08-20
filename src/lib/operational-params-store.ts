@@ -34,6 +34,11 @@ export type OperationalParams = {
   // Algoritmo de Resgate Justo ao Usuário (FEFO: First-Expiring, First-Out)
   redemptionPolicy: "FEFO";
   redemptionPolicyName: string;
+
+  // FinOps & Otimização de Custos de TI
+  cloudInfraMonthlyCostBrl: number;
+  finOpsSavingsPct: number;
+  finOpsAnnualGainBrl: number;
 };
 
 export type PointBatch = {
@@ -110,6 +115,10 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
 
   redemptionPolicy: "FEFO",
   redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
+
+  cloudInfraMonthlyCostBrl: 23500.0,
+  finOpsSavingsPct: 51.4,
+  finOpsAnnualGainBrl: 294000.0,
 };
 
 const STORAGE_KEY = "netfits_operational_params_v3";
