@@ -28,13 +28,13 @@ import netfitsMark from "@/assets/netfits-mark.png";
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Netfits Tecnologia S.A. — A Primeira Camada de Fidelidade para a Vida em Movimento" },
+      { title: "Netfits Tecnologia Ltda. — A Primeira Camada de Fidelidade para a Vida em Movimento" },
       {
         name: "description",
         content:
           "Fazer cada movimento valer mais. Conheça a Netfits: feed de saúde, marketplace com cashback, ecossistema de parceiros e programa de fidelidade.",
       },
-      { property: "og:title", content: "Netfits Tecnologia S.A. — Fazer cada movimento valer mais" },
+      { property: "og:title", content: "Netfits Tecnologia Ltda. — Fazer cada movimento valer mais" },
     ],
   }),
   component: InstitutionalHomePage,
@@ -53,7 +53,7 @@ function InstitutionalHomePage() {
               className="h-9 w-auto object-contain rounded-lg bg-zinc-900 p-1 border border-zinc-800"
             />
             <span className="font-extrabold tracking-tight text-xl text-white">
-              Netfits <span className="text-xs font-bold text-lime-400 font-mono">S.A.</span>
+              Netfits <span className="text-xs font-bold text-lime-400 font-mono">Ltda.</span>
             </span>
           </Link>
 
@@ -109,7 +109,7 @@ function InstitutionalHomePage() {
           <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-4 py-1.5">
             <img src={netfitsMark} alt="" className="w-4 h-4 object-contain" />
             <span className="text-xs font-extrabold tracking-wider text-lime-400 uppercase">
-              Netfits Tecnologia S.A. — Healthspan & Loyalty
+              Netfits Tecnologia Ltda. — Healthspan & Loyalty
             </span>
           </div>
 
@@ -248,7 +248,7 @@ function InstitutionalHomePage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <img src={netfitsDarkLogo} alt="Netfits" className="h-7 w-auto rounded bg-zinc-900 p-0.5" />
-              <span className="font-extrabold text-sm text-white">Netfits S.A.</span>
+              <span className="font-extrabold text-sm text-white">Netfits Ltda.</span>
             </div>
             <p className="text-zinc-500 leading-relaxed">
               Primeira plataforma de saúde preventiva, loyalty e healthspan para a vida em movimento no Brasil.
@@ -275,14 +275,14 @@ function InstitutionalHomePage() {
 
           <div className="space-y-2">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Contato Corporativo</h4>
-            <p className="text-zinc-400">Netfits Tecnologia S.A.</p>
+            <p className="text-zinc-400">Netfits Tecnologia Ltda.</p>
             <p className="text-zinc-400">suporte@netfits.com.br</p>
             <p className="text-zinc-400">São Paulo, SP — Brasil</p>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4 text-zinc-600 text-[11px]">
-          <p>© 2026 Netfits Tecnologia S.A. Todos os direitos reservados.</p>
+          <p>© 2026 Netfits Tecnologia Ltda. Todos os direitos reservados.</p>
           <p>Slogan Oficial: "Fazer cada movimento valer mais."</p>
         </div>
       </footer>

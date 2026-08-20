@@ -21,7 +21,7 @@ import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ & Central de Ajuda — Netfits Tecnologia S.A." },
+      { title: "FAQ & Central de Ajuda — Netfits Tecnologia Ltda." },
       {
         name: "description",
         content:
