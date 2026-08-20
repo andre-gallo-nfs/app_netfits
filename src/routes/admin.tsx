@@ -3603,19 +3603,19 @@ function AdminDashboardPage() {
 
               {pitchSlide === 7 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-white">📈 DRE Proforma — Fase 1 (Launch) vs Fase 2 (Netfits Club R$ 19,90/mês)</h3>
+                  <h3 className="text-lg font-bold text-white">📈 DRE Proforma — Fase 1 (Launch) vs Fase 2 com FinOps (-51,4% Custos TI)</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-2">
-                      <span className="text-xs font-mono text-lime-400 font-bold">FASE 1: LAUNCH INICIAL</span>
-                      <p className="text-xs text-zinc-400">Receita Bruta: <b>R$ 893.850,00</b></p>
-                      <p className="text-xs text-zinc-400">EBITDA: <b className="text-lime-400">R$ 157.625,40 (17,6%)</b></p>
-                      <p className="text-xs text-zinc-400">Lucro Líquido: <b>R$ 129.895,34 (14,5%)</b></p>
+                      <span className="text-xs font-mono text-lime-400 font-bold">FASE 1: LAUNCH INICIAL (COM FINOPS)</span>
+                      <p className="text-xs text-zinc-400">Receita Bruta: <b>R$ 1.173.850,00</b></p>
+                      <p className="text-xs text-zinc-400">EBITDA: <b className="text-lime-400">R$ 208.800,40 (17,8% MARGEM)</b></p>
+                      <p className="text-xs text-zinc-400">Lucro Líquido: <b>R$ 176.395,34 (15,0%)</b></p>
                     </div>
                     <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/40 bg-purple-950/20 space-y-2">
-                      <span className="text-xs font-mono text-purple-300 font-bold">FASE 2: EXPANSÃO COM CLUBE R$ 19,90/MÊS</span>
-                      <p className="text-xs text-zinc-300">Receita Bruta: <b>R$ 1.789.350,00</b> (+100,2%)</p>
-                      <p className="text-xs text-zinc-300">EBITDA: <b className="text-lime-400">R$ 963.080,40 (53,8% MARGEM)</b></p>
-                      <p className="text-xs text-zinc-300">Lucro Líquido: <b className="text-purple-300">R$ 815.958,34 (45,6%)</b></p>
+                      <span className="text-xs font-mono text-purple-300 font-bold">FASE 2: EXPANSÃO COM CLUBE (COM FINOPS)</span>
+                      <p className="text-xs text-zinc-300">Receita Bruta: <b>R$ 2.869.500,00</b> (+144,4%)</p>
+                      <p className="text-xs text-zinc-300">EBITDA: <b className="text-lime-400">R$ 1.199.325,00 (41,8% MARGEM EBITDA)</b></p>
+                      <p className="text-xs text-zinc-300">Lucro Líquido: <b className="text-purple-300">R$ 1.098.458,34 (38,3%)</b></p>
                     </div>
                   </div>
                 </div>
