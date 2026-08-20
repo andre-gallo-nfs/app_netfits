@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
 import { operationalParamsStore, useOperationalParams } from "@/lib/operational-params-store";
 import netfitsLogo from "@/assets/netfits-logo.png";
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -784,8 +785,6 @@ function AdminDashboardPage() {
       </div>
     );
   }
-
-import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
   return (
     <div className="min-h-screen max-w-full overflow-x-hidden bg-zinc-950 text-zinc-100 font-sans pb-12">

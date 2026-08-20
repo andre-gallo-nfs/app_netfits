@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { trackPartnerRegistration } from "@/lib/analytics";
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
 export const Route = createFileRoute("/parceiros")({
   head: () => ({
@@ -227,10 +228,15 @@ const FEATURED_PARTNERS: RegisteredPartner[] = [
     protocol: "NFS-PARTNER-2026-7612",
     companyName: "Dra. Isabella Silva Nutrologia Esportiva",
     tradeName: "Dra. Isabella Silva — Medicina & Nutrologia",
-    category: "medicina",
-    categoryName: "Médicos do Esporte & Longevidade",
-    cityState: "Campinas / SP",
-import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+    responsibleName: "Dra. Isabella Silva",
+    email: "dra.isabella@nutrologia.com.br",
+    phone: "(19) 99887-1122",
+    documentValidated: "CRM/SP 145902 (Verificado & Ativo)",
+    benefitProposed: "Bioimpedância cortesia na primeira consulta de check-up esportivo",
+    status: "approved",
+    createdAt: "19/08/2026"
+  }
+];
 
 function ParceirosRegistrationPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>("academias");

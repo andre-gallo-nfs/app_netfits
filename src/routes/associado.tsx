@@ -10,6 +10,7 @@ import netfitsLogo from "@/assets/netfits-logo.png";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { toast } from "sonner";
 import { useOperationalParams } from "@/lib/operational-params-store";
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
 export const Route = createFileRoute("/associado")({
   head: () => ({
@@ -229,8 +230,6 @@ function AssociadoDashboardPage() {
       </div>
     );
   }
-
-import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans pb-16">
