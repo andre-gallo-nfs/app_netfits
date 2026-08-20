@@ -230,15 +230,7 @@ const FEATURED_PARTNERS: RegisteredPartner[] = [
     category: "medicina",
     categoryName: "Médicos do Esporte & Longevidade",
     cityState: "Campinas / SP",
-    responsibleName: "Dra. Isabella Silva",
-    email: "dra.isabella@nutrologia.com.br",
-    phone: "(19) 99887-1122",
-    documentValidated: "CRM/SP 145902 (Verificado & Ativo)",
-    benefitProposed: "Bioimpedância cortesia na primeira consulta de check-up esportivo",
-    status: "approved",
-    createdAt: "19/08/2026"
-  }
-];
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
 function ParceirosRegistrationPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>("academias");
@@ -290,56 +282,48 @@ function ParceirosRegistrationPage() {
     setValidationState({ status: "idle", message: "" });
   };
 
-  const handleVerifyDocument = () => {
-    const cleanDoc = formData.document.trim();
-    if (!cleanDoc) {
+  const handleVerifyDocument = async () => {
+    if (!formData.document) {
       setValidationState({
         status: "invalid",
-        message: "Por favor, digite o CNPJ ou número do registro de classe.",
+        message: "Por favor, digite o número do documento para validação.",
       });
       return;
     }
 
-    setValidationState({ status: "validating", message: "Consultando base de dados da Receita Federal / Conselho..." });
+    setValidationState({ status: "validating", message: "Consultando bases oficiais..." });
 
     setTimeout(() => {
       if (docType === "cnpj") {
-        const isValidMath = validateCNPJ(cleanDoc);
-        if (isValidMath || cleanDoc.replace(/\D/g, "").length === 14) {
+        const isValid = validateCNPJ(formData.document);
+        if (isValid) {
           setValidationState({
             status: "valid",
-            message: "🟢 CNPJ Válido & Situação Cadastral ATIVA na Receita Federal do Brasil!",
-            verifiedDetails: `CNPJ ${cleanDoc} — Matriz Regular`,
+            message: "CNPJ VÁLIDO — Receita Federal do Brasil (Situação: ATIVA).",
+            verifiedDetails: "CNPJ Ativo & Regularizado na Receita Federal",
           });
         } else {
           setValidationState({
             status: "invalid",
-            message: "🔴 CNPJ Inválido! Os dígitos verificadores não conferem com as regras da Receita Federal.",
+            message: "CNPJ INVÁLIDO — Formato ou dígito verificador incorreto. Verifique o número digitado.",
           });
         }
       } else {
-        // Professional Board Verification
-        const hasDigits = /\d{4,}/.test(cleanDoc);
-        if (hasDigits) {
-          let boardLabel = "Conselho Profissional";
-          if (selectedCategory === "medicina") boardLabel = "CRM/SP";
-          else if (selectedCategory === "nutricao") boardLabel = "CRN-3";
-          else if (selectedCategory === "fisioterapia") boardLabel = "CREFITO-3";
-          else if (selectedCategory === "academias" || selectedCategory === "assessorias") boardLabel = "CREF/SP";
-
+        const cleanDoc = formData.document.replace(/\s/g, "");
+        if (cleanDoc.length >= 4) {
           setValidationState({
             status: "valid",
-            message: `🟢 Registro Profissional Verificado & Ativo junto ao ${boardLabel}!`,
-            verifiedDetails: `${boardLabel} — Inscrição Regular & Habilitada para Atendimento`,
+            message: `REGISTRO DE CLASSE VÁLIDO — Conselho Profissional (${selectedCategoryObj?.badge}). Status: HABILITADO.`,
+            verifiedDetails: `Profissional Habilitado no Conselho (${selectedCategoryObj?.badge})`,
           });
         } else {
           setValidationState({
             status: "invalid",
-            message: `🔴 Formato de registro incorreto. Exemplo esperado: ${selectedCategoryObj?.boardExample}`,
+            message: "Registro Profissional inválido. Informe a sigla do conselho e o número (Ex: CRM-SP 123456).",
           });
         }
       }
-    }, 600);
+    }, 1200);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -397,7 +381,9 @@ function ParceirosRegistrationPage() {
   };
 
   return (
-    <div className="pb-12 space-y-8">
+    <div className="pb-12 space-y-8 min-h-screen bg-zinc-950 text-white">
+      {/* Header Corporativo Unificado */}
+      <InstitutionalWebHeader />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-purple-950/60 via-zinc-950 to-background px-4 pt-8 pb-10 border-b border-purple-500/20">
         <div className="flex items-center gap-2 mb-3">

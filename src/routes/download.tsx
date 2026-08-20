@@ -29,39 +29,13 @@ export const Route = createFileRoute("/download")({
   component: DownloadAppPage,
 });
 
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+
 function DownloadAppPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-purple-500 selection:text-white">
-      {/* Header Corporativo */}
-      <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/home" className="flex items-center gap-2.5">
-            <img
-              src={netfitsDarkLogo}
-              alt="Netfits"
-              className="h-9 w-auto object-contain rounded-lg bg-zinc-900 p-1 border border-zinc-800"
-            />
-            <span className="font-extrabold tracking-tight text-xl text-white">
-              Netfits <span className="text-xs font-bold text-lime-400 font-mono">App</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-zinc-300">
-            <Link to="/home" className="hover:text-white transition">Homepage</Link>
-            <Link to="/parceiros" className="hover:text-lime-400 transition">Parceiros</Link>
-            <Link to="/associado" className="hover:text-amber-400 transition">Associados</Link>
-            <Link to="/faq" className="hover:text-cyan-400 transition">FAQ</Link>
-            <Link to="/contato" className="hover:text-indigo-400 transition">Contato</Link>
-          </nav>
-
-          <Link
-            to="/"
-            className="text-xs font-bold text-zinc-300 hover:text-white bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-full transition"
-          >
-            Acesso Direto Web →
-          </Link>
-        </div>
-      </header>
+      {/* 1. Header Web Corporativo Unificado */}
+      <InstitutionalWebHeader />
 
       {/* Hero Section */}
       <section className="py-16 px-6 bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border-b border-zinc-800/60">

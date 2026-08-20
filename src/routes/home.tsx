@@ -25,6 +25,8 @@ import {
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import netfitsMark from "@/assets/netfits-mark.png";
 
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
@@ -43,65 +45,8 @@ export const Route = createFileRoute("/home")({
 function InstitutionalHomePage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-purple-500 selection:text-white">
-      {/* 1. Header Web Corporativo Institucional */}
-      <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/home" className="flex items-center gap-2.5">
-            <img
-              src={netfitsDarkLogo}
-              alt="Netfits"
-              className="h-9 w-auto object-contain rounded-lg bg-zinc-900 p-1 border border-zinc-800"
-            />
-            <span className="font-extrabold tracking-tight text-xl text-white">
-              Netfits <span className="text-xs font-bold text-lime-400 font-mono">Ltda.</span>
-            </span>
-          </Link>
-
-          {/* Institutional Menu Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-zinc-300">
-            <Link to="/admin" className="hover:text-purple-400 transition flex items-center gap-1">
-              <Lock className="size-3.5 text-purple-400" />
-              Admin
-            </Link>
-            <Link to="/parceiros" className="hover:text-lime-400 transition flex items-center gap-1">
-              <Building2 className="size-3.5 text-lime-400" />
-              Parceiros
-            </Link>
-            <Link to="/associado" className="hover:text-amber-400 transition flex items-center gap-1">
-              <Users className="size-3.5 text-amber-400" />
-              Associados
-            </Link>
-            <Link to="/faq" className="hover:text-cyan-400 transition flex items-center gap-1">
-              <HelpCircle className="size-3.5 text-cyan-400" />
-              FAQ
-            </Link>
-            <Link to="/contato" className="hover:text-indigo-400 transition flex items-center gap-1">
-              <Mail className="size-3.5 text-indigo-400" />
-              Contato
-            </Link>
-          </nav>
-
-          {/* CTA: Open App */}
-          <div className="flex items-center gap-3">
-            <Link
-              to="/download"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition-all duration-200 flex items-center gap-1.5"
-            >
-              <Activity className="size-4" />
-              Abrir App Netfits →
-            </Link>
-          </div>
-        </div>
-
-        {/* Mobile Nav Subbar */}
-        <div className="md:hidden flex items-center justify-around pt-3 border-t border-zinc-900 text-[11px] font-semibold text-zinc-400">
-          <Link to="/admin" className="hover:text-white">Admin</Link>
-          <Link to="/parceiros" className="hover:text-white">Parceiros</Link>
-          <Link to="/associado" className="hover:text-white">Associados</Link>
-          <Link to="/faq" className="hover:text-white">FAQ</Link>
-          <Link to="/contato" className="hover:text-white">Contato</Link>
-        </div>
-      </header>
+      {/* 1. Header Web Corporativo Unificado */}
+      <InstitutionalWebHeader />
 
       {/* 2. Hero Section */}
       <section className="relative overflow-hidden pt-16 pb-20 px-6 border-b border-zinc-800/60 bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950">

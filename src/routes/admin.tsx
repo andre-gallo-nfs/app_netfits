@@ -785,8 +785,12 @@ function AdminDashboardPage() {
     );
   }
 
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+
   return (
     <div className="min-h-screen max-w-full overflow-x-hidden bg-zinc-950 text-zinc-100 font-sans pb-12">
+      {/* 1. Header Web Corporativo Unificado */}
+      <InstitutionalWebHeader />
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-40 bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">

@@ -119,36 +119,8 @@ function FaqPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-cyan-500 selection:text-white">
-      {/* Header Corporativo */}
-      <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/home" className="flex items-center gap-2.5">
-            <img
-              src={netfitsDarkLogo}
-              alt="Netfits"
-              className="h-9 w-auto object-contain rounded-lg bg-zinc-900 p-1 border border-zinc-800"
-            />
-            <span className="font-extrabold tracking-tight text-xl text-white">
-              Netfits <span className="text-xs font-bold text-cyan-400 font-mono">FAQ</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-zinc-300">
-            <Link to="/home" className="hover:text-white transition">Home</Link>
-            <Link to="/admin" className="hover:text-purple-400 transition">Admin</Link>
-            <Link to="/parceiros" className="hover:text-lime-400 transition">Parceiros</Link>
-            <Link to="/associado" className="hover:text-amber-400 transition">Associados</Link>
-            <Link to="/contato" className="hover:text-indigo-400 transition">Contato</Link>
-          </nav>
-
-          <Link
-            to="/download"
-            className="bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-extrabold text-xs px-4 py-2.5 rounded-full transition shadow-lg shadow-cyan-500/20"
-          >
-            Abrir App →
-          </Link>
-        </div>
-      </header>
+      {/* 1. Header Web Corporativo Unificado */}
+      <InstitutionalWebHeader />
 
       {/* Hero Section */}
       <section className="py-12 px-6 bg-gradient-to-b from-cyan-950/40 via-zinc-950 to-zinc-950 border-b border-zinc-800/60">
