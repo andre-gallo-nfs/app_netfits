@@ -88,10 +88,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { GA4RouteTracker } from "@/lib/analytics";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <GA4RouteTracker />
       <AppShell>
         <Outlet />
       </AppShell>

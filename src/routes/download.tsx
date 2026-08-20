@@ -12,6 +12,7 @@ import {
   Apple
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
+import { trackAppDownload } from "@/lib/analytics";
 
 export const Route = createFileRoute("/download")({
   head: () => ({
@@ -120,6 +121,7 @@ function DownloadAppPage() {
                 href="https://apps.apple.com/app/netfits"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackAppDownload("ios")}
                 className="w-full py-3.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition"
               >
                 <Apple className="size-4" />
@@ -151,28 +153,29 @@ function DownloadAppPage() {
               <div className="space-y-2 pt-2 text-xs text-zinc-300">
                 <p className="flex items-center gap-1.5">
                   <CheckCircle2 className="size-3.5 text-lime-400 shrink-0" />
-                  Integração com Google Fit
+                  Conexão com Health Connect & Strava
                 </p>
                 <p className="flex items-center gap-1.5">
                   <CheckCircle2 className="size-3.5 text-lime-400 shrink-0" />
-                  Sincronização Garmin & Strava
+                  Notificações transacionais de pontos
                 </p>
                 <p className="flex items-center gap-1.5">
                   <CheckCircle2 className="size-3.5 text-lime-400 shrink-0" />
-                  Desempenho otimizado Android
+                  Suporte a biometria nativa
                 </p>
               </div>
             </div>
 
             <div className="space-y-3 pt-4 border-t border-zinc-800">
               <a
-                href="https://play.google.com/store/apps/details?id=com.netfits.app"
+                href="https://play.google.com/store/apps/details?id=br.com.netfits.app"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackAppDownload("android")}
                 className="w-full py-3.5 rounded-2xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition"
               >
-                <Download className="size-4" />
-                Disponível no Google Play
+                <Smartphone className="size-4" />
+                Baixar no Google Play
               </a>
               <p className="text-[10px] text-center text-zinc-500">Versão 2.4.0 · 34.2 MB</p>
             </div>

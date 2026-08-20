@@ -30,6 +30,8 @@ export const Route = createFileRoute("/contato")({
   component: ContatoPage,
 });
 
+import { trackSupportTicket } from "@/lib/analytics";
+
 function ContatoPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -52,6 +54,7 @@ function ContatoPage() {
     const newTicket = `NFS-TICKET-2026-${randomNum}`;
 
     setSubmittedTicket(newTicket);
+    trackSupportTicket(newTicket, formData.subject);
     setFormData({
       name: "",
       email: "",

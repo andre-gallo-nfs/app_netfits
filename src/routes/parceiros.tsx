@@ -26,6 +26,7 @@ import {
   Check
 } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
+import { trackPartnerRegistration } from "@/lib/analytics";
 
 export const Route = createFileRoute("/parceiros")({
   head: () => ({
@@ -375,6 +376,7 @@ function ParceirosRegistrationPage() {
 
     setPartnersList([newPartner, ...partnersList]);
     setSubmittedProtocol(newProtocol);
+    trackPartnerRegistration(formData.tradeName, selectedCategory, validationState.status === "valid");
 
     // Reset form fields
     setFormData({
