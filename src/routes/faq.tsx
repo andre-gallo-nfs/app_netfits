@@ -142,7 +142,7 @@ function FaqPage() {
           </nav>
 
           <Link
-            to="/"
+            to="/download"
             className="bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-extrabold text-xs px-4 py-2.5 rounded-full transition shadow-lg shadow-cyan-500/20"
           >
             Abrir App →

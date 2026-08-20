@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AssociadoRouteImport } from './routes/associado'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LevelsRouteImport } from './routes/levels'
@@ -51,6 +52,11 @@ const AuthRoute = AuthRouteImport.update({
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/associado': typeof AssociadoRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
+  '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/associado': typeof AssociadoRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
+  '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/associado': typeof AssociadoRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
+  '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/associado'
     | '/auth'
     | '/contato'
+    | '/download'
     | '/faq'
     | '/home'
     | '/levels'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/associado'
     | '/auth'
     | '/contato'
+    | '/download'
     | '/faq'
     | '/home'
     | '/levels'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/associado'
     | '/auth'
     | '/contato'
+    | '/download'
     | '/faq'
     | '/home'
     | '/levels'
@@ -190,6 +202,7 @@ export interface RootRouteChildren {
   AssociadoRoute: typeof AssociadoRoute
   AuthRoute: typeof AuthRoute
   ContatoRoute: typeof ContatoRoute
+  DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
   HomeRoute: typeof HomeRoute
   LevelsRoute: typeof LevelsRoute
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/contato'
       fullPath: '/contato'
       preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssociadoRoute: AssociadoRoute,
   AuthRoute: AuthRoute,
   ContatoRoute: ContatoRoute,
+  DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,
   HomeRoute: HomeRoute,
   LevelsRoute: LevelsRoute,

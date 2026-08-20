@@ -86,7 +86,7 @@ function ContatoPage() {
           </nav>
 
           <Link
-            to="/"
+            to="/download"
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full transition shadow-lg shadow-purple-600/30"
           >
             Abrir App →

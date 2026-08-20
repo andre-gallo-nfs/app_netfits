@@ -36,7 +36,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     path === "/home" || 
     path === "/faq" || 
     path === "/contato" || 
-    path === "/parceiros"
+    path === "/parceiros" ||
+    path === "/download"
   ) {
     return <>{children}</>;
   }

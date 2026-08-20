@@ -84,7 +84,7 @@ function InstitutionalHomePage() {
           {/* CTA: Open App */}
           <div className="flex items-center gap-3">
             <Link
-              to="/"
+              to="/download"
               className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition-all duration-200 flex items-center gap-1.5"
             >
               <Activity className="size-4" />
@@ -126,7 +126,7 @@ function InstitutionalHomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
-              to="/"
+              to="/download"
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-200 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl transition"
             >
               <Activity className="size-4" />
