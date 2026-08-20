@@ -17,6 +17,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
+import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
