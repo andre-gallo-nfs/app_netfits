@@ -33,17 +33,17 @@ function FeedPage() {
       <WearableSurveyHero />
       <BadgesBanner />
       {/* Rewards Banner */}
-      <div className="mx-4 mb-3 p-3 bg-purple-600/10 border border-purple-600/30 rounded-2xl flex items-center justify-between">
+      <div className="mx-4 mb-3 p-3.5 bg-purple-600/10 border border-purple-600/30 rounded-2xl flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2.5">
-          <div className="size-8 rounded-xl bg-purple-600 text-white grid place-items-center font-black text-xs shadow-sm">
+          <div className="size-8 rounded-xl bg-purple-600 text-white grid place-items-center font-black text-xs shadow-sm shrink-0">
             nfs
           </div>
           <div>
             <p className="text-xs font-bold text-foreground">
-              Recompensas de Engajamento
+              Recompensas por Engajamento Real
             </p>
-            <p className="text-[10px] text-muted-foreground">
-              Curtir (+5 nfs) · Salvar (+10 nfs) · Compartilhar (+10 nfs)
+            <p className="text-[10px] text-muted-foreground font-medium">
+              Visualização Completa (+5 nfs) · Compartilhamento Pós-Visualização (+10 nfs)
             </p>
           </div>
         </div>
@@ -528,16 +528,38 @@ function SocialActions({ id, title }: { id: string; title: string }) {
     setSaved((v) => {
       const next = !v;
       if (next) {
-        wallet.earn(10, `Post salvo: ${title}`);
-        toast.success("+10 nfs acumulados por salvar!");
+        toast.info("Post adicionado aos seus salvos! (Salvamento não gera pontos)");
+      } else {
+        toast.info("Post removido dos salvos.");
       }
       return next;
     });
   };
 
+  const [viewed, setViewed] = useState(false);
+
+  const handleCompleteView = () => {
+    if (!viewed) {
+      setViewed(true);
+      wallet.earn(5, `Visualização completa: ${title}`);
+      toast.success("+5 nfs acumulados por visualização completa do conteúdo!");
+    }
+  };
+
   return (
     <div className="relative">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        <button
+          onClick={handleCompleteView}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 ${
+            viewed
+              ? "bg-purple-600 text-white ring-purple-600 shadow-sm"
+              : "bg-purple-500/10 text-purple-400 ring-purple-500/30 hover:bg-purple-500/20"
+          }`}
+        >
+          <Eye className="size-4" />
+          {viewed ? "Lido (+5 nfs)" : "Concluir Leitura (+5 nfs)"}
+        </button>
         <button
           onClick={handleLike}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 ${
@@ -556,8 +578,8 @@ function SocialActions({ id, title }: { id: string; title: string }) {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-muted text-foreground ring-1 ring-black/5 active:scale-95"
           aria-label="Compartilhar"
         >
-          <Share2 className="size-4" />
-          Compartilhar
+          <Share2 className="size-4 text-lime-400" />
+          Compartilhar (+10 nfs)
         </button>
         <button
           onClick={handleSave}
@@ -712,8 +734,8 @@ function ContactSendList({
                 <button
                   onClick={() => {
                     if (!isSent) {
-                      wallet.earn(10, `Compartilhamento via ${step}: ${title}`);
-                      toast.success("+10 nfs acumulados por compartilhar!");
+                      wallet.earn(10, `Compartilhamento pós-visualização: ${title}`);
+                      toast.success("+10 nfs acumulados por compartilhar após a visualização!");
                     }
                     setSent((prev) => (prev.includes(c.name) ? prev : [...prev, c.name]));
                   }}
