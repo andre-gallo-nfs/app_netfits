@@ -16,6 +16,7 @@ import { Route as AssociadoRouteImport } from './routes/associado'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LevelsRouteImport } from './routes/levels'
 import { Route as MarketRouteImport } from './routes/market'
+import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as WalletRouteImport } from './routes/wallet'
 
@@ -54,6 +55,11 @@ const MarketRoute = MarketRouteImport.update({
   path: '/market',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParceirosRoute = ParceirosRouteImport.update({
+  id: '/parceiros',
+  path: '/parceiros',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
+  '/parceiros': typeof ParceirosRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
+  '/parceiros': typeof ParceirosRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
+  '/parceiros': typeof ParceirosRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/levels'
     | '/market'
+    | '/parceiros'
     | '/profile'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/levels'
     | '/market'
+    | '/parceiros'
     | '/profile'
     | '/wallet'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/levels'
     | '/market'
+    | '/parceiros'
     | '/profile'
     | '/wallet'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   LevelsRoute: typeof LevelsRoute
   MarketRoute: typeof MarketRoute
+  ParceirosRoute: typeof ParceirosRoute
   ProfileRoute: typeof ProfileRoute
   WalletRoute: typeof WalletRoute
 }
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parceiros': {
+      id: '/parceiros'
+      path: '/parceiros'
+      fullPath: '/parceiros'
+      preLoaderRoute: typeof ParceirosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   LevelsRoute: LevelsRoute,
   MarketRoute: MarketRoute,
+  ParceirosRoute: ParceirosRoute,
   ProfileRoute: ProfileRoute,
   WalletRoute: WalletRoute,
 }

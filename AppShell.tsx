@@ -94,6 +94,13 @@ function TopBar() {
         </Link>
 
         <Link
+          to="/parceiros"
+          aria-label="Seja um Parceiro Comercial"
+          className="bg-lime-400/10 text-lime-600 dark:text-lime-400 hover:bg-lime-400 hover:text-black px-2 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest transition-colors ring-1 ring-lime-400/30"
+        >
+          Parceiros
+        </Link>
+        <Link
           to="/admin"
           aria-label="Painel Admin"
           className="bg-purple-600/10 text-purple-600 hover:bg-purple-600 hover:text-white px-2 py-1 rounded-full text-[9px] font-extrabold uppercase tracking-widest transition-colors ring-1 ring-purple-600/30"

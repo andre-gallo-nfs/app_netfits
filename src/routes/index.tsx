@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity } from "lucide-react";
+import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2 } from "lucide-react";
 import { useState } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges } from "@/lib/badges-store";
@@ -33,7 +33,7 @@ function FeedPage() {
       <WearableSurveyHero />
       <BadgesBanner />
       {/* Rewards Banner */}
-      <div className="mx-4 mb-4 p-3 bg-purple-600/10 border border-purple-600/30 rounded-2xl flex items-center justify-between">
+      <div className="mx-4 mb-3 p-3 bg-purple-600/10 border border-purple-600/30 rounded-2xl flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="size-8 rounded-xl bg-purple-600 text-white grid place-items-center font-black text-xs shadow-sm">
             nfs
@@ -47,6 +47,29 @@ function FeedPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Parceiros Banner */}
+      <div className="mx-4 mb-4 p-3.5 bg-gradient-to-r from-zinc-900 via-purple-950 to-zinc-900 border border-purple-500/30 rounded-2xl flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <div className="size-8 rounded-xl bg-lime-400 text-black grid place-items-center font-black text-xs shadow-sm shrink-0">
+            <Building2 className="size-4" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white">
+              É dono de Academia, Assessoria ou Clínica?
+            </p>
+            <p className="text-[10px] text-zinc-300">
+              Cadastre seu estabelecimento e ofereça benefícios
+            </p>
+          </div>
+        </div>
+        <Link
+          to="/parceiros"
+          className="bg-lime-400 text-black hover:bg-lime-300 font-extrabold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full shrink-0 shadow-sm transition"
+        >
+          Cadastrar →
+        </Link>
       </div>
       <div className="space-y-8 pt-2">
         <SponsorCard />

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, ShoppingBag, Activity, Wallet, Award } from "lucide-react";
+import { Home, ShoppingBag, Activity, Wallet, Award, Building2 } from "lucide-react";
 import type { ReactNode } from "react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import profileAvatar from "@/assets/profile-avatar.jpg";
@@ -100,6 +100,15 @@ function TopBar() {
         >
           <Award className="size-3 text-purple-600 shrink-0" />
           <span className="font-extrabold">{unlockedCount}/{totalCount} Badges</span>
+        </Link>
+
+        <Link
+          to="/parceiros"
+          aria-label="Cadastrar Parceiro Comercial"
+          className="bg-lime-400 text-black hover:bg-lime-500 font-extrabold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs transition shrink-0 flex items-center gap-1"
+        >
+          <Building2 className="size-3" />
+          Parceiros
         </Link>
 
         <Link
