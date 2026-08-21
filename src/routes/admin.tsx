@@ -7,7 +7,7 @@ import {
   Share2, Video, Check, ExternalLink, Download, Search, ChevronDown, UserCheck,
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
-  ChevronLeft, ChevronRight, Layers, LayoutGrid
+  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
