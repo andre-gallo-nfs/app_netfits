@@ -39,9 +39,11 @@ function AuthPage() {
   const [identifier, setIdentifier] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [isAutoFilledReferral, setIsAutoFilledReferral] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Status de Erros & Alerta de Duplicidade
@@ -86,6 +88,11 @@ function AuthPage() {
 
     if (!pwdRules.isValid) {
       setFormError("A senha não preenche todos os critérios de segurança requeridos.");
+      return;
+    }
+
+    if (confirmPassword !== password) {
+      setFormError("As senhas digitadas são diferentes uma da outra. Verifique o campo de confirmação.");
       return;
     }
 
@@ -393,6 +400,60 @@ function AuthPage() {
               <PasswordCheckRule label="Pelo menos 1 letra maiúscula (A-Z)" valid={pwdRules.hasUppercase} />
               <PasswordCheckRule label="Pelo menos 1 letra minúscula (a-z)" valid={pwdRules.hasLowercase} />
               <PasswordCheckRule label="Pelo menos 1 caractere especial (!@#$%...)" valid={pwdRules.hasSpecial} />
+            </div>
+          )}
+
+          {/* Campo Confirmar Senha com Toggle */}
+          <div className="space-y-1.5 pt-1">
+            <label className="text-xs font-bold text-foreground">Confirmar Senha de Acesso *</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Lock className="size-4" />
+              </div>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Digite novamente a mesma senha criada"
+                className={`w-full bg-card border rounded-xl pl-10 pr-10 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 ${
+                  confirmPassword.length > 0
+                    ? confirmPassword === password
+                      ? "border-lime-500/60 focus:ring-lime-500 ring-1 ring-lime-500/20"
+                      : "border-amber-500 focus:ring-amber-500 ring-1 ring-amber-500/20"
+                    : "border-border focus:ring-purple-600"
+                }`}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-muted-foreground hover:text-foreground"
+              >
+                {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Alerta Móvel / Mensagem Dinâmica de Comparação de Senhas */}
+          {confirmPassword.length > 0 && (
+            <div
+              className={`p-3 rounded-xl border text-[11px] font-semibold flex items-center gap-2.5 transition-all duration-300 animate-in fade-in slide-in-from-top-1 ${
+                confirmPassword === password
+                  ? "bg-lime-500/10 border-lime-500/30 text-lime-600 dark:text-lime-400"
+                  : "bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400 shadow-sm"
+              }`}
+            >
+              {confirmPassword === password ? (
+                <>
+                  <CheckCircle2 className="size-4 text-lime-500 shrink-0" />
+                  <span>As senhas coincidem perfeitamente! ✓</span>
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="size-4 text-amber-500 shrink-0 animate-bounce" />
+                  <span>As senhas são diferentes uma da outra. Por favor, verifique a digitação.</span>
+                </>
+              )}
             </div>
           )}
 
