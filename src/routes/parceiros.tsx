@@ -28,6 +28,7 @@ import {
 import netfitsMark from "@/assets/netfits-mark.png";
 import { trackPartnerRegistration } from "@/lib/analytics";
 import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export const Route = createFileRoute("/parceiros")({
   head: () => ({
@@ -367,6 +368,18 @@ function ParceirosRegistrationPage() {
     setPartnersList([newPartner, ...partnersList]);
     setSubmittedProtocol(newProtocol);
     trackPartnerRegistration(formData.tradeName, selectedCategory, validationState.status === "valid");
+
+    // Sincronizar com o Banco Provisório Compartilhado
+    sharedSandboxStore.registerPartner({
+      tradeName: formData.tradeName,
+      companyName: formData.companyName || formData.tradeName,
+      cnpj: formData.document,
+      category: selectedCategory === "academias" ? "Academia" : selectedCategory === "fisioterapia" ? "Clínica" : "Assessoria",
+      city: formData.city || "São Paulo",
+      state: formData.state || "SP",
+      email: formData.email,
+      phone: formData.phone,
+    });
 
     // Reset form fields
     setFormData({

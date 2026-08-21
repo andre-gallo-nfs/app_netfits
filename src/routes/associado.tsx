@@ -4,13 +4,14 @@ import {
   Users, DollarSign, TrendingUp, ShoppingBag, Eye, Share2, Video,
   Award, Copy, Check, Sparkles, ArrowUpRight, LogIn, Lock, Filter,
   Calendar, CheckCircle2, ChevronRight, Activity, Download, ShieldCheck,
-  Percent, Coins
+  Percent, Coins, UserPlus
 } from "lucide-react";
 import netfitsLogo from "@/assets/netfits-logo.png";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { toast } from "sonner";
 import { useOperationalParams } from "@/lib/operational-params-store";
 import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export const Route = createFileRoute("/associado")({
   head: () => ({
@@ -170,6 +171,35 @@ function AssociadoDashboardPage() {
     toast.success(`Bem-vindo ao Painel do Associado, ${associado.name}!`);
   };
 
+  // Estado para Cadastro de Novo Associado (Fluxo 4)
+  const [showRegModal, setShowRegModal] = useState(false);
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regRegister, setRegRegister] = useState("");
+  const [regSpecialty, setRegSpecialty] = useState("");
+  const [regCity, setRegCity] = useState("São Paulo - SP");
+
+  const handleRegisterAssociadoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regName.trim() || !regEmail.trim() || !regRegister.trim()) {
+      toast.error("Preencha todos os campos obrigatórios do credenciamento.");
+      return;
+    }
+
+    const res = sharedSandboxStore.registerAssociado({
+      fullName: regName.trim(),
+      email: regEmail.trim(),
+      phone: regPhone.trim(),
+      register: regRegister.trim(),
+      specialty: regSpecialty.trim() || "Nutrologia Esportiva",
+      city: regCity.trim(),
+    });
+
+    setShowRegModal(false);
+    setIsAuthenticated(true);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-center items-center px-4 py-12">
@@ -184,7 +214,7 @@ function AssociadoDashboardPage() {
               Acesso do Associado — Netfits
             </h1>
             <p className="text-xs text-zinc-400">
-              Digite suas credenciais de influenciador credenciado para acessar seu extrato de comissões.
+              Digite suas credenciais ou credencie-se como novo Associado parceiro.
             </p>
           </div>
 
@@ -195,7 +225,7 @@ function AssociadoDashboardPage() {
                 type="text"
                 value={loginCode}
                 onChange={(e) => setLoginCode(e.target.value)}
-                placeholder="GALLO-NETFITS"
+                placeholder="ASSOC-SP-001 ou GALLO-NETFITS"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
@@ -222,11 +252,115 @@ function AssociadoDashboardPage() {
             </button>
           </form>
 
+          <div className="pt-3 border-t border-zinc-800 text-center">
+            <p className="text-xs text-zinc-400 mb-2">Ainda não tem cadastro de Associado?</p>
+            <button
+              type="button"
+              onClick={() => setShowRegModal(true)}
+              className="w-full py-3 rounded-xl font-extrabold text-xs bg-lime-400 text-black hover:bg-lime-300 transition-all shadow-sm flex items-center justify-center gap-2"
+            >
+              <UserPlus className="size-4" />
+              Credenciar-se como Novo Associado
+            </button>
+          </div>
+
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 text-[11px] text-zinc-400 text-center">
-            <p>🔑 Credenciais de Teste Associado:</p>
-            <p className="font-mono text-zinc-300 mt-0.5"><b>GALLO-NETFITS</b> | <b>Pass@1234</b></p>
+            <p>🔑 Credenciais de Teste Rápidas:</p>
+            <p className="font-mono text-zinc-300 mt-0.5"><b>ASSOC-SP-001</b> ou <b>GALLO-NETFITS</b></p>
           </div>
         </div>
+
+        {/* Modal de Cadastro de Novo Associado */}
+        {showRegModal && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="w-full max-w-md bg-zinc-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
+                <h3 className="text-sm font-extrabold text-white">Credenciamento de Novo Associado</h3>
+                <button onClick={() => setShowRegModal(false)} className="text-zinc-400 hover:text-white">✕</button>
+              </div>
+
+              <form onSubmit={handleRegisterAssociadoSubmit} className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-300">Nome Completo *</label>
+                  <input
+                    type="text"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    placeholder="Ex: Dra. Juliana Medeiros"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-300">E-mail Profissional *</label>
+                  <input
+                    type="email"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    placeholder="dra.juliana@netfits.com.br"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-300">Registro Profissional *</label>
+                    <input
+                      type="text"
+                      value={regRegister}
+                      onChange={(e) => setRegRegister(e.target.value)}
+                      placeholder="CRM/CRN/CREF 12345"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-300">Telefone / WhatsApp</label>
+                    <input
+                      type="text"
+                      value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value)}
+                      placeholder="(11) 98888-0000"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-300">Especialidade</label>
+                    <input
+                      type="text"
+                      value={regSpecialty}
+                      onChange={(e) => setRegSpecialty(e.target.value)}
+                      placeholder="Nutrologia / Personal"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-300">Cidade / Estado</label>
+                    <input
+                      type="text"
+                      value={regCity}
+                      onChange={(e) => setRegCity(e.target.value)}
+                      placeholder="São Paulo - SP"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 rounded-xl font-extrabold text-xs bg-purple-600 text-white hover:bg-purple-500 shadow-md"
+                >
+                  Concluir Credenciamento & Gerar Código
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

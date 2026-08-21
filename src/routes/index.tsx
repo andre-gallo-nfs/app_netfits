@@ -12,6 +12,7 @@ import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { wallet } from "@/lib/wallet-store";
 import { toast } from "sonner";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -518,6 +519,7 @@ function SocialActions({ id, title }: { id: string; title: string }) {
       const next = !v;
       if (next) {
         wallet.earn(5, `Curtida no post: ${title}`);
+        sharedSandboxStore.rewardEngagement("like", title);
         toast.success("+5 nfs acumulados por curtir!");
       }
       return next;
@@ -735,6 +737,7 @@ function ContactSendList({
                   onClick={() => {
                     if (!isSent) {
                       wallet.earn(10, `Compartilhamento pós-visualização: ${title}`);
+                      sharedSandboxStore.rewardEngagement("share", title);
                       toast.success("+10 nfs acumulados por compartilhar após a visualização!");
                     }
                     setSent((prev) => (prev.includes(c.name) ? prev : [...prev, c.name]));

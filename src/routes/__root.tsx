@@ -89,6 +89,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 import { GA4RouteTracker } from "@/lib/analytics";
+import { HomologationControlPanel } from "@/components/HomologationControlPanel";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -98,6 +99,7 @@ function RootComponent() {
       <AppShell>
         <Outlet />
       </AppShell>
+      <HomologationControlPanel />
     </QueryClientProvider>
   );
 }

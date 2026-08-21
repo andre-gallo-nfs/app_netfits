@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useWallet, wallet, parseNfs } from "@/lib/wallet-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export type CheckoutProduct = {
   id: string;
@@ -68,6 +69,9 @@ export function ProductCheckoutSheet({
   function handleConfirm() {
     if (nfsToUse > 0) {
       wallet.spend(nfsToUse, `Resgate compra ${product.title}`);
+      sharedSandboxStore.buyShopProduct(product.title, nfsToUse);
+    } else {
+      sharedSandboxStore.buyShopProduct(product.title, Math.ceil(priceNum / NFS_RATE));
     }
     if (cashbackNfs > 0) {
       wallet.earn(cashbackNfs, `Cashback compra ${product.title}`);

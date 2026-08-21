@@ -31,8 +31,8 @@ export const Route = createFileRoute("/contato")({
 });
 
 import { trackSupportTicket } from "@/lib/analytics";
-
 import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 function ContatoPage() {
   const [formData, setFormData] = useState({
@@ -57,6 +57,16 @@ function ContatoPage() {
 
     setSubmittedTicket(newTicket);
     trackSupportTicket(newTicket, formData.subject);
+
+    // Sincronizar com o Banco Provisório Compartilhado
+    sharedSandboxStore.createContactTicket({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone || "(11) 98888-0000",
+      subject: formData.subject,
+      category: formData.subject === "parceiros" ? "comercial" : formData.subject === "associados" ? "associado" : "suporte",
+      message: formData.message,
+    });
     setFormData({
       name: "",
       email: "",

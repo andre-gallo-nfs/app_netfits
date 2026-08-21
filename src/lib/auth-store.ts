@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { wallet } from "./wallet-store";
+import { sharedSandboxStore } from "./shared-sandbox-store";
 
 export type StoredUser = {
   id: string;
@@ -198,9 +199,16 @@ export const authStore = {
     currentUser = newUser;
     emit();
 
+    // Sincronizar com o Banco Provisório Compartilhado
+    sharedSandboxStore.registerAthlete({
+      identifier,
+      fullName,
+      referralCode,
+    });
+
     wallet.earn(50, "Bônus de Boas-Vindas");
     if (referralCode) {
-      toast.success(`🎉 Cadastro realizado! Indicação "${referralCode.toUpperCase()}" vinculada com sucesso (+50 nfs bônus).`);
+      toast.success(`🎉 Cadastro realizado! Indicação "${referralCode.toUpperCase()}" vinculada (+50 nfs bônus).`);
     } else {
       toast.success("🎉 Cadastro realizado com sucesso! Você ganhou +50 nfs bônus.");
     }
