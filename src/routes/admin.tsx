@@ -2216,67 +2216,137 @@ function AdminDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Card 1: Recompensas do Feed & Limites Antifraude */}
-              <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
-                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
-                  <Rss className="size-5 text-purple-400" />
-                  <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
-                      Diretrizes do Feed & Moderação Antifraude
-                    </span>
-                    <h4 className="font-bold text-base text-white">Recompensas de Mídia & Limites de Postagem</h4>
+              {/* Card 1: Recompensas do Feed & Moderação Antifraude Detalhada */}
+              <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-6 lg:col-span-2 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Rss className="size-5 text-purple-400" />
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                        Diretrizes do Feed & Moderação Antifraude
+                      </span>
+                      <h4 className="font-bold text-base text-white">Recompensas de Mídia & Limites Diferenciados de Conteúdo</h4>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 flex items-center gap-1.5">
+                    <ShieldCheck className="size-3.5 text-lime-400" />
+                    Sistema Antifraude Ativo
+                  </span>
+                </div>
+
+                {/* Subseção A: Publicação de Conteúdo Próprio */}
+                <div className="space-y-3 bg-zinc-950/60 p-4 rounded-2xl border border-zinc-800">
+                  <h5 className="text-xs font-black text-lime-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>📌 Publicação de Conteúdo Próprio (Posts do Próprio Usuário)</span>
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <ParamInput
+                      label="nfs por VÍDEO PRÓPRIO"
+                      unit="nfs / vídeo"
+                      value={operationalParams.nfsPerVideoPost}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerVideoPost: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="nfs por TEXTO / FOTO PRÓPRIA"
+                      unit="nfs / post"
+                      value={operationalParams.nfsPerTextPost}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerTextPost: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Limite DIÁRIO de Posts Próprios"
+                      unit="posts / dia"
+                      value={operationalParams.dailyRewardedPostLimit}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, dailyRewardedPostLimit: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Limite SEMANAL de Posts Próprios"
+                      unit="posts / semana"
+                      value={operationalParams.weeklyRewardedPostLimit}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, weeklyRewardedPostLimit: Number(v) }))}
+                    />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <ParamInput
-                    label="Pontos nfs por Post de VÍDEO"
-                    unit="nfs / vídeo"
-                    value={operationalParams.nfsPerVideoPost}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerVideoPost: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="Pontos nfs por TEXTO / FOTO"
-                    unit="nfs / post"
-                    value={operationalParams.nfsPerTextPost}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerTextPost: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="Limite DIÁRIO de Posts Premiados"
-                    unit="posts / dia"
-                    value={operationalParams.dailyRewardedPostLimit}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, dailyRewardedPostLimit: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="Limite SEMANAL de Posts Premiados"
-                    unit="posts / semana"
-                    value={operationalParams.weeklyRewardedPostLimit}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, weeklyRewardedPostLimit: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="nfs por Visualização de Post"
-                    unit="nfs / view"
-                    value={operationalParams.nfsPerPostView}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerPostView: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="nfs por Curtida (Like)"
-                    unit="nfs / like"
-                    value={operationalParams.nfsPerLike}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLike: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="nfs por Compartilhamento"
-                    unit="nfs / share"
-                    value={operationalParams.nfsPerShare}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerShare: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="nfs por Post Salvo"
-                    unit="nfs / save"
-                    value={operationalParams.nfsPerSave}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerSave: Number(v) }))}
-                  />
+                {/* Subseção B: Interação em Conteúdo de Terceiros */}
+                <div className="space-y-3 bg-zinc-950/60 p-4 rounded-2xl border border-zinc-800">
+                  <h5 className="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center gap-2">
+                    <span>👥 Interação em Conteúdo de Terceiros (Posts de Outros Usuários)</span>
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <ParamInput
+                      label="nfs por View em Post de Terceiro"
+                      unit="nfs / view"
+                      value={operationalParams.nfsPerPostView}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerPostView: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="nfs por Like em Post de Terceiro"
+                      unit="nfs / like"
+                      value={operationalParams.nfsPerLike}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLike: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="nfs por Share de Post de Terceiro"
+                      unit="nfs / share"
+                      value={operationalParams.nfsPerShare}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerShare: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="nfs por Post Salvo de Terceiro"
+                      unit="nfs / save"
+                      value={operationalParams.nfsPerSave}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerSave: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Limite DIÁRIO Interações Terceiros"
+                      unit="interações / dia"
+                      value={operationalParams.dailyThirdPartyInteractionsLimit}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, dailyThirdPartyInteractionsLimit: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Teto Máximo DIÁRIO nfs Terceiros"
+                      unit="nfs máx / dia"
+                      value={operationalParams.dailyMaxPointsThirdPartyInteractions}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, dailyMaxPointsThirdPartyInteractions: Number(v) }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Subseção C: Matriz de Travas Antifraude Ativas */}
+                <div className="space-y-3 bg-purple-950/30 p-4 rounded-2xl border border-purple-500/30">
+                  <h5 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-lime-400" />
+                    <span>Matriz de Regras Antifraude & Anti-Bot do Feed</span>
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-red-400 block">🚫 Bloqueio Auto-Engajamento</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Usuário <b>jamais recebe pontos</b> ao curtir, visualizar, salvar ou compartilhar posts da sua própria autoria.
+                      </p>
+                    </div>
+
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-amber-400 block">⏱️ Dwell Time Mínimo</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Exige permanência mínima de <b>{operationalParams.minDwellTimeSecondsForView || 3}s</b> para considerar visualização válida.
+                      </p>
+                    </div>
+
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-blue-400 block">⚡ Rate Limit de Robôs</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Limite de <b>{operationalParams.maxInteractionsPerMinute || 10} ações/minuto</b> para prevenir automação por scripts.
+                      </p>
+                    </div>
+
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-lime-400 block">🔍 Hash Mídia Duplicada</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Bloqueio automático de uploads repetidos ou spams do mesmo arquivo de vídeo/imagem.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

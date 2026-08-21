@@ -466,7 +466,7 @@ const FB_AUDIENCES = [
 
 type Step = "channels" | "wpp" | "ig" | "x" | "tt" | "fb" | "tg" | "msg" | "mail";
 
-function SocialActions({ id, title }: { id: string; title: string }) {
+function SocialActions({ id, title, isOwnPost = false }: { id: string; title: string; isOwnPost?: boolean }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -474,6 +474,7 @@ function SocialActions({ id, title }: { id: string; title: string }) {
   const [sent, setSent] = useState<string[]>([]);
   const [posted, setPosted] = useState(false);
   const [composeText, setComposeText] = useState("");
+  const params = useOperationalParams();
 
   const closeShare = () => {
     setShareOpen(false);
@@ -518,9 +519,13 @@ function SocialActions({ id, title }: { id: string; title: string }) {
     setLiked((v) => {
       const next = !v;
       if (next) {
-        wallet.earn(5, `Curtida no post: ${title}`);
-        sharedSandboxStore.rewardEngagement("like", title);
-        toast.success("+5 nfs acumulados por curtir!");
+        if (isOwnPost || params.blockSelfEngagementRewards) {
+          toast.warning("🔒 Antifraude: Curtir seu próprio post não acumula pontos nfs.");
+        } else {
+          wallet.earn(params.nfsPerLike, `Curtida em post de terceiro: ${title}`);
+          sharedSandboxStore.rewardEngagement("like", title);
+          toast.success(`+${params.nfsPerLike} nfs acumulados por curtir post de terceiro!`);
+        }
       }
       return next;
     });
@@ -530,7 +535,11 @@ function SocialActions({ id, title }: { id: string; title: string }) {
     setSaved((v) => {
       const next = !v;
       if (next) {
-        toast.info("Post adicionado aos seus salvos! (Salvamento não gera pontos)");
+        if (isOwnPost) {
+          toast.info("Post próprio salvo! (Ações próprias não geram pontos)");
+        } else {
+          toast.info("Post de terceiro adicionado aos salvos.");
+        }
       } else {
         toast.info("Post removido dos salvos.");
       }
@@ -543,8 +552,12 @@ function SocialActions({ id, title }: { id: string; title: string }) {
   const handleCompleteView = () => {
     if (!viewed) {
       setViewed(true);
-      wallet.earn(5, `Visualização completa: ${title}`);
-      toast.success("+5 nfs acumulados por visualização completa do conteúdo!");
+      if (isOwnPost) {
+        toast.warning("🔒 Antifraude: Visualizar seu próprio post não acumula pontos nfs.");
+      } else {
+        wallet.earn(params.nfsPerPostView, `Visualização completa: ${title}`);
+        toast.success(`+${params.nfsPerPostView} nfs por visualizar post de terceiro!`);
+      }
     }
   };
 
@@ -736,9 +749,13 @@ function ContactSendList({
                 <button
                   onClick={() => {
                     if (!isSent) {
-                      wallet.earn(10, `Compartilhamento pós-visualização: ${title}`);
-                      sharedSandboxStore.rewardEngagement("share", title);
-                      toast.success("+10 nfs acumulados por compartilhar após a visualização!");
+                      if (isOwnPost) {
+                        toast.warning("🔒 Antifraude: Compartilhar seu próprio post não gera acúmulo de nfs.");
+                      } else {
+                        wallet.earn(params.nfsPerShare, `Compartilhamento pós-visualização: ${title}`);
+                        sharedSandboxStore.rewardEngagement("share", title);
+                        toast.success(`+${params.nfsPerShare} nfs acumulados por compartilhar post de terceiro!`);
+                      }
                     }
                     setSent((prev) => (prev.includes(c.name) ? prev : [...prev, c.name]));
                   }}

@@ -1,16 +1,26 @@
 import { useSyncExternalStore } from "react";
 
 export type OperationalParams = {
-  // Feed Rewards & Anti-Fraud
+  // Feed Rewards & Anti-Fraud (Criação de Conteúdo Próprio)
   nfsPerVideoPost: number;
   nfsPerTextPost: number;
   dailyRewardedPostLimit: number;
   weeklyRewardedPostLimit: number;
 
+  // Engajamento em Posts de Terceiros
   nfsPerPostView: number;
   nfsPerLike: number;
   nfsPerSave: number;
   nfsPerShare: number;
+  dailyThirdPartyInteractionsLimit: number;
+  dailyMaxPointsThirdPartyInteractions: number;
+
+  // Travas de Segurança Antifraude & Moderação
+  blockSelfEngagementRewards: boolean; // Antifraude: Bloqueia acúmulo de nfs por agir sobre o próprio post
+  minDwellTimeSecondsForView: number;   // Tempo mínimo de retenção (ex: 3s) para considerar visualização válida
+  maxInteractionsPerMinute: number;     // Rate limit contra robôs/scripts (ex: máx 10 interações/min)
+  duplicateMediaFilterActive: boolean;  // Filtro de hash de mídia duplicada ou spam
+
   nfsPerWorkout: number;
   nfsPerLoyaltyDeclaration: number;
 
@@ -95,6 +105,14 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   nfsPerLike: 5,
   nfsPerSave: 10,
   nfsPerShare: 10,
+  dailyThirdPartyInteractionsLimit: 10,
+  dailyMaxPointsThirdPartyInteractions: 50,
+
+  blockSelfEngagementRewards: true, // Auto-engajamento sempre bloqueado
+  minDwellTimeSecondsForView: 3,
+  maxInteractionsPerMinute: 10,
+  duplicateMediaFilterActive: true,
+
   nfsPerWorkout: 50,
   nfsPerLoyaltyDeclaration: 20,
 
