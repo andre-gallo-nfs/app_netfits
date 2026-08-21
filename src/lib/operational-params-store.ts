@@ -98,8 +98,8 @@ export function deductPointsFEFO(
 export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   nfsPerVideoPost: 15,
   nfsPerTextPost: 10,
-  dailyRewardedPostLimit: 3,
-  weeklyRewardedPostLimit: 15,
+  dailyRewardedPostLimit: 1, // 1 post próprio premiado por dia
+  weeklyRewardedPostLimit: 7,
 
   nfsPerPostView: 5,
   nfsPerLike: 5,
@@ -139,7 +139,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 294000.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v3";
+const STORAGE_KEY = "netfits_operational_params_v4";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
