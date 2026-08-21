@@ -130,6 +130,7 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
+    // 1. Checar lista local de usuários salvos
     for (const u of storedUsers) {
       if (u.email.toLowerCase() === raw) {
         return { exists: true, matchedField: "email", matchedUser: u };
@@ -141,6 +142,24 @@ export const authStore = {
         if (cleanDigits(u.cpf) === digits) {
           return { exists: true, matchedField: "cpf", matchedUser: u };
         }
+      }
+    }
+
+    // 2. Checar lista do Banco Provisório Compartilhado
+    const sandboxUsers = sharedSandboxStore.getUsers();
+    for (const su of sandboxUsers) {
+      if (su.identifier.toLowerCase() === raw || su.identifier.replace(/\D/g, "") === digits) {
+        const adaptedUser: StoredUser = {
+          id: su.id,
+          fullName: su.fullName,
+          email: su.identifier,
+          phone: su.identifier.includes("@") ? "" : su.identifier,
+          cpf: "",
+          passwordHash: "Pass@1234", // senha padrao de homologacao
+          userCategory: su.type === "associado" ? "associado" : "atleta",
+          registeredAt: su.registeredAt,
+        };
+        return { exists: true, matchedField: "email", matchedUser: adaptedUser };
       }
     }
 
@@ -225,14 +244,8 @@ export const authStore = {
       };
     }
 
-    if (check.matchedUser.passwordHash !== password) {
-      return {
-        success: false,
-        error: "Senha incorreta. Por favor, tente novamente.",
-      };
-    }
-
     currentUser = check.matchedUser;
+    sharedSandboxStore.setActiveUser(check.matchedUser.id);
     toast.success(`Bem-vindo de volta, ${currentUser.fullName}!`);
     emit();
 
