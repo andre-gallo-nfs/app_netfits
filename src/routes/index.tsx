@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2 } from "lucide-react";
+import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye } from "lucide-react";
 import { useState } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges } from "@/lib/badges-store";
