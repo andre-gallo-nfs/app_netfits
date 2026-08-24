@@ -341,6 +341,11 @@ function ParceirosRegistrationPage() {
       return;
     }
 
+    if (!formData.benefitDescription.trim()) {
+      alert("Por favor, descreva a proposta de benefício ou desconto exclusivo que seu estabelecimento/consultório oferecerá aos usuários Netfits.");
+      return;
+    }
+
     if (validationState.status !== "valid") {
       alert("Por favor, clique em 'Verificar Registro / CNPJ' para validar os dados junto aos órgãos competentes antes de enviar.");
       return;
@@ -361,7 +366,7 @@ function ParceirosRegistrationPage() {
       email: formData.email,
       phone: formData.phone,
       documentValidated: validationState.verifiedDetails || `${docType.toUpperCase()}: ${formData.document} (Verificado)`,
-      benefitProposed: formData.benefitDescription || "Cashback em pontos nfs e benefícios exclusivos para a comunidade Netfits",
+      benefitProposed: formData.benefitDescription,
       status: "analysis",
       createdAt: new Date().toLocaleDateString("pt-BR"),
     };
@@ -380,6 +385,7 @@ function ParceirosRegistrationPage() {
       state: formData.state || "SP",
       email: formData.email,
       phone: formData.phone,
+      benefitOffer: formData.benefitDescription,
     });
 
     // Reset form fields
@@ -723,34 +729,68 @@ function ParceirosRegistrationPage() {
 
           <div className="pt-4 border-t border-zinc-800 space-y-4">
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400">Passo 3 de 3</span>
-              <h2 className="text-lg font-extrabold text-white">Proposta de Benefício para os Usuários</h2>
-              <p className="text-xs text-zinc-400">Defina o tipo de vantagem exclusiva oferecida à comunidade Netfits.</p>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">Passo 3 de 3</span>
+              <h2 className="text-lg font-extrabold text-white">Proposta de Benefício para Atletas Netfits *</h2>
+              <p className="text-xs text-zinc-400">
+                Informe o benefício, desconto exclusivo ou cashback que seu estabelecimento/consultório oferecerá aos usuários do Netfits.
+              </p>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-zinc-300 mb-1">
-                Tipo de Benefício Proposto
+                Tipo de Benefício Proposto *
               </label>
               <select
                 value={formData.benefitType}
                 onChange={(e) => setFormData({ ...formData, benefitType: e.target.value })}
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
               >
-                <option value="cashback_points">Cashback em Pontos nfs para Usuários</option>
-                <option value="discount_pct">Desconto Percentual Exclusivo (ex: 10% a 20%)</option>
+                <option value="discount_pct">Desconto Percentual Exclusivo (ex: 15% a 25%)</option>
+                <option value="cashback_points">Pontuação / Cashback em nfs para os Atletas</option>
                 <option value="free_session">Sessão / Aula Experimental Cortesia</option>
                 <option value="free_assessment">Avaliação Física ou Bioimpedância Cortesia</option>
+                <option value="voucher">Voucher / Brinde de Boas-Vindas</option>
               </select>
+            </div>
+
+            {/* Sugestões Rápidas de Benefícios */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-bold text-zinc-400">
+                Sugestões rápidas (Clique para aplicar):
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "15% de Desconto em Mensalidades ou Consultas",
+                  "1ª Sessão de Avaliação de Bioimpedância Grátis",
+                  "Isenção Total da Taxa de Matrícula",
+                  "Acúmulo de +50 nfs por treino ou consulta declarada",
+                  "20% de Desconto em Tratamentos de Recovery",
+                  "Squeeze / Brinde Exclusivo no Primeiro Mês",
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, benefitDescription: preset })}
+                    className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition ${
+                      formData.benefitDescription === preset
+                        ? "bg-lime-400 text-zinc-950 border-lime-400 font-extrabold"
+                        : "bg-zinc-950 text-zinc-300 border-zinc-800 hover:border-zinc-600"
+                    }`}
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-zinc-300 mb-1">
-                Descrição dos Serviços e Diferenciais
+                Detalhamento da Proposta de Benefício *
               </label>
               <textarea
+                required
                 rows={3}
-                placeholder="Descreva brevemente os principais serviços do seu estabelecimento e a oferta de boas-vindas aos usuários Netfits..."
+                placeholder="Ex: Oferecemos 15% de desconto nas mensalidades + 1ª avaliação de bioimpedância gratuita para todos os atletas cadastrados no Netfits."
                 value={formData.benefitDescription}
                 onChange={(e) => setFormData({ ...formData, benefitDescription: e.target.value })}
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
