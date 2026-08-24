@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
 export interface SandboxUser {
@@ -308,6 +309,14 @@ class HomologationSandboxStore {
       this.state.users[this.state.users.length - 1] ||
       INITIAL_USERS[0];
     return fallback;
+  }
+
+  public useActiveUser(): SandboxUser {
+    return useSyncExternalStore(
+      (fn) => this.subscribe(fn),
+      () => this.getActiveUser(),
+      () => INITIAL_USERS[0]
+    );
   }
 
   public getUsers() {
