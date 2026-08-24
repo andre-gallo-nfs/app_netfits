@@ -19,7 +19,9 @@ export function HomologationControlPanel() {
     const unsubscribe = sharedSandboxStore.subscribe(() => {
       setState(sharedSandboxStore.getState());
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const activeUser = sharedSandboxStore.getActiveUser();

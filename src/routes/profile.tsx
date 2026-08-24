@@ -91,7 +91,9 @@ function ProfilePage() {
     const unsubscribe = sharedSandboxStore.subscribe(() => {
       setActiveUser(sharedSandboxStore.getActiveUser());
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

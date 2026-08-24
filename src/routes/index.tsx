@@ -667,7 +667,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
             )}
 
             {(step === "wpp" || step === "tg" || step === "msg" || step === "ig") && (
-              <ContactSendList title={title} step={step} sent={sent} setSent={setSent} />
+              <ContactSendList title={title} step={step} sent={sent} setSent={setSent} isOwnPost={isOwnPost} />
             )}
             {step === "x" && (
               <ComposerX title={title} posted={posted} setPosted={setPosted} text={composeText} setText={setComposeText} />
@@ -689,12 +689,15 @@ function ContactSendList({
   step,
   sent,
   setSent,
+  isOwnPost = false,
 }: {
   title: string;
   step: "wpp" | "tg" | "msg" | "ig";
   sent: string[];
   setSent: React.Dispatch<React.SetStateAction<string[]>>;
+  isOwnPost?: boolean;
 }) {
+  const params = useOperationalParams();
   const cfg = {
     wpp: {
       list: WPP_CONTACTS.map((c) => ({ name: c.name, sub: c.phone, initials: c.initials })),

@@ -26,6 +26,8 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
+import { useOperationalParams } from "@/lib/operational-params-store";
+
 export function NetfitAiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
@@ -33,7 +35,12 @@ export function NetfitAiAssistant() {
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   
-  const { balance: nfsBalance, balanceBRL } = useWallet();
+  const { balance: nfsBalance } = useWallet();
+  const params = useOperationalParams();
+  const balanceBRL = (nfsBalance * params.cppResgateBrl).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {

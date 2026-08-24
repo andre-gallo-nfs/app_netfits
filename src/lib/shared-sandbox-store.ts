@@ -37,6 +37,7 @@ export interface SandboxPartner {
   state: string;
   email: string;
   phone: string;
+  benefitOffer?: string;
   status: "ativo" | "pendente";
   registeredAt: string;
 }

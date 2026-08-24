@@ -7,7 +7,7 @@ import {
   Share2, Video, Check, ExternalLink, Download, Search, ChevronDown, UserCheck,
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
-  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck
+  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
 import { operationalParamsStore, useOperationalParams } from "@/lib/operational-params-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import netfitsLogo from "@/assets/netfits-logo.png";
 import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 
@@ -82,16 +83,19 @@ type AssociadoAdminItem = {
   handle: string;
   category: string;
   code: string;
+  referralCode?: string;
+  exclusiveUrl?: string;
+  activeUsers?: number;
   isVerifiedSpecialist?: boolean;
   specialistBadgeLabel?: string;
   capturedUsers: number;
   retentionRatePct: number;
   gmvBrl: number;
   netfitsRevenueBrl: number;
-  commissionPctOfNetfitsRev: number;
+  commissionPctOfNetfitsRev?: number;
   commissionBrl: number;
-  payoutStatus: "Pago" | "Pendente" | "Processando";
-  syntheticActions: {
+  payoutStatus?: "Pago" | "Pendente" | "Processando";
+  syntheticActions?: {
     shopPurchases: number;
     postsViewed: number;
     videosWatched: number;
@@ -674,6 +678,7 @@ function AdminDashboardPage() {
       name: newAssocName.trim(),
       handle: cleanHandle,
       category: newAssocSpecialty,
+      code: assocCode,
       referralCode: assocCode,
       exclusiveUrl: portalLink,
       capturedUsers: 0,
@@ -683,6 +688,13 @@ function AdminDashboardPage() {
       netfitsRevenueBrl: 0,
       commissionBrl: 0,
       isVerifiedSpecialist: true,
+      syntheticActions: {
+        shopPurchases: 0,
+        postsViewed: 0,
+        videosWatched: 0,
+        shares: 0,
+        activities: 0,
+      },
     };
 
     setAssociadosList([newAssociadoItem, ...associadosList]);
