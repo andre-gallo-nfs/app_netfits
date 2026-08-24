@@ -10,8 +10,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 
 export function HomologationControlPanel() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"profiles" | "flows" | "db">("flows");
+  const [activeTab, setActiveTab] = useState<"profiles" | "flows" | "db" | "users">("users");
   const [state, setState] = useState(sharedSandboxStore.getState());
+  const [userSearch, setUserSearch] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +28,17 @@ export function HomologationControlPanel() {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copiado! (${text})`);
   };
+
+  const filteredUsers = state.users.filter((u) => {
+    const q = userSearch.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      u.fullName.toLowerCase().includes(q) ||
+      u.identifier.toLowerCase().includes(q) ||
+      u.referralCode.toLowerCase().includes(q) ||
+      (u.referredBy && u.referredBy.toLowerCase().includes(q))
+    );
+  });
 
   return (
     <div className="fixed bottom-4 right-4 z-50 font-sans">
@@ -46,7 +58,7 @@ export function HomologationControlPanel() {
 
       {/* Painel Expansível de Testes */}
       {isOpen && (
-        <div className="w-[380px] max-w-[calc(100vw-32px)] bg-zinc-950 text-white border border-purple-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-5">
+        <div className="w-[420px] max-w-[calc(100vw-32px)] bg-zinc-950 text-white border border-purple-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh] animate-in slide-in-from-bottom-5">
           {/* Cabeçalho do Painel */}
           <div className="bg-gradient-to-r from-purple-900 via-purple-950 to-zinc-950 p-4 border-b border-purple-500/20 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -55,7 +67,7 @@ export function HomologationControlPanel() {
               </div>
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">
-                  Suíte de Homologação & Testes
+                  Suíte de Homologação Netfits
                 </h3>
                 <p className="text-[10px] text-zinc-400">
                   Banco Provisório em Tempo Real (Multi-Dispositivo)
@@ -89,6 +101,16 @@ export function HomologationControlPanel() {
           {/* Aba Tabs */}
           <div className="flex border-b border-zinc-800 bg-zinc-900/40 text-[11px] font-bold">
             <button
+              onClick={() => setActiveTab("users")}
+              className={`flex-1 py-2.5 text-center border-b-2 transition ${
+                activeTab === "users"
+                  ? "border-lime-400 text-lime-400 bg-purple-950/20"
+                  : "border-transparent text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              👥 Cadastros ({state.users.length})
+            </button>
+            <button
               onClick={() => setActiveTab("flows")}
               className={`flex-1 py-2.5 text-center border-b-2 transition ${
                 activeTab === "flows"
@@ -96,7 +118,7 @@ export function HomologationControlPanel() {
                   : "border-transparent text-zinc-400 hover:text-zinc-200"
               }`}
             >
-              🚀 11 Fluxos de Teste
+              🚀 11 Fluxos
             </button>
             <button
               onClick={() => setActiveTab("profiles")}
@@ -106,7 +128,7 @@ export function HomologationControlPanel() {
                   : "border-transparent text-zinc-400 hover:text-zinc-200"
               }`}
             >
-              👤 Trocar Perfil
+              👤 Sessão
             </button>
             <button
               onClick={() => setActiveTab("db")}
@@ -116,12 +138,151 @@ export function HomologationControlPanel() {
                   : "border-transparent text-zinc-400 hover:text-zinc-200"
               }`}
             >
-              📊 Banco ({state.users.length})
+              📊 Banco
             </button>
           </div>
 
           {/* Conteúdo da Aba selecionada */}
           <div className="p-3.5 space-y-2.5 overflow-y-auto flex-1 text-xs">
+            {/* ABA 0: FOTO ATUAL DO BANCO DE DADOS DE CADASTROS */}
+            {activeTab === "users" && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] uppercase font-extrabold text-lime-400 tracking-wider">
+                    📸 Foto Atual do Cadastro ({filteredUsers.length} de {state.users.length})
+                  </p>
+                </div>
+
+                {/* Campo de Filtro de Busca de Usuários */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    placeholder="Buscar por nome, e-mail ou código de indicação..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+                  />
+                  {userSearch && (
+                    <button
+                      onClick={() => setUserSearch("")}
+                      className="absolute right-2.5 top-2 text-zinc-400 hover:text-white text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Lista de Cards com o Raio-X de cada usuário no Banco */}
+                <div className="space-y-2">
+                  {filteredUsers.length === 0 ? (
+                    <div className="p-4 text-center text-zinc-400 bg-zinc-900 rounded-2xl border border-zinc-800 text-xs">
+                      Nenhum usuário encontrado com o filtro "{userSearch}".
+                    </div>
+                  ) : (
+                    filteredUsers.map((u) => {
+                      const isCurrentSession = u.id === activeUser.id;
+                      const typeLabel =
+                        u.type === "athlete"
+                          ? "Atleta"
+                          : u.type === "associado"
+                          ? "Associado Credenciado"
+                          : u.type === "admin"
+                          ? "Administrador Netfits"
+                          : "Parceiro Comercial";
+
+                      const badgeColor =
+                        u.type === "associado"
+                          ? "bg-purple-950 text-purple-300 border-purple-500/40"
+                          : u.type === "admin"
+                          ? "bg-amber-950 text-amber-300 border-amber-500/40"
+                          : "bg-lime-950 text-lime-400 border-lime-500/40";
+
+                      return (
+                        <div
+                          key={u.id}
+                          className={`p-3 rounded-2xl border transition space-y-2 ${
+                            isCurrentSession
+                              ? "bg-purple-950/40 border-lime-400/60 ring-1 ring-lime-400/30"
+                              : "bg-zinc-900/90 border-zinc-800 hover:border-zinc-700"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-extrabold text-white text-xs">{u.fullName}</span>
+                                {isCurrentSession && (
+                                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-lime-400 text-zinc-950 uppercase">
+                                    Sessão Ativa
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-zinc-400 truncate">{u.identifier}</p>
+                            </div>
+                            <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border shrink-0 ${badgeColor}`}>
+                              {typeLabel}
+                            </span>
+                          </div>
+
+                          {/* Tabela com os metadados do cadastro */}
+                          <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-zinc-800 text-[10px]">
+                            <div className="bg-zinc-950/60 p-1.5 rounded-lg border border-zinc-800/80">
+                              <span className="text-zinc-500 block">Código Indicação:</span>
+                              <button
+                                onClick={() => handleCopy(u.referralCode, "Código de Indicação")}
+                                className="font-mono font-bold text-lime-400 hover:underline flex items-center gap-1 mt-0.5"
+                              >
+                                {u.referralCode} <Copy className="size-2.5" />
+                              </button>
+                            </div>
+
+                            <div className="bg-zinc-950/60 p-1.5 rounded-lg border border-zinc-800/80">
+                              <span className="text-zinc-500 block">Indicado Por:</span>
+                              <span className="font-medium text-zinc-300 truncate block mt-0.5">
+                                {u.referredBy ? (
+                                  <b className="text-purple-300">{u.referredBy}</b>
+                                ) : (
+                                  <span className="text-zinc-500">Sem indicação (Direto)</span>
+                                )}
+                              </span>
+                            </div>
+
+                            {u.professionalRegister && (
+                              <div className="bg-zinc-950/60 p-1.5 rounded-lg border border-zinc-800/80 col-span-2">
+                                <span className="text-zinc-500 block">Registro Profissional & Especialidade:</span>
+                                <span className="font-bold text-white mt-0.5 block">
+                                  {u.professionalRegister} {u.specialty ? `· ${u.specialty}` : ""}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="bg-zinc-950/60 p-1.5 rounded-lg border border-zinc-800/80">
+                              <span className="text-zinc-500 block">Saldo Atual nfs:</span>
+                              <span className="font-black text-lime-400 mt-0.5 block">{u.nfsBalance} nfs</span>
+                            </div>
+
+                            <div className="bg-zinc-950/60 p-1.5 rounded-lg border border-zinc-800/80">
+                              <span className="text-zinc-500 block">Data de Cadastro:</span>
+                              <span className="font-medium text-zinc-300 mt-0.5 block">{u.registeredAt}</span>
+                            </div>
+                          </div>
+
+                          {!isCurrentSession && (
+                            <button
+                              onClick={() => sharedSandboxStore.setActiveUser(u.id)}
+                              className="w-full mt-1 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-[10px] transition border border-purple-500/30 flex items-center justify-center gap-1"
+                            >
+                              <User className="size-3" />
+                              Entrar na Conta deste Usuário
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* ABA 1: 11 FLUXOS */}
             {activeTab === "flows" && (
               <div className="space-y-2">
