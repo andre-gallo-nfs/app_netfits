@@ -64,7 +64,8 @@ export interface SandboxOrder {
   createdAt: string;
 }
 
-const STORAGE_KEY = "netfits_shared_sandbox_db_v1";
+const STORAGE_KEY = "netfits_shared_sandbox_db_v2";
+const DEVICE_SESSION_KEY = "netfits_device_active_user_id_v2";
 const SYNC_CHANNEL = "netfits_sandbox_sync_channel";
 
 // Default Seed Data for Live Testing
@@ -210,7 +211,13 @@ class HomologationSandboxStore {
         this.broadcastChannel = new BroadcastChannel(SYNC_CHANNEL);
         this.broadcastChannel.onmessage = (event) => {
           if (event.data === "sync") {
-            this.state = this.loadFromStorage();
+            const fresh = this.loadFromStorage();
+            // Atualiza coleções compartilhadas preservando sessão deste dispositivo
+            this.state.users = fresh.users;
+            this.state.transactions = fresh.transactions;
+            this.state.partners = fresh.partners;
+            this.state.tickets = fresh.tickets;
+            this.state.orders = fresh.orders;
             this.notify();
           }
         };
@@ -220,7 +227,12 @@ class HomologationSandboxStore {
 
       window.addEventListener("storage", (e) => {
         if (e.key === STORAGE_KEY) {
-          this.state = this.loadFromStorage();
+          const fresh = this.loadFromStorage();
+          this.state.users = fresh.users;
+          this.state.transactions = fresh.transactions;
+          this.state.partners = fresh.partners;
+          this.state.tickets = fresh.tickets;
+          this.state.orders = fresh.orders;
           this.notify();
         }
       });
@@ -284,10 +296,18 @@ class HomologationSandboxStore {
   }
 
   public getActiveUser(): SandboxUser {
-    return (
+    if (typeof window !== "undefined") {
+      const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
+      if (deviceUserId) {
+        const found = this.state.users.find((u) => u.id === deviceUserId);
+        if (found) return found;
+      }
+    }
+    const fallback =
       this.state.users.find((u) => u.id === this.state.activeUserId) ||
-      this.state.users[0]
-    );
+      this.state.users[this.state.users.length - 1] ||
+      INITIAL_USERS[0];
+    return fallback;
   }
 
   public getUsers() {
@@ -314,9 +334,21 @@ class HomologationSandboxStore {
   public setActiveUser(userId: string) {
     const found = this.state.users.find((u) => u.id === userId);
     if (found) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(DEVICE_SESSION_KEY, found.id);
+      }
       this.state.activeUserId = found.id;
-      this.saveToStorage();
+      this.notify();
       toast.success(`Sessão alterada para: ${found.fullName} (${found.type.toUpperCase()})`);
+    }
+  }
+
+  public updateUser(userId: string, updates: Partial<SandboxUser>) {
+    const user = this.state.users.find((u) => u.id === userId);
+    if (user) {
+      Object.assign(user, updates);
+      this.saveToStorage();
+      toast.success("Perfil atualizado com sucesso no banco de dados!");
     }
   }
 

@@ -123,7 +123,19 @@ const subscribe = (fn: () => void) => {
 const getSnapshot = () => authState;
 
 export const authStore = {
-  getCurrentUser: () => currentUser,
+  getCurrentUser: (): StoredUser => {
+    const active = sharedSandboxStore.getActiveUser();
+    return {
+      id: active.id,
+      fullName: active.fullName,
+      email: active.identifier,
+      phone: active.identifier.includes("@") ? "" : active.identifier,
+      cpf: "",
+      passwordHash: "Pass@1234",
+      userCategory: active.type === "associado" ? "associado" : "atleta",
+      registeredAt: active.registeredAt,
+    };
+  },
   getStoredUsers: () => storedUsers,
 
   checkIdentifierExists(identifier: string): { exists: boolean; matchedField?: "email" | "phone" | "cpf"; matchedUser?: StoredUser } {
@@ -202,28 +214,32 @@ export const authStore = {
       };
     }
 
-    const type = detectIdentifierType(identifier);
-    const newUser: StoredUser = {
-      id: `usr_${Date.now()}`,
-      fullName,
-      email: type === "email" ? identifier.trim() : `${cleanDigits(identifier)}@netfits-user.com`,
-      phone: type === "phone" ? cleanDigits(identifier) : "",
-      cpf: type === "cpf" ? cleanDigits(identifier) : "",
-      passwordHash: password,
-      userCategory: "atleta",
-      registeredAt: new Date().toISOString(),
-    };
-
-    storedUsers.push(newUser);
-    currentUser = newUser;
-    emit();
-
-    // Sincronizar com o Banco Provisório Compartilhado
-    sharedSandboxStore.registerAthlete({
+    // Cadastrar no Banco Provisório Compartilhado e definir como ativo deste dispositivo
+    const regResult = sharedSandboxStore.registerAthlete({
       identifier,
       fullName,
       referralCode,
     });
+
+    if (!regResult.success || !regResult.user) {
+      return { success: false, error: regResult.error || "Erro ao efetuar cadastro." };
+    }
+
+    const newUser: StoredUser = {
+      id: regResult.user.id,
+      fullName: regResult.user.fullName,
+      email: regResult.user.identifier,
+      phone: regResult.user.identifier.includes("@") ? "" : regResult.user.identifier,
+      cpf: "",
+      passwordHash: password,
+      userCategory: "atleta",
+      registeredAt: regResult.user.registeredAt,
+    };
+
+    storedUsers.push(newUser);
+    currentUser = newUser;
+    sharedSandboxStore.setActiveUser(regResult.user.id);
+    emit();
 
     wallet.earn(50, "Bônus de Boas-Vindas");
     if (referralCode) {
@@ -246,7 +262,7 @@ export const authStore = {
 
     currentUser = check.matchedUser;
     sharedSandboxStore.setActiveUser(check.matchedUser.id);
-    toast.success(`Bem-vindo de volta, ${currentUser.fullName}!`);
+    toast.success(`Bem-vindo de volta, ${check.matchedUser.fullName}!`);
     emit();
 
     return { success: true, user: currentUser };

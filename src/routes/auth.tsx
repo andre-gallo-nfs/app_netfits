@@ -630,10 +630,10 @@ function AuthPage() {
             Entrar com Biometria / Face ID (Passkeys)
           </button>
 
-          <div className="bg-muted p-3 rounded-xl border border-border space-y-1 text-center">
-            <p className="text-[11px] font-bold text-foreground">Credenciais de Teste:</p>
-            <p className="text-[10px] text-muted-foreground font-mono">
-              Usuário: <b>atleta@netfits.com.br</b> | Senha: <b>Pass@1234</b>
+          <div className="bg-purple-950/20 p-3 rounded-xl border border-purple-500/30 space-y-1 text-center">
+            <p className="text-[11px] font-bold text-purple-300">💡 Homologação e Testes:</p>
+            <p className="text-[10px] text-zinc-400">
+              Cadastre sua própria conta acima com seu nome e e-mail ou utilize o <b className="text-lime-400">🧪 Painel de Homologação</b> no canto da tela para alternar sessões.
             </p>
           </div>
         </form>

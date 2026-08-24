@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut,
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy,
 } from "lucide-react";
 import profileAvatar from "@/assets/profile-avatar.jpg";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
 import { AssociadoDashboardCard } from "../components/AssociadoDashboardCard";
 import { LoyaltyProgramsCard } from "../components/LoyaltyProgramsCard";
+import { sharedSandboxStore } from "../lib/shared-sandbox-store";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -74,48 +75,56 @@ const WEARABLES = [
 ];
 
 function ProfilePage() {
+  const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
+
+  useEffect(() => {
+    const unsubscribe = sharedSandboxStore.subscribe(() => {
+      setActiveUser(sharedSandboxStore.getActiveUser());
+    });
+    return unsubscribe;
+  }, []);
+
   const [form, setForm] = useState({
-    name: "Karina Lima",
-    email: "karina.lima@email.com",
+    name: activeUser.fullName,
+    email: activeUser.identifier,
     phone: "+55 11 98765-4321",
-    address: "Rua Augusta, 1200 — Consolação, São Paulo · SP",
-    birthDate: "1985-03-14",
-    sports: ["Corrida de rua", "Maratona", "Ciclismo", "Musculação"] as string[],
+    address: "São Paulo · SP",
+    birthDate: "1995-06-15",
+    sports: ["Corrida de rua", "Musculação"] as string[],
     otherSport: "",
     healthPlan: "SulAmérica",
     gym: "Smart Fit",
-    coaching: "Pace Assessoria Esportiva — Treinador Rafael Souza",
+    coaching: "Assessoria Esportiva",
     wearable: "Apple Watch",
   });
 
-  // Origem do cadastro (mock): "referral" quando veio por convite de outro netfiter
-  const signup = {
-    type: "referral" as "organic" | "referral",
-    referrerName: "Kite Larsen",
-    referrerCode: "KITE-7X2",
-    date: "12/03/2026",
-  };
+  useEffect(() => {
+    setForm((f) => ({
+      ...f,
+      name: activeUser.fullName,
+      email: activeUser.identifier,
+    }));
+  }, [activeUser.id, activeUser.fullName, activeUser.identifier]);
 
-  // Tribo gerada por este netfiter (mock)
+  // Tribo gerada por este netfiter
   const myReferrals = {
     total: 12,
     active: 9,
     pending: 3,
-    nfsEarned: 4820,
+    nfsEarned: activeUser.nfsBalance,
     bySource: [
-      { label: "Compras no shop", value: 1840 },
-      { label: "Atividades físicas", value: 1250 },
-      { label: "Sono monitorado", value: 720 },
-      { label: "Consultas e saúde", value: 610 },
-      { label: "Vídeos e conteúdos", value: 400 },
+      { label: "Compras no shop", value: Math.floor(activeUser.nfsBalance * 0.4) },
+      { label: "Atividades físicas", value: Math.floor(activeUser.nfsBalance * 0.3) },
+      { label: "Sono monitorado", value: Math.floor(activeUser.nfsBalance * 0.15) },
+      { label: "Consultas e saúde", value: Math.floor(activeUser.nfsBalance * 0.1) },
+      { label: "Vídeos e conteúdos", value: Math.floor(activeUser.nfsBalance * 0.05) },
     ],
     recent: [
-      { name: "Marina Duarte", initials: "MD", date: "02/07/2026", status: "ativo" },
-      { name: "Rafael Souza", initials: "RS", date: "24/06/2026", status: "ativo" },
-      { name: "Bruno Tavares", initials: "BT", date: "11/06/2026", status: "pendente" },
+      { name: "Marina Duarte", initials: "MD", date: "02/08/2026", status: "ativo" },
+      { name: "Rafael Souza", initials: "RS", date: "24/07/2026", status: "ativo" },
+      { name: "Bruno Tavares", initials: "BT", date: "11/07/2026", status: "pendente" },
     ],
   };
-
 
   const [saved, setSaved] = useState(false);
 
@@ -130,55 +139,38 @@ function ProfilePage() {
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    const payload = {
-      id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+    sharedSandboxStore.updateUser(activeUser.id, {
       fullName: form.name,
-      email: form.email,
-      phone: form.phone,
-      birthDate: form.birthDate,
-      address: form.address,
-      sports: form.sports.length > 0 ? form.sports : ["Corrida de rua"],
-      healthPlan: form.healthPlan,
-      gym: form.gym,
-      wearable: form.wearable,
-      coaching: form.coaching,
-      consentTermsAccepted: true,
-      consentWearablesData: true,
-      consentPartnersOffers: true,
-    };
-
-    const validation = validateUserData(payload);
-    if (!validation.isValid) {
-      toast.error("Erro na validação de dados de cadastro");
-      return;
-    }
-
+      identifier: form.email,
+    });
     setSaved(true);
-    toast.success("Dados de cadastro validados e salvos com integridade!");
-    setTimeout(() => setSaved(false), 2400);
+    toast.success("Dados do perfil atualizados com sucesso!");
+    setTimeout(() => setSaved(false), 3000);
   }
 
+  const isReferred = !!activeUser.referredBy;
+
   return (
-    <div className="pb-8">
+    <main className="min-h-screen bg-background pb-28 font-sans">
       {/* Header */}
-      <section className="relative bg-gradient-to-br from-foreground to-foreground/80 text-background px-4 pt-5 pb-16">
+      <section className="bg-foreground text-background px-4 pt-6 pb-16 relative">
         <div className="flex items-center justify-between">
           <Link
             to="/"
-            className="size-9 rounded-full bg-background/15 backdrop-blur grid place-items-center"
-            aria-label="Voltar"
+            className="size-9 rounded-full bg-background/10 hover:bg-background/20 grid place-items-center transition"
           >
-            <ArrowLeft className="size-4" />
+            <ArrowLeft className="size-5" />
           </Link>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-background/70">
-            Meu Perfil
-          </p>
+          <div className="flex items-center gap-2">
+            <User className="size-4 text-brand" />
+            <span className="text-sm font-bold tracking-tight">Meu Perfil Netfits</span>
+          </div>
           <Link
             to="/auth"
-            className="text-[10px] font-bold px-3 py-1.5 rounded-full bg-purple-600 text-white flex items-center gap-1 shadow-sm hover:bg-purple-700 transition"
+            className="text-xs font-bold bg-brand text-brand-foreground px-3 py-1.5 rounded-full hover:opacity-90 transition flex items-center gap-1"
           >
             <LogIn className="size-3" />
-            Login / Sair
+            Sessão / Trocar
           </Link>
         </div>
       </section>
@@ -188,14 +180,9 @@ function ProfilePage() {
         <div className="bg-card rounded-2xl ring-1 ring-black/5 p-5 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <img
-                src={profileAvatar}
-                alt="Foto de Karina Lima"
-                width={88}
-                height={88}
-                className="size-22 w-22 h-22 rounded-full object-cover ring-4 ring-background shadow-lg"
-                style={{ width: 88, height: 88 }}
-              />
+              <div className="size-20 rounded-full bg-gradient-to-tr from-purple-700 to-lime-400 grid place-items-center text-white text-2xl font-black shadow-lg border-2 border-background">
+                {activeUser.fullName.substring(0, 2).toUpperCase()}
+              </div>
               <button
                 type="button"
                 className="absolute bottom-0 right-0 size-7 rounded-full bg-brand text-brand-foreground grid place-items-center ring-2 ring-background"
@@ -206,31 +193,35 @@ function ProfilePage() {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg font-bold leading-tight truncate">
-                {form.name}
+                {activeUser.fullName}
               </h1>
               <p className="text-xs text-muted-foreground truncate">
-                {form.email}
+                {activeUser.identifier}
               </p>
-              <div className="flex items-center gap-1.5 mt-2">
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                 <span className="text-[9px] font-bold uppercase tracking-widest bg-brand text-brand-foreground px-2 py-0.5 rounded-full">
-                  Atleta
+                  {activeUser.type === "associado"
+                    ? "Associado Credenciado"
+                    : activeUser.type === "admin"
+                    ? "Administrador"
+                    : "Atleta Netfits"}
                 </span>
                 <span className="text-[9px] font-bold uppercase tracking-widest bg-muted text-foreground/70 px-2 py-0.5 rounded-full">
-                  25.575 nfs
+                  {activeUser.nfsBalance.toLocaleString()} nfs
                 </span>
                 <span
                   className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                    signup.type === "referral"
+                    isReferred
                       ? "bg-foreground text-background"
                       : "bg-muted text-foreground/70"
                   }`}
                 >
-                  {signup.type === "referral" ? (
+                  {isReferred ? (
                     <UserPlus className="size-2.5" />
                   ) : (
                     <Sprout className="size-2.5" />
                   )}
-                  {signup.type === "referral" ? "Indicado" : "Orgânico"}
+                  {isReferred ? `Indicado por ${activeUser.referredBy}` : "Orgânico"}
                 </span>
               </div>
             </div>
@@ -243,7 +234,7 @@ function ProfilePage() {
         <AssociadoDashboardCard />
       </section>
 
-      {/* Programas de Fidelidade Declarados (Etapa 1 - Business Plan) */}
+      {/* Programas de Fidelidade Declarados */}
       <section className="px-4 pt-4">
         <LoyaltyProgramsCard />
       </section>
@@ -251,56 +242,59 @@ function ProfilePage() {
       <form onSubmit={handleSave} className="px-4 pt-5 space-y-5">
         {/* Origem do cadastro */}
         <Card
-          title="Origem do cadastro"
-          icon={signup.type === "referral" ? UserPlus : Sprout}
+          title="Origem do cadastro e Convites"
+          icon={isReferred ? UserPlus : Sprout}
         >
           <div className="flex items-start gap-3">
             <div
               className={`size-10 shrink-0 rounded-xl grid place-items-center ${
-                signup.type === "referral"
+                isReferred
                   ? "bg-brand text-brand-foreground"
                   : "bg-muted text-foreground/70"
               }`}
             >
-              {signup.type === "referral" ? (
+              {isReferred ? (
                 <UserPlus className="size-5" />
               ) : (
                 <Sprout className="size-5" />
               )}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-bold">
-                {signup.type === "referral"
-                  ? "Cadastro por indicação"
+                {isReferred
+                  ? "Cadastro realizado com código de indicação"
                   : "Cadastro orgânico"}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {signup.type === "referral" ? (
+                {isReferred ? (
                   <>
-                    Indicado por{" "}
-                    <span className="font-semibold text-foreground">
-                      {signup.referrerName}
-                    </span>{" "}
-                    · código{" "}
-                    <span className="font-mono font-semibold text-foreground">
-                      {signup.referrerCode}
+                    Vincularam sua conta com o código{" "}
+                    <span className="font-mono font-bold text-foreground">
+                      {activeUser.referredBy}
                     </span>
                   </>
                 ) : (
-                  "Este netfiter chegou por conta própria, sem link de convite."
+                  "Você se cadastrou diretamente no Netfits."
                 )}
               </p>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Entrou em {signup.date}
-              </p>
+              <div className="mt-2.5 pt-2 border-t border-border flex items-center justify-between bg-muted/60 p-2.5 rounded-xl">
+                <div>
+                  <span className="text-[10px] text-muted-foreground font-semibold uppercase block">Seu código pessoal de convite:</span>
+                  <span className="font-mono font-bold text-sm text-foreground">{activeUser.referralCode}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(activeUser.referralCode);
+                    toast.success(`Código ${activeUser.referralCode} copiado!`);
+                  }}
+                  className="bg-brand text-brand-foreground font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 hover:opacity-90"
+                >
+                  <Copy className="size-3" /> Copiar
+                </button>
+              </div>
             </div>
           </div>
-          {signup.type === "referral" && (
-            <p className="text-[11px] text-muted-foreground bg-muted rounded-xl px-3 py-2">
-              Faz parte da tribo de {signup.referrerName} — sempre que você
-              acumula netfits, ela também recebe.
-            </p>
-          )}
         </Card>
 
         {/* Indicações geradas */}
@@ -505,7 +499,7 @@ function ProfilePage() {
           </button>
         </div>
       </form>
-    </div>
+    </main>
   );
 }
 
