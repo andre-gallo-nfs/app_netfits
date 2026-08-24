@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
