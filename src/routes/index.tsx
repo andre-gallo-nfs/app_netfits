@@ -13,6 +13,7 @@ import netfitsMark from "@/assets/netfits-mark.png";
 import { wallet } from "@/lib/wallet-store";
 import { toast } from "sonner";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { useOperationalParams } from "@/lib/operational-params-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
