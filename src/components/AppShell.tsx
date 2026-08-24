@@ -142,9 +142,13 @@ function TopBar() {
           to="/profile"
           aria-label="Meu perfil"
           title={activeUser.fullName}
-          className="size-7 rounded-full bg-purple-600 text-white font-extrabold text-[10px] flex items-center justify-center ring-2 ring-purple-500/20 shadow-xs hover:scale-105 transition shrink-0"
+          className="size-7 rounded-full overflow-hidden bg-purple-600 text-white font-extrabold text-[10px] flex items-center justify-center ring-2 ring-purple-500/20 shadow-xs hover:scale-105 transition shrink-0"
         >
-          <span>{initials}</span>
+          {activeUser.avatarUrl ? (
+            <img src={activeUser.avatarUrl} alt={activeUser.fullName} className="w-full h-full object-cover" />
+          ) : (
+            <span>{initials}</span>
+          )}
         </Link>
       </div>
     </header>

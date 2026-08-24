@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy,
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2
 } from "lucide-react";
-import profileAvatar from "@/assets/profile-avatar.jpg";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
 import { AssociadoDashboardCard } from "../components/AssociadoDashboardCard";
@@ -20,6 +19,15 @@ export const Route = createFileRoute("/profile")({
   }),
   component: ProfilePage,
 });
+
+const PRESET_AVATARS = [
+  { id: "runner", label: "Corrida / Marathon", url: "https://images.unsplash.com/photo-1483721074892-4a85dd908069?w=200&auto=format&fit=crop&q=80" },
+  { id: "gym", label: "Musculação / Gym", url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80" },
+  { id: "swim", label: "Natação / Swimmer", url: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200&auto=format&fit=crop&q=80" },
+  { id: "personal", label: "Personal Trainer", url: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=200&auto=format&fit=crop&q=80" },
+  { id: "crossfit", label: "Treino Funcional", url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&auto=format&fit=crop&q=80" },
+  { id: "yoga", label: "Yoga & Wellness", url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=200&auto=format&fit=crop&q=80" },
+];
 
 const RUNNING_SPORTS = [
   "Corrida de rua",
@@ -179,16 +187,26 @@ function ProfilePage() {
       <section className="px-4 -mt-12">
         <div className="bg-card rounded-2xl ring-1 ring-black/5 p-5 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="size-20 rounded-full bg-gradient-to-tr from-purple-700 to-lime-400 grid place-items-center text-white text-2xl font-black shadow-lg border-2 border-background">
-                {activeUser.fullName.substring(0, 2).toUpperCase()}
-              </div>
+            <div className="relative shrink-0">
+              {activeUser.avatarUrl ? (
+                <img
+                  src={activeUser.avatarUrl}
+                  alt={activeUser.fullName}
+                  className="size-20 rounded-full object-cover shadow-lg border-2 border-background ring-2 ring-purple-500/30"
+                />
+              ) : (
+                <div className="size-20 rounded-full bg-gradient-to-tr from-purple-700 to-lime-400 grid place-items-center text-white text-2xl font-black shadow-lg border-2 border-background">
+                  {activeUser.fullName.substring(0, 2).toUpperCase()}
+                </div>
+              )}
               <button
                 type="button"
-                className="absolute bottom-0 right-0 size-7 rounded-full bg-brand text-brand-foreground grid place-items-center ring-2 ring-background"
-                aria-label="Alterar foto"
+                onClick={() => setShowAvatarModal(true)}
+                className="absolute bottom-0 right-0 size-8 rounded-full bg-purple-600 text-white grid place-items-center ring-2 ring-background hover:bg-purple-500 active:scale-95 transition shadow-md cursor-pointer"
+                aria-label="Alterar foto ou avatar de perfil"
+                title="Alterar foto ou avatar de perfil"
               >
-                <Camera className="size-3.5" />
+                <Camera className="size-4" />
               </button>
             </div>
             <div className="min-w-0 flex-1">
@@ -499,6 +517,89 @@ function ProfilePage() {
           </button>
         </div>
       </form>
+      {/* Modal de Escolha / Upload de Avatar */}
+      {showAvatarModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 text-white rounded-3xl max-w-sm w-full p-6 space-y-5 shadow-2xl relative">
+            <button
+              onClick={() => setShowAvatarModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full bg-zinc-800/50"
+            >
+              <X className="size-5" />
+            </button>
+
+            <div className="text-center space-y-1">
+              <div className="size-12 rounded-full bg-purple-600/20 text-purple-400 mx-auto grid place-items-center mb-2">
+                <Camera className="size-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Alterar Foto de Perfil</h3>
+              <p className="text-xs text-zinc-400">
+                Envie uma foto do seu dispositivo ou escolha um avatar esportivo.
+              </p>
+            </div>
+
+            {/* Input de Arquivo Oculto */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="image/*"
+              className="hidden"
+            />
+
+            {/* Opção 1: Upload de Foto Própria */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-3 rounded-2xl transition flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 cursor-pointer"
+            >
+              <Upload className="size-4" />
+              <span>Enviar Foto do Dispositivo / Câmera</span>
+            </button>
+
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-zinc-800"></div>
+              <span className="flex-shrink mx-3 text-[10px] uppercase font-bold text-zinc-500 tracking-wider">
+                ou selecione um avatar
+              </span>
+              <div className="flex-grow border-t border-zinc-800"></div>
+            </div>
+
+            {/* Opção 2: Grid de Avatares Esportivos Prontos */}
+            <div className="grid grid-cols-3 gap-2.5">
+              {PRESET_AVATARS.map((preset) => (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handlePresetSelect(preset.url)}
+                  className="group relative rounded-xl overflow-hidden aspect-square border border-zinc-800 hover:border-purple-500 transition focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                >
+                  <img
+                    src={preset.url}
+                    alt={preset.label}
+                    className="w-full h-full object-cover group-hover:scale-110 transition duration-200"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center p-1 text-center">
+                    <span className="text-[9px] font-bold text-white leading-tight">{preset.label}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Opção 3: Remover Foto (Restaurar Iniciais) */}
+            {activeUser.avatarUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                className="w-full bg-zinc-800 hover:bg-red-950 hover:text-red-400 text-zinc-300 font-medium text-xs py-2.5 rounded-2xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="size-3.5" />
+                <span>Remover Foto (Usar Iniciais)</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
