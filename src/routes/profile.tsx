@@ -84,6 +84,8 @@ const WEARABLES = [
 
 function ProfilePage() {
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const unsubscribe = sharedSandboxStore.subscribe(() => {
@@ -91,6 +93,39 @@ function ProfilePage() {
     });
     return unsubscribe;
   }, []);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Por favor, selecione uma imagem de até 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Url = event.target?.result as string;
+      if (base64Url) {
+        sharedSandboxStore.updateUser(activeUser.id, { avatarUrl: base64Url });
+        setShowAvatarModal(false);
+        toast.success("📸 Sua foto de perfil foi atualizada com sucesso!");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePresetSelect = (avatarUrl: string) => {
+    sharedSandboxStore.updateUser(activeUser.id, { avatarUrl });
+    setShowAvatarModal(false);
+    toast.success("✨ Avatar alterado com sucesso!");
+  };
+
+  const handleRemoveAvatar = () => {
+    sharedSandboxStore.updateUser(activeUser.id, { avatarUrl: undefined });
+    setShowAvatarModal(false);
+    toast.info("Avatar removido. Exibindo suas iniciais.");
+  };
 
   const [form, setForm] = useState({
     name: activeUser.fullName,
