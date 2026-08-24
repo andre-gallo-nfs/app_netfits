@@ -18,6 +18,8 @@ const tabs = [
 import { useEffect } from "react";
 import { nativeBridge } from "@/lib/native-bridge";
 
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
@@ -45,6 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   if (
+    path === "/auth" ||
     path === "/admin" || 
     path.startsWith("/associado") || 
     path === "/home" || 
@@ -91,6 +94,17 @@ function TopBar() {
   const badges = useBadges();
   const unlockedCount = badgesStore.getUnlockedCount();
   const totalCount = badgesStore.getTotalCount();
+  const activeUser = sharedSandboxStore.useActiveUser();
+  
+  const initials = activeUser.fullName
+    ? activeUser.fullName
+        .trim()
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase()
+    : "NF";
 
   return (
     /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
@@ -127,13 +141,10 @@ function TopBar() {
         <Link
           to="/profile"
           aria-label="Meu perfil"
-          className="size-7 rounded-full overflow-hidden ring-1 ring-zinc-200 shadow-xs hover:ring-purple-500 transition shrink-0"
+          title={activeUser.fullName}
+          className="size-7 rounded-full bg-purple-600 text-white font-extrabold text-[10px] flex items-center justify-center ring-2 ring-purple-500/20 shadow-xs hover:scale-105 transition shrink-0"
         >
-          <img
-            src={profileAvatar}
-            alt="Foto do perfil"
-            className="w-full h-full object-cover"
-          />
+          <span>{initials}</span>
         </Link>
       </div>
     </header>
