@@ -4,6 +4,10 @@ import { toast } from "sonner";
 export interface SandboxUser {
   id: string;
   identifier: string;
+  email?: string;
+  phone?: string;
+  cpf?: string;
+  birthDate?: string;
   fullName: string;
   type: "athlete" | "associado" | "partner" | "admin";
   nfsBalance: number;
@@ -393,27 +397,33 @@ class HomologationSandboxStore {
     return newTx;
   }
 
-  // 3. Cadastro de Novo Atleta (Experiencia 100% Real e Limpa)
+  // 3. Cadastro de Novo Atleta (Campos Separados Obrigatórios: E-mail, Celular, CPF, Data de Nascimento)
   public registerAthlete(data: {
-    identifier: string;
     fullName: string;
+    email: string;
+    phone: string;
+    cpf: string;
+    birthDate: string;
     referralCode?: string;
-  }): { success: boolean; user?: SandboxUser; error?: string } {
-    // Verificar duplicidade
-    const cleanId = data.identifier.trim().toLowerCase();
-    const cleanDigits = data.identifier.replace(/\D/g, "");
+  }): { success: boolean; user?: SandboxUser; error?: string; isDuplicate?: boolean; matchedField?: string } {
+    const cleanEmail = data.email.trim().toLowerCase();
+    const cleanPhoneDigits = data.phone.replace(/\D/g, "");
+    const cleanCpfDigits = data.cpf.replace(/\D/g, "");
 
-    const exists = this.state.users.some((u) => {
-      if (u.identifier.toLowerCase() === cleanId) return true;
-      if (cleanDigits.length >= 10 && u.identifier.replace(/\D/g, "") === cleanDigits) return true;
-      return false;
-    });
-
-    if (exists) {
-      return {
-        success: false,
-        error: `O identificador "${data.identifier}" já está cadastrado.`,
-      };
+    // Checar duplicidade em E-mail, Celular e CPF
+    for (const u of this.state.users) {
+      if (u.email && u.email.trim().toLowerCase() === cleanEmail) {
+        return { success: false, error: `O E-mail "${data.email}" já consta cadastrado.`, isDuplicate: true, matchedField: "E-mail" };
+      }
+      if (u.identifier && u.identifier.trim().toLowerCase() === cleanEmail) {
+        return { success: false, error: `O E-mail "${data.email}" já consta cadastrado.`, isDuplicate: true, matchedField: "E-mail" };
+      }
+      if (u.phone && u.phone.replace(/\D/g, "") === cleanPhoneDigits) {
+        return { success: false, error: `O Celular "${data.phone}" já consta cadastrado.`, isDuplicate: true, matchedField: "Celular" };
+      }
+      if (u.cpf && u.cpf.replace(/\D/g, "") === cleanCpfDigits) {
+        return { success: false, error: `O CPF "${data.cpf}" já consta cadastrado.`, isDuplicate: true, matchedField: "CPF" };
+      }
     }
 
     const newId = `user-${Date.now()}`;
@@ -432,7 +442,11 @@ class HomologationSandboxStore {
 
     const newUser: SandboxUser = {
       id: newId,
-      identifier: data.identifier,
+      identifier: data.email,
+      email: data.email,
+      phone: data.phone,
+      cpf: data.cpf,
+      birthDate: data.birthDate,
       fullName: data.fullName,
       type: "athlete",
       nfsBalance: initialNfs,

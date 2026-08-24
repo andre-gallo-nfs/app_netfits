@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import {
   User, Lock, Mail, Phone, CreditCard, ShieldCheck, AlertCircle,
   CheckCircle2, XCircle, Eye, EyeOff, Sparkles, ArrowRight, KeyRound,
-  LogIn, UserPlus, AlertTriangle, Award, Gift
+  LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar
 } from "lucide-react";
 import netfitsLogo from "@/assets/netfits-logo.png";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -13,8 +13,25 @@ import {
   validatePasswordRules,
   useAuth,
 } from "@/lib/auth-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { nativeBridge } from "@/lib/native-bridge";
 import { toast } from "sonner";
+
+function formatCPF(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+}
+
+function formatPhone(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits.length ? `(${digits}` : "";
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -35,9 +52,12 @@ function AuthPage() {
   const { currentUser } = useAuth();
   const [mode, setMode] = useState<"register" | "login">("register");
 
-  // Campos de Cadastro
-  const [identifier, setIdentifier] = useState("");
+  // Campos de Cadastro Separados & Obrigatórios
   const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
@@ -45,6 +65,9 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  // Campo Flexível para Login
+  const [loginIdentifier, setLoginIdentifier] = useState("");
 
   // Status de Erros & Alerta de Duplicidade
   const [duplicateAlert, setDuplicateAlert] = useState<{
@@ -73,7 +96,7 @@ function AuthPage() {
     }
   }, []);
 
-  const identifierType = detectIdentifierType(identifier);
+  const loginIdentifierType = detectIdentifierType(loginIdentifier);
   const pwdRules = validatePasswordRules(password);
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -81,31 +104,64 @@ function AuthPage() {
     setDuplicateAlert(null);
     setFormError(null);
 
-    if (!identifier.trim()) {
-      setFormError("Por favor, informe seu E-mail, Celular ou CPF.");
+    // 1. Nome Completo Obrigatório
+    if (!fullName.trim() || fullName.trim().length < 3) {
+      setFormError("Por favor, informe seu Nome Completo (mínimo 3 caracteres).");
       return;
     }
 
+    // 2. E-mail Exclusivo Obrigatório
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      setFormError("Por favor, informe um endereço de E-mail válido (ex: seu.nome@email.com).");
+      return;
+    }
+
+    // 3. Celular com DDD Obrigatório
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (!phone.trim() || phoneDigits.length < 10) {
+      setFormError("Por favor, informe seu número de Celular com DDD (ex: (11) 98765-4321).");
+      return;
+    }
+
+    // 4. CPF Obrigatório (11 dígitos)
+    const cpfDigits = cpf.replace(/\D/g, "");
+    if (!cpf.trim() || cpfDigits.length !== 11) {
+      setFormError("Por favor, informe um CPF válido com 11 dígitos.");
+      return;
+    }
+
+    // 5. Data de Nascimento Obrigatória
+    if (!birthDate.trim()) {
+      setFormError("Por favor, selecione sua Data de Nascimento.");
+      return;
+    }
+
+    // 6. Regras de Senha Alfanumérica
     if (!pwdRules.isValid) {
       setFormError("A senha não preenche todos os critérios de segurança requeridos.");
       return;
     }
 
+    // 7. Confirmação de Senha
     if (confirmPassword !== password) {
-      setFormError("As senhas digitadas são diferentes uma da outra. Verifique o campo de confirmação.");
+      setFormError("As senhas digitadas não coincidem. Verifique o campo de confirmação.");
       return;
     }
 
+    // 8. Aceite de Termos e LGPD
     if (!acceptedTerms || !acceptedLgpd) {
       setFormError("Por favor, leia e aceite os Termos de Uso e o Consentimento LGPD para concluir seu cadastro.");
       return;
     }
 
-    // Tentar cadastrar no authStore
-    const res = authStore.registerUser({
-      identifier,
-      password,
-      fullName: fullName.trim() || "Atleta Netfits",
+    // Tentar cadastrar no sharedSandboxStore
+    const res = sharedSandboxStore.registerAthlete({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      cpf: cpf.trim(),
+      birthDate: birthDate.trim(),
       referralCode: referralCode.trim(),
     });
 
@@ -113,7 +169,7 @@ function AuthPage() {
       if (res.isDuplicate) {
         setDuplicateAlert({
           show: true,
-          message: res.error || "Usuário já consta cadastrado no banco de dados.",
+          message: res.error || `O ${res.matchedField || "dado"} informado já consta cadastrado em nosso banco de dados.`,
         });
       } else {
         setFormError(res.error || "Falha ao realizar cadastro.");
@@ -122,6 +178,7 @@ function AuthPage() {
     }
 
     // Sucesso no cadastro
+    toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
     navigate({ to: "/" });
   };
 
@@ -129,12 +186,12 @@ function AuthPage() {
     e.preventDefault();
     setFormError(null);
 
-    if (!identifier.trim() || !password) {
+    if (!loginIdentifier.trim() || !password) {
       setFormError("Preencha todos os campos para fazer login.");
       return;
     }
 
-    const res = authStore.loginUser(identifier, password);
+    const res = authStore.loginUser(loginIdentifier, password);
     if (!res.success) {
       setFormError(res.error || "Dados incorretos.");
       return;
@@ -244,53 +301,123 @@ function AuthPage() {
       {/* Registration Form */}
       {mode === "register" && (
         <form onSubmit={handleRegisterSubmit} className="space-y-4">
-          {/* Campo Usuário (E-mail, Celular ou CPF) */}
+          {/* Nome Completo */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-foreground flex justify-between">
-              <span>Usuário (E-mail, Celular ou CPF) *</span>
-              {identifierType !== "unknown" && (
-                <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider">
-                  Tipo: {identifierType === "email" ? "E-mail" : identifierType === "cpf" ? "CPF" : "Celular"}
-                </span>
-              )}
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>Nome Completo *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
-                {identifierType === "email" ? (
-                  <Mail className="size-4 text-purple-600" />
-                ) : identifierType === "cpf" ? (
-                  <CreditCard className="size-4 text-purple-600" />
-                ) : identifierType === "phone" ? (
-                  <Phone className="size-4 text-purple-600" />
-                ) : (
-                  <User className="size-4" />
-                )}
+                <User className="size-4 text-purple-600" />
               </div>
               <input
                 type="text"
-                value={identifier}
-                onChange={(e) => {
-                  setIdentifier(e.target.value);
-                  setDuplicateAlert(null);
-                  setFormError(null);
-                }}
-                placeholder="Ex: usuario@email.com, (11) 98765-4321 ou 123.456.789-00"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Digite seu nome completo"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
           </div>
 
-          {/* Nome Completo */}
+          {/* E-mail Exclusivo */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-foreground">Nome Completo</label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Digite seu nome completo"
-              className="w-full bg-card border border-border rounded-xl px-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
-            />
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>E-mail Exclusivo *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Mail className="size-4 text-purple-600" />
+              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setDuplicateAlert(null);
+                  setFormError(null);
+                }}
+                placeholder="ex: seu.nome@email.com"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Celular com DDD */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>Celular com DDD *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Phone className="size-4 text-purple-600" />
+              </div>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(formatPhone(e.target.value));
+                  setDuplicateAlert(null);
+                  setFormError(null);
+                }}
+                placeholder="(11) 98765-4321"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                required
+              />
+            </div>
+          </div>
+
+          {/* CPF */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>CPF (Somente Números) *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <CreditCard className="size-4 text-purple-600" />
+              </div>
+              <input
+                type="text"
+                value={cpf}
+                onChange={(e) => {
+                  setCpf(formatCPF(e.target.value));
+                  setDuplicateAlert(null);
+                  setFormError(null);
+                }}
+                placeholder="123.456.789-00"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Data de Nascimento */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>Data de Nascimento *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Calendar className="size-4 text-purple-600" />
+              </div>
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => {
+                  setBirthDate(e.target.value);
+                  setFormError(null);
+                }}
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                required
+              />
+            </div>
           </div>
 
           {/* Campo Código de Indicação (Não Obrigatório / Preenchido Automático se houver link) */}
@@ -563,8 +690,8 @@ function AuthPage() {
               </div>
               <input
                 type="text"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                value={loginIdentifier}
+                onChange={(e) => setLoginIdentifier(e.target.value)}
                 placeholder="Seu e-mail, celular ou CPF"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
