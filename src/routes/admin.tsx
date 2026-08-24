@@ -635,6 +635,87 @@ function AdminDashboardPage() {
     );
   };
 
+  // Modal de Cadastrar Novo Associado pelo Time Admin
+  const [showNewAssociadoModal, setShowNewAssociadoModal] = useState(false);
+  const [newAssocName, setNewAssocName] = useState("");
+  const [newAssocEmail, setNewAssocEmail] = useState("");
+  const [newAssocPhone, setNewAssocPhone] = useState("");
+  const [newAssocHandle, setNewAssocHandle] = useState("");
+  const [newAssocSpecialty, setNewAssocSpecialty] = useState("Médico / Nutrologia Esportiva");
+  const [newAssocCity, setNewAssocCity] = useState("São Paulo - SP");
+  const [createdInviteLinks, setCreatedInviteLinks] = useState<{
+    associadoName: string;
+    associadoCode: string;
+    appLink: string;
+    portalLink: string;
+    email: string;
+    phone: string;
+  } | null>(null);
+
+  const handleCreateAssociadoByAdminSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAssocName.trim() || !newAssocEmail.trim()) {
+      toast.error("Preencha ao menos o Nome e E-mail oficial do Associado.");
+      return;
+    }
+
+    const cityPrefix = newAssocCity.slice(0, 2).toUpperCase() || "SP";
+    const randomNum = Math.floor(100 + Math.random() * 900);
+    const assocCode = `ASSOC-${cityPrefix}-${randomNum}`;
+    const cleanHandle = newAssocHandle.trim()
+      ? (newAssocHandle.startsWith("@") ? newAssocHandle.trim() : `@${newAssocHandle.trim()}`)
+      : `@${newAssocName.toLowerCase().replace(/\s+/g, ".")}`;
+
+    const appLink = `https://app-netfits.vercel.app/auth?ref=${assocCode}`;
+    const portalLink = `https://app-netfits.vercel.app/associado?code=${assocCode}`;
+
+    const newAssociadoItem: AssociadoAdminItem = {
+      id: `assoc_${Date.now()}`,
+      name: newAssocName.trim(),
+      handle: cleanHandle,
+      category: newAssocSpecialty,
+      referralCode: assocCode,
+      exclusiveUrl: portalLink,
+      capturedUsers: 0,
+      activeUsers: 0,
+      retentionRatePct: 100.0,
+      gmvBrl: 0,
+      netfitsRevenueBrl: 0,
+      commissionBrl: 0,
+      isVerifiedSpecialist: true,
+    };
+
+    setAssociadosList([newAssociadoItem, ...associadosList]);
+    setSelectedAssociadoId(newAssociadoItem.id);
+
+    // Salvar no Banco Provisório Compartilhado
+    sharedSandboxStore.registerAssociado({
+      fullName: newAssocName.trim(),
+      email: newAssocEmail.trim(),
+      phone: newAssocPhone.trim(),
+      register: "CRM/CRN-ADMIN",
+      specialty: newAssocSpecialty,
+      city: newAssocCity,
+    });
+
+    setCreatedInviteLinks({
+      associadoName: newAssocName.trim(),
+      associadoCode: assocCode,
+      appLink,
+      portalLink,
+      email: newAssocEmail.trim(),
+      phone: newAssocPhone.trim(),
+    });
+
+    // Clear form
+    setNewAssocName("");
+    setNewAssocEmail("");
+    setNewAssocPhone("");
+    setNewAssocHandle("");
+    setShowNewAssociadoModal(false);
+    toast.success(`🎉 Associado "${newAssocName}" cadastrado pelo Time Admin! Código: ${assocCode}`);
+  };
+
   // Filtro de Associados
   const [selectedAssociadoId, setSelectedAssociadoId] = useState<string>("assoc_all");
   const selectedAssociado =
@@ -1709,19 +1790,30 @@ function AdminDashboardPage() {
                 </h3>
               </div>
 
-              <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-2xl border border-zinc-800">
-                <Filter className="size-4 text-purple-400 ml-2" />
-                <select
-                  value={selectedAssociadoId}
-                  onChange={(e) => setSelectedAssociadoId(e.target.value)}
-                  className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewAssociadoModal(true)}
+                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-lg shadow-purple-600/20 transition active:scale-95"
                 >
-                  {associadosList.map((a) => (
-                    <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
-                      {a.name} ({a.handle}) {a.isVerifiedSpecialist ? "🟣 Especialista" : ""}
-                    </option>
-                  ))}
-                </select>
+                  <UserPlus className="size-4" />
+                  ➕ Cadastrar Novo Associado (Time Admin)
+                </button>
+
+                <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-2xl border border-zinc-800">
+                  <Filter className="size-4 text-purple-400 ml-2" />
+                  <select
+                    value={selectedAssociadoId}
+                    onChange={(e) => setSelectedAssociadoId(e.target.value)}
+                    className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
+                  >
+                    {associadosList.map((a) => (
+                      <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
+                        {a.name} ({a.handle}) {a.isVerifiedSpecialist ? "🟣 Especialista" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -3828,6 +3920,265 @@ function AdminDashboardPage() {
                   <span>Baixar Apresentação (.docx)</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: Cadastrar Novo Associado pelo Time Admin */}
+      {showNewAssociadoModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 animate-in fade-in zoom-in-95 text-left">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400">
+                  <UserPlus className="size-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-white">Cadastrar Novo Associado (Time Admin)</h3>
+                  <p className="text-[11px] text-zinc-400">O associado receberá os links de acesso via E-mail e WhatsApp.</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewAssociadoModal(false)}
+                className="text-zinc-400 hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateAssociadoByAdminSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 mb-1">
+                  Nome Completo do Associado *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Dr. Fernando Costa ou Embaixador Lucas"
+                  value={newAssocName}
+                  onChange={(e) => setNewAssocName(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 mb-1">
+                    E-mail Oficial *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="associado@netfits.com.br"
+                    value={newAssocEmail}
+                    onChange={(e) => setNewAssocEmail(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 mb-1">
+                    WhatsApp / Celular *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="(11) 99887-6655"
+                    value={newAssocPhone}
+                    onChange={(e) => setNewAssocPhone(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 mb-1">
+                    @Handle / Instagram (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="@dr.fernando"
+                    value={newAssocHandle}
+                    onChange={(e) => setNewAssocHandle(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 mb-1">
+                    Cidade / Estado
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="São Paulo - SP"
+                    value={newAssocCity}
+                    onChange={(e) => setNewAssocCity(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 mb-1">
+                  Especialidade / Categoria de Expansão
+                </label>
+                <select
+                  value={newAssocSpecialty}
+                  onChange={(e) => setNewAssocSpecialty(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
+                >
+                  <option value="Médico / Nutrologia Esportiva">Médico / Nutrologia Esportiva</option>
+                  <option value="Embaixador Esportivo / Influenciador VIP">Embaixador Esportivo / Influenciador VIP</option>
+                  <option value="Sócio Regional de Expansão Netfits">Sócio Regional de Expansão Netfits</option>
+                  <option value="Líder de Rede Esportiva">Líder de Rede Esportiva</option>
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-zinc-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewAssociadoModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 transition flex items-center gap-1.5"
+                >
+                  <Send className="size-3.5" />
+                  Gerar Links & Finalizar Cadastro
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Links de Acesso Gerados & Disparo de Convite */}
+      {createdInviteLinks && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-lime-500/40 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 animate-in fade-in zoom-in-95 text-left">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-lime-500/20 text-lime-400">
+                  <CheckCircle2 className="size-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                    Código Gerado: {createdInviteLinks.associadoCode}
+                  </span>
+                  <h3 className="text-base font-extrabold text-white">
+                    Links de Acesso Criados para {createdInviteLinks.associadoName}
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCreatedInviteLinks(null)}
+                className="text-zinc-400 hover:text-white text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 bg-zinc-950/80 border border-zinc-800 rounded-2xl p-4 text-xs">
+              <div className="space-y-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400 flex items-center gap-1">
+                  <Share2 className="size-3" />
+                  Link 1 — Acesso ao App Netfits (Atleta / Indicação)
+                </span>
+                <div className="flex items-center gap-2 bg-zinc-900 p-2 rounded-xl border border-zinc-800">
+                  <input
+                    type="text"
+                    readOnly
+                    value={createdInviteLinks.appLink}
+                    className="flex-1 bg-transparent text-white font-mono text-[11px] outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(createdInviteLinks.appLink);
+                      toast.success("Link do App Netfits copiado!");
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-lime-400 font-bold text-[10px]"
+                  >
+                    Copiar
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1 pt-2 border-t border-zinc-900">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-lime-400 flex items-center gap-1">
+                  <Award className="size-3" />
+                  Link 2 — Acesso Exclusivo ao Portal do Associado
+                </span>
+                <div className="flex items-center gap-2 bg-zinc-900 p-2 rounded-xl border border-zinc-800">
+                  <input
+                    type="text"
+                    readOnly
+                    value={createdInviteLinks.portalLink}
+                    className="flex-1 bg-transparent text-white font-mono text-[11px] outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(createdInviteLinks.portalLink);
+                      toast.success("Link do Portal do Associado copiado!");
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-lime-400 font-bold text-[10px]"
+                  >
+                    Copiar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Ações Rápidas de Envio */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-bold text-zinc-300">Disparo de Convites em 1-Clique:</span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = encodeURIComponent(
+                      `Olá ${createdInviteLinks.associadoName}! Você foi cadastrado como Associado Netfits.\n\n📱 Baixe/Acesse o App: ${createdInviteLinks.appLink}\n👑 Acesse seu Portal do Associado: ${createdInviteLinks.portalLink}`
+                    );
+                    window.open(`https://wa.me/?text=${text}`, "_blank");
+                    toast.success("Redirecionando para envio no WhatsApp!");
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  <Phone className="size-3.5" />
+                  WhatsApp
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const subject = encodeURIComponent("Bem-vindo ao Programa de Associados Netfits!");
+                    const body = encodeURIComponent(
+                      `Olá ${createdInviteLinks.associadoName},\n\nSeu cadastro no Programa de Associados Netfits foi concluído pelo nosso Time Admin!\n\nLink do App Netfits: ${createdInviteLinks.appLink}\nPortal do Associado: ${createdInviteLinks.portalLink}\n\nAtenciosamente,\nTime Admin Netfits`
+                    );
+                    window.open(`mailto:${createdInviteLinks.email}?subject=${subject}&body=${body}`, "_blank");
+                    toast.success("Abrindo cliente de e-mail!");
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  <Mail className="size-3.5" />
+                  E-mail Oficial
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800 text-center">
+              <button
+                onClick={() => setCreatedInviteLinks(null)}
+                className="text-xs font-bold text-zinc-400 hover:text-white"
+              >
+                Fechar janela
+              </button>
             </div>
           </div>
         </div>

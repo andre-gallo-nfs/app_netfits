@@ -256,16 +256,13 @@ function AssociadoDashboardPage() {
             </button>
           </form>
 
-          <div className="pt-3 border-t border-zinc-800 text-center">
-            <p className="text-xs text-zinc-400 mb-2">Ainda não tem cadastro de Associado?</p>
-            <button
-              type="button"
-              onClick={() => setShowRegModal(true)}
-              className="w-full py-3 rounded-xl font-extrabold text-xs bg-lime-400 text-black hover:bg-lime-300 transition-all shadow-sm flex items-center justify-center gap-2"
-            >
-              <UserPlus className="size-4" />
-              Credenciar-se como Novo Associado
-            </button>
+          <div className="pt-4 border-t border-zinc-800 text-center space-y-2">
+            <p className="text-[11px] text-zinc-400 leading-relaxed">
+              🔒 <strong>Cadastro Restrito:</strong> Os cadastros de Associados são realizados exclusivamente pelo <strong>Time Admin Netfits</strong>.
+            </p>
+            <p className="text-[10px] text-zinc-500">
+              Caso tenha sido convidado, consulte os links de acesso enviados para o seu e-mail e WhatsApp.
+            </p>
           </div>
 
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 text-[11px] text-zinc-400 text-center">
