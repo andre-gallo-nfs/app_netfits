@@ -33,6 +33,21 @@ function formatPhone(value: string): string {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
+const EMAIL_DOMAINS = [
+  "@gmail.com",
+  "@hotmail.com",
+  "@outlook.com",
+  "@yahoo.com.br",
+  "@icloud.com",
+];
+
+function applyEmailDomain(currentEmail: string, domain: string): string {
+  const atIndex = currentEmail.indexOf("@");
+  const username = atIndex >= 0 ? currentEmail.slice(0, atIndex) : currentEmail;
+  const cleanUser = username.trim() || "usuario";
+  return `${cleanUser}${domain}`;
+}
+
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -322,7 +337,7 @@ function AuthPage() {
             </div>
           </div>
 
-          {/* E-mail Exclusivo */}
+          {/* E-mail Exclusivo com Sugestões de Domínio Rápido */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-foreground flex items-center justify-between">
               <span>E-mail Exclusivo *</span>
@@ -344,6 +359,58 @@ function AuthPage() {
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
+            </div>
+
+            {/* Sugestões de Domínios Rápido (@gmail.com, @hotmail.com, @outlook.com, etc.) */}
+            <div className="pt-1 space-y-1.5 bg-muted/40 p-2.5 rounded-xl border border-border/60">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                  <Sparkles className="size-3 text-purple-600" /> Complete Rápido seu E-mail:
+                </span>
+                {email.includes("@") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (email.endsWith(".br")) {
+                        setEmail(email.slice(0, -3));
+                      } else {
+                        setEmail(`${email}.br`);
+                      }
+                    }}
+                    className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border transition active:scale-95 ${
+                      email.endsWith(".br")
+                        ? "bg-purple-600 text-white border-purple-600 shadow-xs"
+                        : "bg-card text-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    {email.endsWith(".br") ? "Remover .br ✓" : "+ Incluir .br"}
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {EMAIL_DOMAINS.map((domain) => {
+                  const suggestedEmail = applyEmailDomain(email, domain);
+                  const isSelected = email.toLowerCase().endsWith(domain.toLowerCase());
+                  return (
+                    <button
+                      key={domain}
+                      type="button"
+                      onClick={() => {
+                        setEmail(suggestedEmail);
+                        setDuplicateAlert(null);
+                        setFormError(null);
+                      }}
+                      className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all active:scale-95 flex items-center gap-1 ${
+                        isSelected
+                          ? "bg-purple-600 text-white border-purple-600 shadow-sm"
+                          : "bg-card hover:bg-muted text-foreground border-border"
+                      }`}
+                    >
+                      <span>{domain}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -485,50 +552,48 @@ function AuthPage() {
             </div>
           </div>
 
-          {/* Interactive Password Strength Checklist & Entropy Gauge */}
-          {password.length > 0 && (
-            <div className="bg-card border border-border rounded-xl p-3 space-y-2 text-[11px]">
-              {/* Dynamic Strength Gauge */}
-              {(() => {
-                const score = [
-                  pwdRules.minLength,
-                  pwdRules.hasNumber,
-                  pwdRules.hasUppercase,
-                  pwdRules.hasLowercase,
-                  pwdRules.hasSpecial,
-                ].filter(Boolean).length;
-                const percentage = (score / 5) * 100;
-                return (
-                  <div className="space-y-1 pb-1 border-b border-border">
-                    <div className="flex justify-between items-center text-[10px] font-extrabold uppercase">
-                      <span className="text-muted-foreground">Força da Senha:</span>
-                      <span className={
-                        score <= 1 ? "text-red-500 font-extrabold" : score <= 3 ? "text-amber-500 font-extrabold" : score === 4 ? "text-lime-600 dark:text-lime-400 font-extrabold" : "text-purple-600 font-black"
-                      }>
-                        {score <= 1 ? "Muito Fraca 🔴" : score <= 3 ? "Média 🟡" : score === 4 ? "Forte 🟢" : "Impenetrável 🟣"}
-                      </span>
-                    </div>
-                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full transition-all duration-300 rounded-full ${
-                          score <= 1 ? "bg-red-500" : score <= 3 ? "bg-amber-500" : score === 4 ? "bg-lime-500" : "bg-purple-600"
-                        }`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
+          {/* Interactive Password Strength Checklist & Entropy Gauge (Sempre Visível) */}
+          <div className="bg-card border border-border rounded-xl p-3 space-y-2 text-[11px] shadow-2xs">
+            {/* Dynamic Strength Gauge */}
+            {(() => {
+              const score = [
+                pwdRules.minLength,
+                pwdRules.hasNumber,
+                pwdRules.hasUppercase,
+                pwdRules.hasLowercase,
+                pwdRules.hasSpecial,
+              ].filter(Boolean).length;
+              const percentage = (score / 5) * 100;
+              return (
+                <div className="space-y-1 pb-1 border-b border-border">
+                  <div className="flex justify-between items-center text-[10px] font-extrabold uppercase">
+                    <span className="text-muted-foreground">Medidor de Força da Senha:</span>
+                    <span className={
+                      score <= 1 ? "text-red-500 font-extrabold" : score <= 3 ? "text-amber-500 font-extrabold" : score === 4 ? "text-lime-600 dark:text-lime-400 font-extrabold" : "text-purple-600 font-black"
+                    }>
+                      {score <= 1 ? "Muito Fraca 🔴" : score <= 3 ? "Média 🟡" : score === 4 ? "Forte 🟢" : "Impenetrável 🟣"}
+                    </span>
                   </div>
-                );
-              })()}
-              <p className="font-bold text-foreground text-[10px] uppercase tracking-wider">
-                Requisitos de Segurança da Senha:
-              </p>
-              <PasswordCheckRule label="No mínimo 8 caracteres" valid={pwdRules.minLength} />
-              <PasswordCheckRule label="Pelo menos 1 número (0-9)" valid={pwdRules.hasNumber} />
-              <PasswordCheckRule label="Pelo menos 1 letra maiúscula (A-Z)" valid={pwdRules.hasUppercase} />
-              <PasswordCheckRule label="Pelo menos 1 letra minúscula (a-z)" valid={pwdRules.hasLowercase} />
-              <PasswordCheckRule label="Pelo menos 1 caractere especial (!@#$%...)" valid={pwdRules.hasSpecial} />
-            </div>
-          )}
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 rounded-full ${
+                        score <= 1 ? "bg-red-500" : score <= 3 ? "bg-amber-500" : score === 4 ? "bg-lime-500" : "bg-purple-600"
+                      }`}
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+            <p className="font-bold text-foreground text-[10px] uppercase tracking-wider">
+              Requisitos de Segurança da Senha:
+            </p>
+            <PasswordCheckRule label="No mínimo 8 caracteres" valid={pwdRules.minLength} />
+            <PasswordCheckRule label="Pelo menos 1 número (0-9)" valid={pwdRules.hasNumber} />
+            <PasswordCheckRule label="Pelo menos 1 letra maiúscula (A-Z)" valid={pwdRules.hasUppercase} />
+            <PasswordCheckRule label="Pelo menos 1 letra minúscula (a-z)" valid={pwdRules.hasLowercase} />
+            <PasswordCheckRule label="Pelo menos 1 caractere especial (!@#$%...)" valid={pwdRules.hasSpecial} />
+          </div>
 
           {/* Campo Confirmar Senha com Toggle */}
           <div className="space-y-1.5 pt-1">
