@@ -114,5 +114,61 @@ export const nativeBridge = {
     } catch (e) {
       // Falha silenciosa de Live Update
     }
+  },
+
+  /**
+   * Inicializa a escuta nativa de Universal Links / App Links para iOS e Android
+   * garantindo que links clicados no WhatsApp / Safari / Chrome abram o app nativo no cadastro com a indicação preservada.
+   */
+  initDeepLinkListener(onReferralCaptured?: (code: string) => void): void {
+    if (typeof window === "undefined") return;
+
+    // 1. Capturar parametro de URL web convencional
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const codeFromUrl = params.get("ref") || params.get("code") || params.get("referral");
+      if (codeFromUrl) {
+        const clean = codeFromUrl.trim().toUpperCase();
+        localStorage.setItem("netfits_deferred_referral_code", clean);
+        sessionStorage.setItem("netfits_deferred_referral_code", clean);
+        if (onReferralCaptured) onReferralCaptured(clean);
+      }
+    } catch {
+      /* ignore */
+    }
+
+    // 2. Escutar eventos nativos do Capacitor (Universal Links no iOS & App Links no Android)
+    if (this.isNativePlatform()) {
+      const App = (window as any).Capacitor?.Plugins?.App;
+      if (App) {
+        App.addListener("appUrlOpen", (data: { url: string }) => {
+          try {
+            const urlObj = new URL(data.url);
+            const refCode = urlObj.searchParams.get("ref") || urlObj.searchParams.get("code") || urlObj.searchParams.get("referral");
+            if (refCode) {
+              const cleanCode = refCode.trim().toUpperCase();
+              localStorage.setItem("netfits_deferred_referral_code", cleanCode);
+              sessionStorage.setItem("netfits_deferred_referral_code", cleanCode);
+              toast.info(`✨ Indicação "${cleanCode}" capturada do app nativo!`);
+              if (onReferralCaptured) onReferralCaptured(cleanCode);
+            }
+          } catch (e) {
+            console.warn("[DeepLink Error]", e);
+          }
+        });
+      }
+    }
+  },
+
+  /**
+   * Recupera o código de indicação diferido (Deferred Referral) armazenado no dispositivo.
+   */
+  getStoredReferralCode(): string | null {
+    if (typeof window === "undefined") return null;
+    return (
+      localStorage.getItem("netfits_deferred_referral_code") ||
+      sessionStorage.getItem("netfits_deferred_referral_code") ||
+      null
+    );
   }
 };

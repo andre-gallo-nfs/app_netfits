@@ -97,11 +97,21 @@ function AuthPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showLgpdModal, setShowLgpdModal] = useState(false);
 
-  // Ler código de indicação vindo da URL automaticamente (?ref=... ou ?code=...)
+  // Ler código de indicação vindo da URL ou de Deep Links Nativos (App Store / Universal Links)
   useEffect(() => {
     if (typeof window !== "undefined") {
+      nativeBridge.initDeepLinkListener((code) => {
+        setReferralCode(code);
+        setIsAutoFilledReferral(true);
+      });
+
       const params = new URLSearchParams(window.location.search);
-      const codeFromUrl = params.get("ref") || params.get("code") || params.get("referral");
+      const codeFromUrl =
+        params.get("ref") ||
+        params.get("code") ||
+        params.get("referral") ||
+        nativeBridge.getStoredReferralCode();
+
       if (codeFromUrl) {
         const cleanCode = codeFromUrl.trim().toUpperCase();
         setReferralCode(cleanCode);
