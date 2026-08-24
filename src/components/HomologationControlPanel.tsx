@@ -481,8 +481,12 @@ export function HomologationControlPanel() {
 
                 <div className="pt-2 border-t border-zinc-800 space-y-2">
                   <button
-                    onClick={() => sharedSandboxStore.resetToDefaults()}
-                    className="w-full bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition"
+                    onClick={() => {
+                      if (confirm("Tem certeza que deseja resetar todo o banco provisório e limpar os cadastros de teste? Essa ação restaurará os dados para o estado inicial.")) {
+                        sharedSandboxStore.resetToDefaults();
+                      }
+                    }}
+                    className="w-full bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer"
                   >
                     <RotateCcw className="size-4" />
                     Resetar Banco Provisório de Teste

@@ -543,16 +543,45 @@ class HomologationSandboxStore {
 
   // RESET TOTAL DO BANCO PROVISÓRIO
   public resetToDefaults() {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(DEVICE_SESSION_KEY);
+        localStorage.removeItem("netfits_auth_user");
+        localStorage.removeItem("netfits_auth_user_v2");
+        localStorage.removeItem("netfits_device_active_user_id");
+      } catch (e) {
+        console.error("Erro ao limpar storage no reset:", e);
+      }
+    }
+
     this.state = {
-      users: INITIAL_USERS,
-      transactions: INITIAL_TRANSACTIONS,
-      partners: INITIAL_PARTNERS,
-      tickets: INITIAL_TICKETS,
-      orders: INITIAL_ORDERS,
+      users: JSON.parse(JSON.stringify(INITIAL_USERS)),
+      transactions: JSON.parse(JSON.stringify(INITIAL_TRANSACTIONS)),
+      partners: JSON.parse(JSON.stringify(INITIAL_PARTNERS)),
+      tickets: JSON.parse(JSON.stringify(INITIAL_TICKETS)),
+      orders: JSON.parse(JSON.stringify(INITIAL_ORDERS)),
       activeUserId: "user-athlete-1",
     };
-    this.saveToStorage();
-    toast.info("🧹 Banco Provisório da Suíte de Homologação resetado com sucesso!");
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(DEVICE_SESSION_KEY, "user-athlete-1");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      } catch (e) {
+        console.error("Erro ao salvar storage padrao no reset:", e);
+      }
+    }
+
+    this.broadcastChannel?.postMessage("sync");
+    this.notify();
+    toast.success("🧹 Banco Provisório da Suíte de Homologação resetado com sucesso!");
+
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        window.location.reload();
+      }, 400);
+    }
   }
 }
 
