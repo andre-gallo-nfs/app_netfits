@@ -22,9 +22,23 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    // Registrar Service Worker para PWA Offline-First
+    // Registrar Service Worker com invalidação automática de cache em deploys novos
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => reg.update())
+        .catch(() => {});
+
+      // Forçar limpeza de caches legados se o navegador carregar um bundle antigo com erro
+      window.addEventListener("error", (e) => {
+        if (e.message && (e.message.includes("ReferenceError") || e.message.includes("Loading chunk"))) {
+          if ("caches" in window) {
+            caches.keys().then((keys) => {
+              keys.forEach((k) => caches.delete(k));
+            });
+          }
+        }
+      });
     }
     // Checagem de atualizações transparentes em nuvem (Over-The-Air)
     nativeBridge.checkForLiveUpdates();
