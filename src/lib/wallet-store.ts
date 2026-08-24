@@ -67,9 +67,46 @@ function subscribe(fn: () => void) {
   return sharedSandboxStore.subscribe(fn);
 }
 
-function getSnapshot() {
+type WalletSnapshot = {
+  balance: number;
+  txs: WalletTx[];
+};
+
+const SERVER_SNAPSHOT: WalletSnapshot = {
+  balance: 0,
+  txs: [],
+};
+
+let cachedSnapshot: WalletSnapshot = SERVER_SNAPSHOT;
+let lastActiveUserId = "";
+let lastNfsBalance = -1;
+let lastTxsCount = -1;
+let lastTxId = "";
+
+function getSnapshot(): WalletSnapshot {
+  if (typeof window === "undefined") {
+    return SERVER_SNAPSHOT;
+  }
+
   const activeUser = sharedSandboxStore.getActiveUser();
   const sandboxTxs = sharedSandboxStore.getUserTransactions(activeUser.id);
+  const topTxId = sandboxTxs.length > 0 ? sandboxTxs[0].id : "";
+
+  // Retorna rigorosamente a MESMA referência de objeto se não houve alteração nos dados do usuário ativo
+  if (
+    activeUser.id === lastActiveUserId &&
+    activeUser.nfsBalance === lastNfsBalance &&
+    sandboxTxs.length === lastTxsCount &&
+    topTxId === lastTxId
+  ) {
+    return cachedSnapshot;
+  }
+
+  lastActiveUserId = activeUser.id;
+  lastNfsBalance = activeUser.nfsBalance;
+  lastTxsCount = sandboxTxs.length;
+  lastTxId = topTxId;
+
   const formattedTxs: WalletTx[] = sandboxTxs.map((t) => ({
     id: t.id,
     title: t.description,
@@ -78,14 +115,20 @@ function getSnapshot() {
     positive: t.amount >= 0,
   }));
 
-  return {
+  cachedSnapshot = {
     balance: activeUser.nfsBalance,
     txs: formattedTxs,
   };
+
+  return cachedSnapshot;
+}
+
+function getServerSnapshot(): WalletSnapshot {
+  return SERVER_SNAPSHOT;
 }
 
 export function useWallet() {
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 /** Extrai o número de nfs de strings tipo "+199 nfs" / "1.290 nfs". */

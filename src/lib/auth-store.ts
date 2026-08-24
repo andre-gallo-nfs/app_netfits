@@ -122,6 +122,13 @@ const subscribe = (fn: () => void) => {
 
 const getSnapshot = () => authState;
 
+const SERVER_AUTH_STATE: AuthState = {
+  currentUser: null,
+  usersCount: 0,
+};
+
+const getServerSnapshot = () => SERVER_AUTH_STATE;
+
 export const authStore = {
   getCurrentUser: (): StoredUser => {
     const active = sharedSandboxStore.getActiveUser();
@@ -276,5 +283,5 @@ export const authStore = {
 };
 
 export function useAuth() {
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
