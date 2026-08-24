@@ -332,21 +332,54 @@ function ProfilePage() {
                   "Você se cadastrou diretamente no Netfits."
                 )}
               </p>
-              <div className="mt-2.5 pt-2 border-t border-border flex items-center justify-between bg-muted/60 p-2.5 rounded-xl">
-                <div>
-                  <span className="text-[10px] text-muted-foreground font-semibold uppercase block">Seu código pessoal de convite:</span>
-                  <span className="font-mono font-bold text-sm text-foreground">{activeUser.referralCode}</span>
+              {/* Card de Link Direto de Cadastro Member-Get-Member (MGM) */}
+              <div className="mt-3 pt-3 border-t border-border space-y-2.5 bg-purple-600/5 dark:bg-purple-950/20 p-3 rounded-2xl border border-purple-500/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1">
+                    <Sparkles className="size-3.5" /> Link Direto de Cadastro (Member-Get-Member)
+                  </span>
+                  <span className="text-[10px] font-bold text-lime-600 dark:text-lime-400 bg-lime-500/10 px-2 py-0.5 rounded-full border border-lime-500/20">
+                    +50 nfs por amigo
+                  </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(activeUser.referralCode);
-                    toast.success(`Código ${activeUser.referralCode} copiado!`);
-                  }}
-                  className="bg-brand text-brand-foreground font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 hover:opacity-90"
-                >
-                  <Copy className="size-3" /> Copiar
-                </button>
+
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Ao enviar este link direto, seu amigo abre a página de cadastro com seu código <strong className="text-foreground">{activeUser.referralCode}</strong> pré-preenchido automaticamente, sem precisar digitar nada!
+                </p>
+
+                <div className="flex items-center gap-2 bg-card p-2.5 rounded-xl border border-border">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[9px] font-bold uppercase text-muted-foreground block">Link Direto de Indicação:</span>
+                    <span className="text-xs font-mono font-bold text-foreground truncate block">
+                      https://app-netfits.vercel.app/auth?ref={activeUser.referralCode}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const directUrl = `https://app-netfits.vercel.app/auth?ref=${activeUser.referralCode}`;
+                      navigator.clipboard.writeText(directUrl);
+                      toast.success(`📋 Link direto de cadastro copiado! (${directUrl})`);
+                    }}
+                    className="bg-purple-600 text-white font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1.5 hover:bg-purple-700 active:scale-95 transition shadow-xs shrink-0"
+                  >
+                    <Copy className="size-3.5" /> Copiar Link
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const directUrl = `https://app-netfits.vercel.app/auth?ref=${activeUser.referralCode}`;
+                      const msg = `Vem para o Netfits comigo! Cadastre-se pelo meu link de convite e receba +50 nfs bônus de boas-vindas: ${directUrl}`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+                    }}
+                    className="flex-1 bg-[#25D366] text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 transition"
+                  >
+                    <Share2 className="size-3.5" /> Enviar Convite via WhatsApp
+                  </button>
+                </div>
               </div>
             </div>
           </div>

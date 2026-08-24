@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Copy, Check, Share2, Users, Sparkles, X, Gift } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
-
-const INVITE_URL = "https://netfits.app/i/kitelarsen";
-const INVITE_CODE = "KITELARSEN";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { toast } from "sonner";
 
 const CHANNELS = [
   { key: "wpp", label: "WhatsApp", color: "bg-[#25D366]" },
@@ -16,16 +15,20 @@ const CHANNELS = [
   { key: "mail", label: "E-mail", color: "bg-zinc-700" },
 ] as const;
 
-const SHARE_TEXT = `Bora pra netfits comigo? Cada treino seu também vira nfs pra mim 💚 ${INVITE_URL}`;
-
 export function InviteFriendsCard() {
+  const activeUser = sharedSandboxStore.useActiveUser();
+  const inviteCode = activeUser.referralCode;
+  const inviteUrl = `https://app-netfits.vercel.app/auth?ref=${inviteCode}`;
+  const shareText = `Vem pro Netfits comigo! Cadastre-se pelo meu link de convite e ganhe +50 nfs bônus de boas-vindas: ${inviteUrl}`;
+
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [sentChannels, setSentChannels] = useState<string[]>([]);
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(INVITE_URL);
+      await navigator.clipboard.writeText(inviteUrl);
+      toast.success(`📋 Link direto de cadastro copiado! (${inviteUrl})`);
     } catch {
       /* ignore */
     }
@@ -35,18 +38,18 @@ export function InviteFriendsCard() {
 
   const handleChannel = (key: string) => {
     setSentChannels((prev) => (prev.includes(key) ? prev : [...prev, key]));
-    const encoded = encodeURIComponent(SHARE_TEXT);
+    const encoded = encodeURIComponent(shareText);
     const url =
       key === "wpp"
         ? `https://wa.me/?text=${encoded}`
         : key === "tg"
-        ? `https://t.me/share/url?url=${encodeURIComponent(INVITE_URL)}&text=${encoded}`
+        ? `https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encoded}`
         : key === "x"
         ? `https://twitter.com/intent/tweet?text=${encoded}`
         : key === "fb"
-        ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(INVITE_URL)}`
+        ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteUrl)}`
         : key === "mail"
-        ? `mailto:?subject=${encodeURIComponent("Vem pra netfits")}&body=${encoded}`
+        ? `mailto:?subject=${encodeURIComponent("Vem pro Netfits")}&body=${encoded}`
         : key === "msg"
         ? `sms:?&body=${encoded}`
         : null;
@@ -77,7 +80,7 @@ export function InviteFriendsCard() {
           </div>
 
           <h2 className="text-[22px] font-semibold leading-tight text-balance mb-2">
-            Kite, chame sua tribo e ganhe nfs <span className="text-brand">para sempre</span>.
+            {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe nfs <span className="text-brand">para sempre</span>.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">
             Todo amigo que entrar pelo seu link vira parte da sua tribo.
@@ -95,7 +98,7 @@ export function InviteFriendsCard() {
               Código
             </span>
             <span className="flex-1 text-sm font-bold tracking-wider truncate">
-              {INVITE_CODE}
+              {inviteCode}
             </span>
             <button
               onClick={copyLink}
