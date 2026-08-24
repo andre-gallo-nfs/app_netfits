@@ -211,10 +211,14 @@ function AssociadoDashboardPage() {
               </div>
             </div>
             <h1 className="text-xl font-black text-white tracking-tight">
-              Acesso do Associado — Netfits
+              Programa de Associados (Grupo Restrito)
             </h1>
-            <p className="text-xs text-zinc-400">
-              Digite suas credenciais ou credencie-se como novo Associado parceiro.
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              O Programa de Associados é restrito a parceiros estratégicos de expansão e sócios da rede. 
+              <br />
+              <span className="text-lime-400 font-semibold mt-1 block">
+                Academia, Personal, Nutri, Fisio ou Clínica? Cadastre-se como Parceiro Comercial 100% grátis na aba Parceiros.
+              </span>
             </p>
           </div>
 

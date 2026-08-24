@@ -47,9 +47,10 @@ export const Route = createFileRoute("/parceiros")({
 
 type CategoryType = 
   | "academias" 
+  | "personais"
+  | "nutricao"
+  | "fisioterapia"
   | "assessorias" 
-  | "fisioterapia" 
-  | "nutricao" 
   | "medicina" 
   | "outros";
 
@@ -67,7 +68,7 @@ interface PartnerCategoryInfo {
 const PARTNER_CATEGORIES: PartnerCategoryInfo[] = [
   {
     id: "academias",
-    title: "Academias & Studios",
+    title: "Academias, Studios & Pilates",
     subtitle: "Musculação, CrossFit, Pilates, Lutas, Dança e Functional Training",
     icon: Dumbbell,
     badge: "Fitness & Treino",
@@ -76,18 +77,28 @@ const PARTNER_CATEGORIES: PartnerCategoryInfo[] = [
     color: "from-lime-500/20 to-lime-950/40 border-lime-500/30 text-lime-400"
   },
   {
-    id: "assessorias",
-    title: "Assessorias Esportivas",
-    subtitle: "Corrida de rua, Triatlo, Ciclismo, Natação e Trail Running",
-    icon: Flame,
-    badge: "Endurance & Outdoor",
-    boardName: "CNPJ / PJ ou CREF",
-    boardExample: "CNPJ 12.345.678/0001-90 ou CREF 098765-G/SP",
-    color: "from-amber-500/20 to-amber-950/40 border-amber-500/30 text-amber-400"
+    id: "personais",
+    title: "Personal Trainers & Preparadores",
+    subtitle: "Treinadores individuais, Consultores fitness e Preparadores físicos",
+    icon: Users,
+    badge: "Treinamento Individual",
+    boardName: "CREF (Educação Física)",
+    boardExample: "CREF 123456-G/SP",
+    color: "from-emerald-500/20 to-emerald-950/40 border-emerald-500/30 text-emerald-400"
+  },
+  {
+    id: "nutricao",
+    title: "Nutricionistas & Nutrólogos",
+    subtitle: "Nutrição esportiva, Emagrecimento, Suplementação e Performance",
+    icon: Apple,
+    badge: "Saúde & Nutrição",
+    boardName: "CRN / CRM",
+    boardExample: "CRN-3 45678 ou CRM/SP 123456",
+    color: "from-purple-500/20 to-purple-950/40 border-purple-500/30 text-purple-400"
   },
   {
     id: "fisioterapia",
-    title: "Fisioterapia & Recovery",
+    title: "Fisioterapeutas & Recovery",
     subtitle: "Reabilitação esportiva, Crioterapia, Bota de compressão e Osteopatia",
     icon: HeartPulse,
     badge: "Recovery & Prevenção",
@@ -96,33 +107,23 @@ const PARTNER_CATEGORIES: PartnerCategoryInfo[] = [
     color: "from-cyan-500/20 to-cyan-950/40 border-cyan-500/30 text-cyan-400"
   },
   {
-    id: "nutricao",
-    title: "Nutricionistas & Consultórios",
-    subtitle: "Nutrição esportiva, Emagrecimento, Suplementação e Performance",
-    icon: Apple,
-    badge: "Saúde & Nutrição",
-    boardName: "CRN (Conselho de Nutrição)",
-    boardExample: "CRN-3 45678",
-    color: "from-emerald-500/20 to-emerald-950/40 border-emerald-500/30 text-emerald-400"
+    id: "assessorias",
+    title: "Assessorias Esportivas & Grupos",
+    subtitle: "Corrida de rua, Triatlo, Ciclismo, Natação e Trail Running",
+    icon: Flame,
+    badge: "Endurance & Outdoor",
+    boardName: "CNPJ / PJ ou CREF",
+    boardExample: "CNPJ 12.345.678/0001-90 ou CREF 098765-G/SP",
+    color: "from-amber-500/20 to-amber-950/40 border-amber-500/30 text-amber-400"
   },
   {
     id: "medicina",
-    title: "Médicos do Esporte & Longevidade",
-    subtitle: "Medicina integrativa, Check-up esportivo, Testes de esforço e Hormonologia",
+    title: "Clínicas, Lojas & Eventos",
+    subtitle: "Clínicas integradas, Lojas de suplemento, Massoterapia e Provas de corrida",
     icon: Stethoscope,
-    badge: "Medicina & Longevidade",
-    boardName: "CRM (Conselho de Medicina)",
-    boardExample: "CRM/SP 123456",
-    color: "from-purple-500/20 to-purple-950/40 border-purple-500/30 text-purple-400"
-  },
-  {
-    id: "outros",
-    title: "Outros Serviços de Saúde",
-    subtitle: "Massoterapia, Psicologia esportiva, Podologia e Spas urbanos",
-    icon: Sparkles,
-    badge: "Bem-Estar & Cuidados",
+    badge: "Comércio & Saúde",
     boardName: "CNPJ / Registro Profissional",
-    boardExample: "CNPJ ou Registro de Classe",
+    boardExample: "CNPJ 12.345.678/0001-90",
     color: "from-blue-500/20 to-blue-950/40 border-blue-500/30 text-blue-400"
   }
 ];
