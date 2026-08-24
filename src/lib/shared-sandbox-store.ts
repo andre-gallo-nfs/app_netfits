@@ -352,34 +352,80 @@ class HomologationSandboxStore {
     }
   }
 
-  // 1, 2, 3: Cadastros de Atletas (Sem indicação, Com Indicação de Amigo, Com Indicação de Associado)
+  public getUserTransactions(userId?: string): SandboxTransaction[] {
+    const id = userId || this.getActiveUser().id;
+    return this.state.transactions.filter((tx) => tx.userId === id);
+  }
+
+  public getUserOrders(userId?: string): SandboxOrder[] {
+    const id = userId || this.getActiveUser().id;
+    return this.state.orders.filter((ord) => ord.userId === id);
+  }
+
+  public addTransaction(data: {
+    userId: string;
+    userName: string;
+    amount: number;
+    description: string;
+    category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus";
+  }) {
+    const newTx: SandboxTransaction = {
+      id: `tx-${Date.now()}`,
+      userId: data.userId,
+      userName: data.userName,
+      amount: data.amount,
+      description: data.description,
+      category: data.category,
+      timestamp: new Date().toISOString(),
+    };
+    this.state.transactions.unshift(newTx);
+    this.saveToStorage();
+    return newTx;
+  }
+
+  // 3. Cadastro de Novo Atleta (Experiencia 100% Real e Limpa)
   public registerAthlete(data: {
     identifier: string;
     fullName: string;
     referralCode?: string;
   }): { success: boolean; user?: SandboxUser; error?: string } {
+    // Verificar duplicidade
     const cleanId = data.identifier.trim().toLowerCase();
-    const existing = this.state.users.find((u) => u.identifier.toLowerCase() === cleanId);
-    if (existing) {
-      return { success: false, error: "Identificador (E-mail/CPF/Celular) já consta cadastrado." };
+    const cleanDigits = data.identifier.replace(/\D/g, "");
+
+    const exists = this.state.users.some((u) => {
+      if (u.identifier.toLowerCase() === cleanId) return true;
+      if (cleanDigits.length >= 10 && u.identifier.replace(/\D/g, "") === cleanDigits) return true;
+      return false;
+    });
+
+    if (exists) {
+      return {
+        success: false,
+        error: `O identificador "${data.identifier}" já está cadastrado.`,
+      };
     }
 
-    const cleanRef = (data.referralCode || "").trim().toUpperCase();
-    let referrer: SandboxUser | undefined = undefined;
+    const newId = `user-${Date.now()}`;
+    const newRefCode = `NET-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    if (cleanRef) {
-      referrer = this.state.users.find((u) => u.referralCode.toUpperCase() === cleanRef);
+    let referrer: SandboxUser | undefined;
+    if (data.referralCode) {
+      const codeClean = data.referralCode.trim().toUpperCase();
+      referrer = this.state.users.find((u) => u.referralCode.toUpperCase() === codeClean);
     }
 
-    const newUserId = `user-${Date.now()}`;
-    const newRefCode = `${data.fullName.split(" ")[0].toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+    // Regra da Experiencia Real:
+    // - Sem codigo de indicacao: Saldo ZERO, ZERO historico de compras ou transacoes.
+    // - Com codigo de indicacao valido: +50 nfs bonus de boas-vindas da indicacao.
+    const initialNfs = referrer ? 50 : 0;
 
     const newUser: SandboxUser = {
-      id: newUserId,
+      id: newId,
       identifier: data.identifier,
       fullName: data.fullName,
       type: "athlete",
-      nfsBalance: 50, // Bônus Boas-Vindas
+      nfsBalance: initialNfs,
       referralCode: newRefCode,
       referredBy: referrer ? referrer.referralCode : undefined,
       associatedWith: referrer && referrer.type === "associado" ? referrer.referralCode : undefined,
@@ -388,34 +434,32 @@ class HomologationSandboxStore {
 
     this.state.users.push(newUser);
 
-    // Registrar transação de Boas-Vindas (+50 nfs)
-    this.state.transactions.unshift({
-      id: `tx-${Date.now()}-welcome`,
-      userId: newUser.id,
-      userName: newUser.fullName,
-      amount: 50,
-      description: "Bônus de Boas-Vindas no Cadastro",
-      category: "welcome",
-      timestamp: new Date().toISOString(),
-    });
-
-    // Se houve indicação de Amigo ou Associado, bonificar quem indicou (+50 nfs)
+    // Se houve indicacao valida, criar a transacao inicial de bonus
     if (referrer) {
-      referrer.nfsBalance += 50;
       this.state.transactions.unshift({
-        id: `tx-${Date.now()}-referral`,
-        userId: referrer.id,
-        userName: referrer.fullName,
+        id: `tx-${Date.now()}-welcome`,
+        userId: newUser.id,
+        userName: newUser.fullName,
         amount: 50,
-        description: `Bônus por Indicação de Novo Usuário (${newUser.fullName})`,
+        description: `Bônus por Cadastro via Indicação (${referrer.referralCode})`,
         category: "referral",
         timestamp: new Date().toISOString(),
       });
-      toast.success(`🎉 Bônus de +50 nfs creditado para quem indicou (${referrer.fullName})!`);
+
+      // Creditar quem indicou (+50 nfs)
+      referrer.nfsBalance += 50;
+      this.state.transactions.unshift({
+        id: `tx-${Date.now()}-referrer`,
+        userId: referrer.id,
+        userName: referrer.fullName,
+        amount: 50,
+        description: `Bônus por Indicar Novo Usuário (${newUser.fullName})`,
+        category: "referral",
+        timestamp: new Date().toISOString(),
+      });
     }
 
-    this.state.activeUserId = newUser.id;
-    this.saveToStorage();
+    this.setActiveUser(newUser.id);
     return { success: true, user: newUser };
   }
 

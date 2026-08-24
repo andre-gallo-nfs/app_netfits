@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { walletTxs as seedTxs } from "@/lib/feed-data";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { levelStore } from "@/lib/level-store";
 
 export type WalletTx = {
@@ -10,78 +10,79 @@ export type WalletTx = {
   positive: boolean;
 };
 
-type WalletState = {
-  balance: number; // in nfs
-  txs: WalletTx[];
-};
-
-const INITIAL_BALANCE = 25575;
-
-let state: WalletState = {
-  balance: INITIAL_BALANCE,
-  txs: [...seedTxs],
-};
-
-const listeners = new Set<() => void>();
-
-function emit() {
-  for (const l of listeners) l();
-}
-
-function subscribe(fn: () => void) {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
-}
-
-function getSnapshot() {
-  return state;
-}
-
 function formatNfs(n: number) {
   return n.toLocaleString("pt-BR");
 }
 
-function todayLabel() {
-  return "Hoje";
-}
-
 export const wallet = {
-  getBalance: () => state.balance,
+  getBalance: () => {
+    return sharedSandboxStore.getActiveUser().nfsBalance;
+  },
+
+  getTransactions: (): WalletTx[] => {
+    const active = sharedSandboxStore.getActiveUser();
+    const sandboxTxs = sharedSandboxStore.getUserTransactions(active.id);
+    return sandboxTxs.map((t) => ({
+      id: t.id,
+      title: t.description,
+      date: new Date(t.timestamp).toLocaleDateString("pt-BR"),
+      amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
+      positive: t.amount >= 0,
+    }));
+  },
+
   /** Debita nfs (gasto numa compra) e registra a movimentação. */
   spend(amount: number, title: string) {
     if (amount <= 0) return;
-    const tx: WalletTx = {
-      id: `tx-${Date.now()}-d`,
-      title,
-      date: todayLabel(),
-      amount: `-${formatNfs(amount)} nfs`,
-      positive: false,
-    };
-    state = {
-      balance: Math.max(0, state.balance - amount),
-      txs: [tx, ...state.txs],
-    };
-    emit();
+    const active = sharedSandboxStore.getActiveUser();
+    if (active.nfsBalance < amount) return;
+    active.nfsBalance -= amount;
+    sharedSandboxStore.addTransaction({
+      userId: active.id,
+      userName: active.fullName,
+      amount: -amount,
+      description: title,
+      category: "shop",
+    });
   },
+
   /** Credita nfs (cashback) e registra a movimentação. Aplica multiplicador do nível. */
   earn(amount: number, title: string) {
     if (amount <= 0) return;
+    const active = sharedSandboxStore.getActiveUser();
     const multiplier = levelStore.getMultiplier();
     const credited = Math.round(amount * multiplier);
-    const tx: WalletTx = {
-      id: `tx-${Date.now()}-c`,
-      title,
-      date: todayLabel(),
-      amount: `+${formatNfs(credited)} nfs`,
-      positive: true,
-    };
-    state = {
-      balance: state.balance + credited,
-      txs: [tx, ...state.txs],
-    };
-    emit();
+    active.nfsBalance += credited;
+    sharedSandboxStore.addTransaction({
+      userId: active.id,
+      userName: active.fullName,
+      amount: credited,
+      description: title,
+      category: "workout",
+    });
   },
 };
+
+function subscribe(fn: () => void) {
+  return sharedSandboxStore.subscribe(fn);
+}
+
+function getSnapshot() {
+  const activeUser = sharedSandboxStore.getActiveUser();
+  const sandboxTxs = sharedSandboxStore.getUserTransactions(activeUser.id);
+  const formattedTxs: WalletTx[] = sandboxTxs.map((t) => ({
+    id: t.id,
+    title: t.description,
+    date: new Date(t.timestamp).toLocaleDateString("pt-BR"),
+    amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
+    positive: t.amount >= 0,
+  }));
+
+  return {
+    balance: activeUser.nfsBalance,
+    txs: formattedTxs,
+  };
+}
 
 export function useWallet() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);

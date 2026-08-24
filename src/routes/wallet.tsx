@@ -88,37 +88,45 @@ function WalletPage() {
           </h2>
           <span className="text-[10px] text-purple-400 font-bold font-mono">FEFO Active Order</span>
         </div>
-        <div className="space-y-2">
-          {[
-            { id: "b1", source: "Cashback Compra Netfits Shop", amount: 450, expires: "Em 18 dias", days: 18, isNext: true },
-            { id: "b2", source: "Bônus Treino Corrida GPS (Garmin)", amount: 1200, expires: "Em 140 dias", days: 140, isNext: false },
-            { id: "b3", source: "Indicação Amigo Conectado", amount: 3500, expires: "Em 365 dias", days: 365, isNext: false },
-          ].map((batch) => (
-            <div
-              key={batch.id}
-              className={`p-3 rounded-xl border flex items-center justify-between text-xs transition ${
-                batch.isNext
-                  ? "bg-purple-950/30 border-purple-500/40 ring-1 ring-purple-500/20"
-                  : "bg-card border-border"
-              }`}
-            >
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{batch.source}</span>
-                  {batch.isNext && (
-                    <span className="text-[9px] font-bold bg-lime-400 text-zinc-950 px-2 py-0.2 rounded-full">
-                      🟢 1º A ser consumido
-                    </span>
-                  )}
+        
+        {balance === 0 ? (
+          <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-center space-y-1">
+            <p className="text-xs font-bold text-zinc-300">Nenhum lote de pontos ativo no momento</p>
+            <p className="text-[11px] text-zinc-500">
+              Pratique atividades físicas ou interaja no feed para receber seus primeiros pontos nfs!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {[
+              { id: "b1", source: "Lote de Pontos Ativos (FEFO)", amount: balance, expires: "Em 365 dias", days: 365, isNext: true },
+            ].map((batch) => (
+              <div
+                key={batch.id}
+                className={`p-3 rounded-xl border flex items-center justify-between text-xs transition ${
+                  batch.isNext
+                    ? "bg-purple-950/30 border-purple-500/40 ring-1 ring-purple-500/20"
+                    : "bg-card border-border"
+                }`}
+              >
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-foreground">{batch.source}</span>
+                    {batch.isNext && (
+                      <span className="text-[9px] font-bold bg-lime-400 text-zinc-950 px-2 py-0.2 rounded-full">
+                        🟢 1º A ser consumido
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Vencimento: {batch.expires}</p>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Vencimento: {batch.expires}</p>
+                <span className="font-mono font-bold text-brand text-sm">
+                  +{batch.amount.toLocaleString("pt-BR")} nfs
+                </span>
               </div>
-              <span className="font-mono font-bold text-brand text-sm">
-                +{batch.amount} nfs
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Histórico de Movimentações */}
@@ -126,37 +134,49 @@ function WalletPage() {
         <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
           Movimentações
         </h2>
-        <ul className="space-y-2">
-          {txs.map((t) => (
-            <li
-              key={t.id}
-              className="bg-card rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/5 shadow-sm"
-            >
-              <div
-                className={`size-9 rounded-full grid place-items-center ${
-                  t.positive ? "bg-purple-600 text-white" : "bg-muted text-foreground"
-                }`}
+        {txs.length === 0 ? (
+          <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 text-center space-y-2">
+            <div className="size-10 rounded-full bg-zinc-800 text-zinc-400 mx-auto grid place-items-center font-bold text-base">
+              📊
+            </div>
+            <p className="text-xs font-bold text-white">Nenhuma movimentação registrada ainda</p>
+            <p className="text-[11px] text-zinc-400 max-w-[32ch] mx-auto leading-relaxed">
+              Sua carteira está zerada e pronta para o seu primeiro uso real no Netfits.
+            </p>
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {txs.map((t) => (
+              <li
+                key={t.id}
+                className="bg-card rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/5 shadow-sm"
               >
-                {t.positive ? (
-                  <ArrowDownLeft className="size-4" />
-                ) : (
-                  <ArrowUpRight className="size-4" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{t.title}</p>
-                <p className="text-xs text-muted-foreground">{t.date}</p>
-              </div>
-              <span
-                className={`text-sm font-bold ${
-                  t.positive ? "text-purple-600 dark:text-lime-400" : "text-muted-foreground"
-                }`}
-              >
-                {t.amount}
-              </span>
-            </li>
-          ))}
-        </ul>
+                <div
+                  className={`size-9 rounded-full grid place-items-center ${
+                    t.positive ? "bg-purple-600 text-white" : "bg-muted text-foreground"
+                  }`}
+                >
+                  {t.positive ? (
+                    <ArrowDownLeft className="size-4" />
+                  ) : (
+                    <ArrowUpRight className="size-4" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{t.title}</p>
+                  <p className="text-xs text-muted-foreground">{t.date}</p>
+                </div>
+                <span
+                  className={`text-sm font-bold ${
+                    t.positive ? "text-purple-600 dark:text-lime-400" : "text-muted-foreground"
+                  }`}
+                >
+                  {t.amount}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );
