@@ -3159,7 +3159,7 @@ function AdminDashboardPage() {
                     Demonstração do Resultado do Exercício — Business Case v1.xlsx ({currentPeriodObj.shortLabel})
                   </span>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>📈 DRE Financeiro Proforma — Netfits Fidelidade Ltda.</span>
+                    <span>📈 DRE Financeiro Proforma — Netfits Ltda.</span>
                     <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2.5 py-0.5 rounded-full font-mono font-bold">
                       EBITDA: {adjustedEbitdaMarginPct.toFixed(1)}% ({isFase2 ? "Fase 2 Com Clube" : "Fase 1 Launch"})
                     </span>
@@ -3471,7 +3471,7 @@ function AdminDashboardPage() {
 
                       {/* LUCRO LÍQUIDO */}
                       <tr className="bg-purple-900/40 font-bold text-white border-t-2 border-purple-500">
-                        <td className="py-4 px-4 text-purple-200 font-black text-sm">(=) LUCRO LÍQUIDO DO EXERCÍCIO (NETFITS FIDELIDADE LTDA.)</td>
+                        <td className="py-4 px-4 text-purple-200 font-black text-sm">(=) LUCRO LÍQUIDO DO EXERCÍCIO (NETFITS LTDA.)</td>
                         <td className="py-4 px-4 text-right font-mono text-lime-400 text-lg font-black">
                           R$ {dreAdjustedNetProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </td>
@@ -3609,7 +3609,7 @@ function AdminDashboardPage() {
                   Investor Pitch Deck — Rodada Seed / Series A
                 </span>
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
-                  <span>🚀 Netfits Fidelidade Ltda.</span>
+                  <span>🚀 Netfits Ltda.</span>
                   <span className="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-mono">
                     Slide {pitchSlide} de 12
                   </span>
@@ -3650,7 +3650,7 @@ function AdminDashboardPage() {
                   <div className="inline-block p-4 rounded-3xl bg-zinc-900 border border-purple-500/40 mb-2">
                     <img src={netfitsLogo} alt="Netfits" className="h-16 w-auto mx-auto object-contain" />
                   </div>
-                  <h2 className="text-2xl font-black text-white">NETFITS FIDELIDADE LTDA.</h2>
+                  <h2 className="text-2xl font-black text-white">NETFITS LTDA.</h2>
                   <p className="text-sm font-mono text-lime-400 font-bold uppercase tracking-widest">
                     Slogan Oficial: "Fazer cada movimento valer mais."
                   </p>
@@ -3900,7 +3900,7 @@ function AdminDashboardPage() {
                     <p className="text-zinc-300">• 4. Velocidade com responsabilidade</p>
                   </div>
                   <p className="text-xs text-lime-400 font-mono font-bold">
-                    Netfits Fidelidade Ltda. — diretoria@netfits.com.br — www.netfits.com.br
+                    Netfits Ltda. — diretoria@netfits.com.br — www.netfits.com.br
                   </p>
                 </div>
               )}
