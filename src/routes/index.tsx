@@ -31,49 +31,15 @@ export const Route = createFileRoute("/")({
 
 function FeedPage() {
   return (
-    <div>
+    <div className="pb-8 space-y-4">
+      {/* Pesquisa de Conexão Wearables (Visual Limpo & Monocromático) */}
       <WearableSurveyHero />
-      <BadgesBanner />
-      {/* Rewards Banner */}
-      <div className="mx-4 mb-3 p-3.5 bg-purple-600/10 border border-purple-600/30 rounded-2xl flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="size-8 rounded-xl bg-purple-600 text-white grid place-items-center font-black text-xs shadow-sm shrink-0">
-            nfs
-          </div>
-          <div>
-            <p className="text-xs font-bold text-foreground">
-              Recompensas por Engajamento Real
-            </p>
-            <p className="text-[10px] text-muted-foreground font-medium">
-              Visualização Completa (+5 nfs) · Compartilhamento Pós-Visualização (+10 nfs)
-            </p>
-          </div>
-        </div>
-      </div>
 
-      {/* Parceiros Banner */}
-      <div className="mx-4 mb-4 p-3.5 bg-gradient-to-r from-zinc-900 via-purple-950 to-zinc-900 border border-purple-500/30 rounded-2xl flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="size-8 rounded-xl bg-lime-400 text-black grid place-items-center font-black text-xs shadow-sm shrink-0">
-            <Building2 className="size-4" />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-white">
-              É dono de Academia, Assessoria ou Clínica?
-            </p>
-            <p className="text-[10px] text-zinc-300">
-              Cadastre seu estabelecimento e ofereça benefícios
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/parceiros"
-          className="bg-lime-400 text-black hover:bg-lime-300 font-extrabold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full shrink-0 shadow-sm transition"
-        >
-          Cadastrar →
-        </Link>
-      </div>
-      <div className="space-y-8 pt-2">
+      {/* Faixa Compacta de Utilidades (Substitui banners empilhados) */}
+      <CompactUtilityStrip />
+
+      {/* Lista Principal de Publicações do Feed */}
+      <div className="space-y-6 pt-1">
         <SponsorCard />
         <InviteFriendsCard />
         <DrIsabellaCard />
@@ -81,8 +47,8 @@ function FeedPage() {
         {feedItems.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}
-        <div className="px-4 py-8 text-center text-xs text-muted-foreground">
-          Carregando mais conteúdo…
+        <div className="px-4 py-8 text-center text-xs text-muted-foreground font-medium">
+          Você chegou ao fim do feed. Novas atualizações em breve.
         </div>
       </div>
     </div>
@@ -94,11 +60,11 @@ function WearableSurveyHero() {
   const [voted, setVoted] = useState(false);
 
   const devices = [
-    { id: "Garmin", name: "Garmin", icon: "⌚" },
-    { id: "AppleWatch", name: "Apple Watch", icon: "🍏" },
-    { id: "Strava", name: "Strava", icon: "🏃" },
-    { id: "SamsungHealth", name: "Samsung / Wear OS", icon: "📱" },
-    { id: "Outro", name: "Outro Dispositivo", icon: "🎯" },
+    { id: "Garmin", name: "Garmin" },
+    { id: "AppleWatch", name: "Apple Watch" },
+    { id: "Strava", name: "Strava" },
+    { id: "SamsungHealth", name: "Samsung / Wear OS" },
+    { id: "Outro", name: "Outro Dispositivo" },
   ];
 
   const handleVote = () => {
@@ -109,108 +75,105 @@ function WearableSurveyHero() {
   };
 
   return (
-    <section className="px-4 py-6">
-      <div className="bg-foreground rounded-[22px] p-6 text-background relative overflow-hidden ring-1 ring-zinc-950/10 shadow-xl">
-        <img
-          src={netfitsMark}
-          alt=""
-          className="absolute top-4 right-4 w-10 h-10 object-contain rounded-lg bg-background/10 p-1 opacity-80"
-        />
-        <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-600/30 text-purple-300 border border-purple-400/30 text-[10px] font-bold uppercase tracking-widest mb-3">
-            <Sparkles className="size-3 text-lime-400" />
-            Pesquisa de Intenção
+    <section className="px-4 pt-4">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 text-white shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="px-2.5 py-0.5 rounded-full bg-purple-950/80 text-purple-300 border border-purple-500/30 text-[10px] font-bold uppercase tracking-wider">
+            Pesquisa de Integração
           </span>
-          <h2 className="text-xl font-bold leading-tight text-balance mb-2">
-            Você gostaria de conectar seu relógio ou app de treino à Netfits?
-          </h2>
-          <p className="text-xs text-zinc-300 max-w-[38ch] leading-relaxed mb-4">
-            Ajude-nos a definir a próxima grande funcionalidade! Qual dispositivo você mais usa para registrar seus treinos?
-          </p>
-
-          {!voted ? (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                {devices.map((dev) => {
-                  const isSelected = selectedDevice === dev.id;
-                  return (
-                    <button
-                      key={dev.id}
-                      onClick={() => setSelectedDevice(dev.id)}
-                      className={`p-2.5 rounded-xl border text-left text-xs font-semibold flex items-center gap-2 transition-all ${
-                        isSelected
-                          ? "bg-purple-600 text-white border-lime-400 ring-2 ring-lime-400/40"
-                          : "bg-background/10 border-white/10 text-zinc-300 hover:bg-background/20"
-                      }`}
-                    >
-                      <span className="text-sm">{dev.icon}</span>
-                      <span className="truncate">{dev.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={handleVote}
-                className="w-full mt-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-purple-900/40 active:scale-98 transition-all"
-              >
-                <Sparkles className="size-4 text-lime-400" />
-                Votar & Quero Conectar (+10 nfs)
-                <ArrowRight className="size-4" />
-              </button>
-            </div>
-          ) : (
-            <div className="bg-purple-950/60 border border-lime-400/40 rounded-xl p-4 text-center space-y-2">
-              <div className="size-9 rounded-full bg-lime-400 text-zinc-950 grid place-items-center mx-auto shadow-md">
-                <Check className="size-5 font-black" />
-              </div>
-              <p className="text-xs font-bold text-white">Voto Registrado: {selectedDevice}</p>
-              <p className="text-[11px] text-zinc-300 leading-relaxed">
-                Muito obrigado! Sua resposta foi enviada com sucesso e ajudará nossa equipe a priorizar a integração com {selectedDevice}.
-              </p>
-              <span className="inline-block text-[10px] font-extrabold text-lime-400 pt-1">
-                +10 nfs creditados na sua carteira!
-              </span>
-            </div>
-          )}
+          <span className="text-[10px] font-bold text-purple-400 font-mono">
+            +10 nfs bônus
+          </span>
         </div>
-        <div className="absolute right-[-10%] bottom-[-20%] w-64 h-64 bg-purple-600/20 blur-3xl rounded-full pointer-events-none" />
+
+        <div>
+          <h2 className="text-base font-bold text-white leading-snug">
+            Gostaria de conectar seu relógio ou app de treino?
+          </h2>
+          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            Qual dispositivo você mais usa para registrar suas atividades físicas?
+          </p>
+        </div>
+
+        {!voted ? (
+          <div className="space-y-3 pt-1">
+            <div className="grid grid-cols-2 gap-2">
+              {devices.map((dev) => {
+                const isSelected = selectedDevice === dev.id;
+                return (
+                  <button
+                    key={dev.id}
+                    type="button"
+                    onClick={() => setSelectedDevice(dev.id)}
+                    className={`px-3 py-2 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-purple-600 text-white border-purple-500 shadow-sm"
+                        : "bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
+                    }`}
+                  >
+                    <span className="truncate">{dev.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleVote}
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-all cursor-pointer"
+            >
+              <span>Votar & Conectar Dispositivo (+10 nfs)</span>
+              <ArrowRight className="size-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="bg-zinc-950 border border-purple-500/30 rounded-xl p-3.5 text-center space-y-1.5 animate-in fade-in">
+            <div className="size-7 rounded-full bg-purple-600 text-white grid place-items-center mx-auto shadow-sm">
+              <Check className="size-4 stroke-[3]" />
+            </div>
+            <p className="text-xs font-bold text-white">Voto Registrado: {selectedDevice}</p>
+            <p className="text-[11px] text-zinc-400">
+              Obrigado! Sua resposta foi gravada com sucesso e +10 nfs foram creditados.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
-function BadgesBanner() {
+function CompactUtilityStrip() {
   const badges = useBadges();
   const unlockedCount = badges.filter((b) => b.unlocked).length;
   const totalCount = badges.length;
-  const progressPct = Math.round((unlockedCount / totalCount) * 100);
 
   return (
-    <section className="px-4 pb-4">
-      <Link to="/levels" className="block bg-purple-900/10 border border-purple-600/30 hover:bg-purple-900/20 transition-all rounded-2xl p-4 ring-1 ring-black/5">
-        <div className="flex items-center gap-3">
-          <div className="size-10 rounded-2xl bg-purple-600 text-white grid place-items-center font-bold text-lg shrink-0 shadow-md">
-            🏅
+    <section className="px-4">
+      <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-3 flex items-center justify-between text-xs">
+        {/* Galeria de Badges */}
+        <Link to="/levels" className="flex items-center gap-2.5 text-zinc-300 hover:text-white transition group">
+          <div className="size-8 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 grid place-items-center font-bold text-xs shrink-0 group-hover:bg-purple-600 group-hover:text-white transition">
+            <Activity className="size-4" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                Galeria de Badges & Selos
-              </p>
-              <span className="text-[10px] font-extrabold font-mono text-purple-600">
-                {unlockedCount}/{totalCount} Selos
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              Execute tarefas de engajamento e desbloqueie bônus em nfs.
-            </p>
-            <div className="h-1.5 w-full bg-purple-950/20 rounded-full overflow-hidden mt-2">
-              <div className="h-full bg-gradient-to-r from-purple-600 to-lime-400 rounded-full" style={{ width: `${progressPct}%` }} />
-            </div>
+          <div>
+            <p className="text-[11px] font-bold text-white leading-tight">Badges & Selos</p>
+            <p className="text-[10px] text-zinc-400 font-mono">{unlockedCount} de {totalCount} liberados</p>
           </div>
-        </div>
-      </Link>
+        </Link>
+
+        <div className="h-6 w-px bg-zinc-800" />
+
+        {/* Credenciamento B2B */}
+        <Link to="/parceiros" className="flex items-center gap-2.5 text-zinc-300 hover:text-white transition group">
+          <div className="size-8 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 grid place-items-center shrink-0 group-hover:bg-zinc-700 group-hover:text-white transition">
+            <Building2 className="size-4" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold text-white leading-tight">Parceiros B2B</p>
+            <p className="text-[10px] text-zinc-400">Credenciamento</p>
+          </div>
+        </Link>
+      </div>
     </section>
   );
 }
