@@ -66,7 +66,6 @@ function WalletPage() {
           <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
             Lotes de Pontos & Validade
           </h2>
-          <span className="text-[10px] text-purple-400 font-bold font-mono">Validade 365 dias</span>
         </div>
         
         {balance === 0 ? (
