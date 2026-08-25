@@ -55,6 +55,7 @@ function FeedPage() {
 function WearableSurveyHero() {
   const [wantsToConnect, setWantsToConnect] = useState<"sim" | "nao">("sim");
   const [selectedDevice, setSelectedDevice] = useState<string>("Garmin");
+  const [customDevice, setCustomDevice] = useState<string>("");
   const [voted, setVoted] = useState(false);
 
   const devices = [
@@ -68,10 +69,19 @@ function WearableSurveyHero() {
   const handleVote = () => {
     if (voted) return;
     setVoted(true);
-    const voteDesc = wantsToConnect === "sim" ? `Sim (${selectedDevice})` : "Não";
+    let deviceName = selectedDevice;
+    if (selectedDevice === "Outro" && customDevice.trim()) {
+      deviceName = customDevice.trim();
+    }
+    const voteDesc = wantsToConnect === "sim" ? `Sim (${deviceName})` : "Não";
     wallet.earn(10, `Pesquisa de Sincronia: ${voteDesc}`);
     toast.success("Voto registrado! (+10 nfs creditados)");
   };
+
+  const finalDeviceLabel =
+    selectedDevice === "Outro" && customDevice.trim()
+      ? customDevice.trim()
+      : selectedDevice;
 
   return (
     <section className="px-4 pt-4">
@@ -121,7 +131,7 @@ function WearableSurveyHero() {
         {!voted ? (
           <div className="space-y-3 pt-1">
             {wantsToConnect === "sim" && (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   Qual dispositivo você mais usa para registrar suas atividades físicas?
                 </p>
@@ -144,6 +154,18 @@ function WearableSurveyHero() {
                     );
                   })}
                 </div>
+
+                {selectedDevice === "Outro" && (
+                  <div className="pt-1">
+                    <input
+                      type="text"
+                      value={customDevice}
+                      onChange={(e) => setCustomDevice(e.target.value)}
+                      placeholder="Qual o nome do relógio/app? (ex: Coros, Polar, Suunto...)"
+                      className="w-full bg-zinc-950/80 border border-zinc-700 focus:border-purple-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 outline-none transition"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -162,7 +184,7 @@ function WearableSurveyHero() {
               <Check className="size-4 stroke-[3]" />
             </div>
             <p className="text-xs font-bold text-white">
-              Voto Registrado: {wantsToConnect === "sim" ? `Sim (${selectedDevice})` : "Não"}
+              Voto Registrado: {wantsToConnect === "sim" ? `Sim (${finalDeviceLabel})` : "Não"}
             </p>
             <p className="text-[11px] text-zinc-400">
               Obrigado! Sua resposta foi gravada com sucesso e +10 nfs foram creditados.
