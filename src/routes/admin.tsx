@@ -3601,41 +3601,47 @@ function AdminDashboardPage() {
 
       {/* Modal Interativo de Apresentação de Investidores (Pitch Deck) */}
       {showPitchDeckModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl flex flex-col justify-between">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border border-purple-500/30 rounded-3xl w-full max-w-5xl lg:max-w-6xl max-h-[92vh] overflow-y-auto p-6 md:p-8 space-y-6 shadow-2xl flex flex-col justify-between">
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-lime-400">
-                  Investor Pitch Deck — Rodada Seed / Series A
-                </span>
-                <h3 className="text-xl font-black text-white flex items-center gap-2">
-                  <span>🚀 Netfits Ltda.</span>
-                  <span className="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-mono">
-                    Slide {pitchSlide} de 12
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-2xl bg-purple-600/20 border border-purple-500/40 grid place-items-center text-lime-400 font-black text-lg">
+                  ⚡
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-lime-400">
+                    Executive Pitch Deck — Rodada Seed / Series A
                   </span>
-                </h3>
+                  <h3 className="text-xl font-black text-white flex items-center gap-2">
+                    <span>Netfits Ltda.</span>
+                    <span className="text-[11px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-0.5 rounded-full font-mono font-bold">
+                      Slide {pitchSlide} de 12
+                    </span>
+                  </h3>
+                </div>
               </div>
               <button
                 onClick={() => setShowPitchDeckModal(false)}
-                className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition cursor-pointer"
+                className="size-9 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white grid place-items-center transition cursor-pointer font-bold border border-zinc-800"
               >
                 ✕
               </button>
             </div>
 
-            {/* Slide Navigation Buttons */}
+            {/* Slide Navigation Bar */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none pb-2 border-b border-zinc-800/80">
               {[
-                "1. Capa", "2. Problema", "3. Solução", "4. Mercado TAM", "5. Modelo de Negócio",
-                "6. Programa nfs", "7. DRE Proforma", "8. Unit Economics", "9. Canais B2B2C", "10. Moat Tech", "11. Captação", "12. Equipe & Visão"
+                "1. Capa", "2. Problema", "3. Solução", "4. Mercado TAM", "5. Monetização",
+                "6. Programa nfs", "7. DRE Proforma", "8. Unit Economics", "9. Canais B2B2C", "10. Moat Tech", "11. Captação", "12. Visão & Valores"
               ].map((name, idx) => (
                 <button
                   key={idx}
                   onClick={() => setPitchSlide(idx + 1)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
                     pitchSlide === idx + 1
-                      ? "bg-purple-600 text-white font-black shadow-md shadow-purple-600/30"
-                      : "bg-zinc-950 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                      ? "bg-gradient-to-r from-purple-600 to-purple-800 text-white font-black shadow-md shadow-purple-600/30 border border-purple-400/40"
+                      : "bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-zinc-800"
                   }`}
                 >
                   {name}
@@ -3644,264 +3650,602 @@ function AdminDashboardPage() {
             </div>
 
             {/* Slide Content Dynamic Viewer */}
-            <div className="py-4 space-y-4">
+            <div className="py-2 min-h-[380px]">
+              {/* SLIDE 1: CAPA */}
               {pitchSlide === 1 && (
-                <div className="space-y-4 text-center py-6">
-                  <div className="inline-block p-4 rounded-3xl bg-zinc-900 border border-purple-500/40 mb-2">
-                    <img src={netfitsLogo} alt="Netfits" className="h-16 w-auto mx-auto object-contain" />
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  <div className="md:col-span-7 space-y-5 text-left">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-300 text-xs font-bold">
+                      <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
+                      Apresentação Executiva de Investimentos
+                    </div>
+                    <h1 className="text-3xl lg:text-4xl font-black text-white leading-tight">
+                      Fazer cada movimento <br />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 via-emerald-300 to-purple-400">
+                        valer mais.
+                      </span>
+                    </h1>
+                    <p className="text-sm text-zinc-300 font-medium leading-relaxed max-w-lg">
+                      O ecossistema digital de recompensas, engajamento e saúde que conecta o atleta amador às melhores marcas, academias e profissionais de longevidade do Brasil.
+                    </p>
+                    <div className="pt-2 flex items-center gap-3 flex-wrap text-xs">
+                      <div className="bg-zinc-900 border border-zinc-800 px-3.5 py-2 rounded-xl text-zinc-300 font-bold flex items-center gap-2">
+                        <span className="text-lime-400 font-black">01</span> Benefícios Imediatos
+                      </div>
+                      <div className="bg-zinc-900 border border-zinc-800 px-3.5 py-2 rounded-xl text-zinc-300 font-bold flex items-center gap-2">
+                        <span className="text-lime-400 font-black">02</span> Hábitos Recorrentes
+                      </div>
+                      <div className="bg-zinc-900 border border-zinc-800 px-3.5 py-2 rounded-xl text-zinc-300 font-bold flex items-center gap-2">
+                        <span className="text-lime-400 font-black">03</span> Longevidade Ativa
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-black text-white">NETFITS LTDA.</h2>
-                  <p className="text-sm font-mono text-lime-400 font-bold uppercase tracking-widest">
-                    Slogan Oficial: "Fazer cada movimento valer mais."
-                  </p>
-                  <p className="text-sm text-zinc-300 max-w-xl mx-auto font-medium">
-                    Plataforma de benefícios, hábitos e longevidade para quem escolhe viver de forma ativa — hoje e ao longo da vida.
-                  </p>
-                  <div className="pt-4 flex items-center justify-center gap-3 flex-wrap">
-                    <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold">
-                      1. Benefícios (Imediato)
-                    </span>
-                    <span className="bg-lime-400/10 text-lime-300 border border-lime-400/30 px-3 py-1 rounded-full text-xs font-bold">
-                      2. Hábitos (Recorrente)
-                    </span>
-                    <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 px-3 py-1 rounded-full text-xs font-bold">
-                      3. Longevidade (Para Sempre)
-                    </span>
+                  <div className="md:col-span-5 relative">
+                    <div className="relative rounded-3xl overflow-hidden border border-purple-500/30 shadow-2xl group">
+                      <img
+                        src="https://images.unsplash.com/photo-1517649763962-0c623266010b?auto=format&fit=crop&w=800&q=80"
+                        alt="Esportista Amador Netfits"
+                        className="w-full h-80 object-cover group-hover:scale-105 transition duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent flex flex-col justify-end p-5 text-left">
+                        <img src={netfitsLogo} alt="Netfits" className="h-9 w-auto object-contain mb-2 self-start" />
+                        <p className="text-xs text-lime-400 font-mono font-bold">Netfits Ltda. · São Paulo, SP</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 2: O PROBLEMA */}
               {pitchSlide === 2 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-rose-400 flex items-center gap-2">
-                    <span>⚠️ O Problema do Mercado (The Problem)</span>
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-rose-500/20 space-y-2">
-                      <h4 className="font-bold text-white text-sm">1. Churn Elevado (&gt;65%)</h4>
-                      <p className="text-xs text-zinc-400">Mais de 65% dos praticantes abandonam academias/apps nos primeiros 90 dias por falta de incentivos tangíveis.</p>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  <div className="md:col-span-5 relative">
+                    <div className="rounded-3xl overflow-hidden border border-rose-500/30 shadow-2xl relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=800&q=80"
+                        alt="Atleta Desestimulado"
+                        className="w-full h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent flex items-end p-5">
+                        <span className="bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold px-3 py-1 rounded-full">
+                          ⚠️ Fricção no Mercado de Fitness &amp; Saúde
+                        </span>
+                      </div>
                     </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-rose-500/20 space-y-2">
-                      <h4 className="font-bold text-white text-sm">2. CAC Explosivo</h4>
-                      <p className="text-xs text-zinc-400">Marcas esportivas e clínicas gastam fortunas em mídia paga tradicional com conversão cada vez menor.</p>
+                  </div>
+                  <div className="md:col-span-7 space-y-4 text-left">
+                    <div>
+                      <span className="text-xs font-mono text-rose-400 font-bold uppercase tracking-wider">The Problem</span>
+                      <h2 className="text-2xl font-black text-white mt-1">Gargalos Críticos do Consumidor &amp; Mercado</h2>
                     </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-rose-500/20 space-y-2">
-                      <h4 className="font-bold text-white text-sm">3. Pontos Tradicionais Quebrados</h4>
-                      <p className="text-xs text-zinc-400">Pontos expirados sem aviso e regras punitivas desestimulam a fidelização do consumidor.</p>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-start gap-3.5">
+                        <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-black text-sm grid place-items-center shrink-0">
+                          65%
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">Churn Elevado em 90 Dias</h4>
+                          <p className="text-[11px] text-zinc-400 mt-0.5">Mais de 65% dos praticantes abandonam academias ou apps pela ausência de recompensas diárias tangíveis.</p>
+                        </div>
+                      </div>
+                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-start gap-3.5">
+                        <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-black text-sm grid place-items-center shrink-0">
+                          CAC
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">Custo de Aquisição Explosivo</h4>
+                          <p className="text-[11px] text-zinc-400 mt-0.5">Marcas esportivas e clínicas dependem de anúncios pagos caros com conversões cada vez menores.</p>
+                        </div>
+                      </div>
+                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-start gap-3.5">
+                        <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-black text-sm grid place-items-center shrink-0">
+                          0%
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white text-xs">Programas de Pontos Desconectados</h4>
+                          <p className="text-[11px] text-zinc-400 mt-0.5">Sistemas legados expiram pontos sem transparência e impõem regras punitivas ao usuário.</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 3: A SOLUÇÃO */}
               {pitchSlide === 3 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-lime-400 flex items-center gap-2">
-                    <span>💡 A Solução Netfits (The Solution)</span>
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-lime-400/20 space-y-2">
-                      <h4 className="font-bold text-white text-sm">SuperApp 4 em 1</h4>
-                      <p className="text-xs text-zinc-400">GPS de treino inteligente, Feed Social com anúncios remunerados, Marketplace e Clube de Benefícios.</p>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  <div className="md:col-span-7 space-y-4 text-left">
+                    <div>
+                      <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">The Solution</span>
+                      <h2 className="text-2xl font-black text-white mt-1">SuperApp Integrado &amp; Motor de Fidelização</h2>
                     </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-lime-400/20 space-y-2">
-                      <h4 className="font-bold text-white text-sm">Algoritmo FEFO Protegido</h4>
-                      <p className="text-xs text-zinc-400">First-Expiring, First-Out: o ponto mais próximo da expiração é resgatado primeiro, gerando a maior taxa de satisfação do setor.</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                        <span className="text-lime-400 text-base">📱</span>
+                        <h4 className="font-bold text-white text-xs">SuperApp 4 em 1</h4>
+                        <p className="text-[11px] text-zinc-400">GPS de treino, Feed Social remunerado, Marketplace e Clube de Benefícios num único app.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                        <span className="text-lime-400 text-base">⌚</span>
+                        <h4 className="font-bold text-white text-xs">Wearables Ingest</h4>
+                        <p className="text-[11px] text-zinc-400">Sincronização nativa com Garmin, Apple Watch e Strava para conversão de treinos em nfs.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                        <span className="text-lime-400 text-base">🛒</span>
+                        <h4 className="font-bold text-white text-xs">Shop com Resgate Real</h4>
+                        <p className="text-[11px] text-zinc-400">Desconto imediato em suplementos, vestuário, exames e consultas de nutrição.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                        <span className="text-lime-400 text-base">🛡️</span>
+                        <h4 className="font-bold text-white text-xs">Algoritmo FEFO Protegido</h4>
+                        <p className="text-[11px] text-zinc-400">First-Expiring, First-Out: resgate inteligente que consome priorizadamente o ponto prestes a vencer.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="md:col-span-5">
+                    <div className="rounded-3xl overflow-hidden border border-lime-400/30 shadow-2xl relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80"
+                        alt="Wearable e App Netfits"
+                        className="w-full h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
+                        <span className="bg-lime-400/20 border border-lime-400/40 text-lime-300 text-xs font-bold px-3 py-1 rounded-full">
+                          ⚡ Conexão Nativa com Smartwatches
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 4: MERCADO TAM */}
               {pitchSlide === 4 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-purple-300">📊 O Mercado Endereçável (TAM / SAM / SOM)</h3>
+                <div className="space-y-5 text-left">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Market Opportunity</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Mercado Potencial &amp; Metas de Expansão</h2>
+                    </div>
+                    <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full text-xs font-bold font-mono">
+                      Brasil · América Latina
+                    </span>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 text-center">
-                      <span className="text-xs font-mono text-zinc-400 uppercase">TAM Brasil</span>
-                      <h4 className="text-xl font-black text-white mt-1">R$ 85 Bilhões</h4>
-                      <p className="text-[11px] text-zinc-500 mt-1">Mercado total de saúde, academias, suplementos e nutrição no Brasil.</p>
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-bold">TAM · Mercado Total</span>
+                        <h3 className="text-3xl font-black text-white mt-2">R$ 85 Bilhões</h3>
+                        <p className="text-xs text-zinc-400 mt-2">Gasto anual em academias, nutrição, exames e acessórios esportivos no Brasil.</p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-zinc-800 text-[10px] text-zinc-500 font-mono">Fonte: IHRSA &amp; Abiad</div>
                     </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 text-center">
-                      <span className="text-xs font-mono text-purple-400 uppercase">SAM Operacional</span>
-                      <h4 className="text-xl font-black text-purple-300 mt-1">R$ 18 Bilhões</h4>
-                      <p className="text-[11px] text-zinc-500 mt-1">14 Milhões de brasileiros com wearables e apps de corrida/academia.</p>
+
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-purple-500/30 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-mono text-purple-400 uppercase tracking-wider font-bold">SAM · Mercado Endereçável</span>
+                        <h3 className="text-3xl font-black text-purple-300 mt-2">R$ 18 Bilhões</h3>
+                        <p className="text-xs text-zinc-400 mt-2">14 Milhões de praticantes de corrida e fitness que utilizam smartwatches ou apps.</p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-zinc-800 text-[10px] text-purple-400 font-mono">Público Ativo Digital</div>
                     </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-lime-400/30 text-center bg-lime-400/5">
-                      <span className="text-xs font-mono text-lime-400 uppercase">SOM Meta 3 Anos</span>
-                      <h4 className="text-xl font-black text-lime-300 mt-1">R$ 450M GMV</h4>
-                      <p className="text-[11px] text-zinc-400 mt-1">1 Milhão de usuários ativos transacionando no ecossistema Netfits.</p>
+
+                    <div className="bg-gradient-to-br from-purple-950/50 via-zinc-900 to-zinc-900 p-5 rounded-2xl border border-lime-400/40 flex flex-col justify-between">
+                      <div>
+                        <span className="text-[11px] font-mono text-lime-400 uppercase tracking-wider font-bold">SOM · Meta 3 Anos</span>
+                        <h3 className="text-3xl font-black text-lime-300 mt-2">R$ 450M GMV</h3>
+                        <p className="text-xs text-zinc-300 mt-2">1 Milhão de usuários ativos transacionando no ecossistema Netfits.</p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-lime-400/20 text-[10px] text-lime-400 font-mono font-bold">★ Meta Executiva 36 Meses</div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl overflow-hidden border border-zinc-800 h-28 relative">
+                    <img
+                      src="https://images.unsplash.com/photo-1486218119243-13883505764c?auto=format&fit=crop&w=1200&q=80"
+                      alt="Atletas em Maratona"
+                      className="w-full h-full object-cover opacity-40"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/70 to-transparent p-4 flex items-center">
+                      <p className="text-xs text-zinc-200 max-w-2xl font-medium">
+                        "O mercado de corrida e hábitos saudáveis no Brasil cresce a duplo dígito ao ano, impulsionado pela busca por longevidade ativa e prevenção médica."
+                      </p>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 5: MONETIZAÇÃO */}
               {pitchSlide === 5 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-white">💰 Modelo de Negócios &amp; Monetização Multirreceptora</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-lime-400">1. Take-Rate Marketplace (Shop):</span> 8,0% padrão cobrado sobre o GMV dos sellers credenciados.
+                <div className="space-y-4 text-left">
+                  <div>
+                    <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Business Model</span>
+                    <h2 className="text-2xl font-black text-white mt-0.5">Monetização Multirreceptora</h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                      <span className="text-xs font-mono text-lime-400 font-black">01 · MARKETPLACE</span>
+                      <h4 className="font-bold text-white text-xs">8,0% Take-Rate</h4>
+                      <p className="text-[11px] text-zinc-400">Comissão cobrada sobre o GMV de suplementos, vestuário e serviços credenciados.</p>
                     </div>
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-lime-400">2. Feed &amp; Mídia Patrocinada:</span> CPM/CPC cobrado por anúncios e conteúdos no feed.
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                      <span className="text-xs font-mono text-lime-400 font-black">02 · MÍDIA FEED</span>
+                      <h4 className="font-bold text-white text-xs">CPM / CPC Patrocinado</h4>
+                      <p className="text-[11px] text-zinc-400">Anúncios no feed e pesquisas interativas patrocinadas por grandes marcas de longevidade.</p>
                     </div>
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-lime-400">3. Inscrições em Provas:</span> Comissão por intermediação de inscrições em eventos de corrida.
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                      <span className="text-xs font-mono text-lime-400 font-black">03 · EVENTOS</span>
+                      <h4 className="font-bold text-white text-xs">Intermediação</h4>
+                      <p className="text-[11px] text-zinc-400">Taxa de conveniência em inscrições de corridas de rua e provas parceiras.</p>
                     </div>
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-purple-500/30 bg-purple-950/20">
-                      <span className="font-bold text-purple-300">4. Netfits Club (Fase 2):</span> Assinatura de R$ 19,90/mês para benefícios exclusivos (50,0% da receita na Fase 2).
+                    <div className="bg-purple-950/40 p-4 rounded-2xl border border-purple-500/40 space-y-2">
+                      <span className="text-xs font-mono text-purple-300 font-black">04 · NETFITS CLUB</span>
+                      <h4 className="font-bold text-white text-xs">R$ 19,90 / mês</h4>
+                      <p className="text-[11px] text-purple-200 font-medium">Assinatura mensal para multiplicadores 2x de nfs e ofertas exclusivas (Fase 2).</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    <div className="bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800 flex items-center gap-4">
+                      <img
+                        src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80"
+                        alt="Academia e Treino"
+                        className="size-16 rounded-xl object-cover shrink-0 border border-zinc-700"
+                      />
+                      <div>
+                        <h4 className="font-bold text-white text-xs">Academias &amp; Studios</h4>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">Credenciamento zero taxa de adesão; atração de novos alunos via pontos netfits.</p>
+                      </div>
+                    </div>
+                    <div className="bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800 flex items-center gap-4">
+                      <img
+                        src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80"
+                        alt="Nutrição e Suplementos"
+                        className="size-16 rounded-xl object-cover shrink-0 border border-zinc-700"
+                      />
+                      <div>
+                        <h4 className="font-bold text-white text-xs">Sellers de Nutrição &amp; Wearables</h4>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">Venda direta com resgate integrado e conversão acima da média do e-commerce.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 6: PROGRAMA NFS */}
               {pitchSlide === 6 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-purple-300">🪙 Engenharia do Programa de Pontos &amp; Breakage</h3>
-                  <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/30 text-xs space-y-2">
-                    <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Custo de Acúmulo por Ponto (CPP Emitido):</span>
-                      <span className="font-mono text-lime-400 font-bold">R$ 0,02 / nfs</span>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
+                  <div className="md:col-span-7 space-y-4">
+                    <div>
+                      <span className="text-xs font-mono text-purple-300 font-bold uppercase tracking-wider">Tokenomics &amp; Solvency</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Engenharia Financeira dos Pontos (nfs)</h2>
                     </div>
-                    <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Custo de Resgate por Ponto (CPP Consumido):</span>
-                      <span className="font-mono text-lime-300 font-bold">R$ 0,01 / nfs</span>
+
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 space-y-3">
+                      <div className="flex justify-between items-center border-b border-zinc-800 pb-2 text-xs">
+                        <span className="text-zinc-400 font-medium">CPP Emitido (Custo por Ponto):</span>
+                        <span className="font-mono text-lime-400 font-bold">R$ 0,02 / nfs</span>
+                      </div>
+                      <div className="flex justify-between items-center border-b border-zinc-800 pb-2 text-xs">
+                        <span className="text-zinc-400 font-medium">CPP Consumido (Custo de Resgate):</span>
+                        <span className="font-mono text-lime-300 font-bold">R$ 0,01 / nfs</span>
+                      </div>
+                      <div className="flex justify-between items-center border-b border-zinc-800 pb-2 text-xs">
+                        <span className="text-zinc-400 font-medium">Provisão de Passivo em Caixa:</span>
+                        <span className="font-mono text-purple-300 font-bold">R$ 0,01 / nfs (Retenção 100%)</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs pt-1">
+                        <span className="text-zinc-300 font-bold">Taxa de Breakage Estimada:</span>
+                        <span className="font-mono text-white font-black">12,0% ao ano</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Custo de Provisão do Passivo:</span>
-                      <span className="font-mono text-purple-300 font-bold">R$ 0,01 / nfs (retido em caixa)</span>
+
+                    <div className="bg-lime-400/10 border border-lime-400/30 p-3.5 rounded-2xl flex items-center justify-between">
+                      <span className="text-xs font-bold text-lime-300">Garantia de Solvência em Caixa:</span>
+                      <span className="font-mono font-black text-lime-300 text-sm">100% Solvente (Caixa Retido)</span>
                     </div>
-                    <div className="flex justify-between border-b border-zinc-800 pb-2">
-                      <span className="text-zinc-400">Taxa de Breakage (Expiração Estimada):</span>
-                      <span className="font-mono text-white font-bold">12,0% ao ano (24 meses validade)</span>
-                    </div>
-                    <div className="flex justify-between pt-1">
-                      <span className="text-zinc-400">Passivo Total Provisionado em Caixa:</span>
-                      <span className="font-mono text-lime-300 font-bold">R$ 88.842,00 (100% Solvente)</span>
+                  </div>
+
+                  <div className="md:col-span-5">
+                    <div className="bg-zinc-900 p-5 rounded-3xl border border-zinc-800 space-y-4 text-center">
+                      <div className="size-14 rounded-2xl bg-purple-600/20 border border-purple-500/40 text-purple-300 grid place-items-center mx-auto text-2xl">
+                        ⚖️
+                      </div>
+                      <div>
+                        <h4 className="text-base font-extrabold text-white">Algoritmo FEFO</h4>
+                        <p className="text-xs text-zinc-400 mt-1">First-Expiring, First-Out: garante liquidez sustentável sem surpresas no balanço patrimonial.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 7: DRE PROFORMA */}
               {pitchSlide === 7 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-white">📈 DRE Proforma — Fase 1 (Launch) vs Fase 2 com FinOps (-51,4% Custos TI)</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-2">
-                      <span className="text-xs font-mono text-lime-400 font-bold">FASE 1: LAUNCH INICIAL (COM FINOPS)</span>
-                      <p className="text-xs text-zinc-400">Receita Bruta: <b>R$ 1.173.850,00</b></p>
-                      <p className="text-xs text-zinc-400">EBITDA: <b className="text-lime-400">R$ 208.800,40 (17,8% MARGEM)</b></p>
-                      <p className="text-xs text-zinc-400">Lucro Líquido: <b>R$ 176.395,34 (15,0%)</b></p>
+                <div className="space-y-5 text-left">
+                  <div>
+                    <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Financial Projection</span>
+                    <h2 className="text-2xl font-black text-white mt-0.5">DRE Proforma Executiva</h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <span className="text-xs font-mono font-bold text-zinc-300">FASE 1 · LAUNCH INICIAL</span>
+                        <span className="text-[10px] bg-zinc-800 text-zinc-300 px-2.5 py-0.5 rounded-full font-mono">12 Meses</span>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-zinc-400">Receita Bruta:</span>
+                          <span className="font-mono text-white font-bold">R$ 1.173.850,00</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-zinc-400">Margem EBITDA:</span>
+                          <span className="font-mono text-lime-400 font-bold">17,8% (R$ 208,8k)</span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-zinc-800 font-bold">
+                          <span className="text-zinc-200">Lucro Líquido:</span>
+                          <span className="font-mono text-lime-300 font-black">R$ 176.395,34 (15,0%)</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/40 bg-purple-950/20 space-y-2">
-                      <span className="text-xs font-mono text-purple-300 font-bold">FASE 2: EXPANSÃO COM CLUBE (COM FINOPS)</span>
-                      <p className="text-xs text-zinc-300">Receita Bruta: <b>R$ 2.869.500,00</b> (+144,4%)</p>
-                      <p className="text-xs text-zinc-300">EBITDA: <b className="text-lime-400">R$ 1.199.325,00 (41,8% MARGEM EBITDA)</b></p>
-                      <p className="text-xs text-zinc-300">Lucro Líquido: <b className="text-purple-300">R$ 1.098.458,34 (38,3%)</b></p>
+
+                    <div className="bg-gradient-to-br from-purple-950/40 via-zinc-900 to-zinc-900 p-5 rounded-2xl border border-purple-500/40 space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <span className="text-xs font-mono font-bold text-purple-300">FASE 2 · EXPANSÃO COM NETFITS CLUB</span>
+                        <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-mono">Escala</span>
+                      </div>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-zinc-300">Receita Bruta:</span>
+                          <span className="font-mono text-white font-bold">R$ 2.869.500,00 (+144%)</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-zinc-300">Margem EBITDA:</span>
+                          <span className="font-mono text-lime-400 font-bold">41,8% (R$ 1,19M)</span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-zinc-800 font-bold">
+                          <span className="text-purple-200">Lucro Líquido:</span>
+                          <span className="font-mono text-purple-300 font-black text-sm">R$ 1.098.458,34 (38,3%)</span>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+
+                  <div className="bg-zinc-900/60 p-3 rounded-xl border border-zinc-800 text-xs text-zinc-400 flex items-center gap-2">
+                    <span className="text-lime-400 font-bold">💡 Otimização FinOps:</span>
+                    <span>Redução de até -51,4% em custos de infraestrutura em nuvem através da estratégia multicloud enxuta.</span>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 8: UNIT ECONOMICS */}
               {pitchSlide === 8 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-lime-400">🎯 Unit Economics &amp; Eficiência Operacional</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
-                      <span className="text-zinc-400">CAC Orgânico / B2B2C:</span>
-                      <h4 className="text-lg font-mono text-lime-400 font-bold">R$ 18,50 / usuário ativo</h4>
-                      <p className="text-[11px] text-zinc-500">Aquisição por rede de Associados e indicação de amigos (MGM).</p>
-                    </div>
-                    <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
-                      <span className="text-zinc-400">LTV Estimado:</span>
-                      <h4 className="text-lg font-mono text-purple-300 font-bold">R$ 380,00 / usuário</h4>
-                      <p className="text-[11px] text-zinc-500">Recorrência do Netfits Club + compras no Shop + serviços.</p>
-                    </div>
+                <div className="space-y-5 text-left">
+                  <div>
+                    <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Unit Economics</span>
+                    <h2 className="text-2xl font-black text-white mt-0.5">Eficiência de Capital Excepcional</h2>
                   </div>
-                  <div className="bg-zinc-950 p-3.5 rounded-xl border border-lime-400/30 text-xs flex justify-between items-center">
-                    <span className="font-bold text-white">Relação LTV / CAC:</span>
-                    <span className="font-mono text-lime-400 font-black text-sm">&gt; 20x | Payback &lt; 2,5 meses</span>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[11px] font-mono text-zinc-400 uppercase font-bold">CAC Orgânico / B2B2C</span>
+                      <h3 className="text-3xl font-black text-lime-400 mt-2">R$ 18,50</h3>
+                      <p className="text-[11px] text-zinc-400 mt-2">Aquisição via rede de Associados e indicação de amigos (MGM).</p>
+                    </div>
+
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[11px] font-mono text-purple-400 uppercase font-bold">LTV Estimado (3 Anos)</span>
+                      <h3 className="text-3xl font-black text-purple-300 mt-2">R$ 380,00</h3>
+                      <p className="text-[11px] text-zinc-400 mt-2">Recorrência do Netfits Club + marketplace e serviços esportivos.</p>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-lime-400/10 via-zinc-900 to-zinc-900 p-5 rounded-2xl border border-lime-400/40 text-center">
+                      <span className="text-[11px] font-mono text-lime-400 uppercase font-bold">Relação LTV / CAC</span>
+                      <h3 className="text-3xl font-black text-lime-300 mt-2">&gt; 20x</h3>
+                      <p className="text-[11px] text-lime-400 font-bold mt-2">Payback &lt; 2,5 meses por usuário</p>
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 9: CANAIS B2B2C */}
               {pitchSlide === 9 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-white">🤝 Canais B2B2C, Associados Netfits &amp; MGM</h3>
-                  <div className="space-y-2 text-xs">
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-purple-300">Categoria Única de Associados Netfits:</span> 10,0% de comissão padrão sobre receitas atreladas à sua rede.
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
+                  <div className="md:col-span-5">
+                    <div className="rounded-3xl overflow-hidden border border-purple-500/30 shadow-2xl relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80"
+                        alt="Associado Netfits Médico e Nutricionista"
+                        className="w-full h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
+                        <span className="bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold px-3 py-1 rounded-full">
+                          🩺 Rede de Associados Credenciados
+                        </span>
+                      </div>
                     </div>
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-purple-300">Atribuição Vitalícia de Carteira:</span> Remuneração contínua para criadores, treinadores e médicos esportivos.
+                  </div>
+
+                  <div className="md:col-span-7 space-y-4">
+                    <div>
+                      <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Distribution Channels</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Canais B2B2C &amp; Efeito Viral MGM</h2>
                     </div>
-                    <div className="bg-zinc-950 p-3.5 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-lime-400">Programa Member-Get-Member (MGM):</span> Bônus de 50 nfs no cadastro de amigo + 150 nfs na 1ª compra.
+
+                    <div className="space-y-3 text-xs">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                        <h4 className="font-bold text-purple-300 text-xs">1. Rede de Associados (10% Comissão)</h4>
+                        <p className="text-zinc-400 mt-1">Médicos esportivos, nutricionistas e personal trainers atuam como embaixadores com comissão vitalícia.</p>
+                      </div>
+
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                        <h4 className="font-bold text-lime-400 text-xs">2. Member-Get-Member (MGM)</h4>
+                        <p className="text-zinc-400 mt-1">Bônus instantâneo de +50 nfs ao indicar amigos + 150 nfs adicionais na primeira compra no Shop.</p>
+                      </div>
+
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                        <h4 className="font-bold text-white text-xs">3. Parcerias Corporativas &amp; Provas</h4>
+                        <p className="text-zinc-400 mt-1">Integração com organizadores de corridas e academias para onboarding em massa de atletas.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 10: MOAT TECH */}
               {pitchSlide === 10 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-purple-300">🛡️ Moat Competitivo &amp; Defensabilidade Tecnológica</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-white">1. Verticalização no Esporte:</span> Foco 100% no esportista amador e no estilo de vida ativo.
+                <div className="space-y-4 text-left">
+                  <div>
+                    <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Defensability</span>
+                    <h2 className="text-2xl font-black text-white mt-0.5">Moat Competitivo &amp; Barreiras de Entrada</h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                      <h4 className="font-bold text-white text-xs">1. Verticalização no Esporte Amador</h4>
+                      <p className="text-zinc-400">Foco exclusivo na rotina do esportista amador, criando uma comunidade altamente engajada e de nicho valioso.</p>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-white">2. Algoritmo FEFO Protegido:</span> Gestão atuarial de passivos e expiração inteligente sem risco de caixa.
+
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                      <h4 className="font-bold text-white text-xs">2. Propriedade Intelectual FEFO</h4>
+                      <p className="text-zinc-400">Motor atuarial protegido para gestão de passivos e expiração de pontos sem risco para o caixa.</p>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-white">3. Efeito de Rede B2B2C:</span> Carteiras compartilhadas com Associados criam barreira de saída inigualável.
+
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                      <h4 className="font-bold text-white text-xs">3. Lock-in B2B2C de Carteiras</h4>
+                      <p className="text-zinc-400">Vínculo direto entre o atleta e seu profissional de saúde cria forte barreira de saída da plataforma.</p>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800">
-                      <span className="font-bold text-white">4. Transição para Longevidade:</span> Extensão do LTV do usuário por toda a vida consciente.
+
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                      <h4 className="font-bold text-white text-xs">4. Transição para Longevidade</h4>
+                      <p className="text-zinc-400">Acompanhamento contínuo da jornada de hábitos do usuário ao longo de décadas.</p>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 11: CAPTAÇÃO */}
               {pitchSlide === 11 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-lime-400">💰 Alocação dos Recursos Solicitados (R$ 4,0M a R$ 8,0M)</h3>
-                  <div className="space-y-2 text-xs">
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-lime-400/30 flex justify-between items-center">
-                      <span className="font-bold text-white">🛠️ 40% — Produto e Tecnologia:</span>
-                      <span className="text-lime-300 font-mono">Native-shell, FEFO &amp; Data Pipeline</span>
+                <div className="space-y-5 text-left">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Use of Funds</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Alocação de Recursos (Rodada Seed)</h2>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-purple-500/30 flex justify-between items-center">
-                      <span className="font-bold text-white">🚀 25% — Aquisição e Crescimento:</span>
-                      <span className="text-purple-300 font-mono">MKT de comunidade, Eventos &amp; MGM</span>
+                    <span className="bg-lime-400/10 text-lime-300 border border-lime-400/30 px-3 py-1 rounded-full text-xs font-bold font-mono">
+                      R$ 4,0M a R$ 8,0M
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <div className="flex justify-between font-bold mb-1">
+                        <span className="text-white">🛠️ Produto &amp; Tecnologia Native-Shell</span>
+                        <span className="text-lime-400 font-mono">40%</span>
+                      </div>
+                      <div className="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div className="bg-lime-400 h-full rounded-full w-[40%]" />
+                      </div>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
-                      <span className="font-bold text-white">🤝 15% — Parcerias &amp; Associados:</span>
-                      <span className="text-zinc-300 font-mono">Expansão B2B2C &amp; Comissão 10%</span>
+
+                    <div>
+                      <div className="flex justify-between font-bold mb-1">
+                        <span className="text-white">🚀 Aquisição, Growth &amp; Comunidade</span>
+                        <span className="text-purple-400 font-mono">25%</span>
+                      </div>
+                      <div className="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div className="bg-purple-500 h-full rounded-full w-[25%]" />
+                      </div>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
-                      <span className="font-bold text-white">📊 10% — BI, Antifraude &amp; Wearables:</span>
-                      <span className="text-zinc-300 font-mono">Ingestão Garmin/Apple &amp; IA</span>
+
+                    <div>
+                      <div className="flex justify-between font-bold mb-1">
+                        <span className="text-white">🤝 Expansão de Parcerias &amp; Associados</span>
+                        <span className="text-blue-400 font-mono">15%</span>
+                      </div>
+                      <div className="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div className="bg-blue-500 h-full rounded-full w-[15%]" />
+                      </div>
                     </div>
-                    <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex justify-between items-center">
-                      <span className="font-bold text-white">⚖️ 10% — Jurídico &amp; Operações:</span>
-                      <span className="text-zinc-300 font-mono">Regulatório &amp; Governança</span>
+
+                    <div>
+                      <div className="flex justify-between font-bold mb-1">
+                        <span className="text-white">📊 BI, Wearables &amp; Antifraude</span>
+                        <span className="text-emerald-400 font-mono">10%</span>
+                      </div>
+                      <div className="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div className="bg-emerald-400 h-full rounded-full w-[10%]" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between font-bold mb-1">
+                        <span className="text-white">⚖️ Operações &amp; Governança Jurídica</span>
+                        <span className="text-zinc-400 font-mono">10%</span>
+                      </div>
+                      <div className="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div className="bg-zinc-600 h-full rounded-full w-[10%]" />
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
+              {/* SLIDE 12: VISÃO E VALORES */}
               {pitchSlide === 12 && (
-                <div className="space-y-4 text-center py-4">
-                  <h3 className="text-lg font-bold text-white">🌟 O Código Netfits &amp; Visão de Longo Prazo</h3>
-                  <div className="bg-zinc-950 p-4 rounded-2xl border border-purple-500/40 max-w-xl mx-auto space-y-2 text-xs text-left">
-                    <p className="font-bold text-purple-300">O Código Netfits (Nossos Valores):</p>
-                    <p className="text-zinc-300">• 1. Usuário antes do ego</p>
-                    <p className="text-zinc-300">• 2. Clareza antes da complexidade</p>
-                    <p className="text-zinc-300">• 3. Evidência antes da convicção</p>
-                    <p className="text-zinc-300">• 4. Velocidade com responsabilidade</p>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
+                  <div className="md:col-span-5">
+                    <div className="rounded-3xl overflow-hidden border border-lime-400/40 shadow-2xl relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=800&q=80"
+                        alt="Atleta ao Chegar na Linha de Chegada"
+                        className="w-full h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
+                        <span className="bg-lime-400/20 border border-lime-400/40 text-lime-300 text-xs font-bold px-3 py-1 rounded-full">
+                          🏁 Paixão pelo Movimento Ativo
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-xs text-lime-400 font-mono font-bold">
-                    Netfits Ltda. — diretoria@netfits.com.br — www.netfits.com.br
-                  </p>
+
+                  <div className="md:col-span-7 space-y-4">
+                    <div>
+                      <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Company Culture</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">O Código Netfits (Nossos Valores)</h2>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
+                        <span className="text-lime-400 font-bold block mb-1">01. Usuário antes do ego</span>
+                        <p className="text-zinc-400 text-[11px]">Tudo o que construímos busca gerar valor tangível ao esportista amador.</p>
+                      </div>
+
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
+                        <span className="text-lime-400 font-bold block mb-1">02. Clareza antes da complexidade</span>
+                        <p className="text-zinc-400 text-[11px]">Experiências simples, transparentes e sem letras miúdas em pontos.</p>
+                      </div>
+
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
+                        <span className="text-lime-400 font-bold block mb-1">03. Evidência antes da convicção</span>
+                        <p className="text-zinc-400 text-[11px]">Decisões pautadas em dados empíricos de uso e métricas esportivas.</p>
+                      </div>
+
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
+                        <span className="text-lime-400 font-bold block mb-1">04. Velocidade com responsabilidade</span>
+                        <p className="text-zinc-400 text-[11px]">Execução ágil mantendo rigor financeiro e solidez de caixa.</p>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 text-center md:text-left">
+                      <p className="text-xs text-lime-400 font-mono font-bold">
+                        Netfits Ltda. — diretoria@netfits.com.br — www.netfits.com.br
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
