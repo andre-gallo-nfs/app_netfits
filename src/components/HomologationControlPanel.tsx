@@ -34,6 +34,7 @@ export function HomologationControlPanel() {
   };
 
   const activeUser = sharedSandboxStore.getActiveUser();
+  const isAdmin = activeUser.type === "admin" || activeUser.identifier === "admin@netfits.com.br";
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -51,16 +52,42 @@ export function HomologationControlPanel() {
     );
   });
 
+  // Visão para Usuários Comuns (Não-Admin): Exibe apenas o Roteiro Sugerido de Homologação
+  if (!isAdmin) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50 font-sans">
+        {!isOpen && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-gradient-to-r from-purple-700 via-purple-600 to-lime-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 border border-white/20 hover:scale-105 transition-all active:scale-95 animate-pulse"
+          >
+            <FlaskConical className="size-4 text-lime-300" />
+            <span>📋 Roteiro de Homologação</span>
+          </button>
+        )}
+
+        {isOpen && (
+          <UserTestingScriptModal
+            activeUser={activeUser}
+            onClose={() => setIsOpen(false)}
+            navigate={navigate}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Visão Executiva Completa exclusiva para o Administrador
   return (
     <div className="fixed bottom-4 right-4 z-50 font-sans">
-      {/* Botão Principal Flutuante */}
+      {/* Botão Principal Flutuante Exclusivo do Admin */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           className="bg-gradient-to-r from-purple-700 via-purple-600 to-lime-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 border border-white/20 hover:scale-105 transition-all active:scale-95 animate-pulse"
         >
           <FlaskConical className="size-4 text-lime-300" />
-          <span>🧪 Painel de Homologação</span>
+          <span>🧪 Painel de Homologação (Admin)</span>
           <span className="bg-black/30 text-[10px] font-black px-2 py-0.5 rounded-full">
             {state.users.length} Usuários
           </span>
@@ -523,6 +550,199 @@ export function HomologationControlPanel() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function UserTestingScriptModal({
+  activeUser,
+  onClose,
+  navigate,
+}: {
+  activeUser: SandboxUser;
+  onClose: () => void;
+  navigate: any;
+}) {
+  const [completedSteps, setCompletedSteps] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("netfits_homologation_checklist");
+        if (saved) return JSON.parse(saved);
+      } catch {
+        /* ignore */
+      }
+    }
+    return ["step-1"];
+  });
+
+  const toggleStep = (id: string) => {
+    setCompletedSteps((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+      if (typeof window !== "undefined") {
+        localStorage.setItem("netfits_homologation_checklist", JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
+  const steps = [
+    {
+      id: "step-1",
+      title: "1. Conhecer o Feed Esportivo Social",
+      desc: "Navegue pelas publicações da comunidade, curta treinos e comente nos posts dos atletas.",
+      path: "/",
+      btnLabel: "Ir para o Feed",
+      icon: Heart,
+    },
+    {
+      id: "step-2",
+      title: "2. Explorar o Shop Netfits",
+      desc: "Veja os suplementos e equipamentos com descontos exclusivos em nfs e simule uma compra.",
+      path: "/market",
+      btnLabel: "Ir para o Shop",
+      icon: ShoppingBag,
+    },
+    {
+      id: "step-3",
+      title: "3. Testar o Indique e Ganhe (MGM)",
+      desc: "Acesse seu perfil, copie seu Link Direto de Cadastro e envie para um amigo via WhatsApp.",
+      path: "/profile",
+      btnLabel: "Ver meu Link de Indicação",
+      icon: Share2,
+    },
+    {
+      id: "step-4",
+      title: "4. Consultar a Carteira nfs",
+      desc: "Verifique seu saldo de pontos nfs, extrato detalhado e bônus acumulados de treino.",
+      path: "/wallet",
+      btnLabel: "Abrir Carteira",
+      icon: Zap,
+    },
+    {
+      id: "step-5",
+      title: "5. Acompanhar Atividades & Treinos",
+      desc: "Confira seu painel de corrida, ciclismo e monitoramento de metas esportivas.",
+      path: "/activities",
+      btnLabel: "Ver Atividades",
+      icon: Sparkles,
+    },
+    {
+      id: "step-6",
+      title: "6. Atendimento & IA Netfits",
+      desc: "Tire dúvidas sobre seus pontos com o assistente inteligente Netfits AI ou envie um ticket de suporte.",
+      path: "/contato",
+      btnLabel: "Testar Atendimento",
+      icon: MessageSquare,
+    },
+  ];
+
+  const progressPct = Math.round((completedSteps.length / steps.length) * 100);
+
+  return (
+    <div className="w-[400px] max-w-[calc(100vw-32px)] bg-zinc-950 text-white border border-purple-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh] animate-in slide-in-from-bottom-5">
+      {/* Cabeçalho */}
+      <div className="bg-gradient-to-r from-purple-900 via-purple-950 to-zinc-950 p-4 border-b border-purple-500/20 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="size-8 rounded-xl bg-purple-600/30 text-lime-400 grid place-items-center border border-purple-400/30">
+            <FlaskConical className="size-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+              Roteiro de Homologação
+            </h3>
+            <p className="text-[10px] text-zinc-400">
+              Guia de Testes para Validar a Experiência Netfits
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="size-7 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 grid place-items-center transition"
+        >
+          <ChevronDown className="size-4" />
+        </button>
+      </div>
+
+      {/* Progress Bar & User Greeting */}
+      <div className="p-3.5 bg-zinc-900/90 border-b border-zinc-800 space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-[11px] font-bold text-zinc-200">
+            Olá, <strong className="text-lime-400">{activeUser.fullName.split(" ")[0]}</strong>! 👋
+          </span>
+          <span className="text-[10px] font-extrabold text-lime-400 bg-lime-950/60 px-2 py-0.5 rounded-full border border-lime-500/30">
+            {completedSteps.length} de {steps.length} concluídos ({progressPct}%)
+          </span>
+        </div>
+        <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-purple-500 to-lime-400 transition-all duration-300 rounded-full"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Checklist de Etapas */}
+      <div className="p-3.5 space-y-3 overflow-y-auto max-h-[60vh]">
+        {steps.map((step) => {
+          const isDone = completedSteps.includes(step.id);
+          const Icon = step.icon;
+          return (
+            <div
+              key={step.id}
+              className={`p-3 rounded-2xl border transition-all ${
+                isDone
+                  ? "bg-purple-950/15 border-purple-500/30"
+                  : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => toggleStep(step.id)}
+                  className={`size-5 rounded-lg border grid place-items-center mt-0.5 shrink-0 transition active:scale-95 ${
+                    isDone
+                      ? "bg-lime-400 border-lime-400 text-black font-black"
+                      : "border-zinc-600 hover:border-lime-400 text-transparent"
+                  }`}
+                >
+                  <Check className="size-3.5 stroke-[3]" />
+                </button>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <h4 className={`text-xs font-bold ${isDone ? "line-through text-zinc-400" : "text-white"}`}>
+                      {step.title}
+                    </h4>
+                    <Icon className="size-3.5 text-purple-400 shrink-0" />
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-snug">
+                    {step.desc}
+                  </p>
+                  <div className="pt-1 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigate({ to: step.path });
+                        onClose();
+                      }}
+                      className="text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 group"
+                    >
+                      <span>{step.btnLabel}</span>
+                      <ExternalLink className="size-3 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                    {isDone && (
+                      <span className="text-[9px] font-extrabold text-lime-400 uppercase tracking-wider">
+                        Concluído ✓
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
