@@ -53,6 +53,7 @@ function FeedPage() {
 }
 
 function WearableSurveyHero() {
+  const [wantsToConnect, setWantsToConnect] = useState<"sim" | "nao">("sim");
   const [selectedDevice, setSelectedDevice] = useState<string>("Garmin");
   const [voted, setVoted] = useState(false);
 
@@ -67,13 +68,14 @@ function WearableSurveyHero() {
   const handleVote = () => {
     if (voted) return;
     setVoted(true);
-    wallet.earn(10, `Pesquisa de Sincronia: ${selectedDevice}`);
-    toast.success(`Voto registrado para ${selectedDevice}! (+10 nfs creditados)`);
+    const voteDesc = wantsToConnect === "sim" ? `Sim (${selectedDevice})` : "Não";
+    wallet.earn(10, `Pesquisa de Sincronia: ${voteDesc}`);
+    toast.success("Voto registrado! (+10 nfs creditados)");
   };
 
   return (
     <section className="px-4 pt-4">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 text-white shadow-sm space-y-3">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 text-white shadow-sm space-y-3.5">
         <div className="flex items-center justify-between">
           <span className="px-2.5 py-0.5 rounded-full bg-purple-950/80 text-purple-300 border border-purple-500/30 text-[10px] font-bold uppercase tracking-wider">
             Pesquisa de Integração
@@ -83,43 +85,74 @@ function WearableSurveyHero() {
           </span>
         </div>
 
-        <div>
+        <div className="space-y-2">
           <h2 className="text-base font-bold text-white leading-snug">
             Gostaria de conectar seu relógio ou app de treino?
           </h2>
-          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-            Qual dispositivo você mais usa para registrar suas atividades físicas?
-          </p>
+
+          {!voted && (
+            <div className="flex items-center gap-2 pt-0.5">
+              <button
+                type="button"
+                onClick={() => setWantsToConnect("sim")}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                  wantsToConnect === "sim"
+                    ? "bg-purple-600 text-white border-purple-500 shadow-sm"
+                    : "bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
+                }`}
+              >
+                Sim
+              </button>
+              <button
+                type="button"
+                onClick={() => setWantsToConnect("nao")}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                  wantsToConnect === "nao"
+                    ? "bg-purple-600 text-white border-purple-500 shadow-sm"
+                    : "bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
+                }`}
+              >
+                Não
+              </button>
+            </div>
+          )}
         </div>
 
         {!voted ? (
           <div className="space-y-3 pt-1">
-            <div className="grid grid-cols-2 gap-2">
-              {devices.map((dev) => {
-                const isSelected = selectedDevice === dev.id;
-                return (
-                  <button
-                    key={dev.id}
-                    type="button"
-                    onClick={() => setSelectedDevice(dev.id)}
-                    className={`px-3 py-2 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-purple-600 text-white border-purple-500 shadow-sm"
-                        : "bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
-                    }`}
-                  >
-                    <span className="truncate">{dev.name}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {wantsToConnect === "sim" && (
+              <div className="space-y-2">
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Qual dispositivo você mais usa para registrar suas atividades físicas?
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {devices.map((dev) => {
+                    const isSelected = selectedDevice === dev.id;
+                    return (
+                      <button
+                        key={dev.id}
+                        type="button"
+                        onClick={() => setSelectedDevice(dev.id)}
+                        className={`px-3 py-2 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-purple-600 text-white border-purple-500 shadow-sm"
+                            : "bg-zinc-950/60 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
+                        }`}
+                      >
+                        <span className="truncate">{dev.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <button
               type="button"
               onClick={handleVote}
               className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm active:scale-98 transition-all cursor-pointer"
             >
-              <span>Votar & Conectar Dispositivo (+10 nfs)</span>
+              <span>Votar</span>
               <ArrowRight className="size-3.5" />
             </button>
           </div>
@@ -128,7 +161,9 @@ function WearableSurveyHero() {
             <div className="size-7 rounded-full bg-purple-600 text-white grid place-items-center mx-auto shadow-sm">
               <Check className="size-4 stroke-[3]" />
             </div>
-            <p className="text-xs font-bold text-white">Voto Registrado: {selectedDevice}</p>
+            <p className="text-xs font-bold text-white">
+              Voto Registrado: {wantsToConnect === "sim" ? `Sim (${selectedDevice})` : "Não"}
+            </p>
             <p className="text-[11px] text-zinc-400">
               Obrigado! Sua resposta foi gravada com sucesso e +10 nfs foram creditados.
             </p>
