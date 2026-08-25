@@ -231,8 +231,8 @@ function AuthPage() {
       <div className="text-center mb-6 space-y-2">
         <div className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-2xl shadow-sm mb-2">
           {/* Logo / Símbolo em Verde Limão sobre Fundo Preto */}
-          <div className="bg-black p-2 rounded-xl ring-2 ring-lime-400/80 shadow-md flex items-center justify-center shrink-0">
-            <img src={netfitsMark} alt="Símbolo Netfits" className="size-7 object-contain drop-shadow-[0_0_8px_rgba(163,230,53,0.8)]" />
+          <div className="size-12 bg-black p-1.5 rounded-2xl ring-2 ring-lime-400 shadow-md flex items-center justify-center shrink-0">
+            <img src={netfitsMark} alt="Símbolo Netfits" className="size-9 object-contain drop-shadow-[0_0_10px_rgba(163,230,53,0.9)]" />
           </div>
           {/* Nome Netfits em Preto */}
           <span className="text-2xl font-black text-black tracking-tight font-sans">
