@@ -47,9 +47,9 @@ const FAQ_ITEMS: FaqItem[] = [
     id: "faq_1",
     category: "pontos",
     categoryLabel: "Programa de Pontos nfs",
-    question: "O que são os pontos nfs e como funciona a validade e a regra FEFO?",
+    question: "O que são os pontos nfs e como funciona a validade?",
     answer:
-      "Os pontos nfs são a moeda de fidelidade do ecossistema Netfits. Cada ponto emitido é provisionado com 100% de solvência atuarial em caixa (R$ 0,01 por nfs). Os pontos possuem validade de 24 meses e utilizam o algoritmo protegido FEFO (First-Expiring, First-Out), garantindo que os lotes de pontos mais próximos do vencimento sejam consumidos primeiro em seus resgates."
+      "Os pontos nfs são a moeda de fidelidade do ecossistema Netfits. Cada ponto emitido é provisionado com 100% de solvência atuarial em caixa (R$ 0,01 por nfs). Os pontos possuem validade de 24 meses, garantindo total transparência e segurança em seus resgates."
   },
   {
     id: "faq_2",
@@ -150,7 +150,7 @@ function FaqPage() {
       <section className="max-w-4xl mx-auto px-6 py-6 flex flex-wrap items-center justify-center gap-2">
         {[
           { id: "all", label: "Todas as Dúvidas" },
-          { id: "pontos", label: "Pontos nfs & FEFO" },
+          { id: "pontos", label: "Pontos nfs & Validade" },
           { id: "shop", label: "Shop & Cashback" },
           { id: "parceiros", label: "Parceiros Comerciais" },
           { id: "associados", label: "Associados Netfits" },
