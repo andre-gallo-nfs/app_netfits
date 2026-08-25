@@ -410,464 +410,530 @@ function ParceirosRegistrationPage() {
   };
 
   return (
-    <div className="pb-12 space-y-8 min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-purple-500 selection:text-white">
       {/* Header Corporativo Unificado */}
       <InstitutionalWebHeader />
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-purple-950/60 via-zinc-950 to-background px-4 pt-8 pb-10 border-b border-purple-500/20">
-        <div className="flex items-center gap-2 mb-3">
-          <img
-            src={netfitsMark}
-            alt=""
-            className="w-6 h-6 object-contain rounded-md bg-purple-500/20 p-0.5"
-          />
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-1 rounded-full border border-lime-400/20 flex items-center gap-1">
-            <ShieldCheck className="size-3 text-lime-400" />
-            Credenciamento & Verificação Oficial
-          </span>
-        </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2 leading-tight">
-          Conecte sua marca a milhares de praticantes ativos de esportes
-        </h1>
-        <p className="text-sm text-zinc-300 max-w-[42ch] leading-relaxed mb-6">
-          Cadastre sua academia, assessoria esportiva, clínica de recovery, consultório de nutrição ou medicina do esporte com <strong>credenciamento 100% gratuito e zero mensalidade</strong>. Remuneração 100% baseada em contratações por evento.
-        </p>
 
-        {/* Value Highlights Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-3.5 space-y-1">
-            <Users className="size-5 text-lime-400" />
-            <p className="text-xs font-bold text-white">Zero Mensalidade</p>
-            <p className="text-[11px] text-zinc-400">Remuneração 100% por evento / serviços contratados.</p>
+      {/* Hero Section Banner Responsivo */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-purple-950/70 via-zinc-950 to-zinc-950 border-b border-purple-500/20 py-8 md:py-14">
+        <div className="max-w-5xl mx-auto px-4 md:px-8 space-y-6">
+          <div className="inline-flex items-center gap-2">
+            <img
+              src={netfitsMark}
+              alt=""
+              className="size-6 object-contain rounded-md bg-purple-500/20 p-0.5"
+            />
+            <span className="text-[10px] md:text-xs font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20 flex items-center gap-1.5">
+              <ShieldCheck className="size-3.5 text-lime-400" />
+              Credenciamento & Verificação Oficial B2B
+            </span>
           </div>
 
-          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-3.5 space-y-1">
-            <ShieldCheck className="size-5 text-purple-400" />
-            <p className="text-xs font-bold text-white">Selo de Autenticidade</p>
-            <p className="text-[11px] text-zinc-400">Validação oficial no CRM, CRN, CREF, CREFITO e CNPJ.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Confirmation Banner (If Submitted) */}
-      {submittedProtocol && (
-        <section className="px-4">
-          <div className="bg-gradient-to-r from-emerald-950 to-zinc-900 border border-emerald-500/40 rounded-3xl p-6 shadow-2xl space-y-3 relative overflow-hidden">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="size-6 text-emerald-400 shrink-0" />
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-                  Cadastro & Registro Validados com Sucesso!
-                </span>
-                <h3 className="text-lg font-bold text-white">Protocolo: {submittedProtocol}</h3>
-              </div>
-            </div>
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              O cadastro do seu estabelecimento foi validado e recebido pela nossa equipe comercial. Em até **48 horas úteis**, entraremos em contato via WhatsApp/E-mail para liberar seu selo oficial de parceiro credenciado.
+          <div className="space-y-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.15]">
+              Conecte sua marca a milhares de praticantes ativos de esportes
+            </h1>
+            <p className="text-sm md:text-base text-zinc-300 max-w-2xl leading-relaxed">
+              Cadastre sua academia, assessoria esportiva, clínica de recovery, consultório de nutrição ou medicina do esporte com <strong>credenciamento 100% gratuito e zero taxa de adesão</strong>.
             </p>
-            <button
-              onClick={() => setSubmittedProtocol(null)}
-              className="text-xs font-bold text-emerald-400 hover:underline inline-block pt-1"
-            >
-              + Cadastrar outro estabelecimento comercial
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* Step 1: Select Partner Category */}
-      <section className="px-4 space-y-4">
-        <div>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400">Passo 1 de 3</span>
-          <h2 className="text-xl font-extrabold text-white">Selecione a Categoria do seu Negócio</h2>
-          <p className="text-xs text-zinc-400">Escolha o segmento comercial do seu estabelecimento ou consultório.</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {PARTNER_CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => handleCategorySelect(cat.id)}
-                className={`text-left p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
-                  isSelected
-                    ? `bg-gradient-to-br ${cat.color} ring-2 ring-purple-500 shadow-xl`
-                    : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`p-2 rounded-xl bg-zinc-950/60 border border-white/10`}>
-                    <Icon className="size-5 text-white" />
-                  </div>
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
-                    {cat.badge}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white mb-0.5">{cat.title}</h3>
-                  <p className="text-[11px] text-zinc-400 leading-tight">{cat.subtitle}</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Step 2 & 3: Registration Form with Verification Engine */}
-      <section className="px-4">
-        <form onSubmit={handleSubmit} className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 space-y-6 shadow-2xl">
-          <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400">Passo 2 de 3</span>
-            <h2 className="text-lg font-extrabold text-white">Informações & Validação de Registro</h2>
-            <p className="text-xs text-zinc-400">Preencha os dados e valide a autenticidade do CNPJ ou Conselho Profissional.</p>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">
-                Nome Fantasia / Nome do Estabelecimento *
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="Ex: Bio Ritmo Jardins ou Clínica Fisioterapia Recovery"
-                value={formData.tradeName}
-                onChange={(e) => setFormData({ ...formData, tradeName: e.target.value })}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-              />
-            </div>
-
-            {/* Document Type Selector & Validator Engine */}
-            <div className="bg-zinc-950/80 border border-purple-500/20 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-white">
-                  Validação de Autenticidade Cadastral *
-                </label>
-
-                <div className="flex items-center gap-1 bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
-                  <button
-                    type="button"
-                    onClick={() => { setDocType("cnpj"); setValidationState({ status: "idle", message: "" }); }}
-                    className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition ${
-                      docType === "cnpj" ? "bg-purple-600 text-white" : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    CNPJ (Receita)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setDocType("council"); setValidationState({ status: "idle", message: "" }); }}
-                    className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition ${
-                      docType === "council" ? "bg-purple-600 text-white" : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    Órgão de Classe
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  required
-                  placeholder={
-                    docType === "cnpj"
-                      ? "00.000.000/0001-00 (CNPJ Oficial)"
-                      : selectedCategoryObj?.boardExample || "Ex: CRM/SP 123456"
-                  }
-                  value={formData.document}
-                  onChange={handleDocumentChange}
-                  className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-purple-500"
-                />
-
-                <button
-                  type="button"
-                  onClick={handleVerifyDocument}
-                  disabled={validationState.status === "validating"}
-                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition"
-                >
-                  <Search className="size-3.5" />
-                  {validationState.status === "validating" ? "Consultando..." : "Verificar"}
-                </button>
-              </div>
-
-              {/* Realtime Validation Feedback Banner */}
-              {validationState.status !== "idle" && (
-                <div
-                  className={`p-3 rounded-xl border text-xs flex items-start gap-2 ${
-                    validationState.status === "valid"
-                      ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
-                      : validationState.status === "invalid"
-                      ? "bg-red-950/60 border-red-500/40 text-red-300"
-                      : "bg-purple-950/60 border-purple-500/40 text-purple-300"
-                  }`}
-                >
-                  {validationState.status === "valid" ? (
-                    <CheckCircle2 className="size-4 text-emerald-400 shrink-0 mt-0.5" />
-                  ) : validationState.status === "invalid" ? (
-                    <XCircle className="size-4 text-red-400 shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertCircle className="size-4 text-purple-400 shrink-0 mt-0.5" />
-                  )}
-                  <div className="flex-1">
-                    <p className="font-semibold">{validationState.message}</p>
-                    {validationState.verifiedDetails && (
-                      <p className="text-[10px] text-emerald-400/80 mt-0.5">{validationState.verifiedDetails}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  Razão Social / Titular do Registro
-                </label>
-                <input
-                  type="text"
-                  placeholder="Nome empresarial completo ou nome médico/nutricionista"
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  Nome do Responsável Comercial
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ex: Dr. Carlos Silva ou Amanda Melo"
-                  value={formData.responsibleName}
-                  onChange={(e) => setFormData({ ...formData, responsibleName: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  E-mail Comercial de Atendimento *
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="parcerias@suaempresa.com.br"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  WhatsApp / Telefone Comercial *
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="(11) 99999-8888"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-2">
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  Cidade
-                </label>
-                <input
-                  type="text"
-                  placeholder="São Paulo"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-300 mb-1">
-                  Estado
-                </label>
-                <select
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
-                >
-                  <option value="SP">SP</option>
-                  <option value="RJ">RJ</option>
-                  <option value="MG">MG</option>
-                  <option value="PR">PR</option>
-                  <option value="RS">RS</option>
-                  <option value="SC">SC</option>
-                  <option value="DF">DF</option>
-                  <option value="BA">BA</option>
-                  <option value="OUTROS">Outros</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">
-                Instagram / Website da Empresa
-              </label>
-              <input
-                type="text"
-                placeholder="@suaempresa ou www.suaempresa.com.br"
-                value={formData.websiteOrInstagram}
-                onChange={(e) => setFormData({ ...formData, websiteOrInstagram: e.target.value })}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-              />
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-zinc-800 space-y-4">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">Passo 3 de 3</span>
-              <h2 className="text-lg font-extrabold text-white">Proposta de Benefício para Atletas Netfits *</h2>
-              <p className="text-xs text-zinc-400">
-                Informe o benefício, desconto exclusivo ou cashback que seu estabelecimento/consultório oferecerá aos usuários do Netfits.
+          {/* Value Highlights Cards (1 col mobile, 3 cols tablet/desktop) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+            <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-1.5 hover:border-zinc-700 transition">
+              <Users className="size-6 text-lime-400" />
+              <p className="text-xs md:text-sm font-bold text-white">Zero Mensalidade</p>
+              <p className="text-[11px] md:text-xs text-zinc-400 leading-snug">
+                Sem custos fixos. Remuneração baseada 100% em engajamento e serviços prestados.
               </p>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">
-                Tipo de Benefício Proposto *
-              </label>
-              <select
-                value={formData.benefitType}
-                onChange={(e) => setFormData({ ...formData, benefitType: e.target.value })}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
-              >
-                <option value="discount_pct">Desconto Percentual Exclusivo (ex: 15% a 25%)</option>
-                <option value="cashback_points">Pontuação / Cashback em nfs para os Atletas</option>
-                <option value="free_session">Sessão / Aula Experimental Cortesia</option>
-                <option value="free_assessment">Avaliação Física ou Bioimpedância Cortesia</option>
-                <option value="voucher">Voucher / Brinde de Boas-Vindas</option>
-              </select>
+            <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-1.5 hover:border-zinc-700 transition">
+              <ShieldCheck className="size-6 text-purple-400" />
+              <p className="text-xs md:text-sm font-bold text-white">Selo de Autenticidade</p>
+              <p className="text-[11px] md:text-xs text-zinc-400 leading-snug">
+                Validação cadastral oficial com integração Receita Federal e Conselhos de Classe.
+              </p>
             </div>
 
-            {/* Sugestões Rápidas de Benefícios */}
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-bold text-zinc-400">
-                Sugestões rápidas (Clique para aplicar):
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  "15% de Desconto em Mensalidades ou Consultas",
-                  "1ª Sessão de Avaliação de Bioimpedância Grátis",
-                  "Isenção Total da Taxa de Matrícula",
-                  "Acúmulo de +50 nfs por treino ou consulta declarada",
-                  "20% de Desconto em Tratamentos de Recovery",
-                  "Squeeze / Brinde Exclusivo no Primeiro Mês",
-                ].map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, benefitDescription: preset })}
-                    className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition ${
-                      formData.benefitDescription === preset
-                        ? "bg-lime-400 text-zinc-950 border-lime-400 font-extrabold"
-                        : "bg-zinc-950 text-zinc-300 border-zinc-800 hover:border-zinc-600"
-                    }`}
-                  >
-                    + {preset}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">
-                Detalhamento da Proposta de Benefício *
-              </label>
-              <textarea
-                required
-                rows={3}
-                placeholder="Ex: Oferecemos 15% de desconto nas mensalidades + 1ª avaliação de bioimpedância gratuita para todos os atletas cadastrados no Netfits."
-                value={formData.benefitDescription}
-                onChange={(e) => setFormData({ ...formData, benefitDescription: e.target.value })}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-purple-500"
-              />
+            <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-1.5 hover:border-zinc-700 transition">
+              <Sparkles className="size-6 text-amber-400" />
+              <p className="text-xs md:text-sm font-bold text-white">Fluxo de Novos Alunos</p>
+              <p className="text-[11px] md:text-xs text-zinc-400 leading-snug">
+                Divulgação direta para atletas engajados com cashback de pontos nfs no app.
+              </p>
             </div>
           </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-all duration-200 active:scale-[0.98]"
-          >
-            <Send className="size-4" />
-            Enviar Cadastro de Parceiro Comercial Validado
-          </button>
-        </form>
+        </div>
       </section>
 
-      {/* Section: Showcase of Registered / Approved Partners */}
-      <section className="px-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">Rede Credenciada</span>
-            <h2 className="text-xl font-extrabold text-white">Parceiros em Destaque</h2>
+      {/* Main Content Area */}
+      <main className="max-w-5xl mx-auto px-4 md:px-8 py-8 space-y-10">
+        {/* Confirmation Banner (If Submitted) */}
+        {submittedProtocol && (
+          <section className="bg-gradient-to-r from-emerald-950 via-zinc-900 to-zinc-950 border-2 border-emerald-500/40 rounded-3xl p-6 shadow-2xl space-y-3 relative overflow-hidden animate-in fade-in slide-in-from-top-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="size-7 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
+                  Cadastro & Registro Validados com Sucesso!
+                </span>
+                <h3 className="text-lg md:text-xl font-black text-white">Protocolo: {submittedProtocol}</h3>
+                <p className="text-xs md:text-sm text-zinc-300 leading-relaxed pt-1">
+                  O cadastro do seu estabelecimento foi recebido pela nossa equipe comercial. Em até <strong>48 horas úteis</strong>, entraremos em contato via WhatsApp/E-mail para liberar seu selo oficial de parceiro credenciado.
+                </p>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-emerald-500/20 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setSubmittedProtocol(null)}
+                className="text-xs font-bold text-emerald-400 hover:text-emerald-300 underline cursor-pointer"
+              >
+                + Cadastrar outro estabelecimento comercial
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* Passo 1: Selecionar Categoria (Grid 1 col mobile, 2 col tablet, 3 col desktop) */}
+        <section className="space-y-4">
+          <div className="border-b border-zinc-800 pb-3">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-500/30">
+              Passo 1 de 3
+            </span>
+            <h2 className="text-xl md:text-2xl font-black text-white mt-2">
+              Selecione a Categoria do seu Negócio
+            </h2>
+            <p className="text-xs md:text-sm text-zinc-400">
+              Escolha o segmento comercial do seu estabelecimento ou consultório profissional.
+            </p>
           </div>
-          <span className="text-xs font-bold text-zinc-400 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
-            {partnersList.length} cadastrados
-          </span>
-        </div>
 
-        <div className="space-y-3">
-          {partnersList.map((partner) => (
-            <div
-              key={partner.id}
-              className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-3 hover:border-zinc-700 transition"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/20">
-                    {partner.categoryName}
-                  </span>
-                  <h3 className="text-base font-bold text-white mt-1">{partner.tradeName}</h3>
-                  <p className="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
-                    <MapPin className="size-3 text-zinc-500" />
-                    {partner.cityState}
-                  </p>
-                </div>
-
-                <span
-                  className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
-                    partner.status === "approved"
-                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                      : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {PARTNER_CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className={`text-left p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between cursor-pointer active:scale-[0.98] ${
+                    isSelected
+                      ? `bg-gradient-to-br ${cat.color} ring-2 ring-purple-500 shadow-xl border-purple-400`
+                      : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900"
                   }`}
                 >
-                  {partner.status === "approved" ? "Credenciado" : "Em Análise"}
-                </span>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-white/10 shrink-0">
+                      <Icon className="size-5 text-white" />
+                    </div>
+                    {isSelected ? (
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-lime-400 text-black flex items-center gap-1 shadow-sm">
+                        <Check className="size-3 stroke-[3]" />
+                        Selecionado
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-zinc-300">
+                        {cat.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-sm md:text-base font-bold text-white mb-1">{cat.title}</h3>
+                    <p className="text-xs text-zinc-400 leading-snug">{cat.subtitle}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Formulário de Registro & Engine de Validação (Passos 2 e 3) */}
+        <section className="space-y-4">
+          <form onSubmit={handleSubmit} className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-5 md:p-8 space-y-6 shadow-2xl">
+            {/* Header do Passo 2 */}
+            <div className="border-b border-zinc-800/80 pb-4">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-500/30">
+                Passo 2 de 3
+              </span>
+              <h2 className="text-xl md:text-2xl font-black text-white mt-2">
+                Informações do Estabelecimento & Validação
+              </h2>
+              <p className="text-xs md:text-sm text-zinc-400">
+                Preencha os dados e valide a autenticidade do CNPJ ou Conselho Profissional.
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              {/* Nome Fantasia */}
+              <div>
+                <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                  Nome Fantasia / Nome do Estabelecimento *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Bio Ritmo Jardins ou Clínica Fisioterapia Recovery"
+                  value={formData.tradeName}
+                  onChange={(e) => setFormData({ ...formData, tradeName: e.target.value })}
+                  className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                />
               </div>
 
-              <div className="bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-3 text-xs text-zinc-300 space-y-2">
-                <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
-                  <ShieldCheck className="size-3.5 shrink-0" />
-                  <span>{partner.documentValidated}</span>
+              {/* Document Type Selector & Validator Engine (Responsivo para Celular) */}
+              <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 md:p-5 space-y-3.5 shadow-inner">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <label className="block text-xs md:text-sm font-bold text-white flex items-center gap-1.5">
+                    <ShieldCheck className="size-4 text-lime-400 shrink-0" />
+                    <span>Validação de Autenticidade Cadastral *</span>
+                  </label>
+
+                  <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => { setDocType("cnpj"); setValidationState({ status: "idle", message: "" }); }}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
+                        docType === "cnpj" ? "bg-purple-600 text-white shadow-sm" : "text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      CNPJ (Receita)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setDocType("council"); setValidationState({ status: "idle", message: "" }); }}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
+                        docType === "council" ? "bg-purple-600 text-white shadow-sm" : "text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      Órgão de Classe
+                    </button>
+                  </div>
                 </div>
-                <p className="font-medium text-zinc-200">{partner.benefitProposed}</p>
+
+                {/* Input de Documento + Botão de Validação (Adaptável a Celulares) */}
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <input
+                    type="text"
+                    required
+                    placeholder={
+                      docType === "cnpj"
+                        ? "00.000.000/0001-00 (CNPJ Oficial)"
+                        : selectedCategoryObj?.boardExample || "Ex: CRM/SP 123456"
+                    }
+                    value={formData.document}
+                    onChange={handleDocumentChange}
+                    className="flex-1 min-h-[48px] bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleVerifyDocument}
+                    disabled={validationState.status === "validating"}
+                    className="min-h-[48px] px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs md:text-sm flex items-center justify-center gap-2 shrink-0 transition active:scale-95 cursor-pointer shadow-md disabled:opacity-50"
+                  >
+                    <Search className="size-4" />
+                    <span>{validationState.status === "validating" ? "Consultando..." : "Verificar Registro"}</span>
+                  </button>
+                </div>
+
+                {/* Feedback de Validação em Tempo Real */}
+                {validationState.status !== "idle" && (
+                  <div
+                    className={`p-3.5 rounded-xl border text-xs md:text-sm flex items-start gap-2.5 animate-in fade-in slide-in-from-top-2 ${
+                      validationState.status === "valid"
+                        ? "bg-emerald-950/70 border-emerald-500/50 text-emerald-200"
+                        : validationState.status === "invalid"
+                        ? "bg-red-950/70 border-red-500/50 text-red-200"
+                        : "bg-purple-950/70 border-purple-500/50 text-purple-200"
+                    }`}
+                  >
+                    {validationState.status === "valid" ? (
+                      <CheckCircle2 className="size-5 text-emerald-400 shrink-0 mt-0.5" />
+                    ) : validationState.status === "invalid" ? (
+                      <XCircle className="size-5 text-red-400 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="size-5 text-purple-400 shrink-0 mt-0.5" />
+                    )}
+                    <div className="flex-1 space-y-0.5">
+                      <p className="font-bold">{validationState.message}</p>
+                      {validationState.verifiedDetails && (
+                        <p className="text-xs text-emerald-300 font-medium">{validationState.verifiedDetails}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1 border-t border-zinc-800/60">
-                <span>Protocolo: <strong className="text-zinc-400">{partner.protocol}</strong></span>
-                <span>Cadastrado em: {partner.createdAt}</span>
+              {/* Razão Social & Nome do Responsável (1 col mobile, 2 col desktop) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                    Razão Social / Titular do Registro
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Nome empresarial completo ou nome do médico/nutricionista"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                    Nome do Responsável Comercial
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: Dr. Carlos Silva ou Amanda Melo"
+                    value={formData.responsibleName}
+                    onChange={(e) => setFormData({ ...formData, responsibleName: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+                </div>
+              </div>
+
+              {/* E-mail & WhatsApp Comercial (1 col mobile, 2 col desktop) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5 flex items-center gap-1.5">
+                    <Mail className="size-3.5 text-zinc-400" />
+                    <span>E-mail Comercial de Atendimento *</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="parcerias@suaempresa.com.br"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5 flex items-center gap-1.5">
+                    <Phone className="size-3.5 text-zinc-400" />
+                    <span>WhatsApp / Telefone Comercial *</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="(11) 99999-8888"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+                </div>
+              </div>
+
+              {/* Cidade & Estado (Adaptável a Celulares) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5 flex items-center gap-1.5">
+                    <MapPin className="size-3.5 text-zinc-400" />
+                    <span>Cidade</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="São Paulo"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                    Estado
+                  </label>
+                  <select
+                    value={formData.state}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-sm md:text-base text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition cursor-pointer"
+                  >
+                    <option value="SP">São Paulo (SP)</option>
+                    <option value="RJ">Rio de Janeiro (RJ)</option>
+                    <option value="MG">Minas Gerais (MG)</option>
+                    <option value="PR">Paraná (PR)</option>
+                    <option value="RS">Rio Grande do Sul (RS)</option>
+                    <option value="SC">Santa Catarina (SC)</option>
+                    <option value="DF">Distrito Federal (DF)</option>
+                    <option value="BA">Bahia (BA)</option>
+                    <option value="OUTROS">Outros Estados</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Instagram / Website */}
+              <div>
+                <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5 flex items-center gap-1.5">
+                  <Instagram className="size-3.5 text-zinc-400" />
+                  <span>Instagram / Website da Empresa</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="@suaempresa ou www.suaempresa.com.br"
+                  value={formData.websiteOrInstagram}
+                  onChange={(e) => setFormData({ ...formData, websiteOrInstagram: e.target.value })}
+                  className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                />
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+
+            {/* Header do Passo 3 */}
+            <div className="pt-6 border-t border-zinc-800/80 space-y-5">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-950/60 px-2.5 py-1 rounded-full border border-lime-500/30">
+                  Passo 3 de 3
+                </span>
+                <h2 className="text-xl md:text-2xl font-black text-white mt-2">
+                  Proposta de Benefício para Atletas Netfits *
+                </h2>
+                <p className="text-xs md:text-sm text-zinc-400">
+                  Informe a vantagem, desconto exclusivo ou bônus de cashback em nfs que seu estabelecimento oferecerá.
+                </p>
+              </div>
+
+              {/* Tipo de Benefício */}
+              <div>
+                <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                  Tipo de Benefício Proposto *
+                </label>
+                <select
+                  value={formData.benefitType}
+                  onChange={(e) => setFormData({ ...formData, benefitType: e.target.value })}
+                  className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-sm md:text-base text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition cursor-pointer"
+                >
+                  <option value="discount_pct">Desconto Percentual Exclusivo (ex: 15% a 25%)</option>
+                  <option value="cashback_points">Pontuação / Cashback em nfs para os Atletas</option>
+                  <option value="free_session">Sessão / Aula Experimental Cortesia</option>
+                  <option value="free_assessment">Avaliação Física ou Bioimpedância Cortesia</option>
+                  <option value="voucher">Voucher / Brinde de Boas-Vindas</option>
+                </select>
+              </div>
+
+              {/* Sugestões Rápidas de Benefícios (Toque Amigável no Celular) */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-zinc-400">
+                  Sugestões rápidas (Clique para aplicar):
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "15% de Desconto em Mensalidades ou Consultas",
+                    "1ª Sessão de Avaliação de Bioimpedância Grátis",
+                    "Isenção Total da Taxa de Matrícula",
+                    "Acúmulo de +50 nfs por treino ou consulta declarada",
+                    "20% de Desconto em Tratamentos de Recovery",
+                    "Squeeze / Brinde Exclusivo no Primeiro Mês",
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, benefitDescription: preset })}
+                      className={`px-3 py-2 text-xs md:text-sm font-medium rounded-xl border transition cursor-pointer active:scale-95 ${
+                        formData.benefitDescription === preset
+                          ? "bg-lime-400 text-zinc-950 border-lime-400 font-extrabold shadow-sm"
+                          : "bg-zinc-950 text-zinc-300 border-zinc-800 hover:border-zinc-600"
+                      }`}
+                    >
+                      + {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Textarea Detalhamento */}
+              <div>
+                <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                  Detalhamento da Proposta de Benefício *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Ex: Oferecemos 15% de desconto nas mensalidades + 1ª avaliação de bioimpedância gratuita para todos os atletas cadastrados no Netfits."
+                  value={formData.benefitDescription}
+                  onChange={(e) => setFormData({ ...formData, benefitDescription: e.target.value })}
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                />
+              </div>
+            </div>
+
+            {/* Botão de Envio de Alto Impacto */}
+            <button
+              type="submit"
+              className="w-full min-h-[54px] rounded-2xl bg-gradient-to-r from-purple-600 via-purple-500 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm md:text-base flex items-center justify-center gap-2.5 shadow-xl shadow-purple-600/30 transition-all duration-200 active:scale-[0.98] cursor-pointer"
+            >
+              <Send className="size-5" />
+              <span>Enviar Cadastro de Parceiro Comercial Validado</span>
+            </button>
+          </form>
+        </section>
+
+        {/* Seção: Vitrine de Parceiros Credenciados (Grid 1 col mobile, 2 cols desktop) */}
+        <section className="space-y-4 pt-4 border-t border-zinc-800/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-950/60 px-2.5 py-1 rounded-full border border-lime-500/30">
+                Rede Credenciada
+              </span>
+              <h2 className="text-xl md:text-2xl font-black text-white mt-2">Parceiros em Destaque</h2>
+            </div>
+            <span className="text-xs font-bold text-zinc-400 bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800 self-start sm:self-auto">
+              {partnersList.length} cadastrados
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {partnersList.map((partner) => (
+              <div
+                key={partner.id}
+                className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-3.5 hover:border-zinc-700 transition flex flex-col justify-between shadow-lg"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-500/20">
+                      {partner.categoryName}
+                    </span>
+
+                    <span
+                      className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
+                        partner.status === "approved"
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                          : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                      }`}
+                    >
+                      {partner.status === "approved" ? "Credenciado" : "Em Análise"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base md:text-lg font-bold text-white leading-tight">{partner.tradeName}</h3>
+                    <p className="text-xs text-zinc-400 flex items-center gap-1 mt-1">
+                      <MapPin className="size-3.5 text-zinc-500 shrink-0" />
+                      <span>{partner.cityState}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-xs text-zinc-300 space-y-2">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
+                    <ShieldCheck className="size-4 shrink-0" />
+                    <span>{partner.documentValidated}</span>
+                  </div>
+                  <p className="font-medium text-zinc-200 leading-snug">{partner.benefitProposed}</p>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2 border-t border-zinc-800/80">
+                  <span>Protocolo: <strong className="text-zinc-300">{partner.protocol}</strong></span>
+                  <span>Cadastrado em: {partner.createdAt}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
