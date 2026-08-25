@@ -3606,8 +3606,8 @@ function AdminDashboardPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-2xl bg-purple-600/20 border border-purple-500/40 grid place-items-center text-lime-400 font-black text-lg">
-                  ⚡
+                <div className="h-10 px-3 rounded-2xl bg-black border border-lime-400/40 flex items-center justify-center shrink-0 shadow-inner">
+                  <img src={netfitsLogo} alt="Netfits Logo" className="h-6 w-auto object-contain" />
                 </div>
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-lime-400">
@@ -3719,32 +3719,23 @@ function AdminDashboardPage() {
                       <h2 className="text-2xl font-black text-white mt-1">Gargalos Críticos do Consumidor &amp; Mercado</h2>
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-start gap-3.5">
+                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-center gap-3.5">
                         <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-black text-sm grid place-items-center shrink-0">
                           65%
                         </div>
-                        <div>
-                          <h4 className="font-bold text-white text-xs">Churn Elevado em 90 Dias</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Mais de 65% dos praticantes abandonam academias ou apps pela ausência de recompensas diárias tangíveis.</p>
-                        </div>
+                        <h4 className="font-bold text-white text-xs">Churn Elevado em 90 Dias</h4>
                       </div>
-                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-start gap-3.5">
+                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-center gap-3.5">
                         <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-black text-sm grid place-items-center shrink-0">
                           CAC
                         </div>
-                        <div>
-                          <h4 className="font-bold text-white text-xs">Custo de Aquisição Explosivo</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Marcas esportivas e clínicas dependem de anúncios pagos caros com conversões cada vez menores.</p>
-                        </div>
+                        <h4 className="font-bold text-white text-xs">Custo de Aquisição Explosivo</h4>
                       </div>
-                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-start gap-3.5">
+                      <div className="bg-zinc-900/90 p-4 rounded-2xl border border-rose-500/20 flex items-center gap-3.5">
                         <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-black text-sm grid place-items-center shrink-0">
                           0%
                         </div>
-                        <div>
-                          <h4 className="font-bold text-white text-xs">Programas de Pontos Desconectados</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Sistemas legados expiram pontos sem transparência e impõem regras punitivas ao usuário.</p>
-                        </div>
+                        <h4 className="font-bold text-white text-xs">Programas de Pontos Desconectados</h4>
                       </div>
                     </div>
                   </div>
@@ -3760,25 +3751,21 @@ function AdminDashboardPage() {
                       <h2 className="text-2xl font-black text-white mt-1">SuperApp Integrado &amp; Motor de Fidelização</h2>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1">
                         <span className="text-lime-400 text-base">📱</span>
                         <h4 className="font-bold text-white text-xs">SuperApp 4 em 1</h4>
-                        <p className="text-[11px] text-zinc-400">GPS de treino, Feed Social remunerado, Marketplace e Clube de Benefícios num único app.</p>
                       </div>
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1">
                         <span className="text-lime-400 text-base">⌚</span>
                         <h4 className="font-bold text-white text-xs">Wearables Ingest</h4>
-                        <p className="text-[11px] text-zinc-400">Sincronização nativa com Garmin, Apple Watch e Strava para conversão de treinos em nfs.</p>
                       </div>
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1">
                         <span className="text-lime-400 text-base">🛒</span>
                         <h4 className="font-bold text-white text-xs">Shop com Resgate Real</h4>
-                        <p className="text-[11px] text-zinc-400">Desconto imediato em suplementos, vestuário, exames e consultas de nutrição.</p>
                       </div>
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1.5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1">
                         <span className="text-lime-400 text-base">🛡️</span>
                         <h4 className="font-bold text-white text-xs">Algoritmo FEFO Protegido</h4>
-                        <p className="text-[11px] text-zinc-400">First-Expiring, First-Out: resgate inteligente que consome priorizadamente o ponto prestes a vencer.</p>
                       </div>
                     </div>
                   </div>
@@ -3817,7 +3804,6 @@ function AdminDashboardPage() {
                       <div>
                         <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-bold">TAM · Mercado Total</span>
                         <h3 className="text-3xl font-black text-white mt-2">R$ 85 Bilhões</h3>
-                        <p className="text-xs text-zinc-400 mt-2">Gasto anual em academias, nutrição, exames e acessórios esportivos no Brasil.</p>
                       </div>
                       <div className="mt-4 pt-3 border-t border-zinc-800 text-[10px] text-zinc-500 font-mono">Fonte: IHRSA &amp; Abiad</div>
                     </div>
@@ -3826,7 +3812,6 @@ function AdminDashboardPage() {
                       <div>
                         <span className="text-[11px] font-mono text-purple-400 uppercase tracking-wider font-bold">SAM · Mercado Endereçável</span>
                         <h3 className="text-3xl font-black text-purple-300 mt-2">R$ 18 Bilhões</h3>
-                        <p className="text-xs text-zinc-400 mt-2">14 Milhões de praticantes de corrida e fitness que utilizam smartwatches ou apps.</p>
                       </div>
                       <div className="mt-4 pt-3 border-t border-zinc-800 text-[10px] text-purple-400 font-mono">Público Ativo Digital</div>
                     </div>
@@ -3835,7 +3820,6 @@ function AdminDashboardPage() {
                       <div>
                         <span className="text-[11px] font-mono text-lime-400 uppercase tracking-wider font-bold">SOM · Meta 3 Anos</span>
                         <h3 className="text-3xl font-black text-lime-300 mt-2">1M Usuários</h3>
-                        <p className="text-xs text-zinc-300 mt-2">Atletas amadores transacionando ativamente no ecossistema Netfits.</p>
                       </div>
                       <div className="mt-4 pt-3 border-t border-lime-400/20 text-[10px] text-lime-400 font-mono font-bold">★ Meta Executiva 36 Meses</div>
                     </div>
@@ -3856,7 +3840,7 @@ function AdminDashboardPage() {
                 </div>
               )}
 
-              {/* SLIDE 5: MONETIZAÇÃO (SEM DADOS SENSÍVEIS) */}
+              {/* SLIDE 5: MONETIZAÇÃO */}
               {pitchSlide === 5 && (
                 <div className="space-y-4 text-left">
                   <div>
@@ -3865,25 +3849,21 @@ function AdminDashboardPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2 flex flex-col justify-center min-h-[90px]">
                       <span className="text-xs font-mono text-lime-400 font-black">01 · MARKETPLACE</span>
                       <h4 className="font-bold text-white text-xs">Comissão de Sellers</h4>
-                      <p className="text-[11px] text-zinc-400">Take-rate cobrado sobre o GMV de suplementos, vestuário e serviços credenciados.</p>
                     </div>
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2 flex flex-col justify-center min-h-[90px]">
                       <span className="text-xs font-mono text-lime-400 font-black">02 · MÍDIA FEED</span>
                       <h4 className="font-bold text-white text-xs">Mídia Patrocinada</h4>
-                      <p className="text-[11px] text-zinc-400">Anúncios no feed e pesquisas interativas por marcas parceiras de longevidade.</p>
                     </div>
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800 space-y-2 flex flex-col justify-center min-h-[90px]">
                       <span className="text-xs font-mono text-lime-400 font-black">03 · EVENTOS</span>
-                      <h4 className="font-bold text-white text-xs">Intermediação</h4>
-                      <p className="text-[11px] text-zinc-400">Taxa de conveniência em inscrições de corridas de rua e provas parceiras.</p>
+                      <h4 className="font-bold text-white text-xs">Intermediação de Provas</h4>
                     </div>
-                    <div className="bg-purple-950/40 p-4 rounded-2xl border border-purple-500/40 space-y-2">
+                    <div className="bg-purple-950/40 p-4 rounded-2xl border border-purple-500/40 space-y-2 flex flex-col justify-center min-h-[90px]">
                       <span className="text-xs font-mono text-purple-300 font-black">04 · NETFITS CLUB</span>
                       <h4 className="font-bold text-white text-xs">Assinatura Recorrente</h4>
-                      <p className="text-[11px] text-purple-200 font-medium">Clube de benefícios exclusivos com multiplicadores de pontos para atletas dedicados.</p>
                     </div>
                   </div>
 
@@ -3892,29 +3872,23 @@ function AdminDashboardPage() {
                       <img
                         src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=400&q=80"
                         alt="Academia e Treino"
-                        className="size-16 rounded-xl object-cover shrink-0 border border-zinc-700"
+                        className="size-14 rounded-xl object-cover shrink-0 border border-zinc-700"
                       />
-                      <div>
-                        <h4 className="font-bold text-white text-xs">Academias &amp; Studios</h4>
-                        <p className="text-[11px] text-zinc-400 mt-0.5">Credenciamento zero taxa de adesão; atração de novos alunos via pontos netfits.</p>
-                      </div>
+                      <h4 className="font-bold text-white text-xs">Academias &amp; Studios</h4>
                     </div>
                     <div className="bg-zinc-900/80 p-4 rounded-2xl border border-zinc-800 flex items-center gap-4">
                       <img
                         src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80"
                         alt="Nutrição e Suplementos"
-                        className="size-16 rounded-xl object-cover shrink-0 border border-zinc-700"
+                        className="size-14 rounded-xl object-cover shrink-0 border border-zinc-700"
                       />
-                      <div>
-                        <h4 className="font-bold text-white text-xs">Sellers de Nutrição &amp; Wearables</h4>
-                        <p className="text-[11px] text-zinc-400 mt-0.5">Venda direta com resgate integrado e conversão acima da média do e-commerce.</p>
-                      </div>
+                      <h4 className="font-bold text-white text-xs">Sellers de Nutrição &amp; Wearables</h4>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* SLIDE 6: PROGRAMA NFS (EXECUTIVE CONCEPTUAL) */}
+              {/* SLIDE 6: PROGRAMA NFS */}
               {pitchSlide === 6 && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
                   <div className="md:col-span-7 space-y-4">
@@ -3953,16 +3927,13 @@ function AdminDashboardPage() {
                       <div className="size-14 rounded-2xl bg-purple-600/20 border border-purple-500/40 text-purple-300 grid place-items-center mx-auto text-2xl">
                         ⚖️
                       </div>
-                      <div>
-                        <h4 className="text-base font-extrabold text-white">Algoritmo FEFO Protegido</h4>
-                        <p className="text-xs text-zinc-400 mt-1">First-Expiring, First-Out: garante a maior taxa de resgate e satisfação do cliente, com segurança atuarial.</p>
-                      </div>
+                      <h4 className="text-base font-extrabold text-white">Algoritmo FEFO Protegido</h4>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* SLIDE 7: NOVO SLIDE - ESTRATÉGIA DE ALAVANCAGEM VIA INFLUENCIADORES / ASSOCIADOS */}
+              {/* SLIDE 7: ALAVANCAGEM VIA INFLUENCIADORES */}
               {pitchSlide === 7 && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
                   <div className="md:col-span-5 relative">
@@ -3987,41 +3958,32 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-3">
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 flex items-start gap-3.5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 flex items-center gap-3.5">
                         <div className="size-9 rounded-xl bg-purple-600/20 border border-purple-500/40 text-lime-400 font-black text-sm grid place-items-center shrink-0">
                           01
                         </div>
-                        <div>
-                          <h4 className="font-bold text-white text-xs">Creators &amp; Treinadores como Associados</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Influenciadores esportivos, médicos de performance e coaches ganham canal próprio e atração acelerada de sua comunidade.</p>
-                        </div>
+                        <h4 className="font-bold text-white text-xs">Creators &amp; Treinadores como Associados</h4>
                       </div>
 
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 flex items-start gap-3.5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 flex items-center gap-3.5">
                         <div className="size-9 rounded-xl bg-purple-600/20 border border-purple-500/40 text-lime-400 font-black text-sm grid place-items-center shrink-0">
                           02
                         </div>
-                        <div>
-                          <h4 className="font-bold text-white text-xs">Efeito de Rede Vitalício (Carteira Atribuída)</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Cada seguidor que entra pelo código do influenciador fica vinculado permanentemente, gerando engajamento e recorrência contínua.</p>
-                        </div>
+                        <h4 className="font-bold text-white text-xs">Efeito de Rede Vitalício (Carteira Atribuída)</h4>
                       </div>
 
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/40 flex items-start gap-3.5 bg-lime-400/5">
+                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/40 flex items-center gap-3.5 bg-lime-400/5">
                         <div className="size-9 rounded-xl bg-lime-400/20 border border-lime-400/40 text-lime-300 font-black text-sm grid place-items-center shrink-0">
                           03
                         </div>
-                        <div>
-                          <h4 className="font-bold text-lime-300 text-xs">Amplificação Viral Member-Get-Member</h4>
-                          <p className="text-[11px] text-zinc-300 mt-0.5">Os seguidores convertidos passam a indicar seus parceiros de treino, criando um Coeficiente Viral K &gt; 1 com CAC residual nulo.</p>
-                        </div>
+                        <h4 className="font-bold text-lime-300 text-xs">Amplificação Viral Member-Get-Member</h4>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* SLIDE 8: UNIT ECONOMICS (SEM NÚMEROS DE VALOR ESPECÍFICO) */}
+              {/* SLIDE 8: UNIT ECONOMICS */}
               {pitchSlide === 8 && (
                 <div className="space-y-5 text-left">
                   <div>
@@ -4030,22 +3992,19 @@ function AdminDashboardPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-center">
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-center flex flex-col justify-center min-h-[110px]">
                       <span className="text-[11px] font-mono text-zinc-400 uppercase font-bold">CAC Orgânico / B2B2C</span>
                       <h3 className="text-2xl font-black text-lime-400 mt-2">Ultra Baixo</h3>
-                      <p className="text-[11px] text-zinc-400 mt-2">Aquisição puxada pela rede de Associados e pela indicação de amigos (MGM).</p>
                     </div>
 
-                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-center">
+                    <div className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 text-center flex flex-col justify-center min-h-[110px]">
                       <span className="text-[11px] font-mono text-purple-400 uppercase font-bold">LTV Recorrente</span>
                       <h3 className="text-2xl font-black text-purple-300 mt-2">Alto Valor</h3>
-                      <p className="text-[11px] text-zinc-400 mt-2">Recorrência do Netfits Club + marketplace e serviços esportivos.</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-lime-400/10 via-zinc-900 to-zinc-900 p-5 rounded-2xl border border-lime-400/40 text-center">
+                    <div className="bg-gradient-to-br from-lime-400/10 via-zinc-900 to-zinc-900 p-5 rounded-2xl border border-lime-400/40 text-center flex flex-col justify-center min-h-[110px]">
                       <span className="text-[11px] font-mono text-lime-400 uppercase font-bold">Relação LTV / CAC</span>
                       <h3 className="text-2xl font-black text-lime-300 mt-2">Alta Eficiência</h3>
-                      <p className="text-[11px] text-lime-400 font-bold mt-2">Payback Acelerado por Usuário</p>
                     </div>
                   </div>
                 </div>
@@ -4078,17 +4037,14 @@ function AdminDashboardPage() {
                     <div className="space-y-3 text-xs">
                       <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
                         <h4 className="font-bold text-purple-300 text-xs">1. Rede de Associados Netfits</h4>
-                        <p className="text-zinc-400 mt-1">Médicos esportivos, nutricionistas e personal trainers atuam como embaixadores com comissão vitalícia.</p>
                       </div>
 
                       <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
                         <h4 className="font-bold text-lime-400 text-xs">2. Member-Get-Member (MGM)</h4>
-                        <p className="text-zinc-400 mt-1">Bônus instantâneo de pontos no cadastro de amigo + incentivo adicional no primeiro resgate.</p>
                       </div>
 
                       <div className="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
                         <h4 className="font-bold text-white text-xs">3. Parcerias Corporativas &amp; Provas</h4>
-                        <p className="text-zinc-400 mt-1">Integração com organizadores de corridas e academias para onboarding em massa de atletas.</p>
                       </div>
                     </div>
                   </div>
@@ -4104,30 +4060,26 @@ function AdminDashboardPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 flex items-center min-h-[60px]">
                       <h4 className="font-bold text-white text-xs">1. Verticalização no Esporte Amador</h4>
-                      <p className="text-zinc-400">Foco exclusivo na rotina do esportista amador, criando uma comunidade altamente engajada e de nicho valioso.</p>
                     </div>
 
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 flex items-center min-h-[60px]">
                       <h4 className="font-bold text-white text-xs">2. Propriedade Intelectual FEFO</h4>
-                      <p className="text-zinc-400">Motor atuarial protegido para gestão de passivos e expiração de pontos sem risco para o caixa.</p>
                     </div>
 
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 flex items-center min-h-[60px]">
                       <h4 className="font-bold text-white text-xs">3. Lock-in B2B2C de Carteiras</h4>
-                      <p className="text-zinc-400">Vínculo direto entre o atleta e seu profissional de saúde cria forte barreira de saída da plataforma.</p>
                     </div>
 
-                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 space-y-1.5">
+                    <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/20 flex items-center min-h-[60px]">
                       <h4 className="font-bold text-white text-xs">4. Transição para Longevidade</h4>
-                      <p className="text-zinc-400">Acompanhamento contínuo da jornada de hábitos do usuário ao longo de décadas.</p>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* SLIDE 11: CAPTAÇÃO & ALOCAÇÃO (SEM VALORES ESPECÍFICOS DE APORTE) */}
+              {/* SLIDE 11: CAPTAÇÃO & ALOCAÇÃO */}
               {pitchSlide === 11 && (
                 <div className="space-y-5 text-left">
                   <div className="flex items-center justify-between">
@@ -4219,24 +4171,20 @@ function AdminDashboardPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
-                        <span className="text-lime-400 font-bold block mb-1">01. Usuário antes do ego</span>
-                        <p className="text-zinc-400 text-[11px]">Tudo o que construímos busca gerar valor tangível ao esportista amador.</p>
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800 flex items-center min-h-[50px]">
+                        <span className="text-lime-400 font-bold block">01. Usuário antes do ego</span>
                       </div>
 
-                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
-                        <span className="text-lime-400 font-bold block mb-1">02. Clareza antes da complexidade</span>
-                        <p className="text-zinc-400 text-[11px]">Experiências simples, transparentes e sem letras miúdas em pontos.</p>
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800 flex items-center min-h-[50px]">
+                        <span className="text-lime-400 font-bold block">02. Clareza antes da complexidade</span>
                       </div>
 
-                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
-                        <span className="text-lime-400 font-bold block mb-1">03. Evidência antes da convicção</span>
-                        <p className="text-zinc-400 text-[11px]">Decisões pautadas em dados empíricos de uso e métricas esportivas.</p>
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800 flex items-center min-h-[50px]">
+                        <span className="text-lime-400 font-bold block">03. Evidência antes da convicção</span>
                       </div>
 
-                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800">
-                        <span className="text-lime-400 font-bold block mb-1">04. Velocidade com responsabilidade</span>
-                        <p className="text-zinc-400 text-[11px]">Execução ágil mantendo rigor financeiro e solidez de caixa.</p>
+                      <div className="bg-zinc-900 p-3.5 rounded-xl border border-zinc-800 flex items-center min-h-[50px]">
+                        <span className="text-lime-400 font-bold block">04. Velocidade com responsabilidade</span>
                       </div>
                     </div>
 
