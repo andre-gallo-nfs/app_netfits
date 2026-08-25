@@ -597,6 +597,10 @@ function AdminDashboardPage() {
   const [isLive, setIsLive] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
 
+  useEffect(() => {
+    sharedSandboxStore.syncFromCloud();
+  }, []);
+
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!adminUser || !adminPassword) {

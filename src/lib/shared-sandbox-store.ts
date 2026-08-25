@@ -205,10 +205,13 @@ interface SandboxSchema {
   activeUserId: string;
 }
 
+const CLOUD_SYNC_ENDPOINT = "https://api.restful-api.dev/objects/ff8081819ff5b11001a0398235171e14";
+
 class HomologationSandboxStore {
   private state: SandboxSchema;
   private listeners: Set<() => void> = new Set();
   private broadcastChannel: BroadcastChannel | null = null;
+  private isSyncingCloud = false;
 
   constructor() {
     this.state = this.loadFromStorage();
@@ -242,6 +245,72 @@ class HomologationSandboxStore {
           this.notify();
         }
       });
+
+      // Sincronização inicial em nuvem e pooling periódico a cada 12 segundos
+      setTimeout(() => this.syncFromCloud(), 300);
+      setInterval(() => this.syncFromCloud(), 12000);
+    }
+  }
+
+  public async syncFromCloud(): Promise<SandboxUser[]> {
+    if (typeof window === "undefined" || this.isSyncingCloud) return this.state.users;
+    this.isSyncingCloud = true;
+    try {
+      const res = await fetch(CLOUD_SYNC_ENDPOINT, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        const cloudUsers: SandboxUser[] = json?.data?.users || [];
+        if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+          let hasChanges = false;
+          for (const cu of cloudUsers) {
+            const idx = this.state.users.findIndex(
+              (u) =>
+                u.id === cu.id ||
+                (u.email && cu.email && u.email.trim().toLowerCase() === cu.email.trim().toLowerCase()) ||
+                (u.identifier && cu.identifier && u.identifier.trim().toLowerCase() === cu.identifier.trim().toLowerCase())
+            );
+            if (idx >= 0) {
+              const prev = JSON.stringify(this.state.users[idx]);
+              this.state.users[idx] = { ...this.state.users[idx], ...cu };
+              if (prev !== JSON.stringify(this.state.users[idx])) {
+                hasChanges = true;
+              }
+            } else {
+              this.state.users.push(cu);
+              hasChanges = true;
+            }
+          }
+
+          if (hasChanges) {
+            this.saveToStorageLocally();
+            this.notify();
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[CloudSync Fetch Warning]", err);
+    } finally {
+      this.isSyncingCloud = false;
+    }
+    return this.state.users;
+  }
+
+  public async syncToCloud(): Promise<void> {
+    if (typeof window === "undefined") return;
+    try {
+      await fetch(CLOUD_SYNC_ENDPOINT, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Netfits Cloud Users",
+          data: {
+            users: this.state.users,
+            transactions: this.state.transactions.slice(0, 50),
+          },
+        }),
+      });
+    } catch (err) {
+      console.warn("[CloudSync Push Warning]", err);
     }
   }
 
@@ -279,11 +348,19 @@ class HomologationSandboxStore {
     return defaultState;
   }
 
+  private saveToStorageLocally() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+    }
+  }
+
   private saveToStorage() {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
       this.broadcastChannel?.postMessage("sync");
       this.notify();
+      // Transmite cadastro/atualização para a nuvem global assincronamente
+      this.syncToCloud();
     }
   }
 
@@ -483,6 +560,7 @@ class HomologationSandboxStore {
       });
     }
 
+    this.saveToStorage();
     this.setActiveUser(newUser.id);
     return { success: true, user: newUser };
   }

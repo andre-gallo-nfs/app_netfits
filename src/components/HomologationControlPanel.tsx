@@ -13,9 +13,11 @@ export function HomologationControlPanel() {
   const [activeTab, setActiveTab] = useState<"profiles" | "flows" | "db" | "users">("users");
   const [state, setState] = useState(sharedSandboxStore.getState());
   const [userSearch, setUserSearch] = useState("");
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    sharedSandboxStore.syncFromCloud();
     const unsubscribe = sharedSandboxStore.subscribe(() => {
       setState(sharedSandboxStore.getState());
     });
@@ -23,6 +25,13 @@ export function HomologationControlPanel() {
       unsubscribe();
     };
   }, []);
+
+  const handleManualSync = async () => {
+    setIsSyncingCloud(true);
+    await sharedSandboxStore.syncFromCloud();
+    setIsSyncingCloud(false);
+    toast.success("🔄 Usuários cadastrados no mundo todo sincronizados!");
+  };
 
   const activeUser = sharedSandboxStore.getActiveUser();
 
@@ -76,12 +85,24 @@ export function HomologationControlPanel() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="size-7 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 grid place-items-center transition"
-            >
-              <ChevronDown className="size-4" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncingCloud}
+                className="text-[10px] font-bold bg-lime-400 text-black px-2.5 py-1 rounded-full hover:bg-lime-300 transition active:scale-95 flex items-center gap-1 shrink-0"
+                title="Sincronizar cadastros realizados em outros dispositivos"
+              >
+                <RotateCcw className={`size-3 ${isSyncingCloud ? "animate-spin" : ""}`} />
+                <span>{isSyncingCloud ? "Sincronizando..." : "Sincronizar Nuvem"}</span>
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="size-7 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 grid place-items-center transition"
+              >
+                <ChevronDown className="size-4" />
+              </button>
+            </div>
           </div>
 
           {/* User Session Switcher Bar */}
