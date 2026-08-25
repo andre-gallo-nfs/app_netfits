@@ -74,11 +74,12 @@ const STORAGE_KEY = "netfits_shared_sandbox_db_v2";
 const DEVICE_SESSION_KEY = "netfits_device_active_user_id_v2";
 const SYNC_CHANNEL = "netfits_sandbox_sync_channel";
 
-// Default Seed Data for Live Testing
+// Default Seed Data for Live Testing (Base Completa de Homologação)
 const INITIAL_USERS: SandboxUser[] = [
   {
     id: "user-admin",
     identifier: "admin@netfits.com.br",
+    email: "admin@netfits.com.br",
     fullName: "Administrador Netfits",
     type: "admin",
     nfsBalance: 25000,
@@ -88,6 +89,7 @@ const INITIAL_USERS: SandboxUser[] = [
   {
     id: "user-assoc-1",
     identifier: "dr.isabella@netfits.com.br",
+    email: "dr.isabella@netfits.com.br",
     fullName: "Dra. Isabella Silva",
     type: "associado",
     nfsBalance: 4200,
@@ -100,6 +102,7 @@ const INITIAL_USERS: SandboxUser[] = [
   {
     id: "user-athlete-1",
     identifier: "gallo@netfits.com.br",
+    email: "gallo@netfits.com.br",
     fullName: "André Gallo",
     type: "athlete",
     nfsBalance: 350,
@@ -109,12 +112,80 @@ const INITIAL_USERS: SandboxUser[] = [
   {
     id: "user-athlete-2",
     identifier: "marina@netfits.com.br",
+    email: "marina@netfits.com.br",
     fullName: "Marina Run",
     type: "athlete",
     nfsBalance: 120,
     referralCode: "MARINA-RUN",
     referredBy: "GALLO-NETFITS",
     registeredAt: "2026-08-20T14:30:00Z",
+  },
+  {
+    id: "user-assoc-2",
+    identifier: "dr.marcelo@netfits.com.br",
+    email: "dr.marcelo@netfits.com.br",
+    fullName: "Dr. Marcelo Prado",
+    type: "associado",
+    nfsBalance: 3100,
+    referralCode: "ASSOC-SP-002",
+    professionalRegister: "CRM/SP 210.450",
+    specialty: "Medicina do Esporte",
+    city: "São Paulo - SP",
+    registeredAt: "2026-08-21T09:00:00Z",
+  },
+  {
+    id: "user-athlete-3",
+    identifier: "lucas.triathlon@netfits.com.br",
+    email: "lucas.triathlon@netfits.com.br",
+    fullName: "Lucas Mendes",
+    type: "athlete",
+    nfsBalance: 1250,
+    referralCode: "LUCAS-TRI",
+    referredBy: "GALLO-NETFITS",
+    registeredAt: "2026-08-21T10:15:00Z",
+  },
+  {
+    id: "user-athlete-4",
+    identifier: "carla.bike@netfits.com.br",
+    email: "carla.bike@netfits.com.br",
+    fullName: "Carla Ciclismo",
+    type: "athlete",
+    nfsBalance: 890,
+    referralCode: "CARLA-BIKE",
+    registeredAt: "2026-08-22T14:00:00Z",
+  },
+  {
+    id: "user-partner-1",
+    identifier: "parceiro.smartfit@netfits.com.br",
+    email: "parceiro.smartfit@netfits.com.br",
+    fullName: "Gestão Smart Fit Paulista",
+    type: "partner",
+    nfsBalance: 15000,
+    referralCode: "PARTNER-SMART",
+    registeredAt: "2026-08-22T16:20:00Z",
+  },
+  {
+    id: "user-athlete-5",
+    identifier: "thiago.trail@netfits.com.br",
+    email: "thiago.trail@netfits.com.br",
+    fullName: "Thiago Trail Run",
+    type: "athlete",
+    nfsBalance: 450,
+    referralCode: "THIAGO-TRAIL",
+    registeredAt: "2026-08-23T11:45:00Z",
+  },
+  {
+    id: "user-assoc-3",
+    identifier: "camila.nutri@netfits.com.br",
+    email: "camila.nutri@netfits.com.br",
+    fullName: "Dra. Camila Nutrição",
+    type: "associado",
+    nfsBalance: 1800,
+    referralCode: "ASSOC-RJ-003",
+    professionalRegister: "CRN-3 48.910",
+    specialty: "Nutrição Clínica e Esportiva",
+    city: "Rio de Janeiro - RJ",
+    registeredAt: "2026-08-24T08:30:00Z",
   },
 ];
 
@@ -246,9 +317,8 @@ class HomologationSandboxStore {
         }
       });
 
-      // Sincronização inicial em nuvem e pooling periódico a cada 12 segundos
-      setTimeout(() => this.syncFromCloud(), 300);
-      setInterval(() => this.syncFromCloud(), 12000);
+      // Sincronização inicial pontual ao carregar
+      setTimeout(() => this.syncFromCloud(), 500);
     }
   }
 
@@ -329,7 +399,15 @@ class HomologationSandboxStore {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        return JSON.parse(raw);
+        const stored: SandboxSchema = JSON.parse(raw);
+        const mergedUsers = [...stored.users];
+        for (const initUser of INITIAL_USERS) {
+          if (!mergedUsers.some((u) => u.id === initUser.id || (u.identifier && u.identifier.toLowerCase() === initUser.identifier.toLowerCase()))) {
+            mergedUsers.push(initUser);
+          }
+        }
+        stored.users = mergedUsers;
+        return stored;
       }
     } catch (e) {
       console.error("Failed to parse sandbox storage:", e);
