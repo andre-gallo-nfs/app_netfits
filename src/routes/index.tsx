@@ -35,9 +35,6 @@ function FeedPage() {
       {/* Pesquisa de Conexão Wearables (Visual Limpo & Monocromático) */}
       <WearableSurveyHero />
 
-      {/* Faixa Compacta de Utilidades (Substitui banners empilhados) */}
-      <CompactUtilityStrip />
-
       {/* Lista Principal de Publicações do Feed */}
       <div className="space-y-6 pt-1">
         <SponsorCard />
@@ -137,42 +134,6 @@ function WearableSurveyHero() {
             </p>
           </div>
         )}
-      </div>
-    </section>
-  );
-}
-
-function CompactUtilityStrip() {
-  const badges = useBadges();
-  const unlockedCount = badges.filter((b) => b.unlocked).length;
-  const totalCount = badges.length;
-
-  return (
-    <section className="px-4">
-      <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-3 flex items-center justify-between text-xs">
-        {/* Galeria de Badges */}
-        <Link to="/levels" className="flex items-center gap-2.5 text-zinc-300 hover:text-white transition group">
-          <div className="size-8 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 grid place-items-center font-bold text-xs shrink-0 group-hover:bg-purple-600 group-hover:text-white transition">
-            <Activity className="size-4" />
-          </div>
-          <div>
-            <p className="text-[11px] font-bold text-white leading-tight">Badges & Selos</p>
-            <p className="text-[10px] text-zinc-400 font-mono">{unlockedCount} de {totalCount} liberados</p>
-          </div>
-        </Link>
-
-        <div className="h-6 w-px bg-zinc-800" />
-
-        {/* Credenciamento B2B */}
-        <Link to="/parceiros" className="flex items-center gap-2.5 text-zinc-300 hover:text-white transition group">
-          <div className="size-8 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 grid place-items-center shrink-0 group-hover:bg-zinc-700 group-hover:text-white transition">
-            <Building2 className="size-4" />
-          </div>
-          <div>
-            <p className="text-[11px] font-bold text-white leading-tight">Parceiros B2B</p>
-            <p className="text-[10px] text-zinc-400">Credenciamento</p>
-          </div>
-        </Link>
       </div>
     </section>
   );
