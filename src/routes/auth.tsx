@@ -6,6 +6,7 @@ import {
   LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar
 } from "lucide-react";
 import netfitsLogo from "@/assets/netfits-logo.png";
+import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import netfitsMark from "@/assets/netfits-mark.png";
 import {
   authStore,
@@ -227,16 +228,16 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center px-4 py-8 max-w-md mx-auto font-sans">
-      {/* Header Branding */}
+      {/* Header Branding (Mesma configuração do Header do Feed com contorno em Verde Limão) */}
       <div className="text-center mb-6 space-y-2">
-        <div className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-2xl shadow-sm mb-2">
-          {/* Logo / Símbolo em Verde Limão sobre Fundo Preto */}
-          <div className="size-12 bg-black p-1.5 rounded-2xl ring-2 ring-lime-400 shadow-md flex items-center justify-center shrink-0">
-            <img src={netfitsMark} alt="Símbolo Netfits" className="size-9 object-contain drop-shadow-[0_0_10px_rgba(163,230,53,0.9)]" />
-          </div>
-          {/* Nome Netfits em Preto */}
-          <span className="text-2xl font-black text-black tracking-tight font-sans">
-            netfits
+        <div className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-zinc-200 dark:bg-zinc-800 border-2 border-lime-400 rounded-2xl shadow-md mb-2">
+          <img
+            src={netfitsDarkLogo}
+            alt="Netfits"
+            className="h-9 w-auto object-contain shrink-0 rounded-lg shadow-xs"
+          />
+          <span className="font-extrabold tracking-tight text-2xl text-zinc-900 dark:text-white">
+            Netfits
           </span>
         </div>
         <h1 className="text-2xl font-black text-foreground tracking-tight">
