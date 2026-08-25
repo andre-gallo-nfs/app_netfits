@@ -434,33 +434,18 @@ function ParceirosRegistrationPage() {
               Conecte sua marca a milhares de praticantes ativos de esportes
             </h1>
             <p className="text-sm md:text-base text-zinc-300 max-w-2xl leading-relaxed">
-              Cadastre sua academia, assessoria esportiva, clínica de recovery, consultório de nutrição ou medicina do esporte com <strong>credenciamento 100% gratuito e zero taxa de adesão</strong>.
+              Quer ser um parceiro Netfits e fazer cada movimento valer mais você também? Ofereça seu produto/serviço aos nossos associados.
             </p>
           </div>
 
-          {/* Value Highlights Cards (1 col mobile, 3 cols tablet/desktop) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
-            <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-1.5 hover:border-zinc-700 transition">
-              <Users className="size-6 text-lime-400" />
-              <p className="text-xs md:text-sm font-bold text-white">Zero Mensalidade</p>
-              <p className="text-[11px] md:text-xs text-zinc-400 leading-snug">
-                Sem custos fixos. Remuneração baseada 100% em engajamento e serviços prestados.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-1.5 hover:border-zinc-700 transition">
-              <ShieldCheck className="size-6 text-purple-400" />
-              <p className="text-xs md:text-sm font-bold text-white">Selo de Autenticidade</p>
-              <p className="text-[11px] md:text-xs text-zinc-400 leading-snug">
-                Validação cadastral oficial com integração Receita Federal e Conselhos de Classe.
-              </p>
-            </div>
-
-            <div className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-1.5 hover:border-zinc-700 transition">
-              <Sparkles className="size-6 text-amber-400" />
-              <p className="text-xs md:text-sm font-bold text-white">Fluxo de Novos Alunos</p>
-              <p className="text-[11px] md:text-xs text-zinc-400 leading-snug">
-                Divulgação direta para atletas engajados com cashback de pontos nfs no app.
+          {/* Banner de Benefício Exclusivo aos Atletas */}
+          <div className="pt-2">
+            <div className="bg-gradient-to-r from-purple-900/80 via-zinc-900 to-lime-950/40 border border-purple-500/30 rounded-2xl p-4 md:p-5 shadow-lg flex items-center gap-3.5">
+              <div className="size-10 md:size-12 rounded-xl bg-lime-400 text-black grid place-items-center shrink-0 font-black shadow-md">
+                <Sparkles className="size-5 md:size-6" />
+              </div>
+              <p className="text-xs sm:text-sm md:text-base font-bold text-white leading-relaxed">
+                Ofereça um benefício exclusivo aos atletas e tenha acesso a um público engajado e alinhado com seus objetivos!
               </p>
             </div>
           </div>
