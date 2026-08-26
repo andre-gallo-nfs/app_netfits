@@ -824,8 +824,10 @@ function AdminDashboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-center items-center px-4 py-12">
-        <div className="w-full max-w-md bg-zinc-900 border border-purple-500/40 rounded-3xl p-8 shadow-2xl space-y-6 text-left animate-in fade-in zoom-in-95">
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
+        <InstitutionalWebHeader />
+        <div className="flex-1 flex flex-col justify-center items-center px-4 py-12">
+          <div className="w-full max-w-md bg-zinc-900 border border-purple-500/40 rounded-3xl p-8 shadow-2xl space-y-6 text-left animate-in fade-in zoom-in-95">
           <div className="text-center space-y-2">
             <div className="size-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-lime-400 p-0.5 mx-auto shadow-xl mb-3">
               <div className="w-full h-full bg-zinc-950 rounded-[14px] grid place-items-center">
@@ -904,7 +906,8 @@ function AdminDashboardPage() {
           })}
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   return (
