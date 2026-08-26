@@ -239,13 +239,15 @@ function FaqPage() {
                   <span>Ler Regulamento</span>
                 </button>
                 <a
-                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
-                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                  title="Baixar Minuta Oficial em Word (.docx)"
+                  title="Baixar Minuta Oficial em PDF (.pdf) com Marca d'Água"
                 >
                   <Download className="size-3.5 text-lime-400" />
-                  <span>.DOCX</span>
+                  <span>.PDF</span>
                 </a>
               </div>
             </div>
@@ -275,13 +277,15 @@ function FaqPage() {
                   <span>Ler Termo LGPD</span>
                 </button>
                 <a
-                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
-                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                  title="Baixar Minuta Oficial em Word (.docx)"
+                  title="Baixar Minuta Oficial em PDF (.pdf) com Marca d'Água"
                 >
                   <Download className="size-3.5 text-lime-400" />
-                  <span>.DOCX</span>
+                  <span>.PDF</span>
                 </a>
               </div>
             </div>
@@ -391,12 +395,14 @@ function FaqPage() {
 
             <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
               <a
-                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
-                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
               >
                 <Download className="size-4 text-lime-400" />
-                <span>Baixar Minuta em Word (.docx)</span>
+                <span>Baixar Minuta em PDF (.pdf)</span>
               </a>
               <button
                 onClick={() => setShowRegulamentoModal(false)}
@@ -446,12 +452,14 @@ function FaqPage() {
 
             <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
               <a
-                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
-                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
               >
                 <Download className="size-4 text-lime-400" />
-                <span>Baixar Minuta em Word (.docx)</span>
+                <span>Baixar Minuta em PDF (.pdf)</span>
               </a>
               <button
                 onClick={() => setShowLgpdModal(false)}
