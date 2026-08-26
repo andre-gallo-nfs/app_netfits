@@ -2434,10 +2434,13 @@ function AdminDashboardPage() {
                       </p>
                     </div>
 
-                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
-                      <span className="font-extrabold text-amber-400 block">⏱️ Dwell Time Mínimo</span>
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-purple-500/40 space-y-1">
+                      <span className="font-extrabold text-amber-400 block flex items-center gap-1">
+                        <span>🎬</span>
+                        <span>Retenção 100% em Vídeos</span>
+                      </span>
                       <p className="text-[11px] text-zinc-400 leading-snug">
-                        Exige permanência mínima de <b>{operationalParams.minDwellTimeSecondsForView || 3}s</b> para considerar visualização válida.
+                        Vídeos precisam ser assistidos <b>100% por completo</b>. Qualquer dwell time menor que a duração total do vídeo é <b>zerado pelo antifraude (0 nfs)</b>.
                       </p>
                     </div>
 

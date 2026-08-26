@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye } from "lucide-react";
-import { useState } from "react";
+import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck } from "lucide-react";
+import { useState, useEffect } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges } from "@/lib/badges-store";
 import { ProductDetailSheet } from "@/components/ProductDetailSheet";
@@ -214,33 +214,7 @@ function FeedCard({ item }: { item: FeedItem }) {
     );
   }
   if (item.type === "video") {
-    return (
-      <article className="px-4">
-        <CardHeader name={item.author} initials={item.authorInitials} timeAgo={item.timeAgo} />
-        <div className="relative mb-3">
-          <img
-            src={item.poster}
-            alt={item.title}
-            loading="lazy"
-            className="w-full aspect-video object-cover rounded-xl ring-1 ring-black/5"
-          />
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="size-14 rounded-full bg-background/95 ring-1 ring-black/10 grid place-items-center shadow-lg">
-              <Play className="size-6 ml-0.5 fill-foreground text-foreground" />
-            </div>
-          </div>
-          <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
-            {item.duration}
-          </span>
-          <span className="absolute top-2 left-2 bg-brand text-brand-foreground text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded">
-            Filme
-          </span>
-        </div>
-        <h2 className="text-lg font-semibold leading-tight text-balance mb-1">{item.title}</h2>
-        <p className="text-sm text-muted-foreground text-pretty mb-3">{item.excerpt}</p>
-        <SocialActions id={item.id} title={item.title} />
-      </article>
-    );
+    return <VideoFeedCard item={item} />;
   }
   if (item.type === "product") {
     return <ProductFeedCard item={item} />;
@@ -372,6 +346,171 @@ function ProductFeedCard({
           }}
           onClose={() => setOpen(false)}
         />
+      )}
+    </>
+  );
+}
+
+function VideoFeedCard({
+  item,
+}: {
+  item: Extract<FeedItem, { type: "video" }>;
+}) {
+  const params = useOperationalParams();
+  const [isPlayingModalOpen, setIsPlayingModalOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [rewarded, setRewarded] = useState(false);
+
+  useEffect(() => {
+    let timer: any = null;
+    if (isPlayingModalOpen && !isCompleted) {
+      timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(timer);
+            setIsCompleted(true);
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 400);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isPlayingModalOpen, isCompleted]);
+
+  useEffect(() => {
+    if (isCompleted && !rewarded) {
+      setRewarded(true);
+      const points = params.nfsPerPostView || 15;
+      wallet.earn(points, `Visualização 100% Completa de Vídeo: ${item.title}`);
+      sharedSandboxStore.rewardEngagement("view", item.title);
+      toast.success(`🎉 Retenção de 100% atingida! +${points} nfs creditados na sua carteira!`);
+    }
+  }, [isCompleted, rewarded, item.title, params.nfsPerPostView]);
+
+  const handleCloseModal = () => {
+    if (!isCompleted) {
+      toast.error(
+        "🚫 Antifraude Netfits: Premiação cancelada. O vídeo precisa ser visto 100% até o final para pontuar."
+      );
+    }
+    setIsPlayingModalOpen(false);
+    setProgress(0);
+  };
+
+  return (
+    <>
+      <article className="px-4">
+        <CardHeader name={item.author} initials={item.authorInitials} timeAgo={item.timeAgo} />
+        
+        <div
+          onClick={() => setIsPlayingModalOpen(true)}
+          className="relative mb-3 cursor-pointer group rounded-xl overflow-hidden"
+        >
+          <img
+            src={item.poster}
+            alt={item.title}
+            loading="lazy"
+            className="w-full aspect-video object-cover rounded-xl ring-1 ring-black/5 group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-black/30 grid place-items-center group-hover:bg-black/40 transition-colors">
+            <div className="size-14 rounded-full bg-background/95 ring-1 ring-black/10 grid place-items-center shadow-lg group-hover:scale-110 transition-transform">
+              <Play className="size-6 ml-0.5 fill-foreground text-foreground" />
+            </div>
+          </div>
+          <span className="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md backdrop-blur-sm">
+            {item.duration}
+          </span>
+          <span className="absolute top-2 left-2 bg-purple-950/90 text-purple-200 border border-purple-500/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md backdrop-blur-sm flex items-center gap-1">
+            <span>🛡️ Antifraude: 100% Dwell Time</span>
+          </span>
+        </div>
+
+        <h2 className="text-lg font-semibold leading-tight text-balance mb-1">{item.title}</h2>
+        <p className="text-sm text-muted-foreground text-pretty mb-2">{item.excerpt}</p>
+        
+        {rewarded ? (
+          <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center gap-2">
+            <Check className="size-4 shrink-0" />
+            <span>Vídeo assistido por completo (100% de retenção) — +{params.nfsPerPostView || 15} nfs creditados</span>
+          </div>
+        ) : (
+          <div className="mb-3 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-medium flex items-center gap-2">
+            <ShieldCheck className="size-4 text-lime-400 shrink-0" />
+            <span>Regra Antifraude: Assista 100% do vídeo ({item.duration}) para receber +{params.nfsPerPostView || 15} nfs</span>
+          </div>
+        )}
+
+        <SocialActions id={item.id} title={item.title} />
+      </article>
+
+      {/* MODAL PLAYER DE VÍDEO COM ANTIFRAUDE 100% RETENÇÃO */}
+      {isPlayingModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-5 text-lime-400" />
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Player Antifraude Netfits</h3>
+                  <p className="text-[10px] text-zinc-400">Dwell time total obrigatório (100% da duração)</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="p-1.5 rounded-full bg-zinc-800 text-zinc-400 hover:text-white cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-zinc-800 bg-black">
+              <img src={item.poster} alt={item.title} className="w-full h-full object-cover opacity-60" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                <div className="size-12 rounded-full bg-purple-600 text-white grid place-items-center mb-2 animate-pulse">
+                  <Play className="size-6 ml-0.5 fill-white" />
+                </div>
+                <p className="text-xs font-bold text-white max-w-xs">{item.title}</p>
+                <p className="text-[10px] text-purple-300 font-mono mt-1">Duração Total: {item.duration}</p>
+              </div>
+            </div>
+
+            {/* Barra de Progresso de Retenção */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="font-bold text-zinc-300">Progresso de Assistência:</span>
+                <span className="font-mono font-bold text-lime-400">{progress}% {isCompleted ? "✔ (100%)" : ""}</span>
+              </div>
+              <div className="h-3 w-full bg-zinc-800 rounded-full overflow-hidden border border-zinc-700 p-0.5">
+                <div
+                  className="h-full bg-gradient-to-r from-purple-500 to-lime-400 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              {!isCompleted ? (
+                <p className="text-[11px] text-amber-400 bg-amber-950/40 border border-amber-500/30 rounded-xl p-2.5 leading-snug">
+                  ⚠️ <b>Antifraude Ativo:</b> Não feche o player antes do fim. Sair com menos de 100% do vídeo assistido cancela a premiação.
+                </p>
+              ) : (
+                <p className="text-[11px] text-lime-400 bg-lime-950/40 border border-lime-500/30 rounded-xl p-2.5 leading-snug font-bold">
+                  🎉 Vídeo 100% concluído! +{params.nfsPerPostView || 15} nfs creditados com sucesso na sua carteira!
+                </p>
+              )}
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={handleCloseModal}
+                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition cursor-pointer"
+              >
+                {isCompleted ? "Concluir e Voltar ao Feed" : "Fechar (Interromper sem Pontuar)"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
