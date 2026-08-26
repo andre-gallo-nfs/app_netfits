@@ -353,16 +353,19 @@ function FaqPage() {
         </div>
       </section>
 
-      {/* Modal 1: Regulamento Geral */}
+      {/* Modal 1: Regulamento Geral Integra */}
       {showRegulamentoModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-zinc-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col text-left">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl bg-zinc-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col text-left">
             <div className="flex justify-between items-center pb-3 border-b border-zinc-800 shrink-0">
               <div className="flex items-center gap-2">
                 <FileText className="size-5 text-purple-400" />
-                <h3 className="text-base font-extrabold text-white">
-                  Regulamento Geral do Programa — Netfits Ltda.
-                </h3>
+                <div>
+                  <h3 className="text-base font-extrabold text-white">
+                    Regulamento Geral do Programa — Netfits Ltda.
+                  </h3>
+                  <p className="text-[10px] text-zinc-400">Minuta Oficial Íntegra · Validade & Matriz Antifraude</p>
+                </div>
               </div>
               <button
                 onClick={() => setShowRegulamentoModal(false)}
@@ -372,25 +375,90 @@ function FaqPage() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 text-xs text-zinc-300 leading-relaxed pr-2 border-b border-zinc-800 pb-4">
-              <div className="bg-purple-950/40 border border-purple-500/30 p-3 rounded-2xl text-[11px] text-purple-200">
-                <p className="font-bold text-white mb-0.5">📌 Razão Social da Organizadora:</p>
-                <p><b>NETFITS LTDA.</b> (CNPJ nº 00.000.000/0001-00) — Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP.</p>
+            <div className="flex-1 overflow-y-auto space-y-5 text-xs text-zinc-300 leading-relaxed pr-3 border-b border-zinc-800 pb-4">
+              {/* Header Box */}
+              <div className="bg-purple-950/40 border border-purple-500/30 p-4 rounded-2xl text-[11px] text-purple-200 space-y-1">
+                <p className="font-bold text-white text-xs">NETFITS LTDA. — ORGANIZADORA E PROMOTORA</p>
+                <p>CNPJ/MF nº 00.000.000/0001-00 · Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP - CEP 04538-133.</p>
+                <p className="text-[10px] text-purple-300 pt-1">Este Regulamento estabelece as regras oficiais de adesão, acúmulo de pontos nfs, regras antifraude e exclusão do Programa Netfits.</p>
               </div>
 
-              <h4 className="font-extrabold text-white text-sm">Cláusula 1ª — Do Objeto e da Adesão</h4>
-              <p>O Regulamento rege a participação no Programa Netfits, ecossistema digital de longevidade, treino e acúmulo de pontos nfs. A adesão se consolida ao cadastrar-se no app ou web.</p>
-
-              <h4 className="font-extrabold text-white text-sm">Cláusula 4ª — Matriz Antifraude e Retenção de Vídeos (100% Dwell Time)</h4>
-              <p>A atribuição de pontos nfs por vídeos exige <b>retenção visual contínua de 100% do tempo de duração do arquivo</b>. É proibido o uso de robôs, scripts, emuladores de GPS, automações ou contas falsas.</p>
-
-              <div className="bg-red-950/60 border border-red-500/50 p-3 rounded-2xl text-[11px] text-red-200 space-y-1">
-                <p className="font-black text-red-400">⚠️ Cláusula 5ª — DIREITO IRREVOGÁVEL DE EXCLUSÃO SUMÁRIA:</p>
-                <p>A NETFITS LTDA. reserva-se o direito incondicional e inalienável de <b>cancelar ou excluir sumariamente qualquer conta de Usuário</b> em caso de descumprimento do Regulamento ou suspeita de fraude, resultando na <b>perda imediata e irreversível de 100% dos pontos nfs acumulados</b>, sem qualquer direito a reembolso ou indenização.</p>
+              {/* Cláusula 1 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-purple-400 text-sm">CLÁUSULA PRIMEIRA — DO OBJETO E DA ADESÃO</h4>
+                <p>1.1. O presente Regulamento estabelece as regras, os termos e as condições para a adesão, participação e utilização do <b>PROGRAMA NETFITS</b>, um ecossistema digital integrado de promoção da saúde (healthspan), engajamento esportivo, produção e consumo de conteúdo e programa de fidelidade com recompensa em pontos sob a denominação <b>nfs</b>.</p>
+                <p>1.2. A adesão ao Programa é voluntária e se efetiva no momento em que o Usuário conclui o seu cadastro no aplicativo ou web da NETFITS, declarando ter lido, compreendido e aceito integralmente este Regulamento e o Termo LGPD.</p>
+                <p>1.3. A utilização de qualquer funcionalidade do ecossistema Netfits implica a ratificação automática da aceitação deste Regulamento.</p>
               </div>
 
-              <h4 className="font-extrabold text-white text-sm">Cláusula 6ª — Validade dos Pontos (Política FEFO)</h4>
-              <p>Os pontos nfs expiram em 12 a 24 meses sob o algoritmo FEFO (First-Expiring, First-Out), priorizando o consumo dos lotes com vencimento mais próximo.</p>
+              {/* Cláusula 2 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-purple-400 text-sm">CLÁUSULA SEGUNDA — DA ELEGIBILIDADE E CADASTRO DE USUÁRIOS</h4>
+                <p>2.1. Poderão participar pessoas físicas plenamente capazes, com idade igual ou superior a 18 anos completos (ou menores emancipados), residentes no Brasil e inscritos no CPF/MF.</p>
+                <p>2.2. O cadastro é pessoal, único e intransferível, sendo vedada a criação de mais de uma conta por CPF/MF ou uso de contas falsas.</p>
+                <p>2.3. O Usuário compromete-se a fornecer informações exatas, precisas e verdadeiras referente à sua identidade, e-mail, telefone celular, CPF e nascimento.</p>
+              </div>
+
+              {/* Cláusula 3 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-purple-400 text-sm">CLÁUSULA TERCEIRA — DO ACÚMULO DE PONTOS nfs</h4>
+                <p>3.1. Os pontos <b>nfs</b> constituem uma unidade de recompensa e fidelidade exclusiva do Programa NETFITS, sem cotação em moeda corrente, insuscetíveis de cessão, venda, permuta, doação ou penhora.</p>
+                <p>3.2. Modalidades autorizadas de acúmulo:</p>
+                <ul className="list-disc pl-5 space-y-1 text-zinc-300">
+                  <li><b>Prática de Atividades Físicas:</b> Validação de treinos via Apple Health, Google Fit, Garmin e GPS;</li>
+                  <li><b>Consumo de Conteúdos no Feed:</b> Visualização e interações válidas com publicações e vídeos;</li>
+                  <li><b>Compras no Netfits Shop:</b> Cashback de 2,00 nfs por R$ 1,00 gasto junto a sellers credenciados;</li>
+                  <li><b>Indicação de Novos Usuários:</b> Bônus de boas-vindas via código de indicação do Usuário ou Associados;</li>
+                  <li><b>Interação com Parceiros:</b> Check-in e desafios em academias, clínicas e assessorias esportivas.</li>
+                </ul>
+              </div>
+
+              {/* Cláusula 4 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-purple-400 text-sm">CLÁUSULA QUARTA — DA MATRIZ ANTIFRAUDE E REGRAS DE INTEGRIDADE</h4>
+                <p>4.1. A NETFITS aplica uma Matriz Antifraude Avançada para garantir a equidade e a solidez do ecossistema.</p>
+                <p>4.2. <b>Regra de Retenção Integral de Vídeos (100% Dwell Time):</b></p>
+                <p className="pl-3 border-l-2 border-purple-500/40 text-purple-200">
+                  4.2.1. A atribuição de pontos nfs decorrente da visualização de vídeos está estritamente condicionada à <b>retenção visual contínua e completa de 100% da duração total do arquivo de vídeo</b> (100% de dwell time).<br/>
+                  4.2.2. É vedada qualquer tentativa de burla, aceleração do player, avanço rápido (fast-forward), minimização da tela, reprodução em segundo plano sem foco ativo, ou interrupção do vídeo. Caso o vídeo seja interrompido antes dos 100%, <b>nenhum ponto nfs será emitido</b>.
+                </p>
+                <p>4.3. <b>Condutas Vedadas:</b> Uso de scripts, bots, automações, emuladores, falsificação de GPS (GPS spoofing), root/jailbreak, injeção de pacotes HTTP/API ou criação de contas múltiplas.</p>
+              </div>
+
+              {/* Cláusula 5 - Alerta de Exclusão Sumária */}
+              <div className="bg-red-950/70 border-2 border-red-500/60 p-4 rounded-2xl space-y-2 text-red-200">
+                <h4 className="font-black text-red-400 text-sm uppercase">⚠️ CLÁUSULA QUINTA — DIREITO IRREVOGÁVEL DE SUSPENSÃO E EXCLUSÃO SUMÁRIA</h4>
+                <p className="font-bold">5.1. DIREITO IRREVOGÁVEL E INCONTESTÁVEL DE EXCLUSÃO SUMÁRIA:</p>
+                <p className="text-[11px]">
+                  A NETFITS LTDA. RESERVA-SE O DIREITO IRREVOGÁVEL, INCONTESTÁVEL, EXPRESSO E INCONDICIONAL DE, A QUALQUER TEMPO, SUSPENDER PREVENTIVAMENTE OU CANCELAR DEFINITIVAMENTE A CONTA DE QUALQUER USUÁRIO, PROMOVENDO SUA EXCLUSÃO SUMÁRIA E DEFINITIVA DO PROGRAMA, SEM A NECESSIDADE DE PRÉVIA NOTIFICAÇÃO JUDICIAL OU EXTRAJUDICIAL, CASO CONSTATADA A PRÁTICA DE QUALQUER CONDUTA VEDADA, SUSPEITA FUNDAMENTADA DE FRAUDE, DESCUMPRIMENTO DAS REGRAS ANTIFRAUDE OU INOBSERVÂNCIA DE QUALQUER DISPOSIÇÃO DESTE REGULAMENTO.
+                </p>
+                <p className="font-bold pt-1">5.2. PERDA INTEGRAL E IRREVERSÍVEL DOS PONTOS nfs:</p>
+                <p className="text-[11px]">
+                  O CANCELAMENTO DA CONTA DO USUÁRIO EM DECORRÊNCIA DE VIOLAÇÃO A ESTE REGULAMENTO OU PRÁTICA FRAUDULENTA IMPLICARÁ A PERDA IMEDIATA, AUTOMÁTICA E DEFINITIVA DA TOTALIDADE DOS PONTOS nfs ACUMULADOS NA CONTA DO USUÁRIO, BEM COMO O CANCELAMENTO DE RESGATES EM ANDAMENTO, SEM DIREITO A QUALQUER TIPO DE REEMBOLSO, RESSARCIMENTO, CONVERSÃO FINANCEIRA OU INDENIZAÇÃO POR PERDAS E DANOS MATERIAL OU MORAL.
+                </p>
+              </div>
+
+              {/* Cláusula 6 e 7 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-purple-400 text-sm">CLÁUSULA SEXTA — VALIDADE DOS PONTOS (POLÍTICA FEFO)</h4>
+                <p>6.1. Os pontos nfs expiram em 12 a 24 meses contados da disponibilização.<br/>
+                6.2. O resgate obedece à ordem cronológica de expiração (FEFO - First-Expiring, First-Out), consumindo prioritariamente os lotes mais próximos do vencimento.</p>
+                
+                <h4 className="font-extrabold text-purple-400 text-sm pt-2">CLÁUSULA SÉTIMA — DO FORO DE ELEIÇÃO</h4>
+                <p>7.1. Fica eleito o Foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias deste Regulamento.</p>
+              </div>
+
+              {/* PDF Preview Frame */}
+              <div className="pt-2">
+                <p className="font-bold text-white mb-2 flex items-center gap-1.5">
+                  <span>Visualização do PDF Oficial com Marca d'Água:</span>
+                </p>
+                <iframe
+                  src="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf#toolbar=0"
+                  className="w-full h-80 rounded-2xl border border-purple-500/30 bg-zinc-950"
+                  title="PDF Oficial Netfits Regulamento"
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
@@ -402,7 +470,7 @@ function FaqPage() {
                 className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
               >
                 <Download className="size-4 text-lime-400" />
-                <span>Baixar Minuta em PDF (.pdf)</span>
+                <span>Baixar Minuta Completa em PDF (.pdf)</span>
               </a>
               <button
                 onClick={() => setShowRegulamentoModal(false)}
@@ -415,16 +483,19 @@ function FaqPage() {
         </div>
       )}
 
-      {/* Modal 2: Termo LGPD */}
+      {/* Modal 2: Termo LGPD Integra */}
       {showLgpdModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-zinc-900 border border-lime-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col text-left">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-3xl bg-zinc-900 border border-lime-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col text-left">
             <div className="flex justify-between items-center pb-3 border-b border-zinc-800 shrink-0">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="size-5 text-lime-400" />
-                <h3 className="text-base font-extrabold text-white">
-                  Termo de Consentimento & LGPD — Netfits Ltda.
-                </h3>
+                <div>
+                  <h3 className="text-base font-extrabold text-white">
+                    Termo de Consentimento & LGPD — Netfits Ltda.
+                  </h3>
+                  <p className="text-[10px] text-zinc-400">Minuta Oficial Íntegra · Lei Federal nº 13.709/2018</p>
+                </div>
               </div>
               <button
                 onClick={() => setShowLgpdModal(false)}
@@ -434,20 +505,68 @@ function FaqPage() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 text-xs text-zinc-300 leading-relaxed pr-2 border-b border-zinc-800 pb-4">
-              <div className="bg-lime-950/40 border border-lime-500/30 p-3 rounded-2xl text-[11px] text-lime-200">
-                <p className="font-bold text-white mb-0.5">🔒 Conformidade com a Lei Federal nº 13.709/2018:</p>
-                <p>A <b>NETFITS LTDA.</b> atua como Controladora responsável pelo tratamento seguro dos dados pessoais e sensíveis do Titular.</p>
+            <div className="flex-1 overflow-y-auto space-y-5 text-xs text-zinc-300 leading-relaxed pr-3 border-b border-zinc-800 pb-4">
+              {/* Header Box */}
+              <div className="bg-lime-950/40 border border-lime-500/30 p-4 rounded-2xl text-[11px] text-lime-200 space-y-1">
+                <p className="font-bold text-white text-xs">NETFITS LTDA. — CONTROLADORA DE DADOS PESSOAIS</p>
+                <p>CNPJ/MF nº 00.000.000/0001-00 · Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP - CEP 04538-133.</p>
+                <p className="text-[10px] text-lime-300 pt-1">Este Termo formaliza o consentimento livre, informado e inequívoco do Titular para o tratamento e armazenamento de dados pessoais e sensíveis.</p>
               </div>
 
-              <h4 className="font-extrabold text-white text-sm">1. Categorias de Dados Coletados</h4>
-              <p>Tratamento de dados cadastrais (Nome, CPF, E-mail, Celular, Nascimento), dados de atividade física/saúde (passos, treinos, GPS via Apple Health/Google Fit/Garmin) e dados de navegação (dwell time em vídeos e IP).</p>
+              {/* Seção 1 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-lime-400 text-sm">1. DA IDENTIFICAÇÃO DA CONTROLADORA</h4>
+                <p>NETFITS LTDA., pessoa jurídica de direito privado, inscrita no CNPJ/MF sob o nº 00.000.000/0001-00, com sede na Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP, doravante denominada "Controladora".</p>
+              </div>
 
-              <h4 className="font-extrabold text-white text-sm">2. Finalidades do Tratamento</h4>
-              <p>Atribuição de pontos nfs, auditoria da Matriz Antifraude, emissão de comprovantes contábeis e fiscais, e oferta personalizada de benefícios esportivos.</p>
+              {/* Seção 2 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-lime-400 text-sm">2. DO OBJETO E MANIFESTAÇÃO DE CONSENTIMENTO</h4>
+                <p>Ao criar sua conta e utilizar a Plataforma Netfits, o Titular fornece seu CONSENTIMENTO LIVRE, INFORMADO, EXPRESSO E INEQUÍVOCO para que a Controladora realize o tratamento de seus dados pessoais e sensíveis para as finalidades descritas neste Termo, conforme a Lei nº 13.709/2018 (LGPD).</p>
+              </div>
 
-              <h4 className="font-extrabold text-white text-sm">3. Direitos do Titular (Art. 18 da LGPD)</h4>
-              <p>Confirmação, acesso, correção, anonimização, bloqueio ou eliminação de dados solicitados através do canal oficial do Encarregado de Dados pelo e-mail <b>dpo@netfits.com.br</b>.</p>
+              {/* Seção 3 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-lime-400 text-sm">3. CATEGORIAS DE DADOS PESSOAIS TRATADOS</h4>
+                <ul className="list-disc pl-5 space-y-1 text-zinc-300">
+                  <li><b>Dados Cadastrais e de Identificação:</b> Nome completo, CPF, e-mail, telefone celular/WhatsApp, data de nascimento e endereço;</li>
+                  <li><b>Dados de Atividade Física e Saúde (Sensíveis):</b> Passos, distância, treinos, frequência cardíaca e calorias capturadas via Apple Health, Google Fit e Garmin;</li>
+                  <li><b>Dados de Localização & GPS:</b> Coordenadas de GPS gravadas unicamente durante a gravação ativa de corridas ou caminhadas;</li>
+                  <li><b>Dados de Uso e Navegação:</b> IP, modelo do celular, retenção visual em vídeos (100% dwell time) e histórico de compras no Shop;</li>
+                  <li><b>Dados Transacionais:</b> Extrato de pontos nfs acumulados, cupons e cashback.</li>
+                </ul>
+              </div>
+
+              {/* Seção 4 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-lime-400 text-sm">4. FINALIDADES ESPECÍFICAS DO TRATAMENTO</h4>
+                <p>I. Permitir o funcionamento regular do Programa Netfits e atribuição do saldo correto de pontos nfs;<br/>
+                II. Executar os algoritmos da Matriz Antifraude, auditando o tempo de permanência em vídeos (100% dwell time) e a autenticidade dos treinos;<br/>
+                III. Operacionalizar os resgates de benefícios e compras junto a sellers parceiros credenciados;<br/>
+                IV. Personalizar a experiência do Titular com recomendações de saúde (healthspan);<br/>
+                V. Cumprir obrigações fiscais, tributárias e regulatórias perante órgãos públicos estaduais e federais.</p>
+              </div>
+
+              {/* Seção 5 e 6 */}
+              <div className="space-y-1.5">
+                <h4 className="font-extrabold text-lime-400 text-sm">5. DIREITOS DO TITULAR DOS DADOS (ARTIGO 18 DA LGPD)</h4>
+                <p>5.1. O Titular pode solicitar a qualquer tempo: confirmação do tratamento, acesso aos dados, correção de erros, anonimização, eliminação de dados ou revogação do consentimento via e-mail <b>dpo@netfits.com.br</b>.</p>
+
+                <h4 className="font-extrabold text-lime-400 text-sm pt-2">6. CANAL DE ATENDIMENTO E DPO OFICIAL</h4>
+                <p>Encarregado pelo Tratamento de Dados (DPO): <b>dpo@netfits.com.br</b> ou <b>suporte@netfits.com.br</b>.<br/>Endereço: Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP - CEP 04538-133.</p>
+              </div>
+
+              {/* PDF Preview Frame */}
+              <div className="pt-2">
+                <p className="font-bold text-white mb-2 flex items-center gap-1.5">
+                  <span>Visualização do PDF Oficial com Marca d'Água:</span>
+                </p>
+                <iframe
+                  src="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf#toolbar=0"
+                  className="w-full h-80 rounded-2xl border border-lime-500/30 bg-zinc-950"
+                  title="PDF Oficial Netfits Termo LGPD"
+                />
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
@@ -459,7 +578,7 @@ function FaqPage() {
                 className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
               >
                 <Download className="size-4 text-lime-400" />
-                <span>Baixar Minuta em PDF (.pdf)</span>
+                <span>Baixar Minuta Completa em PDF (.pdf)</span>
               </a>
               <button
                 onClick={() => setShowLgpdModal(false)}
