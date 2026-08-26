@@ -1147,7 +1147,7 @@ function TermsOfServiceModal({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-zinc-900">Termos & Condições de Uso</h2>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Programa Netfits</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Netfits Ltda.</p>
             </div>
           </div>
           <button
@@ -1161,40 +1161,28 @@ function TermsOfServiceModal({
         {/* Scrollable Terms Content */}
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 text-xs text-zinc-700 leading-relaxed border-b border-zinc-200 pb-4">
           <div className="bg-purple-50 p-3 rounded-2xl border border-purple-100 text-[11px] text-purple-900">
-            <p className="font-bold">📌 Resumo dos Termos:</p>
-            <p>Este documento estabelece as regras de participação no Programa de Recompensas Netfits, acúmulo e resgate de pontos (nfs).</p>
+            <p className="font-bold">📌 Resumo das Regras Gerais & Antifraude:</p>
+            <p>Este Regulamento rege a participação no Programa Netfits, o acúmulo de pontos nfs e estabelece regras estritas de integridade e antifraude.</p>
           </div>
 
           <h3 className="font-extrabold text-zinc-900 text-sm">1. Objeto do Programa</h3>
           <p>
-            O Programa Netfits é um ecossistema digital de recompensas operado pela Netfits Ltda., destinado a incentivar a prática regular de atividades físicas, a nutrição saudável e hábitos de longevidade.
+            O Programa Netfits é um ecossistema digital de saúde (*healthspan*) e recompensa operado pela <b>Netfits Ltda.</b> (CNPJ nº 00.000.000/0001-00), destinado a incentivar treinos, consumo de conteúdo e compras no Marketplace com acúmulo de pontos <b>nfs</b>.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">2. Regras de Acúmulo de Pontos (nfs)</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">2. Matriz Antifraude e Retenção em Vídeos (100% Dwell Time)</h3>
           <p>
-            Os pontos denominados <b>"netfits" (nfs)</b> são concedidos aos atletas cadastrados mediante:
-          </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Interações válidas e publicações no Feed do aplicativo;</li>
-            <li>Manutenção de consistência em treinos e rotinas de prevenção;</li>
-            <li>Validação presencial por catracas em redes de academias parceiras (ex: Smart Fit);</li>
-            <li>Sincronização voluntária de dados esportivos via wearables (Garmin, Apple Watch, Strava);</li>
-            <li>Indicação de novos usuários cadastrados com seu código pessoal (+50 nfs).</li>
-          </ul>
-
-          <h3 className="font-extrabold text-zinc-900 text-sm">3. Regras de Resgate no Netfits Shop</h3>
-          <p>
-            Cada ponto <b>1 nfs equivale a R$ 0,02 (dois centavos)</b> para fins de abatimento ou pagamento no Netfits Shop. Os pontos acumulados não possuem valor em moeda corrente fora da plataforma, não geram rendimentos financeiros e são inalienáveis e intransferíveis entre contas pessoais.
+            A atribuição de pontos <b>nfs</b> por visualização de vídeos no Feed exige <b>retenção visual contínua e completa de 100% da duração do vídeo</b>. É terminantemente proibido o uso de automações, scripts, bots, emuladores, alteração de dados de GPS ou criação de contas falsas para geração indevida de pontos.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">4. Código de Conduta e Fraudes</h3>
-          <p>
-            Fica estritamente proibida a utilização de robôs, rotinas automatizadas, adulteração de dados GPS ou contas falsas para geração indevida de nfs. O descumprimento resultará no cancelamento imediato dos pontos e no banimento definitivo da conta.
+          <h3 className="font-extrabold text-zinc-900 text-sm">3. Direito Irrevogável de Exclusão Sumária</h3>
+          <p className="font-semibold text-red-700 bg-red-50 p-2.5 rounded-xl border border-red-200">
+            ⚠️ <b>A Netfits Ltda. reserva-se o direito irrevogável, incondicional e incontestável de cancelar, suspender ou excluir sumariamente a conta de qualquer Usuário</b> que descumprir este Regulamento ou em caso de suspeita fundamentada de fraude, implicando na <b>perda imediata e irreversível de 100% dos pontos nfs acumulados</b>, sem direito a qualquer indenização ou ressarcimento.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">5. Alterações nos Termos</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">4. Validade e Resgate de Pontos (FEFO)</h3>
           <p>
-            A Netfits reserva-se o direito de ajustar as regras de multiplicadores e elegibilidade do programa mediante notificação prévia de 30 dias na plataforma.
+            Os pontos <b>nfs</b> possuem validade de 12 a 24 meses sob o sistema FEFO (*First-Expiring, First-Out*), não possuem valor pecuniário fora do ecossistema e são inalienáveis e intransferíveis.
           </p>
         </div>
 
@@ -1251,33 +1239,23 @@ function LgpdPrivacyModal({
         {/* Scrollable LGPD Content */}
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 text-xs text-zinc-700 leading-relaxed border-b border-zinc-200 pb-4">
           <div className="bg-lime-50 p-3 rounded-2xl border border-lime-200 text-[11px] text-lime-950">
-            <p className="font-bold">🔒 Transparência com seus Dados:</p>
-            <p>Respeitamos sua privacidade. Seus dados cadastrais e métricas esportivas são tratados com sigilo rigoroso e segurança de nível bancário.</p>
+            <p className="font-bold">🔒 Transparência e Tratamento de Dados:</p>
+            <p>Seus dados cadastrais, esportivos e de navegação são tratados com segurança sob responsabilidade da Netfits Ltda.</p>
           </div>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">1. Controlador e Finalidade do Tratamento</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">1. Controladora e Dados Trados</h3>
           <p>
-            A <b>Netfits Ltda.</b> atua como Controladora dos dados pessoais coletados. Os dados fornecidos no cadastro (Nome, E-mail, Celular, CPF e Senha) são tratados com as finalidades de:
-          </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Autenticação segura da conta e prevenção contra acessos não autorizados;</li>
-            <li>Cálculo preciso do saldo de pontos netfits (nfs) e auditoria de recompensas;</li>
-            <li>Emissão de comprovantes de resgate e entrega de produtos no Netfits Shop.</li>
-          </ul>
-
-          <h3 className="font-extrabold text-zinc-900 text-sm">2. Tratamento de Dados Esportivos e de Saúde</h3>
-          <p>
-            A sincronização de métricas esportivas (frequência cardíaca, distância, zonas de treino e sono) via relógios e apps parceiros (Garmin, Apple Watch, Strava) ocorre <b>exclusivamente mediante consentimento explícito</b> do titular, sendo utilizada unicamente para atestar a consistência esportiva e conceder nfs bônus.
+            A <b>Netfits Ltda.</b> atua como Controladora dos dados pessoais (Nome, CPF, E-mail, Celular, Data de Nascimento) e dados de telemetria esportiva/sensórios via Apple Health, Google Fit e Garmin.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">3. Não Compartilhamento Sem Autorização</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">2. Finalidades Específicas do Tratamento</h3>
           <p>
-            A Netfits <b>não vende, não aluga e não compartilha</b> seus dados pessoais ou históricos de treino com corretores de seguros, empresas de telemarketing ou terceiros não relacionados. O compartilhamento ocorre apenas com parceiros logísticos de entrega (ex: Netshoes, Asics) estritamente necessários para o despacho de pedidos realizados por você no Shop.
+            Os dados são utilizados para: a) Cálculo de recompensas em pontos nfs; b) Validação de auditoria antifraude e dwell time; c) Emissão de comprovantes e documentos fiscais; d) Comunicação de campanhas e benefícios.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">4. Direitos do Titular (Art. 18 da LGPD)</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">3. Direitos do Titular (Art. 18 da LGPD)</h3>
           <p>
-            Como titular dos dados, você pode a qualquer momento: a) Confirmar a existência de tratamento; b) Acessar e corrigir seus dados; c) Revogar este consentimento; d) Solicitar a exclusão definitiva de sua conta e dados dos nossos servidores pelo canal dpo@netfits.com.br.
+            Você pode exercer seus direitos de confirmação, acesso, correção, anonimização ou revogação do consentimento enviando uma solicitação ao nosso Encarregado pelo e-mail <b>dpo@netfits.com.br</b>.
           </p>
         </div>
 
