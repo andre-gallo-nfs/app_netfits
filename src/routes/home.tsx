@@ -51,9 +51,10 @@ function InstitutionalHomePage() {
       {/* 2. Hero Section */}
       <section className="relative overflow-hidden pt-16 pb-20 px-6 border-b border-zinc-800/60 bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-4 py-1.5">
-            <img src={netfitsMark} alt="" className="w-4 h-4 object-contain" />
-            <span className="text-xs font-extrabold tracking-wider text-lime-400 uppercase">
+          <div className="inline-flex items-center gap-3 bg-zinc-900/90 border-2 border-lime-400/80 rounded-2xl px-5 py-2.5 shadow-xl shadow-purple-950/40 backdrop-blur-md">
+            <img src={netfitsDarkLogo} alt="Netfits Logo" className="h-9 w-auto object-contain shrink-0" />
+            <div className="h-4 w-px bg-zinc-700" />
+            <span className="text-xs sm:text-sm font-extrabold tracking-wider text-lime-400 uppercase">
               Netfits Ltda. — Healthspan & Loyalty
             </span>
           </div>
