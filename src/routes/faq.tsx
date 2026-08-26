@@ -22,7 +22,7 @@ import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ & Central de Ajuda — Netfits Tecnologia Ltda." },
+      { title: "FAQ & Central de Ajuda — Netfits Ltda." },
       {
         name: "description",
         content:

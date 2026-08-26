@@ -1,5 +1,5 @@
 /**
- * Institutional Web Header Component — Netfits Tecnologia Ltda.
+ * Institutional Web Header Component — Netfits Ltda.
  * Menu fixo e unificado para todas as páginas web (Home, Admin, Associados, Parceiros, FAQ, Contato, Download)
  */
 

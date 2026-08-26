@@ -18,7 +18,7 @@ import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 export const Route = createFileRoute("/contato")({
   head: () => ({
     meta: [
-      { title: "Contato & Suporte — Netfits Tecnologia Ltda." },
+      { title: "Contato & Suporte — Netfits Ltda." },
       {
         name: "description",
         content:
@@ -125,7 +125,7 @@ function ContatoPage() {
               Sede Corporativa
             </h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Netfits Tecnologia Ltda.<br />
+              Netfits Ltda.<br />
               Av. Brigadeiro Faria Lima, 3477 — Itaim Bibi<br />
               São Paulo / SP — Brasil
             </p>

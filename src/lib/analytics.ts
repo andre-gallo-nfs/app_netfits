@@ -1,5 +1,5 @@
 /**
- * Google Analytics 4 (GA4) Global Tracking Engine — Netfits Tecnologia Ltda.
+ * Google Analytics 4 (GA4) Global Tracking Engine — Netfits Ltda.
  * Suporte completo a rastreamento de visualização de páginas (SPA routing),
  * eventos de conversão e-commerce, credenciamento B2B, downloads e engajamento.
  */

@@ -1,5 +1,5 @@
 /**
- * Accounting & Fiscal XML Generator — Netfits Tecnologia Ltda.
+ * Accounting & Fiscal XML Generator — Netfits Ltda.
  * Gerador de Arquivos XML Fiscais (NFS-e Padrão ABRASF v2.04) e Contábeis (Ledger de Pontos nfs & Fechamento Consolidado)
  */
 
@@ -57,7 +57,7 @@ export function generateNFSeTakeRateXML(data: NFSeItemData): string {
           <Cnpj>00000000000000</Cnpj>
           <InscricaoMunicipal>12345678</InscricaoMunicipal>
         </IdentificacaoPrestador>
-        <RazaoSocial>Netfits Tecnologia Ltda.</RazaoSocial>
+        <RazaoSocial>Netfits Ltda.</RazaoSocial>
         <NomeFantasia>Netfits</NomeFantasia>
         <Endereco>
           <Endereco>Av. Brigadeiro Faria Lima</Endereco>
@@ -106,7 +106,7 @@ export function generatePointsLedgerXML(data: PointsLedgerAccountingData): strin
   return `<?xml version="1.0" encoding="UTF-8"?>
 <NetfitsLedgerAuditReport xmlns="http://schema.netfits.com.br/ledger/v1">
   <Header>
-    <Company>Netfits Tecnologia Ltda.</Company>
+    <Company>Netfits Ltda.</Company>
     <CNPJ>00.000.000/0001-00</CNPJ>
     <PeriodMonth>${data.periodMonth}</PeriodMonth>
     <GeneratedAt>${new Date().toISOString()}</GeneratedAt>
@@ -138,7 +138,7 @@ export function generateMonthlyAccountingClosureXML(period: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <FechamentoContabilNetfits xmlns="http://schema.netfits.com.br/contabilidade/v1">
   <Empresa>
-    <RazaoSocial>Netfits Tecnologia Ltda.</RazaoSocial>
+    <RazaoSocial>Netfits Ltda.</RazaoSocial>
     <CNPJ>00.000.000/0001-00</CNPJ>
     <Periodo>${period}</Periodo>
   </Empresa>

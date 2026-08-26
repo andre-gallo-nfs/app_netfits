@@ -206,7 +206,7 @@ function DownloadAppPage() {
 
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-zinc-900 text-center text-xs text-zinc-500 space-y-2">
-        <p>© 2026 Netfits Tecnologia Ltda. Todos os direitos reservados.</p>
+        <p>© 2026 Netfits Ltda. Todos os direitos reservados.</p>
         <p><Link to="/home" className="text-zinc-400 hover:underline">Voltar para a Homepage Institucional</Link></p>
       </footer>
     </div>

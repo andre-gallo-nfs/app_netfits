@@ -30,13 +30,13 @@ import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Netfits Tecnologia Ltda. — A Primeira Camada de Fidelidade para a Vida em Movimento" },
+      { title: "Netfits Ltda. — A Primeira Camada de Fidelidade para a Vida em Movimento" },
       {
         name: "description",
         content:
           "Fazer cada movimento valer mais. Conheça a Netfits: feed de saúde, marketplace com cashback, ecossistema de parceiros e programa de fidelidade.",
       },
-      { property: "og:title", content: "Netfits Tecnologia Ltda. — Fazer cada movimento valer mais" },
+      { property: "og:title", content: "Netfits Ltda. — Fazer cada movimento valer mais" },
     ],
   }),
   component: InstitutionalHomePage,
@@ -54,7 +54,7 @@ function InstitutionalHomePage() {
           <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-4 py-1.5">
             <img src={netfitsMark} alt="" className="w-4 h-4 object-contain" />
             <span className="text-xs font-extrabold tracking-wider text-lime-400 uppercase">
-              Netfits Tecnologia Ltda. — Healthspan & Loyalty
+              Netfits Ltda. — Healthspan & Loyalty
             </span>
           </div>
 
@@ -220,14 +220,14 @@ function InstitutionalHomePage() {
 
           <div className="space-y-2">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Contato Corporativo</h4>
-            <p className="text-zinc-400">Netfits Tecnologia Ltda.</p>
+            <p className="text-zinc-400">Netfits Ltda.</p>
             <p className="text-zinc-400">suporte@netfits.com.br</p>
             <p className="text-zinc-400">São Paulo, SP — Brasil</p>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4 text-zinc-600 text-[11px]">
-          <p>© 2026 Netfits Tecnologia Ltda. Todos os direitos reservados.</p>
+          <p>© 2026 Netfits Ltda. Todos os direitos reservados.</p>
           <p>Slogan Oficial: "Fazer cada movimento valer mais."</p>
         </div>
       </footer>
