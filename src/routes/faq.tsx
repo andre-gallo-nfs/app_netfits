@@ -14,7 +14,14 @@ import {
   Zap, 
   ShieldCheck, 
   Award,
-  ArrowRight
+  ArrowRight,
+  FileText,
+  Scale,
+  Download,
+  BookOpen,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
@@ -26,9 +33,9 @@ export const Route = createFileRoute("/faq")({
       {
         name: "description",
         content:
-          "Tire suas dúvidas sobre pontos nfs, cashback no shop, cadastro de parceiros comerciais, programa de associados e integração com wearables.",
+          "Tire suas dúvidas sobre pontos nfs, cashback no shop, cadastro de parceiros comerciais, programa de associados, regulamento e termo LGPD.",
       },
-      { property: "og:title", content: "FAQ & Central de Ajuda — Netfits" },
+      { property: "og:title", content: "FAQ & Central de Ajuda — Netfits Ltda." },
     ],
   }),
   component: FaqPage,
@@ -36,7 +43,7 @@ export const Route = createFileRoute("/faq")({
 
 interface FaqItem {
   id: string;
-  category: "pontos" | "shop" | "parceiros" | "associados" | "wearables" | "club";
+  category: "pontos" | "shop" | "parceiros" | "associados" | "wearables" | "club" | "legal";
   categoryLabel: string;
   question: string;
   answer: string;
@@ -49,7 +56,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Programa de Pontos nfs",
     question: "O que são os pontos nfs e como funciona a validade e a regra FEFO?",
     answer:
-      "Os pontos nfs são a moeda de fidelidade do ecossistema Netfits. Cada ponto emitido é provisionado com 100% de solvência atuarial em caixa (R$ 0,01 por nfs). Os pontos possuem validade de 24 meses e utilizam o algoritmo protegido FEFO (First-Expiring, First-Out), garantindo que os lotes de pontos mais próximos do vencimento sejam consumidos primeiro em seus resgates."
+      "Os pontos nfs são a moeda de fidelidade do ecossistema Netfits. Cada ponto emitido é provisionado com 100% de solvência atuarial em caixa (R$ 0,01 por nfs). Os pontos possuem validade de 12 a 24 meses e utilizam o algoritmo protegido FEFO (First-Expiring, First-Out), garantindo que os lotes de pontos mais próximos do vencimento sejam consumidos primeiro em seus resgates."
   },
   {
     id: "faq_2",
@@ -66,6 +73,14 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Posso utilizar meus pontos nfs como pagamento parcial ou total no Shop?",
     answer:
       "Sim! Você pode utilizar seus pontos nfs como desconto direto no valor da compra (cotação de R$ 0,01 por nfs). A transação utiliza um protocolo seguro de reserva em duas fases (Two-Phase Lock) que trava os pontos por 15 minutos e gera um voucher token assinado e 100% rastreável no Ledger de Auditoria imutável da Netfits."
+  },
+  {
+    id: "faq_8",
+    category: "legal",
+    categoryLabel: "Termos & Conformidade Legal",
+    question: "Onde posso consultar o Regulamento Oficial, Regras Antifraude e o Termo LGPD?",
+    answer:
+      "O Regulamento Geral do Programa Netfits (com as regras antifraude de 100% de dwell time em vídeos e a cláusula irrevogável de exclusão sumária por descumprimento) e o Termo de Consentimento LGPD (Lei nº 13.709/2018) estão disponíveis para consulta integral e download em formato Word (.docx) na seção de Documentos Oficiais abaixo nesta página."
   },
   {
     id: "faq_4",
@@ -104,7 +119,11 @@ const FAQ_ITEMS: FaqItem[] = [
 function FaqPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [expandedId, setExpandedId] = useState<string | null>("faq_1");
+  const [expandedId, setExpandedId] = useState<string | null>("faq_8");
+
+  // Modais de Documentos Legais
+  const [showRegulamentoModal, setShowRegulamentoModal] = useState(false);
+  const [showLgpdModal, setShowLgpdModal] = useState(false);
 
   const filteredFaqs = FAQ_ITEMS.filter((item) => {
     const matchesSearch =
@@ -127,17 +146,17 @@ function FaqPage() {
       <section className="py-12 px-6 bg-gradient-to-b from-cyan-950/40 via-zinc-950 to-zinc-950 border-b border-zinc-800/60">
         <div className="max-w-3xl mx-auto text-center space-y-4">
           <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
-            Central de Ajuda & Suporte
+            Central de Ajuda & Termos Legais
           </span>
           <h1 className="text-3xl md:text-5xl font-black text-white">Perguntas Frequentes (FAQ)</h1>
-          <p className="text-sm text-zinc-400">Tudo o que você precisa saber sobre o ecossistema Netfits, pontos, cashback e parcerias.</p>
+          <p className="text-sm text-zinc-400">Tudo o que você precisa saber sobre o ecossistema Netfits Ltda., pontos, regras antifraude e LGPD.</p>
 
           {/* Search Input */}
           <div className="relative max-w-xl mx-auto pt-4">
             <Search className="absolute left-4 top-7 size-5 text-zinc-500" />
             <input
               type="text"
-              placeholder="Busque por palavra-chave (ex: cashback, pontos, parceiros, wearable)..."
+              placeholder="Busque por palavra-chave (ex: regulamento, lgpd, cashback, pontos)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl pl-12 pr-4 py-3.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-cyan-500 shadow-xl"
@@ -150,6 +169,7 @@ function FaqPage() {
       <section className="max-w-4xl mx-auto px-6 py-6 flex flex-wrap items-center justify-center gap-2">
         {[
           { id: "all", label: "Todas as Dúvidas" },
+          { id: "legal", label: "📄 Documentos Legais & LGPD" },
           { id: "pontos", label: "Pontos nfs & FEFO" },
           { id: "shop", label: "Shop & Cashback" },
           { id: "parceiros", label: "Parceiros Comerciais" },
@@ -160,7 +180,7 @@ function FaqPage() {
           <button
             key={tab.id}
             onClick={() => setActiveCategory(tab.id)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition border ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition border cursor-pointer ${
               activeCategory === tab.id
                 ? "bg-cyan-500 border-cyan-400 text-zinc-950 shadow-md"
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-white"
@@ -169,6 +189,104 @@ function FaqPage() {
             {tab.label}
           </button>
         ))}
+      </section>
+
+      {/* Section: Documentos Legais e Termos Oficiais */}
+      <section className="max-w-4xl mx-auto px-6 pb-8">
+        <div className="bg-gradient-to-br from-zinc-900 via-purple-950/30 to-zinc-900 border-2 border-purple-500/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+            <div className="flex items-center gap-3">
+              <div className="size-12 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30 grid place-items-center shrink-0">
+                <Scale className="size-6 text-lime-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2 flex-wrap">
+                  <span>Documentos Oficiais & Termos Legais</span>
+                  <span className="text-[10px] font-extrabold uppercase bg-purple-500/20 text-lime-400 border border-purple-500/40 px-2 py-0.5 rounded-full">
+                    Netfits Ltda.
+                  </span>
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Consulte a minuta oficial do Regulamento Geral do Programa, Matriz Antifraude e a Política LGPD.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Card 1: Regulamento Geral */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
+                    Parte I · Regulamento Geral
+                  </span>
+                  <FileText className="size-4 text-purple-400" />
+                </div>
+                <h4 className="font-extrabold text-white text-sm">
+                  Regulamento do Programa & Regras Antifraude
+                </h4>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Termos e condições de participação, acúmulo de pontos nfs, regra de 100% dwell time em vídeos e cláusula irrevogável de exclusão sumária por descumprimento.
+                </p>
+              </div>
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  onClick={() => setShowRegulamentoModal(true)}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md"
+                >
+                  <BookOpen className="size-3.5" />
+                  <span>Ler Regulamento</span>
+                </button>
+                <a
+                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                  className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  title="Baixar Minuta Oficial em Word (.docx)"
+                >
+                  <Download className="size-3.5 text-lime-400" />
+                  <span>.DOCX</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Card 2: Consentimento LGPD */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-lime-500/40 transition">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-lime-400 bg-lime-950/60 px-2 py-0.5 rounded-full border border-lime-500/30">
+                    Parte II · Lei Federal nº 13.709/2018
+                  </span>
+                  <ShieldCheck className="size-4 text-lime-400" />
+                </div>
+                <h4 className="font-extrabold text-white text-sm">
+                  Termo de Consentimento & Armazenamento (LGPD)
+                </h4>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Direitos do titular, finalidades de tratamento de dados cadastrais e telemetria sensível (passos, treinos, GPS), sigilo e DPO oficial.
+                </p>
+              </div>
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  onClick={() => setShowLgpdModal(true)}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-lime-500 hover:bg-lime-400 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md"
+                >
+                  <BookOpen className="size-3.5" />
+                  <span>Ler Termo LGPD</span>
+                </button>
+                <a
+                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                  className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  title="Baixar Minuta Oficial em Word (.docx)"
+                >
+                  <Download className="size-3.5 text-lime-400" />
+                  <span>.DOCX</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* FAQ Accordion List */}
@@ -189,7 +307,7 @@ function FaqPage() {
               >
                 <button
                   onClick={() => toggleExpand(faq.id)}
-                  className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-zinc-850 transition"
+                  className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-zinc-850 transition cursor-pointer"
                 >
                   <div className="space-y-1">
                     <span className="text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-500/20">
@@ -230,6 +348,121 @@ function FaqPage() {
           </Link>
         </div>
       </section>
+
+      {/* Modal 1: Regulamento Geral */}
+      {showRegulamentoModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-zinc-900 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col text-left">
+            <div className="flex justify-between items-center pb-3 border-b border-zinc-800 shrink-0">
+              <div className="flex items-center gap-2">
+                <FileText className="size-5 text-purple-400" />
+                <h3 className="text-base font-extrabold text-white">
+                  Regulamento Geral do Programa — Netfits Ltda.
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowRegulamentoModal(false)}
+                className="text-zinc-400 hover:text-white font-bold size-8 rounded-full bg-zinc-800 grid place-items-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4 text-xs text-zinc-300 leading-relaxed pr-2 border-b border-zinc-800 pb-4">
+              <div className="bg-purple-950/40 border border-purple-500/30 p-3 rounded-2xl text-[11px] text-purple-200">
+                <p className="font-bold text-white mb-0.5">📌 Razão Social da Organizadora:</p>
+                <p><b>NETFITS LTDA.</b> (CNPJ nº 00.000.000/0001-00) — Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP.</p>
+              </div>
+
+              <h4 className="font-extrabold text-white text-sm">Cláusula 1ª — Do Objeto e da Adesão</h4>
+              <p>O Regulamento rege a participação no Programa Netfits, ecossistema digital de longevidade, treino e acúmulo de pontos nfs. A adesão se consolida ao cadastrar-se no app ou web.</p>
+
+              <h4 className="font-extrabold text-white text-sm">Cláusula 4ª — Matriz Antifraude e Retenção de Vídeos (100% Dwell Time)</h4>
+              <p>A atribuição de pontos nfs por vídeos exige <b>retenção visual contínua de 100% do tempo de duração do arquivo</b>. É proibido o uso de robôs, scripts, emuladores de GPS, automações ou contas falsas.</p>
+
+              <div className="bg-red-950/60 border border-red-500/50 p-3 rounded-2xl text-[11px] text-red-200 space-y-1">
+                <p className="font-black text-red-400">⚠️ Cláusula 5ª — DIREITO IRREVOGÁVEL DE EXCLUSÃO SUMÁRIA:</p>
+                <p>A NETFITS LTDA. reserva-se o direito incondicional e inalienável de <b>cancelar ou excluir sumariamente qualquer conta de Usuário</b> em caso de descumprimento do Regulamento ou suspeita de fraude, resultando na <b>perda imediata e irreversível de 100% dos pontos nfs acumulados</b>, sem qualquer direito a reembolso ou indenização.</p>
+              </div>
+
+              <h4 className="font-extrabold text-white text-sm">Cláusula 6ª — Validade dos Pontos (Política FEFO)</h4>
+              <p>Os pontos nfs expiram em 12 a 24 meses sob o algoritmo FEFO (First-Expiring, First-Out), priorizando o consumo dos lotes com vencimento mais próximo.</p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
+              <a
+                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
+              >
+                <Download className="size-4 text-lime-400" />
+                <span>Baixar Minuta em Word (.docx)</span>
+              </a>
+              <button
+                onClick={() => setShowRegulamentoModal(false)}
+                className="py-2.5 px-6 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs transition shadow-md"
+              >
+                Fechar Visualizador
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 2: Termo LGPD */}
+      {showLgpdModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-zinc-900 border border-lime-500/40 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col text-left">
+            <div className="flex justify-between items-center pb-3 border-b border-zinc-800 shrink-0">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-5 text-lime-400" />
+                <h3 className="text-base font-extrabold text-white">
+                  Termo de Consentimento & LGPD — Netfits Ltda.
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowLgpdModal(false)}
+                className="text-zinc-400 hover:text-white font-bold size-8 rounded-full bg-zinc-800 grid place-items-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4 text-xs text-zinc-300 leading-relaxed pr-2 border-b border-zinc-800 pb-4">
+              <div className="bg-lime-950/40 border border-lime-500/30 p-3 rounded-2xl text-[11px] text-lime-200">
+                <p className="font-bold text-white mb-0.5">🔒 Conformidade com a Lei Federal nº 13.709/2018:</p>
+                <p>A <b>NETFITS LTDA.</b> atua como Controladora responsável pelo tratamento seguro dos dados pessoais e sensíveis do Titular.</p>
+              </div>
+
+              <h4 className="font-extrabold text-white text-sm">1. Categorias de Dados Coletados</h4>
+              <p>Tratamento de dados cadastrais (Nome, CPF, E-mail, Celular, Nascimento), dados de atividade física/saúde (passos, treinos, GPS via Apple Health/Google Fit/Garmin) e dados de navegação (dwell time em vídeos e IP).</p>
+
+              <h4 className="font-extrabold text-white text-sm">2. Finalidades do Tratamento</h4>
+              <p>Atribuição de pontos nfs, auditoria da Matriz Antifraude, emissão de comprovantes contábeis e fiscais, e oferta personalizada de benefícios esportivos.</p>
+
+              <h4 className="font-extrabold text-white text-sm">3. Direitos do Titular (Art. 18 da LGPD)</h4>
+              <p>Confirmação, acesso, correção, anonimização, bloqueio ou eliminação de dados solicitados através do canal oficial do Encarregado de Dados pelo e-mail <b>dpo@netfits.com.br</b>.</p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
+              <a
+                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
+                className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
+              >
+                <Download className="size-4 text-lime-400" />
+                <span>Baixar Minuta em Word (.docx)</span>
+              </a>
+              <button
+                onClick={() => setShowLgpdModal(false)}
+                className="py-2.5 px-6 rounded-xl bg-lime-500 hover:bg-lime-400 text-zinc-950 font-black text-xs transition shadow-md"
+              >
+                Fechar Visualizador
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
