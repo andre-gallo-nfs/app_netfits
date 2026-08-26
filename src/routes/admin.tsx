@@ -589,9 +589,14 @@ const TOP_FEED_CONTENTS = [
 ];
 
 function AdminDashboardPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [adminUser, setAdminUser] = useState("admin@netfits.com.br");
-  const [adminPassword, setAdminPassword] = useState("Admin@2026");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("netfits_admin_authenticated") === "true";
+    }
+    return false;
+  });
+  const [adminUser, setAdminUser] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
 
   const [activeTab, setActiveTab] = useState<TabType>("params");
   const [isLive, setIsLive] = useState(true);
@@ -599,16 +604,35 @@ function AdminDashboardPage() {
 
   useEffect(() => {
     sharedSandboxStore.syncFromCloud();
+    const timer = setInterval(() => {
+      sharedSandboxStore.syncFromCloud();
+      setLastUpdated(new Date().toLocaleTimeString());
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adminUser || !adminPassword) {
+    const cleanUser = adminUser.trim().toLowerCase();
+    const cleanPass = adminPassword.trim();
+
+    if (!cleanUser || !cleanPass) {
       toast.error("Informe seu e-mail de administrador e sua senha.");
       return;
     }
-    setIsAuthenticated(true);
-    toast.success("Acesso administrativo executivo concedido!");
+
+    if (
+      (cleanUser === "admin@netfits.com.br" || cleanUser === "diretoria@netfits.com.br") &&
+      (cleanPass === "Admin@2026" || cleanPass === "Netfits#2026")
+    ) {
+      setIsAuthenticated(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("netfits_admin_authenticated", "true");
+      }
+      toast.success("Acesso administrativo executivo concedido!");
+    } else {
+      toast.error("Credenciais incorretas! Verifique o e-mail e a Senha Master.");
+    }
   };
 
   // Filtro Global de Período de Tempo Acumulado
@@ -930,6 +954,21 @@ function AdminDashboardPage() {
             title="Alternar modo Realtime"
           >
             <RefreshCw className={`size-4 ${isLive ? "animate-spin" : ""}`} />
+          </button>
+          
+          <button
+            onClick={() => {
+              setIsAuthenticated(false);
+              if (typeof window !== "undefined") {
+                sessionStorage.removeItem("netfits_admin_authenticated");
+              }
+              toast.info("Sessão administrativa encerrada.");
+            }}
+            className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-red-950/60 hover:border-red-500/40 text-zinc-300 hover:text-red-300 border border-zinc-700 text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
+            title="Encerrar Sessão Admin"
+          >
+            <Lock className="size-3.5" />
+            <span>Sair</span>
           </button>
         </div>
       </header>

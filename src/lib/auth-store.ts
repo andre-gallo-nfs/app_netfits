@@ -167,18 +167,30 @@ export const authStore = {
     // 2. Checar lista do Banco Provisório Compartilhado
     const sandboxUsers = sharedSandboxStore.getUsers();
     for (const su of sandboxUsers) {
-      if (su.identifier.toLowerCase() === raw || su.identifier.replace(/\D/g, "") === digits) {
+      const uEmail = (su.email || su.identifier || "").toLowerCase().trim();
+      const uPhone = cleanDigits(su.phone || su.identifier || "");
+      const uCpf = cleanDigits(su.cpf || "");
+
+      const isEmailMatch = uEmail.length > 0 && uEmail === raw;
+      const isPhoneMatch = digits.length > 0 && uPhone.length > 0 && uPhone === digits;
+      const isCpfMatch = digits.length > 0 && uCpf.length > 0 && uCpf === digits;
+
+      if (isEmailMatch || isPhoneMatch || isCpfMatch) {
         const adaptedUser: StoredUser = {
           id: su.id,
           fullName: su.fullName,
-          email: su.identifier,
-          phone: su.identifier.includes("@") ? "" : su.identifier,
-          cpf: "",
-          passwordHash: "Pass@1234", // senha padrao de homologacao
+          email: su.email || su.identifier,
+          phone: su.phone || "",
+          cpf: su.cpf || "",
+          passwordHash: "Pass@1234",
           userCategory: su.type === "associado" ? "associado" : "atleta",
           registeredAt: su.registeredAt,
         };
-        return { exists: true, matchedField: "email", matchedUser: adaptedUser };
+        return {
+          exists: true,
+          matchedField: isEmailMatch ? "email" : isPhoneMatch ? "phone" : "cpf",
+          matchedUser: adaptedUser,
+        };
       }
     }
 

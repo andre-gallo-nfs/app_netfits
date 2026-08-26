@@ -333,11 +333,13 @@ class HomologationSandboxStore {
         if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
           let hasChanges = false;
           for (const cu of cloudUsers) {
+            if (!cu || !cu.id) continue;
             const idx = this.state.users.findIndex(
               (u) =>
                 u.id === cu.id ||
                 (u.email && cu.email && u.email.trim().toLowerCase() === cu.email.trim().toLowerCase()) ||
-                (u.identifier && cu.identifier && u.identifier.trim().toLowerCase() === cu.identifier.trim().toLowerCase())
+                (u.identifier && cu.identifier && u.identifier.trim().toLowerCase() === cu.identifier.trim().toLowerCase()) ||
+                (u.cpf && cu.cpf && u.cpf.replace(/\D/g, "") === cu.cpf.replace(/\D/g, ""))
             );
             if (idx >= 0) {
               const prev = JSON.stringify(this.state.users[idx]);
@@ -368,17 +370,55 @@ class HomologationSandboxStore {
   public async syncToCloud(): Promise<void> {
     if (typeof window === "undefined") return;
     try {
+      // 1. Buscar cadastros prévios da nuvem para mesclar antes de enviar
+      let cloudUsers: SandboxUser[] = [];
+      try {
+        const res = await fetch(CLOUD_SYNC_ENDPOINT, { cache: "no-store" });
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json?.data?.users)) {
+            cloudUsers = json.data.users;
+          }
+        }
+      } catch (e) {
+        console.warn("[CloudSync Pre-fetch Warning]", e);
+      }
+
+      // 2. Consolidar usuários únicos em um Map
+      const userMap = new Map<string, SandboxUser>();
+      
+      // Inserir remotos
+      for (const cu of cloudUsers) {
+        if (cu && cu.id) {
+          userMap.set(cu.id, cu);
+        }
+      }
+
+      // Inserir/Atualizar locais
+      for (const lu of this.state.users) {
+        if (lu && lu.id) {
+          userMap.set(lu.id, lu);
+        }
+      }
+
+      const mergedUsers = Array.from(userMap.values());
+      this.state.users = mergedUsers;
+      this.saveToStorageLocally();
+
+      // 3. Enviar base unificada para o servidor de sincronização
       await fetch(CLOUD_SYNC_ENDPOINT, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: "Netfits Cloud Users",
+          name: "Netfits Global Sync",
           data: {
-            users: this.state.users,
+            users: mergedUsers,
             transactions: this.state.transactions.slice(0, 50),
           },
         }),
       });
+      
+      this.notify();
     } catch (err) {
       console.warn("[CloudSync Push Warning]", err);
     }
