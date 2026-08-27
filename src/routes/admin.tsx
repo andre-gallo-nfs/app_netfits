@@ -1232,6 +1232,46 @@ function AdminDashboardPage() {
               />
             </div>
 
+            {/* Linha 2: KPIs de Audiência & Funil de Conversão */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              <KpiCard
+                title="Tempo Médio de Sessão"
+                value="16m 24s"
+                change="+18.5%"
+                positive={true}
+                icon={Clock}
+                subtext="Permanência ativa média no app"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Taxa Bounce Back (Rejeição)"
+                value="9,8%"
+                change="-4.2%"
+                positive={true}
+                icon={RotateCcw}
+                subtext="Sessões de retorno <15s mitigadas"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Recorrência (Último Acesso)"
+                value="8,4 horas"
+                change="-12.0%"
+                positive={true}
+                icon={Activity}
+                subtext="Tempo médio entre sessões ativas"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+              <KpiCard
+                title="Funil: Clique ➔ Compra"
+                value="6,18%"
+                change="+1.4%"
+                positive={true}
+                icon={MousePointerClick}
+                subtext="Conversão de clique de vídeo para venda"
+                periodBadge={currentPeriodObj.shortLabel}
+              />
+            </div>
+
             {/* PAINEL DE OKRs ESTRATÉGICOS DO NEGÓCIO (BUSINESS PLAN NETFITS) */}
             <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-6 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-4 flex-wrap gap-2">
@@ -1426,6 +1466,76 @@ function AdminDashboardPage() {
                         <span className="text-purple-300 font-mono font-bold">45.8% Líquida</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-[100%]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* OKR 5: Audiência do App, Retenção & Funil de Conversão */}
+                <div className="bg-zinc-950 p-5 rounded-2xl border border-cyan-500/40 space-y-3 md:col-span-2 lg:col-span-2 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="size-2 rounded-full bg-cyan-400 animate-pulse" />
+                      <span className="text-xs font-black text-cyan-300 uppercase tracking-wider">
+                        OKR 5: Audiência do App, Retenção & Funil de Conversão
+                      </span>
+                    </div>
+                    <span className="text-[10px] bg-cyan-400/20 text-cyan-300 font-extrabold px-2.5 py-0.5 rounded-full border border-cyan-400/40">
+                      Superado 🚀 (100% Dwell Time & High Conversion)
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-300">
+                    Objetivo: Maximizar a permanência ativa do usuário, mitigar o bounce back, aumentar a frequência de acessos e otimizar o funil de clique ➔ visualização integral de vídeos (100% dwell time) ➔ conversão final em compra no Netfits Shop.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-2">
+                    {/* KR 5.1 */}
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.1 Tempo de Sessão</span>
+                      <p className="text-base font-black text-white">16m 24s</p>
+                      <p className="text-[10px] text-lime-400 font-bold">Meta: &gt;12m (Superou 🚀)</p>
+                      <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-cyan-500 to-lime-400 w-full" />
+                      </div>
+                    </div>
+
+                    {/* KR 5.2 */}
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.2 Taxa Bounce Back</span>
+                      <p className="text-base font-black text-white">9,8%</p>
+                      <p className="text-[10px] text-lime-400 font-bold">Meta: &lt;15% (Baixa Rejeição)</p>
+                      <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    {/* KR 5.3 */}
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.3 Tempo Últ. Acesso</span>
+                      <p className="text-base font-black text-white">8,4 horas</p>
+                      <p className="text-[10px] text-cyan-300 font-bold">Meta: &lt;18h (Recorrência diária)</p>
+                      <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
+                        <div className="h-full bg-cyan-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    {/* KR 5.4 */}
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.4 Clique ➔ Vídeo 100%</span>
+                      <p className="text-base font-black text-white">84,2%</p>
+                      <p className="text-[10px] text-lime-400 font-bold">Meta: &gt;75% (Retenção Vídeo)</p>
+                      <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
+                        <div className="h-full bg-lime-400 w-[100%]" />
+                      </div>
+                    </div>
+
+                    {/* KR 5.5 */}
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.5 Visualização ➔ Compra</span>
+                      <p className="text-base font-black text-white">6,18%</p>
+                      <p className="text-[10px] text-purple-300 font-bold">Meta: &gt;5,0% (Conversão Shop)</p>
+                      <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-purple-500 w-[100%]" />
                       </div>
                     </div>

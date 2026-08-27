@@ -930,7 +930,7 @@ export {
   FlaskConical as F,
   Gift as G,
   House as H,
-  MousePointerClick as I,
+  Megaphone as I,
   Store as J,
   Tag as K,
   Link2 as L,
@@ -1016,5 +1016,5 @@ export {
   Layers as w,
   Clock as x,
   Download as y,
-  Megaphone as z
+  MousePointerClick as z
 };
