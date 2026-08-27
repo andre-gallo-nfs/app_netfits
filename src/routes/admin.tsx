@@ -4044,8 +4044,9 @@ function AdminDashboardPage() {
             {/* Slide Navigation Bar */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none pb-2 border-b border-zinc-800/80">
               {[
-                "1. Capa", "2. Problema", "3. Solução", "4. Mercado TAM", "5. Monetização",
-                "6. Programa nfs", "7. Aquisição & Influenciadores", "8. Unit Economics", "9. Canais B2B2C", "10. Moat Tech", "11. Captação & Alocação", "12. Visão & Valores"
+                "1. Capa & Flywheel", "2. O Problema", "3. Engagement Loop", "4. Tração & MVP",
+                "5. Mercado Bottom-Up", "6. Monetização Multi-Stream", "7. Unit Economics", "8. Moat Tech & AI Squad",
+                "9. Time (Why Us)", "10. Roadmap 18M", "11. The Ask (Seed R$ 3,5M)", "12. Apêndice Tokenomics"
               ].map((name, idx) => (
                 <button
                   key={idx}
