@@ -213,7 +213,7 @@ function FaqPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Card 1: Regulamento Geral */}
             <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
               <div className="space-y-2">
@@ -286,6 +286,48 @@ function FaqPage() {
                 >
                   <Download className="size-3.5 text-lime-400" />
                   <span>.PDF</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Card 3: Arquitetura de IA (Squad de 8 Agentes) */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-cyan-500/40 transition">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                    Proposta Estratégica · IA 2026.2
+                  </span>
+                  <Cpu className="size-4 text-cyan-400" />
+                </div>
+                <h4 className="font-extrabold text-white text-sm">
+                  Arquitetura do Squad de 8 Agentes de IA
+                </h4>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Especificação executiva completa da operação de IA autônoma omnichannel, recomendação de modelos (Gemini Pro/Flash/Lite), KPIs e governança fiscal contábil.
+                </p>
+              </div>
+              <div className="pt-2 flex items-center gap-2">
+                <a
+                  href="/docs/arquitetura_squad_agentes_ia_netfits.pdf"
+                  download="arquitetura_squad_agentes_ia_netfits.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md"
+                  title="Baixar Arquitetura em PDF com Marca d'Água"
+                >
+                  <Download className="size-3.5 text-lime-400" />
+                  <span>.PDF Marca d'Água</span>
+                </a>
+                <a
+                  href="/docs/arquitetura_squad_agentes_ia_netfits.docx"
+                  download="arquitetura_squad_agentes_ia_netfits.docx"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  title="Baixar Documento Editável Word (.docx)"
+                >
+                  <FileText className="size-3.5 text-cyan-400" />
+                  <span>.DOCX</span>
                 </a>
               </div>
             </div>
