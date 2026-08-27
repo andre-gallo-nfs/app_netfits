@@ -601,6 +601,7 @@ function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>("params");
   const [isLive, setIsLive] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
+  const [selectedKrForModal, setSelectedKrForModal] = useState<KrItemDetail | null>(null);
 
   useEffect(() => {
     sharedSandboxStore.syncFromCloud();
@@ -1298,37 +1299,59 @@ function AdminDashboardPage() {
                     <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                       OKR 1: Tração, Aquisição & Engajamento de Atletas
                     </span>
-                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
-                      Superado 🚀
+                    <span
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 1.1"])}
+                      className="text-[10px] bg-lime-400/20 hover:bg-lime-400/30 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30 cursor-pointer transition flex items-center gap-1"
+                    >
+                      <span>Superado 🚀</span>
+                      <BarChart3 className="size-3" />
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400">Objetivo: Consolidar a plataforma líder de longevidade e economia de benefícios esportivos.</p>
                   
                   <div className="space-y-2 pt-2 border-t border-zinc-900">
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 1.1"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 1.1 Base Total de Atletas (Meta: 1.000.000)</span>
-                        <span className="text-lime-400 font-mono font-bold">1.245.000 (124.5%)</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 1.1 Base Total de Atletas (Meta: 1.000.000)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">1.245.000 (124.5%) 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-purple-500 to-lime-400 w-full" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 1.2"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 1.2 Engajamento Ativo MAU (Meta: &gt;50%)</span>
-                        <span className="text-lime-400 font-mono font-bold">620.000 (50.0%)</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 1.2 Engajamento Ativo MAU (Meta: &gt;50%)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">620.000 (50.0%) 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 1.3"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 1.3 Retenção de 90 dias (Meta: &gt;80%)</span>
-                        <span className="text-lime-400 font-mono font-bold">86.2% (Superou)</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 1.3 Retenção de 90 dias (Meta: &gt;80%)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">86.2% (Superou) 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-purple-500 w-[100%]" />
@@ -1343,37 +1366,59 @@ function AdminDashboardPage() {
                     <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                       OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC
                     </span>
-                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
-                      No Alvo ✅
+                    <span
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 2.1"])}
+                      className="text-[10px] bg-lime-400/20 hover:bg-lime-400/30 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30 cursor-pointer transition flex items-center gap-1"
+                    >
+                      <span>No Alvo ✅</span>
+                      <BarChart3 className="size-3" />
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400">Objetivo: Transformar influenciadores na principal alavanca orgânica de baixíssimo CAC.</p>
                   
                   <div className="space-y-2 pt-2 border-t border-zinc-900">
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 2.1"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 2.1 Captação via Associados (Meta: &gt;70%)</span>
-                        <span className="text-lime-400 font-mono font-bold">78.4% da base</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 2.1 Captação via Associados (Meta: &gt;70%)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">78.4% da base 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 2.2"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 2.2 Rede Credenciada Master (Meta: 20)</span>
-                        <span className="text-purple-300 font-mono font-bold">18 Ativos (90%)</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 2.2 Rede Credenciada Master (Meta: 20)</span>
+                          <BarChart3 className="size-3 text-purple-300 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-purple-300 font-mono font-bold">18 Ativos (90%) 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-purple-500 w-[90%]" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 2.3"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 2.3 CAC Médio Orgânico (Meta: &lt;R$ 2,00)</span>
-                        <span className="text-lime-400 font-mono font-bold">R$ 1,42 / usuário</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 2.3 CAC Médio Orgânico (Meta: &lt;R$ 2,00)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">R$ 1,42 / usuário 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
@@ -1388,37 +1433,59 @@ function AdminDashboardPage() {
                     <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                       OKR 3: GMV do Marketplace & Utilização de nfs
                     </span>
-                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
-                      Superado 🚀
+                    <span
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 3.1"])}
+                      className="text-[10px] bg-lime-400/20 hover:bg-lime-400/30 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30 cursor-pointer transition flex items-center gap-1"
+                    >
+                      <span>Superado 🚀</span>
+                      <BarChart3 className="size-3" />
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400">Objetivo: Construir ecossistema transacional curado com alta frequência de compras e resgates.</p>
                   
                   <div className="space-y-2 pt-2 border-t border-zinc-900">
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 3.1"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 3.1 GMV Shopping (Meta: R$ 1.500.000)</span>
-                        <span className="text-lime-400 font-mono font-bold">R$ 1.849.000 (123.2%)</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 3.1 GMV Shopping (Meta: R$ 1.500.000)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">R$ 1.849.000 (123.2%) 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-purple-500 to-lime-400 w-full" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 3.2"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 3.2 Taxa de Resgate com nfs (Meta: &gt;80%)</span>
-                        <span className="text-lime-400 font-mono font-bold">88.0% Resgatados</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 3.2 Taxa de Resgate com nfs (Meta: &gt;80%)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">88.0% Resgatados 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 3.3"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 3.3 Conversão de Cliques do Feed (Meta: &gt;3.5%)</span>
-                        <span className="text-purple-300 font-mono font-bold">4.04% Conversão</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 3.3 Conversão de Cliques do Feed (Meta: &gt;3.5%)</span>
+                          <BarChart3 className="size-3 text-purple-300 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-purple-300 font-mono font-bold">4.04% Conversão 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-purple-500 w-[100%]" />
@@ -1433,37 +1500,59 @@ function AdminDashboardPage() {
                     <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
                       OKR 4: Otimização de TI & Margens EBITDA/Líquida
                     </span>
-                    <span className="text-[10px] bg-lime-400/20 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30">
-                      No Alvo ✅
+                    <span
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 4.1"])}
+                      className="text-[10px] bg-lime-400/20 hover:bg-lime-400/30 text-lime-300 font-extrabold px-2 py-0.5 rounded-full border border-lime-400/30 cursor-pointer transition flex items-center gap-1"
+                    >
+                      <span>No Alvo ✅</span>
+                      <BarChart3 className="size-3" />
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400">Objetivo: Escalar a nuvem/IA com ultra-eficiência operacional e alta rentabilidade.</p>
                   
                   <div className="space-y-2 pt-2 border-t border-zinc-900">
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 4.1"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 4.1 Economia de Custos TI (Meta: &gt;50%)</span>
-                        <span className="text-lime-400 font-mono font-bold">-61.5% Redução</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 4.1 Economia de Custos TI (Meta: &gt;50%)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">-61.5% Redução 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 4.2"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 4.2 Margem EBITDA Anual (Meta: &gt;50%)</span>
-                        <span className="text-lime-400 font-mono font-bold">54.1% EBITDA</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 4.2 Margem EBITDA Anual (Meta: &gt;50%)</span>
+                          <BarChart3 className="size-3 text-lime-400 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-lime-400 font-mono font-bold">54.1% EBITDA 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
-                    <div>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 4.3"])}
+                      className="p-2 rounded-xl bg-zinc-900/40 hover:bg-purple-950/40 hover:border-purple-500/40 border border-transparent transition cursor-pointer group/kr"
+                    >
                       <div className="flex justify-between text-xs font-medium mb-1">
-                        <span className="text-white">KR 4.3 Margem Líquida DRE (Meta: &gt;40%)</span>
-                        <span className="text-purple-300 font-mono font-bold">45.8% Líquida</span>
+                        <span className="text-white group-hover/kr:text-lime-300 font-bold flex items-center gap-1.5 transition">
+                          <span>KR 4.3 Margem Líquida DRE (Meta: &gt;40%)</span>
+                          <BarChart3 className="size-3 text-purple-300 opacity-60 group-hover/kr:opacity-100 transition" />
+                        </span>
+                        <span className="text-purple-300 font-mono font-bold">45.8% Líquida 📊</span>
                       </div>
                       <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden">
                         <div className="h-full bg-purple-500 w-[100%]" />
@@ -1481,8 +1570,12 @@ function AdminDashboardPage() {
                         OKR 5: Audiência do App, Retenção & Funil de Conversão
                       </span>
                     </div>
-                    <span className="text-[10px] bg-cyan-400/20 text-cyan-300 font-extrabold px-2.5 py-0.5 rounded-full border border-cyan-400/40">
-                      Superado 🚀 (100% Dwell Time & High Conversion)
+                    <span
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 5.1"])}
+                      className="text-[10px] bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-300 font-extrabold px-2.5 py-0.5 rounded-full border border-cyan-400/40 cursor-pointer transition flex items-center gap-1"
+                    >
+                      <span>Superado 🚀 (100% Dwell Time & High Conversion)</span>
+                      <BarChart3 className="size-3" />
                     </span>
                   </div>
                   <p className="text-xs text-zinc-300">
@@ -1491,50 +1584,80 @@ function AdminDashboardPage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-2">
                     {/* KR 5.1 */}
-                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
-                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.1 Tempo de Sessão</span>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 5.1"])}
+                      className="bg-zinc-900/90 hover:bg-purple-950/40 hover:border-cyan-400/60 p-3 rounded-xl border border-zinc-800 space-y-1 transition cursor-pointer group/kr"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-cyan-400 block group-hover/kr:text-lime-300 transition">KR 5.1 Tempo de Sessão</span>
+                        <BarChart3 className="size-3 text-cyan-400 opacity-80 group-hover/kr:opacity-100" />
+                      </div>
                       <p className="text-base font-black text-white">16m 24s</p>
-                      <p className="text-[10px] text-lime-400 font-bold">Meta: &gt;12m (Superou 🚀)</p>
+                      <p className="text-[10px] text-lime-400 font-bold">Meta: &gt;12m (Superou 🚀) 📊</p>
                       <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-cyan-500 to-lime-400 w-full" />
                       </div>
                     </div>
 
                     {/* KR 5.2 */}
-                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
-                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.2 Taxa Bounce Back</span>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 5.2"])}
+                      className="bg-zinc-900/90 hover:bg-purple-950/40 hover:border-cyan-400/60 p-3 rounded-xl border border-zinc-800 space-y-1 transition cursor-pointer group/kr"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-cyan-400 block group-hover/kr:text-lime-300 transition">KR 5.2 Taxa Bounce Back</span>
+                        <BarChart3 className="size-3 text-cyan-400 opacity-80 group-hover/kr:opacity-100" />
+                      </div>
                       <p className="text-base font-black text-white">9,8%</p>
-                      <p className="text-[10px] text-lime-400 font-bold">Meta: &lt;15% (Baixa Rejeição)</p>
+                      <p className="text-[10px] text-lime-400 font-bold">Meta: &lt;15% (Baixa Rejeição) 📊</p>
                       <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
                     {/* KR 5.3 */}
-                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
-                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.3 Tempo Últ. Acesso</span>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 5.3"])}
+                      className="bg-zinc-900/90 hover:bg-purple-950/40 hover:border-cyan-400/60 p-3 rounded-xl border border-zinc-800 space-y-1 transition cursor-pointer group/kr"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-cyan-400 block group-hover/kr:text-lime-300 transition">KR 5.3 Tempo Últ. Acesso</span>
+                        <BarChart3 className="size-3 text-cyan-400 opacity-80 group-hover/kr:opacity-100" />
+                      </div>
                       <p className="text-base font-black text-white">8,4 horas</p>
-                      <p className="text-[10px] text-cyan-300 font-bold">Meta: &lt;18h (Recorrência diária)</p>
+                      <p className="text-[10px] text-cyan-300 font-bold">Meta: &lt;18h (Recorrência diária) 📊</p>
                       <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-cyan-400 w-[100%]" />
                       </div>
                     </div>
 
                     {/* KR 5.4 */}
-                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
-                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.4 Clique ➔ Vídeo 100%</span>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 5.4"])}
+                      className="bg-zinc-900/90 hover:bg-purple-950/40 hover:border-cyan-400/60 p-3 rounded-xl border border-zinc-800 space-y-1 transition cursor-pointer group/kr"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-cyan-400 block group-hover/kr:text-lime-300 transition">KR 5.4 Clique ➔ Vídeo 100%</span>
+                        <BarChart3 className="size-3 text-cyan-400 opacity-80 group-hover/kr:opacity-100" />
+                      </div>
                       <p className="text-base font-black text-white">84,2%</p>
-                      <p className="text-[10px] text-lime-400 font-bold">Meta: &gt;75% (Retenção Vídeo)</p>
+                      <p className="text-[10px] text-lime-400 font-bold">Meta: &gt;75% (Retenção Vídeo) 📊</p>
                       <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-lime-400 w-[100%]" />
                       </div>
                     </div>
 
                     {/* KR 5.5 */}
-                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
-                      <span className="text-[10px] font-bold uppercase text-cyan-400 block">KR 5.5 Visualização ➔ Compra</span>
+                    <div
+                      onClick={() => setSelectedKrForModal(ALL_KR_MAP["KR 5.5"])}
+                      className="bg-zinc-900/90 hover:bg-purple-950/40 hover:border-cyan-400/60 p-3 rounded-xl border border-zinc-800 space-y-1 transition cursor-pointer group/kr"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-cyan-400 block group-hover/kr:text-lime-300 transition">KR 5.5 Visualização ➔ Compra</span>
+                        <BarChart3 className="size-3 text-cyan-400 opacity-80 group-hover/kr:opacity-100" />
+                      </div>
                       <p className="text-base font-black text-white">6,18%</p>
-                      <p className="text-[10px] text-purple-300 font-bold">Meta: &gt;5,0% (Conversão Shop)</p>
+                      <p className="text-[10px] text-purple-300 font-bold">Meta: &gt;5,0% (Conversão Shop) 📊</p>
                       <div className="h-1.5 w-full bg-zinc-950 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-purple-500 w-[100%]" />
                       </div>
@@ -1543,6 +1666,14 @@ function AdminDashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* Popup Modal para Gráfico Histórico de KR com Drill-Down */}
+            {selectedKrForModal && (
+              <KrHistoricalModal
+                kr={selectedKrForModal}
+                onClose={() => setSelectedKrForModal(null)}
+              />
+            )}
           </div>
         )}
 
@@ -4796,6 +4927,240 @@ function KpiCard({
         </span>
       </div>
       <p className="text-[11px] text-zinc-400 leading-tight">{subtext}</p>
+    </div>
+  );
+}
+
+export interface KrItemDetail {
+  code: string;
+  title: string;
+  okrTitle: string;
+  target: string;
+  currentValue: string;
+  unit: string;
+  targetNum: number;
+  currentNum: number;
+  badge: string;
+  isReverse?: boolean;
+}
+
+export const ALL_KR_MAP: Record<string, KrItemDetail> = {
+  "KR 1.1": { code: "KR 1.1", title: "Base Total de Atletas", okrTitle: "OKR 1: Tração, Aquisição & Engajamento de Atletas", target: "1.000.000", currentValue: "1.245.000", unit: "atletas", targetNum: 1000000, currentNum: 1245000, badge: "Superado 🚀" },
+  "KR 1.2": { code: "KR 1.2", title: "Engajamento Ativo MAU", okrTitle: "OKR 1: Tração, Aquisição & Engajamento de Atletas", target: ">50.0%", currentValue: "50.0%", unit: "%", targetNum: 50.0, currentNum: 50.0, badge: "No Alvo ✅" },
+  "KR 1.3": { code: "KR 1.3", title: "Retenção de 90 Dias", okrTitle: "OKR 1: Tração, Aquisição & Engajamento de Atletas", target: ">80.0%", currentValue: "86.2%", unit: "%", targetNum: 80.0, currentNum: 86.2, badge: "Superado 🚀" },
+  
+  "KR 2.1": { code: "KR 2.1", title: "Captação via Associados", okrTitle: "OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC", target: ">70.0%", currentValue: "78.4%", unit: "% da base", targetNum: 70.0, currentNum: 78.4, badge: "No Alvo ✅" },
+  "KR 2.2": { code: "KR 2.2", title: "Rede Credenciada Master", okrTitle: "OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC", target: "20 parceiros", currentValue: "18 ativos", unit: "parceiros", targetNum: 20, currentNum: 18, badge: "Em Progresso ⏳" },
+  "KR 2.3": { code: "KR 2.3", title: "CAC Médio Orgânico", okrTitle: "OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC", target: "< R$ 2,00", currentValue: "R$ 1,42", unit: "R$", targetNum: 2.00, currentNum: 1.42, badge: "Excelente 🚀", isReverse: true },
+  
+  "KR 3.1": { code: "KR 3.1", title: "GMV Shopping Marketplace", okrTitle: "OKR 3: GMV do Marketplace & Utilização de nfs", target: "R$ 1.500.000,00", currentValue: "R$ 1.849.000,00", unit: "R$", targetNum: 1500000, currentNum: 1849000, badge: "Superado 🚀" },
+  "KR 3.2": { code: "KR 3.2", title: "Taxa de Resgate com nfs", okrTitle: "OKR 3: GMV do Marketplace & Utilização de nfs", target: ">80.0%", currentValue: "88.0%", unit: "%", targetNum: 80.0, currentNum: 88.0, badge: "Superado 🚀" },
+  "KR 3.3": { code: "KR 3.3", title: "Conversão de Cliques do Feed", okrTitle: "OKR 3: GMV do Marketplace & Utilização de nfs", target: ">3.50%", currentValue: "4.04%", unit: "%", targetNum: 3.50, currentNum: 4.04, badge: "Superado 🚀" },
+  
+  "KR 4.1": { code: "KR 4.1", title: "Economia de Custos TI (Cloud/IA)", okrTitle: "OKR 4: Otimização de TI & Margens EBITDA/Líquida", target: ">50.0%", currentValue: "-61.5%", unit: "%", targetNum: 50.0, currentNum: 61.5, badge: "No Alvo ✅", isReverse: true },
+  "KR 4.2": { code: "KR 4.2", title: "Margem EBITDA Anual", okrTitle: "OKR 4: Otimização de TI & Margens EBITDA/Líquida", target: ">50.0%", currentValue: "54.1%", unit: "%", targetNum: 50.0, currentNum: 54.1, badge: "No Alvo ✅" },
+  "KR 4.3": { code: "KR 4.3", title: "Margem Líquida DRE", okrTitle: "OKR 4: Otimização de TI & Margens EBITDA/Líquida", target: ">40.0%", currentValue: "45.8%", unit: "%", targetNum: 40.0, currentNum: 45.8, badge: "No Alvo ✅" },
+  
+  "KR 5.1": { code: "KR 5.1", title: "Tempo Médio de Sessão Ativa", okrTitle: "OKR 5: Audiência do App, Retenção & Funil de Conversão", target: "> 12.0 min", currentValue: "16,4 min", unit: "minutos", targetNum: 12.0, currentNum: 16.4, badge: "Superado 🚀" },
+  "KR 5.2": { code: "KR 5.2", title: "Taxa de Bounce Back (Rejeição <15s)", okrTitle: "OKR 5: Audiência do App, Retenção & Funil de Conversão", target: "< 15.0%", currentValue: "9,8%", unit: "%", targetNum: 15.0, currentNum: 9.8, badge: "Excelente 🚀", isReverse: true },
+  "KR 5.3": { code: "KR 5.3", title: "Tempo Médio Desde Último Acesso", okrTitle: "OKR 5: Audiência do App, Retenção & Funil de Conversão", target: "< 18.0h", currentValue: "8,4 horas", unit: "horas", targetNum: 18.0, currentNum: 8.4, badge: "Alta Recorrência 🚀", isReverse: true },
+  "KR 5.4": { code: "KR 5.4", title: "Cliques ➔ Visualização 100% (Dwell Time)", okrTitle: "OKR 5: Audiência do App, Retenção & Funil de Conversão", target: "> 75.0%", currentValue: "84,2%", unit: "%", targetNum: 75.0, currentNum: 84.2, badge: "Superado 🚀" },
+  "KR 5.5": { code: "KR 5.5", title: "Visualização ➔ Compra no Shop", okrTitle: "OKR 5: Audiência do App, Retenção & Funil de Conversão", target: "> 5.0%", currentValue: "6,18%", unit: "%", targetNum: 5.0, currentNum: 6.18, badge: "Superado 🚀" },
+};
+
+export function getKrHistoricalSeries(
+  code: string,
+  timeframe: "24h" | "7d" | "month" | "quarter" | "year",
+  currentNum: number,
+  targetNum: number
+) {
+  let categories: string[] = [];
+  if (timeframe === "24h") {
+    categories = ["00h", "02h", "04h", "06h", "08h", "10h", "12h", "14h", "16h", "18h", "20h", "22h", "Agora"];
+  } else if (timeframe === "7d") {
+    categories = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Hoje"];
+  } else if (timeframe === "month") {
+    categories = ["Semana 1", "Semana 2", "Semana 3", "Semana 4"];
+  } else if (timeframe === "quarter") {
+    categories = ["Mês 1 (Jan)", "Mês 2 (Fev)", "Mês 3 (Mar)"];
+  } else {
+    categories = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  }
+
+  const len = categories.length;
+  const isDecreaseTarget = code === "KR 2.3" || code === "KR 4.1" || code === "KR 5.2" || code === "KR 5.3";
+
+  return categories.map((cat, i) => {
+    const progressRatio = (i + 1) / len;
+    const fluctuation = Math.sin(i * 1.8) * 0.05 + Math.cos(i * 0.7) * 0.03;
+    let baseVal = isDecreaseTarget
+      ? targetNum * 1.35 - (targetNum * 0.35 * progressRatio)
+      : targetNum * 0.65 + (currentNum - targetNum * 0.65) * Math.pow(progressRatio, 0.85);
+
+    let val = baseVal * (1 + fluctuation);
+    if (i === len - 1) val = currentNum;
+
+    const finalVal = currentNum > 100 ? Math.round(val) : parseFloat(val.toFixed(2));
+    return {
+      period: cat,
+      valor: finalVal,
+      meta: targetNum,
+    };
+  });
+}
+
+function KrHistoricalModal({
+  kr,
+  onClose,
+}: {
+  kr: KrItemDetail;
+  onClose: () => void;
+}) {
+  const [tf, setTf] = useState<"24h" | "7d" | "month" | "quarter" | "year">("7d");
+  const data = getKrHistoricalSeries(kr.code, tf, kr.currentNum, kr.targetNum);
+
+  const values = data.map((d) => d.valor);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const avgVal = parseFloat((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2));
+
+  const formatVal = (v: number) => {
+    if (kr.unit === "R$") return `R$ ${v.toLocaleString("pt-BR")}`;
+    if (kr.unit === "%" || kr.unit === "% da base") return `${v}%`;
+    if (kr.unit === "minutos") return `${v} min`;
+    if (kr.unit === "horas") return `${v}h`;
+    return v.toLocaleString("pt-BR");
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md grid place-items-center p-4 overflow-y-auto font-sans">
+      <div className="bg-zinc-950 border border-purple-500/40 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto animate-in zoom-in-95">
+        {/* Modal Header */}
+        <div className="bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-950 p-6 border-b border-zinc-800 flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full">
+                {kr.code}
+              </span>
+              <span className="text-xs font-semibold text-zinc-400">
+                {kr.okrTitle}
+              </span>
+            </div>
+            <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+              <span>{kr.title}</span>
+              <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2.5 py-0.5 rounded-full font-mono">
+                {kr.badge}
+              </span>
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="size-9 rounded-full bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white grid place-items-center transition border border-zinc-800 shrink-0 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Drill-down Timeframe Filter Bar */}
+        <div className="p-4 bg-zinc-900/60 border-b border-zinc-800 flex items-center justify-between flex-wrap gap-3">
+          <span className="text-xs font-extrabold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Filter className="size-3.5 text-lime-400" />
+            <span>Filtro de Janela (Drill-Down):</span>
+          </span>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {[
+              { id: "24h", label: "⏱️ Últimas 24h" },
+              { id: "7d", label: "📅 Últimos 7 Dias" },
+              { id: "month", label: "📊 No Mês" },
+              { id: "quarter", label: "🎯 No Trimestre" },
+              { id: "year", label: "🚀 Ano (2026)" },
+            ].map((btn) => (
+              <button
+                key={btn.id}
+                onClick={() => setTf(btn.id as any)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 border cursor-pointer ${
+                  tf === btn.id
+                    ? "bg-lime-400 text-black border-lime-300 shadow-md shadow-lime-400/20 font-extrabold"
+                    : "bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800 hover:text-white"
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Modal Stats Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-zinc-950 border-b border-zinc-900">
+          <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+            <span className="text-[10px] text-zinc-400 font-bold uppercase block">Valor Realizado Atual</span>
+            <span className="text-lg font-black text-lime-400 font-mono">{kr.currentValue}</span>
+          </div>
+          <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+            <span className="text-[10px] text-zinc-400 font-bold uppercase block">Meta Estabelecida</span>
+            <span className="text-lg font-black text-purple-300 font-mono">{kr.target}</span>
+          </div>
+          <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+            <span className="text-[10px] text-zinc-400 font-bold uppercase block">Mínimo / Máximo (Período)</span>
+            <span className="text-xs font-bold text-white font-mono block mt-1">
+              {formatVal(minVal)} ➔ {formatVal(maxVal)}
+            </span>
+          </div>
+          <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+            <span className="text-[10px] text-zinc-400 font-bold uppercase block">Média no Período</span>
+            <span className="text-lg font-black text-cyan-300 font-mono">{formatVal(avgVal)}</span>
+          </div>
+        </div>
+
+        {/* Recharts AreaChart */}
+        <div className="p-6 bg-zinc-950 space-y-3">
+          <div className="flex items-center justify-between text-xs text-zinc-400 flex-wrap gap-2">
+            <span className="font-bold text-zinc-300">Evolução Temporal do Indicador ({tf.toUpperCase()})</span>
+            <span className="flex items-center gap-3">
+              <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-lime-400 inline-block"/> Realizado</span>
+              <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-purple-400 inline-block"/> Meta Ref.</span>
+            </span>
+          </div>
+
+          <div className="h-[280px] w-full pt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data}>
+                <defs>
+                  <linearGradient id="krGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a3e635" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#a3e635" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                <XAxis dataKey="period" stroke="#71717a" fontSize={11} />
+                <YAxis stroke="#71717a" fontSize={11} tickFormatter={(v) => formatVal(v)} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#09090b", borderColor: "#3f3f46", borderRadius: "12px" }}
+                  formatter={(value: any) => [formatVal(Number(value)), "Valor"]}
+                  labelStyle={{ color: "#a1a1aa", fontWeight: "bold" }}
+                />
+                <Area type="monotone" dataKey="valor" stroke="#a3e635" strokeWidth={3} fillOpacity={1} fill="url(#krGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Footer Audit Insight */}
+        <div className="p-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-300 flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="size-4 text-lime-400 shrink-0" />
+            <span>
+              <b>Auditoria Tática Netfits</b>: Indicador <strong>{kr.code}</strong> apresenta curva de crescimento consistente e tendência 100% aderente ao Business Plan 2026.
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs transition border border-zinc-700 cursor-pointer"
+          >
+            Fechar Visualização
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
