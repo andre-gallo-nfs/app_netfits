@@ -7,7 +7,7 @@ import {
   Share2, Video, Check, ExternalLink, Download, Search, ChevronDown, UserCheck,
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
-  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail
+  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail, Lock
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -4671,7 +4671,11 @@ function KpiCard({
           )}
         </div>
         <div className="size-8 rounded-lg bg-zinc-800 grid place-items-center text-lime-400 shrink-0">
-          <Icon className="size-4" />
+          {Icon && typeof Icon === "function" ? (
+            <Icon className="size-4" />
+          ) : (
+            <Activity className="size-4" />
+          )}
         </div>
       </div>
       <div className="flex items-baseline gap-2 mb-1 flex-wrap">

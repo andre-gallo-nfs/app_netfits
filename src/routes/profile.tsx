@@ -690,7 +690,9 @@ function Card({
     <section className="bg-card rounded-2xl ring-1 ring-black/5 p-4 space-y-3">
       <div className="flex items-center gap-2">
         <div className="size-7 rounded-lg bg-muted grid place-items-center">
-          <Icon className="size-3.5 text-foreground/70" />
+          {Icon && typeof Icon === "function" ? (
+            <Icon className="size-3.5 text-foreground/70" />
+          ) : null}
         </div>
         <h2 className="text-sm font-bold">{title}</h2>
       </div>
