@@ -67,6 +67,20 @@ function ContatoPage() {
       category: formData.subject === "parceiros" ? "comercial" : formData.subject === "associados" ? "associado" : "suporte",
       message: formData.message,
     });
+
+    sharedSandboxStore.addInteraction({
+      sourceRole: formData.subject === "associados" ? "associado" : formData.subject === "parceiros" ? "parceiro" : "atleta",
+      sourceName: formData.name,
+      sourceContact: formData.email,
+      channel: "form",
+      subject: `Fale Conosco — ${formData.subject.toUpperCase()}`,
+      intent: formData.subject === "parceiros" ? "parceria" : formData.subject === "associados" ? "negociacao" : "duvida",
+      content: formData.message,
+      sentiment: "neutro",
+      businessInsight: `Atendimento gerado pelo formulário público do site sobre ${formData.subject}. Protocolo: ${newTicket}.`,
+      status: "em_analise",
+      tags: ["Contato Site", formData.subject, "Formulário Público"],
+    });
     setFormData({
       name: "",
       email: "",

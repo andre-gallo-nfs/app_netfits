@@ -14476,6 +14476,20 @@ var generateCategoricalChart = function generateCategoricalChart2(_ref6) {
   CategoricalChart.displayName = CategoricalChartWrapper.displayName;
   return CategoricalChart;
 };
+var BarChart = generateCategoricalChart({
+  chartName: "BarChart",
+  GraphicalChild: Bar,
+  defaultTooltipEventType: "axis",
+  validateTooltipEventTypes: ["axis", "item"],
+  axisComponents: [{
+    axisType: "xAxis",
+    AxisComp: XAxis
+  }, {
+    axisType: "yAxis",
+    AxisComp: YAxis
+  }],
+  formatAxisMap: formatAxisMap2
+});
 var PieChart = generateCategoricalChart({
   chartName: "PieChart",
   GraphicalChild: Pie,
@@ -14514,6 +14528,7 @@ var AreaChart = generateCategoricalChart({
 });
 export {
   AreaChart as A,
+  BarChart as B,
   Cell as C,
   PieChart as P,
   ResponsiveContainer as R,
@@ -14522,5 +14537,6 @@ export {
   YAxis as Y,
   Pie as a,
   CartesianGrid as b,
-  Area as c
+  Area as c,
+  Bar as d
 };

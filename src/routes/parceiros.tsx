@@ -391,6 +391,20 @@ function ParceirosRegistrationPage() {
       benefitOffer: formData.benefitDescription,
     });
 
+    sharedSandboxStore.addInteraction({
+      sourceRole: "parceiro",
+      sourceName: formData.tradeName,
+      sourceContact: formData.email,
+      channel: "form",
+      subject: `Credenciamento B2B — ${selectedCategoryObj?.title || selectedCategory}`,
+      intent: "parceria",
+      content: `Solicitação de credenciamento comercial para ${formData.tradeName}. Documento: ${formData.document}. Benefício proposto: ${formData.benefitDescription}`,
+      sentiment: "positivo",
+      businessInsight: `Nova oportunidade B2B de expansão em ${formData.city || "São Paulo"}/${formData.state || "SP"}. Protocolo: ${newProtocol}.`,
+      status: "em_analise",
+      tags: ["Credenciamento B2B", selectedCategory, formData.city || "São Paulo"],
+    });
+
     // Reset form fields
     setFormData({
       tradeName: "",

@@ -156,6 +156,21 @@ export function NetfitAiAssistant() {
     if (!textToSend) setInputValue("");
     setIsTyping(true);
 
+    // Tabulação automática da pergunta do usuário para a Central de Inteligência
+    sharedSandboxStore.addInteraction({
+      sourceRole: activeUser.type === "associado" ? "associado" : activeUser.type === "partner" ? "parceiro" : "atleta",
+      sourceName: activeUser.fullName,
+      sourceContact: activeUser.identifier,
+      channel: "chat",
+      subject: `Consulta AI: ${query.slice(0, 40)}...`,
+      intent: "duvida",
+      content: query,
+      sentiment: "neutro",
+      businessInsight: `Interação via Chat AI assistente virtual. Dúvida/Intenção do usuário sobre: "${query.slice(0, 80)}".`,
+      status: "processado",
+      tags: ["Chat AI", "Assistente Virtual", "Tempo Real"],
+    });
+
     setTimeout(() => {
       const resolved = resolveSmartResponse(query);
 

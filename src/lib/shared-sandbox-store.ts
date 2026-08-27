@@ -70,6 +70,22 @@ export interface SandboxOrder {
   createdAt: string;
 }
 
+export interface SandboxInteraction {
+  id: string;
+  timestamp: string;
+  sourceRole: "atleta" | "parceiro" | "associado" | "colaborador";
+  sourceName: string;
+  sourceContact: string;
+  channel: "email" | "chat" | "whatsapp" | "form" | "survey";
+  subject: string;
+  intent: "duvida" | "reclamacao" | "elogio" | "sugestao" | "negociacao" | "parceria" | "pesquisa_nps";
+  content: string;
+  sentiment: "positivo" | "neutro" | "critico";
+  businessInsight: string;
+  status: "processado" | "em_analise" | "incorporado_ao_roadmap";
+  tags: string[];
+}
+
 const STORAGE_KEY = "netfits_shared_sandbox_db_v2";
 const DEVICE_SESSION_KEY = "netfits_device_active_user_id_v2";
 const SYNC_CHANNEL = "netfits_sandbox_sync_channel";
@@ -267,12 +283,136 @@ const INITIAL_ORDERS: SandboxOrder[] = [
   },
 ];
 
+const INITIAL_INTERACTIONS: SandboxInteraction[] = [
+  {
+    id: "int-001",
+    timestamp: "2026-08-27T13:10:00Z",
+    sourceRole: "atleta",
+    sourceName: "André Gallo",
+    sourceContact: "gallo@netfits.com.br",
+    channel: "chat",
+    subject: "Dúvida sobre sincronização de wearable Garmin e Strava",
+    intent: "duvida",
+    content: "Como faço para garantir que meus treinos de corrida do Garmin Connect enviem os pontos nfs automaticamente sem precisar abrir o app toda vez?",
+    sentiment: "positivo",
+    businessInsight: "Demanda por webhook background automático de sync de wearables em segundo plano para atrito zero na conversão de pontos.",
+    status: "incorporado_ao_roadmap",
+    tags: ["Wearables", "Garmin", "Automação", "UX"],
+  },
+  {
+    id: "int-002",
+    timestamp: "2026-08-27T11:45:00Z",
+    sourceRole: "parceiro",
+    sourceName: "Academia Velocity Club",
+    sourceContact: "contato@velocityclub.com.br",
+    channel: "whatsapp",
+    subject: "Aumento de fluxo de alunos credenciados Netfits na unidade Jardins",
+    intent: "elogio",
+    content: "Registramos um aumento de 34% no fluxo de novos alunos esta semana apresentando o QR Code da Netfits. Queremos ampliar para as unidades Moema e Barra da Tijuca.",
+    sentiment: "positivo",
+    businessInsight: "Alta eficiência da rede credenciada parceira B2B; oportunidade imediata de expansão de unidades físicas.",
+    status: "incorporado_ao_roadmap",
+    tags: ["Parceiros", "Academias", "Expansão B2B", "Credenciamento"],
+  },
+  {
+    id: "int-003",
+    timestamp: "2026-08-27T10:20:00Z",
+    sourceRole: "associado",
+    sourceName: "Dra. Isabella Silva",
+    sourceContact: "dr.isabella@netfits.com.br",
+    channel: "form",
+    subject: "Solicitação de material impresso com QR Code para consultório",
+    intent: "sugestao",
+    content: "Meus pacientes de nutrologia adoraram o aplicativo, mas pediram um totem de balcão com QR Code físico para baixarem o app com meu cupom de indicação durante a consulta.",
+    sentiment: "positivo",
+    businessInsight: "Kit físico de Onboarding (Totens & QR Codes) para consultórios de médicos e nutricionistas Associados VIP acelera conversão presencial.",
+    status: "incorporado_ao_roadmap",
+    tags: ["Associados VIP", "Kit Presencial", "Growth Orgânico", "CAC Zero"],
+  },
+  {
+    id: "int-004",
+    timestamp: "2026-08-27T09:15:00Z",
+    sourceRole: "colaborador",
+    sourceName: "Lucas Mendes (Suporte Operacional)",
+    sourceContact: "suporte.lucas@netfits.com.br",
+    channel: "email",
+    subject: "Relatório de atrito no resgate de suplementos com nfs + Pix",
+    intent: "reclamacao",
+    content: "Notei que 12% das chamadas de suporte são de usuários que tentam combinar pontos nfs com Pix e não encontram o botão claro no carrinho mobile.",
+    sentiment: "critico",
+    businessInsight: "Necessidade de destacar visualmente o badge 'Pagamento Híbrido (nfs + Pix)' no resumo do checkout no Shop.",
+    status: "processado",
+    tags: ["Checkout", "UX", "Suporte Interno", "Conversão Shop"],
+  },
+  {
+    id: "int-005",
+    timestamp: "2026-08-26T18:30:00Z",
+    sourceRole: "atleta",
+    sourceName: "Marina Run",
+    sourceContact: "marina@netfits.com.br",
+    channel: "survey",
+    subject: "Pesquisa NPS Trimestral — Nota 10",
+    intent: "pesquisa_nps",
+    content: "Nota: 10/10. O Netfits é o único app que me paga por correr e me motivou a treinar 5 dias por semana. Adorei os cupons de desconto no tênis Nike!",
+    sentiment: "positivo",
+    businessInsight: "Forte alinhamento da proposta de valor 'Treine e Ganhe' como impulsionadora de mudança comportamental em atletas amadores.",
+    status: "processado",
+    tags: ["NPS 10", "Feedback Atleta", "Motivação", "Shop Nike"],
+  },
+  {
+    id: "int-006",
+    timestamp: "2026-08-26T16:10:00Z",
+    sourceRole: "parceiro",
+    sourceName: "Bio Ritmo / Smart Fit Partner Group",
+    sourceContact: "parcerias@bioritmo.com.br",
+    channel: "email",
+    subject: "Proposta de integração API de catracas eletrônicas",
+    intent: "negociacao",
+    content: "Queremos validar se o webhook do Netfits pode disparar nfs no momento em que o aluno passa a catraca com RFID na academia.",
+    sentiment: "positivo",
+    businessInsight: "Automação de check-in em academias via API de catracas nativas eleva a retenção diária e reduz fraude.",
+    status: "em_analise",
+    tags: ["Integração B2B", "Catracas", "Checkin", "Anti-Fraude"],
+  },
+  {
+    id: "int-007",
+    timestamp: "2026-08-26T14:00:00Z",
+    sourceRole: "associado",
+    sourceName: "Dr. Marcelo Prado",
+    sourceContact: "dr.marcelo@netfits.com.br",
+    channel: "whatsapp",
+    subject: "Sugestão de aba exclusiva para artigos científicos de longevidade",
+    intent: "sugestao",
+    content: "Gostaria de publicar artigos semanais sobre hipertrofia e longevidade no feed da Netfits com link direto para agendamento de consultas.",
+    sentiment: "positivo",
+    businessInsight: "Conteúdo técnico assinado por médicos Associados aumenta a autoridade científica da marca Netfits e gera leads qualificados.",
+    status: "incorporado_ao_roadmap",
+    tags: ["Feed de Conteúdo", "Artigos Médicos", "Autoridade", "Leads"],
+  },
+  {
+    id: "int-008",
+    timestamp: "2026-08-26T11:20:00Z",
+    sourceRole: "colaborador",
+    sourceName: "Camila Rocha (Engenharia de Dados)",
+    sourceContact: "dados.camila@netfits.com.br",
+    channel: "email",
+    subject: "Análise de latência do motor de busca do Marketplace",
+    intent: "sugestao",
+    content: "Recomendo aplicar indexação de busca por sinônimos (ex: 'creatina', 'whey', 'tênis de corrida') para reduzir a taxa de busca sem resultado no Shop.",
+    sentiment: "neutro",
+    businessInsight: "Otimização de busca interna no Shop eleva o GMV em aproximadamente 8% com menor taxa de abandono.",
+    status: "processado",
+    tags: ["Infraestrutura", "Engenharia", "Search UX", "GMV"],
+  },
+];
+
 interface SandboxSchema {
   users: SandboxUser[];
   transactions: SandboxTransaction[];
   partners: SandboxPartner[];
   tickets: SandboxTicket[];
   orders: SandboxOrder[];
+  interactions: SandboxInteraction[];
   activeUserId: string;
 }
 
@@ -447,6 +587,9 @@ class HomologationSandboxStore {
           }
         }
         stored.users = mergedUsers;
+        if (!stored.interactions || stored.interactions.length === 0) {
+          stored.interactions = INITIAL_INTERACTIONS;
+        }
         return stored;
       }
     } catch (e) {
@@ -459,6 +602,7 @@ class HomologationSandboxStore {
       partners: INITIAL_PARTNERS,
       tickets: INITIAL_TICKETS,
       orders: INITIAL_ORDERS,
+      interactions: INITIAL_INTERACTIONS,
       activeUserId: "user-athlete-1",
     };
 
@@ -537,6 +681,27 @@ class HomologationSandboxStore {
 
   public getOrders() {
     return this.state.orders;
+  }
+
+  public getInteractions() {
+    if (!this.state.interactions || this.state.interactions.length === 0) {
+      this.state.interactions = INITIAL_INTERACTIONS;
+    }
+    return this.state.interactions;
+  }
+
+  public addInteraction(data: Omit<SandboxInteraction, "id" | "timestamp">) {
+    if (!this.state.interactions) {
+      this.state.interactions = [...INITIAL_INTERACTIONS];
+    }
+    const newInt: SandboxInteraction = {
+      ...data,
+      id: `int-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      timestamp: new Date().toISOString(),
+    };
+    this.state.interactions.unshift(newInt);
+    this.saveToStorage();
+    return newInt;
   }
 
   // --- ACTIONS ---
