@@ -3583,6 +3583,26 @@ function AdminDashboardPage() {
                 </div>
               </div>
 
+              {/* Banner de Impacto FinOps do Squad Multiagêntico Incorporado à DRE */}
+              <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-indigo-950/80 p-4 rounded-2xl border border-lime-400/40 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-lime-400/10 border border-lime-400/30 text-lime-400 shrink-0">
+                    <Sparkles className="size-5" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-lime-400">
+                      Impacto FinOps Incorporado à DRE (+R$ 918.920,00 /ano Economizados)
+                    </span>
+                    <p className="text-xs text-white font-bold">
+                      Estrutura Multiagêntica (8 Agentes): -95.2% em IA (R$ 990/mês), -85.7% em Conciliação Fiscal e -78.1% em SAC.
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-mono font-black text-lime-400 bg-lime-400/10 px-3 py-1.5 rounded-xl border border-lime-400/30 shrink-0">
+                  EBITDA: 84.2% (KR 4.2)
+                </span>
+              </div>
+
               {/* KPIs Financeiros de Topo do DRE */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 <KpiCard
@@ -3792,6 +3812,12 @@ function AdminDashboardPage() {
                         <td className="py-2.5 px-4 text-right">-{((dreCloudCost / dreGrossRev) * 100).toFixed(1)}%</td>
                         <td className="py-2.5 px-4 text-center text-lime-400 font-bold">R$ 7.260/mês (-61.5%)</td>
                       </tr>
+                      <tr className="hover:bg-purple-950/20 transition text-purple-300 font-semibold">
+                        <td className="py-2.5 px-8">├─ Agentes de IA Autônomos (Squad de 8 Agentes)</td>
+                        <td className="py-2.5 px-4 text-right font-mono text-purple-300">(R$ {(9900 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right text-purple-300">-{(((9900 * pf) / dreGrossRev) * 100).toFixed(2)}%</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400 font-extrabold">R$ 990/mês (-95.2% IA)</td>
+                      </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Pessoal Core, Engenharia de Software & Suporte</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {drePayrollCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
@@ -3805,10 +3831,10 @@ function AdminDashboardPage() {
                         <td className="py-2.5 px-4 text-center text-zinc-500">Mídia Launch</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                        <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A)</td>
+                        <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A Auditada por IA)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreGaCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
                         <td className="py-2.5 px-4 text-right">-{((dreGaCost / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Fixas G&A</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400 font-bold">Fixas G&A (-85.7% Tax AI)</td>
                       </tr>
 
                       {/* EBITDA */}
