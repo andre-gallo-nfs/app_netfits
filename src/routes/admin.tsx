@@ -3374,6 +3374,100 @@ function AdminDashboardPage() {
                 </table>
               </div>
             </div>
+
+            {/* Painel Estrutural: Squad dos 8 Agentes de IA Autônomos Netfits */}
+            <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-indigo-950/60 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-purple-500/20 pb-3 flex-wrap gap-2">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-purple-400 bg-purple-400/10 px-3 py-1 rounded-full border border-purple-400/20">
+                    Arquitetura Recomendada de Operação IA (8 Agentes Autônomos)
+                  </span>
+                  <h4 className="text-base font-black text-white mt-1 flex items-center gap-2">
+                    <span>🤖 O Octógono de Inteligência Operacional Netfits</span>
+                  </h4>
+                  <p className="text-xs text-zinc-300">
+                    Squad desacoplado de micro-serviços de IA especialistas operando de ponta a ponta (do B2C à Contabilidade DRE).
+                  </p>
+                </div>
+                <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3 py-1.5 rounded-full border border-lime-400/30 font-bold">
+                  SLA &lt; 200ms • Custo US$ 180 /mês
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-purple-400">🛍️ 1. Shop Recommender</span>
+                    <span className="text-[9px] font-mono bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Flash</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Personalização & Vendas</p>
+                  <p className="text-[10px] text-zinc-400">Sugere produtos no Shop conforme perfil de treino (Asics, Whey, Liquidz).</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-purple-400">📰 2. Feed Curator</span>
+                    <span className="text-[9px] font-mono bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Lite</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Curadoria Algorítmica</p>
+                  <p className="text-[10px] text-zinc-400">Ranqueia treinos, artigos e anúncios por afinidade e dwell time.</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-red-400">🛡️ 3. Sentinel Fraud Shield</span>
+                    <span className="text-[9px] font-mono bg-red-950 text-red-300 px-1.5 py-0.5 rounded">Flash + Rules</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Anti-Fraude & Passivo nfs</p>
+                  <p className="text-[10px] text-zinc-400">Bloqueia GPS spoofing, treinos manipulados e retenção preventiva.</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-lime-400">📑 4. Tax & DRE Auditor</span>
+                    <span className="text-[9px] font-mono bg-lime-950 text-lime-300 px-1.5 py-0.5 rounded">Gemini Pro</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Fiscal & Contabilidade</p>
+                  <p className="text-[10px] text-zinc-400">Lê XMLs de NFe, classifica despesas por centro de custo e fecha a DRE.</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-cyan-400">💬 5. Omnichannel CS</span>
+                    <span className="text-[9px] font-mono bg-cyan-950 text-cyan-300 px-1.5 py-0.5 rounded">Flash</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Atendimento 24/7</p>
+                  <p className="text-[10px] text-zinc-400">Resolve dúvidas no Chat, E-mail, Whats e Forms (SLA &lt; 30s).</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-amber-400">👑 6. Partner & VIP Co-Pilot</span>
+                    <span className="text-[9px] font-mono bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded">Flash</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Growth B2B & Associados</p>
+                  <p className="text-[10px] text-zinc-400">Dispara relatórios para Academias e gerencia comissões de Associados.</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-emerald-400">⚡ 7. Sensor Telemetry AI</span>
+                    <span className="text-[9px] font-mono bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded">Worker + Lite</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Validação de Wearables</p>
+                  <p className="text-[10px] text-zinc-400">Normaliza dados do Garmin, Strava e Apple Health em pontos nfs.</p>
+                </div>
+
+                <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-pink-400">📈 8. Executive BI Miner</span>
+                    <span className="text-[9px] font-mono bg-pink-950 text-pink-300 px-1.5 py-0.5 rounded">Gemini Pro</span>
+                  </div>
+                  <p className="text-[11px] font-bold text-white">Mineração de Insights BI</p>
+                  <p className="text-[10px] text-zinc-400">Sintetiza feedbacks omnichannel em diretrizes de produto/roadmap.</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
