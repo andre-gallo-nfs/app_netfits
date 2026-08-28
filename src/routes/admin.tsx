@@ -4043,7 +4043,8 @@ function AdminDashboardPage() {
               {[
                 "1. Capa & Flywheel", "2. O Problema", "3. Engagement Loop", "4. Tração & MVP",
                 "5. Rede de Associados", "6. Mercado Bottom-Up", "7. Monetização Multi-Stream", "8. Unit Economics",
-                "9. Moat Tech & AI Squad", "10. Time (Why Us)", "11. Roadmap 18M", "12. The Ask (Seed R$ 5M-8M)"
+                "9. Arquitetura AI-First", "10. Moat Tecnológico", "11. Time & Founder Fit", "12. Roadmap 18M",
+                "13. The Ask (Seed R$ 5M-8M)", "14. Apêndice Tokenomics"
               ].map((name, idx) => (
                 <button
                   key={idx}
@@ -4421,43 +4422,63 @@ function AdminDashboardPage() {
                 </div>
               )}
 
-              {/* SLIDE 9: MOAT TECH & AI SQUAD */}
+              {/* SLIDE 9: ARQUITETURA MULTIAGÊNTICA (AI FIRST) */}
               {pitchSlide === 9 && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
-                  <div className="md:col-span-7 space-y-4">
+                  <div className="md:col-span-7 space-y-3">
                     <div>
-                      <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Defensability</span>
-                      <h2 className="text-2xl font-black text-white mt-0.5">Moat Tecnológico &amp; Squad de 8 Agentes IA</h2>
+                      <span className="text-xs font-mono text-lime-400 font-bold uppercase tracking-wider">Autonomous Multi-Agent AI</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Operação Nativamente AI-First</h2>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-lime-400/30 space-y-1">
-                        <h4 className="font-bold text-lime-400 text-xs">Squad de 8 Agentes IA</h4>
-                        <p className="text-zinc-400">Shop, Feed, Fraud Shield, Tax Audit, CS 24/7, Partner, Sensor AI, BI Miner.</p>
+                    <div className="p-3 rounded-xl bg-purple-950/50 border border-lime-400/40 text-xs space-y-1">
+                      <span className="text-lime-400 font-bold font-mono">DNA AI-FIRST DE PONTA A PONTA</span>
+                      <p className="text-zinc-300">Infraestrutura autônoma com Squad de 8 Agentes especializados, gerando eficiência FinOps de -95,2% (R$ 990/mês vs R$ 20.900/mês).</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-lime-400/20">
+                        <span className="text-lime-400 font-bold block">1. Shop Recommender AI</span>
+                        <span className="text-zinc-400">Ofertas pós-treino por telemetria.</span>
                       </div>
-                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-emerald-400/30 space-y-1">
-                        <h4 className="font-bold text-emerald-300 text-xs">FinOps IA (-95,2%)</h4>
-                        <p className="text-zinc-400">R$ 990/mês (US$ 180) vs R$ 20.900/mês monolítico via Gemini Flash/Lite.</p>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-purple-500/20">
+                        <span className="text-purple-300 font-bold block">2. Feed Curator AI</span>
+                        <span className="text-zinc-400">Ranqueamento social contextual.</span>
                       </div>
-                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-purple-500/30 space-y-1">
-                        <h4 className="font-bold text-purple-300 text-xs">Algoritmo FEFO</h4>
-                        <p className="text-zinc-400">Solvência garantida da moeda nfs (1 nfs = R$ 0,02) e prevenção a spoofing.</p>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-emerald-400/20">
+                        <span className="text-emerald-300 font-bold block">3. Fraud Shield AI</span>
+                        <span className="text-zinc-400">Prevenção a GPS spoofing.</span>
                       </div>
-                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-lime-400/30 space-y-1">
-                        <h4 className="font-bold text-lime-400 text-xs">Lock-in B2B2C</h4>
-                        <p className="text-zinc-400">Integração profunda com médicos, nutricionistas, academias e marcas.</p>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-lime-400/20">
+                        <span className="text-lime-400 font-bold block">4. Tax &amp; Accounting AI</span>
+                        <span className="text-zinc-400">Auditoria contábil e FEFO real.</span>
+                      </div>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-purple-500/20">
+                        <span className="text-purple-300 font-bold block">5. CS 24/7 Agent</span>
+                        <span className="text-zinc-400">Atendimento autônomo humanizado.</span>
+                      </div>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-emerald-400/20">
+                        <span className="text-emerald-300 font-bold block">6. Partner Co-Pilot</span>
+                        <span className="text-zinc-400">Onboarding de academias B2B.</span>
+                      </div>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-lime-400/20">
+                        <span className="text-lime-400 font-bold block">7. Sensor Telemetry AI</span>
+                        <span className="text-zinc-400">Validação de esforço cardíaco.</span>
+                      </div>
+                      <div className="bg-zinc-900 p-2.5 rounded-xl border border-purple-500/20">
+                        <span className="text-purple-300 font-bold block">8. BI Miner AI</span>
+                        <span className="text-zinc-400">Tabulação de 100% dos canais.</span>
                       </div>
                     </div>
                   </div>
                   <div className="md:col-span-5">
                     <div className="rounded-3xl overflow-hidden border border-lime-400/30 shadow-2xl relative">
                       <img
-                        src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80"
-                        alt="Servidores e Inteligencia de Dados"
+                        src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80"
+                        alt="Inteligencia Artificial Multiagente Netfits"
                         className="w-full h-80 object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
                         <span className="bg-lime-400/20 border border-lime-400/40 text-lime-300 text-xs font-bold px-3 py-1 rounded-full">
-                          Arquitetura Multiagêntica de IA
+                          Squad de 8 Agentes Autônomos
                         </span>
                       </div>
                     </div>
@@ -4465,39 +4486,43 @@ function AdminDashboardPage() {
                 </div>
               )}
 
-              {/* SLIDE 10: TIME DE FUNDADORES */}
+              {/* SLIDE 10: MOAT TECH */}
               {pitchSlide === 10 && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
                   <div className="md:col-span-7 space-y-4">
                     <div>
-                      <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Leadership &amp; Execution</span>
-                      <h2 className="text-2xl font-black text-white mt-0.5">Time de Fundadores — Por Que Nós?</h2>
+                      <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Defensability</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Moat Tecnológico &amp; Barreiras Defensáveis</h2>
                     </div>
-                    <div className="space-y-3 text-xs">
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30">
-                        <span className="text-lime-400 font-bold font-mono">André Gallo · CEO &amp; Fundador</span>
-                        <p className="text-zinc-300 mt-1 font-medium">Gestor de Produtos &amp; Especialista em Loyalty, Fidelização de Clientes e Estratégia de Negócios. Liderança em ecossistemas de engajamento.</p>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-lime-400/30 space-y-1">
+                        <h4 className="font-bold text-lime-400 text-xs">Verticalização no Esporte</h4>
+                        <p className="text-zinc-400">Foco estrito no estilo de vida do atleta amador e hábitos saudáveis.</p>
                       </div>
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30">
-                        <span className="text-purple-300 font-bold font-mono">Diretoria de Operações &amp; Growth</span>
-                        <p className="text-zinc-300 mt-1">Experiência comprovada em expansão de e-commerce, ecossistemas fitness e relacionamento com redes de academias.</p>
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-emerald-400/30 space-y-1">
+                        <h4 className="font-bold text-emerald-300 text-xs">FinOps IA Eficiente</h4>
+                        <p className="text-zinc-400">Escalabilidade para 1M MAU sem inchaço de folha de pagamento.</p>
                       </div>
-                      <div className="bg-zinc-900 p-4 rounded-2xl border border-emerald-400/30">
-                        <span className="text-emerald-300 font-bold font-mono">Conselho Consultivo de Saúde</span>
-                        <p className="text-zinc-300 mt-1">Médicos do esporte e nutricionistas VIP com conexão direta à rede de Associados prescritores.</p>
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-purple-500/30 space-y-1">
+                        <h4 className="font-bold text-purple-300 text-xs">Algoritmo FEFO</h4>
+                        <p className="text-zinc-400">Solvência contábil e liquidez garantida da moeda nfs.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-lime-400/30 space-y-1">
+                        <h4 className="font-bold text-lime-400 text-xs">Lock-in B2B2C</h4>
+                        <p className="text-zinc-400">Integração com médicos, nutricionistas, academias e marcas.</p>
                       </div>
                     </div>
                   </div>
                   <div className="md:col-span-5">
                     <div className="rounded-3xl overflow-hidden border border-purple-500/30 shadow-2xl relative">
                       <img
-                        src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
-                        alt="Reuniao Executiva dos Fundadores"
+                        src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80"
+                        alt="Servidores e Seguranca Netfits"
                         className="w-full h-80 object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
                         <span className="bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold px-3 py-1 rounded-full">
-                          Experiência em Produto &amp; Loyalty
+                          Defensabilidade Estrutural
                         </span>
                       </div>
                     </div>
@@ -4505,8 +4530,56 @@ function AdminDashboardPage() {
                 </div>
               )}
 
-              {/* SLIDE 11: ROADMAP 18M */}
+              {/* SLIDE 11: TIME DE FUNDADORES & FOUNDER-MARKET FIT */}
               {pitchSlide === 11 && (
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
+                  <div className="md:col-span-7 space-y-3">
+                    <div>
+                      <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Leadership &amp; Founder-Market Fit</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Time de Fundadores — Founder-Market Fit Autêntico</h2>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-950/60 via-zinc-900 to-zinc-900 p-4 rounded-2xl border border-lime-400/40 space-y-2">
+                      <span className="text-lime-400 font-bold font-mono text-sm block">ANDRÉ GALLO · CEO &amp; FUNDADOR</span>
+                      <p className="text-xs text-white font-bold leading-snug">
+                        • Gestor de Produtos &amp; Especialista em Loyalty, Fidelização de Clientes e Estratégia de Negócios.
+                      </p>
+                      <p className="text-xs text-zinc-300 leading-snug">
+                        • <strong className="text-lime-300">Triatleta Amador · Finisher Ironman 70.3 Florianópolis (out/25)</strong>: vivência direta e profunda da rotina, esforço e necessidades do praticante de esportes.
+                      </p>
+                      <p className="text-xs text-zinc-300 leading-snug">
+                        • <strong className="text-purple-300">Diabético Tipo 1 há mais de 30 anos</strong>: compreensão visceral da telemetria de saúde, controle glicêmico, nutrição esportiva e do papel indispensável do movimento diário na longevidade.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-zinc-900 p-3 rounded-xl border border-purple-500/30">
+                        <span className="text-purple-300 font-bold block">Diretoria de Operações</span>
+                        <p className="text-zinc-400 text-[11px] mt-0.5">Expansão de e-commerce e parcerias com grandes redes de academias.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-3 rounded-xl border border-emerald-400/30">
+                        <span className="text-emerald-300 font-bold block">Conselho Médico</span>
+                        <p className="text-zinc-400 text-[11px] mt-0.5">Médicos do esporte e nutricionistas conectados à rede de Associados VIP.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="md:col-span-5">
+                    <div className="rounded-3xl overflow-hidden border border-lime-400/40 shadow-2xl relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80"
+                        alt="Triatleta e Founder Fit Netfits"
+                        className="w-full h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
+                        <span className="bg-lime-400/20 border border-lime-400/40 text-lime-300 text-xs font-bold px-3 py-1 rounded-full">
+                          Experiência Real no Ironman &amp; Saúde
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SLIDE 12: ROADMAP 18M */}
+              {pitchSlide === 12 && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
                   <div className="md:col-span-7 space-y-3">
                     <div>
@@ -4545,8 +4618,8 @@ function AdminDashboardPage() {
                 </div>
               )}
 
-              {/* SLIDE 12: THE ASK */}
-              {pitchSlide === 12 && (
+              {/* SLIDE 13: THE ASK */}
+              {pitchSlide === 13 && (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
                   <div className="md:col-span-7 space-y-4">
                     <div>
@@ -4596,6 +4669,50 @@ function AdminDashboardPage() {
                   </div>
                 </div>
               )}
+
+              {/* SLIDE 14: APÊNDICE TOKENOMICS */}
+              {pitchSlide === 14 && (
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center text-left">
+                  <div className="md:col-span-7 space-y-4">
+                    <div>
+                      <span className="text-xs font-mono text-purple-400 font-bold uppercase tracking-wider">Appendix</span>
+                      <h2 className="text-2xl font-black text-white mt-0.5">Solvência Contábil &amp; Governança do Ponto nfs</h2>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-lime-400/30 space-y-1">
+                        <span className="text-lime-400 font-bold block">1 nfs = R$ 0,02</span>
+                        <p className="text-zinc-400 text-[11px]">Cotação fixa de referência e conversão no Shop.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-purple-500/30 space-y-1">
+                        <span className="text-purple-300 font-bold block">Provisão R$ 0,01</span>
+                        <p className="text-zinc-400 text-[11px]">Fundo de liquidez para 100% dos pontos válidos.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-emerald-400/30 space-y-1">
+                        <span className="text-emerald-300 font-bold block">Breakage (12% a.a.)</span>
+                        <p className="text-zinc-400 text-[11px]">Baixa contábil de pontos expirados auditada por IA.</p>
+                      </div>
+                      <div className="bg-zinc-900 p-3.5 rounded-2xl border border-zinc-700 space-y-1">
+                        <span className="text-white font-bold block">PDFs Oficiais</span>
+                        <p className="text-zinc-400 text-[11px]">Regulamento e Termo LGPD assinados com marca d'água.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="md:col-span-5">
+                    <div className="rounded-3xl overflow-hidden border border-purple-500/30 shadow-2xl relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
+                        alt="Reuniao Executiva e Governanca Netfits"
+                        className="w-full h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent flex items-end p-5">
+                        <span className="bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold px-3 py-1 rounded-full">
+                          Governança &amp; Compliance LGPD
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Modal Footer Controls */}
@@ -4609,8 +4726,8 @@ function AdminDashboardPage() {
                   ← Anterior
                 </button>
                 <button
-                  disabled={pitchSlide === 12}
-                  onClick={() => setPitchSlide((s) => Math.min(12, s + 1))}
+                  disabled={pitchSlide === 14}
+                  onClick={() => setPitchSlide((s) => Math.min(14, s + 1))}
                   className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold text-xs transition cursor-pointer"
                 >
                   Próximo →
