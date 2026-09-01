@@ -220,15 +220,15 @@ function FaqPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
-                    Parte I · Regulamento Geral
+                    Parte I · Regulamento & Termos
                   </span>
                   <FileText className="size-4 text-purple-400" />
                 </div>
                 <h4 className="font-extrabold text-white text-sm">
-                  Regulamento do Programa & Regras Antifraude
+                  Regulamento Oficial & Regras Antifraude
                 </h4>
                 <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Termos e condições de participação, acúmulo de pontos nfs, regra de 100% dwell time em vídeos e cláusula irrevogável de exclusão sumária por descumprimento.
+                  Termos e condições de uso, acúmulo de pontos nfs, regra de 100% dwell time em vídeos, estorno híbrido CDC e cancelamento por inatividade.
                 </p>
               </div>
               <div className="pt-2 flex items-center gap-2">
@@ -240,15 +240,15 @@ function FaqPage() {
                   <span>Ler Regulamento</span>
                 </button>
                 <a
-                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                  href="/docs/Regulamento%20Oficial,%20Termos%20e%20Condi%C3%A7%C3%B5es%20de%20uso%20e%20Consentimento%20para%20o%20uso%20de%20dados%20(LGPD).docx"
+                  download="Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                  title="Baixar Minuta Oficial em PDF (.pdf) com Marca d'Água"
+                  title="Baixar Regulamento Oficial em formato Word (.docx)"
                 >
                   <Download className="size-3.5 text-lime-400" />
-                  <span>.PDF</span>
+                  <span>.DOCX</span>
                 </a>
               </div>
             </div>
@@ -263,10 +263,10 @@ function FaqPage() {
                   <ShieldCheck className="size-4 text-lime-400" />
                 </div>
                 <h4 className="font-extrabold text-white text-sm">
-                  Termo de Consentimento & Armazenamento (LGPD)
+                  Consentimento para Uso de Dados (LGPD)
                 </h4>
                 <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Direitos do titular, finalidades de tratamento de dados cadastrais e telemetria sensível (passos, treinos, GPS), sigilo e DPO oficial.
+                  Bases legais desacopladas, telemetria esportiva protegida (HealthKit/Garmin), garantia de não-venda de dados de saúde e canal do DPO.
                 </p>
               </div>
               <div className="pt-2 flex items-center gap-2">
@@ -278,57 +278,45 @@ function FaqPage() {
                   <span>Ler Termo LGPD</span>
                 </button>
                 <a
-                  href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-                  download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                  href="/docs/Regulamento%20Oficial,%20Termos%20e%20Condi%C3%A7%C3%B5es%20de%20uso%20e%20Consentimento%20para%20o%20uso%20de%20dados%20(LGPD).docx"
+                  download="Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                  title="Baixar Minuta Oficial em PDF (.pdf) com Marca d'Água"
+                  title="Baixar Minuta Oficial e Termo LGPD em formato Word (.docx)"
                 >
                   <Download className="size-3.5 text-lime-400" />
-                  <span>.PDF</span>
+                  <span>.DOCX</span>
                 </a>
               </div>
             </div>
 
-            {/* Card 3: Arquitetura de IA (Squad de 8 Agentes) */}
+            {/* Card 3: Estudo Comparativo Benchmark Stix e Livelo */}
             <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-lime-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
-                    Proposta Estratégica · IA 2026.2
+                    Estudo Benchmark · 2026.2
                   </span>
-                  <Cpu className="size-4 text-lime-400" />
+                  <Scale className="size-4 text-lime-400" />
                 </div>
                 <h4 className="font-extrabold text-white text-sm">
-                  Arquitetura do Squad de 8 Agentes de IA
+                  Comparativo Fidelidade: Stix & Livelo
                 </h4>
                 <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Especificação executiva completa da operação de IA autônoma omnichannel, recomendação de modelos (Gemini Pro/Flash/Lite), KPIs e governança fiscal contábil.
+                  Estudo comparativo independente de 12 dimensões: regras de pontos, matriz de risco, combate a fraudes e conformidade regulatória.
                 </p>
               </div>
               <div className="pt-2 flex items-center gap-2">
                 <a
-                  href="/docs/arquitetura_squad_agentes_ia_netfits.pdf"
-                  download="arquitetura_squad_agentes_ia_netfits.pdf"
+                  href="/docs/Netfits_Estudo_Comparativo_Programas_Fidelidade_Stix_Livelo.docx"
+                  download="Netfits_Estudo_Comparativo_Programas_Fidelidade_Stix_Livelo.docx"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md"
-                  title="Baixar Arquitetura em PDF com Marca d'Água"
                 >
                   <Download className="size-3.5 text-lime-400" />
-                  <span>.PDF Marca d'Água</span>
-                </a>
-                <a
-                  href="/docs/arquitetura_squad_agentes_ia_netfits.docx"
-                  download="arquitetura_squad_agentes_ia_netfits.docx"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                  title="Baixar Documento Editável Word (.docx)"
-                >
-                  <FileText className="size-3.5 text-lime-400" />
-                  <span>.DOCX</span>
+                  <span>Baixar Estudo (.DOCX)</span>
                 </a>
               </div>
             </div>
@@ -497,7 +485,7 @@ function FaqPage() {
                   <span>Visualização do PDF Oficial com Marca d'Água:</span>
                 </p>
                 <iframe
-                  src="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf#toolbar=0"
+                  src="/Regulamento%20Oficial,%20Termos%20e%20Condi%C3%A7%C3%B5es%20de%20uso%20e%20Consentimento%20para%20o%20uso%20de%20dados%20(LGPD).pdf#toolbar=0"
                   className="w-full h-80 rounded-2xl border border-purple-500/30 bg-zinc-950"
                   title="PDF Oficial Netfits Regulamento"
                 />
@@ -506,14 +494,14 @@ function FaqPage() {
 
             <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
               <a
-                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                href="/docs/Regulamento%20Oficial,%20Termos%20e%20Condi%C3%A7%C3%B5es%20de%20uso%20e%20Consentimento%20para%20o%20uso%20de%20dados%20(LGPD).docx"
+                download="Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
               >
                 <Download className="size-4 text-lime-400" />
-                <span>Baixar Minuta Completa em PDF (.pdf)</span>
+                <span>Baixar Regulamento e LGPD (.docx)</span>
               </a>
               <button
                 onClick={() => setShowRegulamentoModal(false)}
@@ -605,7 +593,7 @@ function FaqPage() {
                   <span>Visualização do PDF Oficial com Marca d'Água:</span>
                 </p>
                 <iframe
-                  src="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf#toolbar=0"
+                  src="/Regulamento%20Oficial,%20Termos%20e%20Condi%C3%A7%C3%B5es%20de%20uso%20e%20Consentimento%20para%20o%20uso%20de%20dados%20(LGPD).pdf#toolbar=0"
                   className="w-full h-80 rounded-2xl border border-lime-500/30 bg-zinc-950"
                   title="PDF Oficial Netfits Termo LGPD"
                 />
@@ -614,14 +602,14 @@ function FaqPage() {
 
             <div className="flex items-center justify-between gap-3 pt-1 shrink-0">
               <a
-                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                href="/docs/Regulamento%20Oficial,%20Termos%20e%20Condi%C3%A7%C3%B5es%20de%20uso%20e%20Consentimento%20para%20o%20uso%20de%20dados%20(LGPD).docx"
+                download="Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center gap-2 transition"
               >
                 <Download className="size-4 text-lime-400" />
-                <span>Baixar Minuta Completa em PDF (.pdf)</span>
+                <span>Baixar Termo LGPD e Regulamento (.docx)</span>
               </a>
               <button
                 onClick={() => setShowLgpdModal(false)}
