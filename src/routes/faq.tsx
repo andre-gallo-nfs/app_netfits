@@ -21,7 +21,8 @@ import {
   BookOpen,
   Sparkles,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  Cpu
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
@@ -138,14 +139,14 @@ function FaqPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-cyan-500 selection:text-white">
+    <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-lime-400 selection:text-zinc-950">
       {/* 1. Header Web Corporativo Unificado */}
       <InstitutionalWebHeader />
 
       {/* Hero Section */}
-      <section className="py-12 px-6 bg-gradient-to-b from-cyan-950/40 via-zinc-950 to-zinc-950 border-b border-zinc-800/60">
+      <section className="py-12 px-6 bg-gradient-to-b from-purple-950/40 via-zinc-950 to-zinc-950 border-b border-zinc-800/60">
         <div className="max-w-3xl mx-auto text-center space-y-4">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20">
             Central de Ajuda & Termos Legais
           </span>
           <h1 className="text-3xl md:text-5xl font-black text-white">Perguntas Frequentes (FAQ)</h1>
@@ -159,7 +160,7 @@ function FaqPage() {
               placeholder="Busque por palavra-chave (ex: regulamento, lgpd, cashback, pontos)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl pl-12 pr-4 py-3.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-cyan-500 shadow-xl"
+              className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl pl-12 pr-4 py-3.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-lime-400 shadow-xl"
             />
           </div>
         </div>
@@ -169,7 +170,7 @@ function FaqPage() {
       <section className="max-w-4xl mx-auto px-6 py-6 flex flex-wrap items-center justify-center gap-2">
         {[
           { id: "all", label: "Todas as Dúvidas" },
-          { id: "legal", label: "📄 Documentos Legais & LGPD" },
+          { id: "legal", label: "Documentos Legais & LGPD" },
           { id: "pontos", label: "Pontos nfs & FEFO" },
           { id: "shop", label: "Shop & Cashback" },
           { id: "parceiros", label: "Parceiros Comerciais" },
@@ -182,7 +183,7 @@ function FaqPage() {
             onClick={() => setActiveCategory(tab.id)}
             className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition border cursor-pointer ${
               activeCategory === tab.id
-                ? "bg-cyan-500 border-cyan-400 text-zinc-950 shadow-md"
+                ? "bg-lime-400 border-lime-300 text-zinc-950 shadow-md font-black"
                 : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-white"
             }`}
           >
@@ -291,13 +292,13 @@ function FaqPage() {
             </div>
 
             {/* Card 3: Arquitetura de IA (Squad de 8 Agentes) */}
-            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-cyan-500/40 transition">
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-lime-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
                     Proposta Estratégica · IA 2026.2
                   </span>
-                  <Cpu className="size-4 text-cyan-400" />
+                  <Cpu className="size-4 text-lime-400" />
                 </div>
                 <h4 className="font-extrabold text-white text-sm">
                   Arquitetura do Squad de 8 Agentes de IA
@@ -326,7 +327,7 @@ function FaqPage() {
                   className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                   title="Baixar Documento Editável Word (.docx)"
                 >
-                  <FileText className="size-3.5 text-cyan-400" />
+                  <FileText className="size-3.5 text-lime-400" />
                   <span>.DOCX</span>
                 </a>
               </div>
@@ -356,14 +357,14 @@ function FaqPage() {
                   className="w-full text-left p-5 flex items-center justify-between gap-4 hover:bg-zinc-850 transition cursor-pointer"
                 >
                   <div className="space-y-1">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-500/20">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/20">
                       {faq.categoryLabel}
                     </span>
                     <h3 className="text-base font-bold text-white leading-snug">{faq.question}</h3>
                   </div>
 
                   {isOpen ? (
-                    <ChevronUp className="size-5 text-cyan-400 shrink-0" />
+                    <ChevronUp className="size-5 text-lime-400 shrink-0" />
                   ) : (
                     <ChevronDown className="size-5 text-zinc-500 shrink-0" />
                   )}
