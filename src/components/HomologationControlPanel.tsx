@@ -743,6 +743,27 @@ function UserTestingScriptModal({
           );
         })}
       </div>
+
+      {/* Rodapé: Alternar Usuário / Abrir Painel Admin */}
+      <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between text-xs">
+        <button
+          type="button"
+          onClick={() => {
+            sharedSandboxStore.setActiveUser("user-admin");
+            toast.success("Sessão alterada para Administrador! O painel completo de testes foi liberado.");
+          }}
+          className="text-[10px] font-bold text-lime-400 hover:text-lime-300 flex items-center gap-1 cursor-pointer"
+        >
+          <span>👑 Assumir Perfil Admin</span>
+        </button>
+        <Link
+          to="/admin"
+          onClick={onClose}
+          className="text-[10px] font-bold text-zinc-400 hover:text-white cursor-pointer"
+        >
+          Base de Usuários (/admin) →
+        </Link>
+      </div>
     </div>
   );
 }

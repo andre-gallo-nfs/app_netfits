@@ -7,7 +7,8 @@ import {
   Share2, Video, Check, ExternalLink, Download, Search, ChevronDown, UserCheck,
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
-  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail, Lock, X, MessageSquare
+  ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail, Lock, X, MessageSquare,
+  Trash2, Edit3, LogIn
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -685,6 +686,32 @@ function AdminDashboardPage() {
     email: string;
     phone: string;
   } | null>(null);
+
+  // Estados para Gestão Completa da Base de Usuários Teste (sharedSandboxStore)
+  const [sandboxUsersList, setSandboxUsersList] = useState(() => sharedSandboxStore.getUsers());
+  const [sandboxSearchTerm, setSandboxSearchTerm] = useState("");
+  const [sandboxRoleFilter, setSandboxRoleFilter] = useState<string>("all");
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editingBalanceValue, setEditingBalanceValue] = useState<number>(0);
+  const [showAddTestUserModal, setShowAddTestUserModal] = useState(false);
+  const [newTestUserForm, setNewTestUserForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "(11) 98888-7766",
+    cpf: "123.456.789-00",
+    birthDate: "1995-05-10",
+    type: "athlete" as "athlete" | "associado" | "partner" | "admin",
+    initialNfs: 50,
+    referralCode: "",
+  });
+
+  useEffect(() => {
+    setSandboxUsersList(sharedSandboxStore.getUsers());
+    const unsub = sharedSandboxStore.subscribe(() => {
+      setSandboxUsersList([...sharedSandboxStore.getUsers()]);
+    });
+    return () => unsub();
+  }, []);
 
   const handleCreateAssociadoByAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -3023,10 +3050,406 @@ function AdminDashboardPage() {
                 <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
                   <p className="text-xs text-zinc-400 font-semibold">Smiles & LATAM Pass</p>
                   <p className="text-xl font-bold text-white">96.000 declarações</p>
-                  <span className="text-[10px] text-cyan-400">Média: 55.000 pts declarados</span>
+                  <span className="text-[10px] text-lime-400">Média: 55.000 pts declarados</span>
                 </div>
               </div>
             </div>
+
+            {/* TABELA DE GESTÃO DO BANCO DE USUÁRIOS DE TESTE EM TEMPO REAL */}
+            <div className="bg-gradient-to-br from-zinc-900 via-purple-950/20 to-zinc-900 border-2 border-purple-500/30 rounded-3xl p-6 shadow-2xl space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-purple-950/80 px-2.5 py-1 rounded-full border border-purple-500/30">
+                      Banco Provisório em Tempo Real (Live Sandbox)
+                    </span>
+                    <span className="size-2 rounded-full bg-lime-400 animate-ping" />
+                  </div>
+                  <h3 className="text-lg font-black text-white mt-1.5 flex items-center gap-2">
+                    <span>Base Ativa de Usuários de Teste & Homologação</span>
+                    <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/40 px-2.5 py-0.5 rounded-full font-mono font-bold">
+                      {sandboxUsersList.length} Usuários Cadastrados
+                    </span>
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    Gerencie, filtre, edite saldos de pontos nfs ou assuma a sessão de qualquer usuário de teste instantaneamente.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => setShowAddTestUserModal(true)}
+                    className="px-3.5 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs shadow-lg flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <UserPlus className="size-4 text-zinc-950" />
+                    <span>+ Criar Usuário Teste</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Deseja realmente resetar o banco de teste para os padrões originais de homologação?")) {
+                        sharedSandboxStore.resetToDefaults();
+                      }
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-red-950 hover:text-red-300 text-zinc-300 border border-zinc-700 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                    title="Restaurar a base original de usuários e transações de teste"
+                  >
+                    <RotateCcw className="size-3.5" />
+                    <span>Resetar Banco</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Filtros e Busca */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3.5 top-3 size-4 text-zinc-500" />
+                  <input
+                    type="text"
+                    placeholder="Buscar por Nome, E-mail, Celular, CPF ou Código de Indicação..."
+                    value={sandboxSearchTerm}
+                    onChange={(e) => setSandboxSearchTerm(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-lime-400"
+                  />
+                </div>
+
+                {/* Filtros de Tipo */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                  {[
+                    { id: "all", label: `Todos (${sandboxUsersList.length})` },
+                    { id: "athlete", label: `Atletas (${sandboxUsersList.filter(u => u.type === "athlete").length})` },
+                    { id: "associado", label: `Associados (${sandboxUsersList.filter(u => u.type === "associado").length})` },
+                    { id: "partner", label: `Parceiros (${sandboxUsersList.filter(u => u.type === "partner").length})` },
+                    { id: "admin", label: `Admins (${sandboxUsersList.filter(u => u.type === "admin").length})` },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSandboxRoleFilter(tab.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                        sandboxRoleFilter === tab.id
+                          ? "bg-purple-600 text-white shadow-md font-black"
+                          : "bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tabela de Usuários */}
+              <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-950">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-zinc-900/90 text-zinc-400 uppercase text-[10px] font-mono border-b border-zinc-800">
+                    <tr>
+                      <th className="py-3 px-4">Usuário / Perfil</th>
+                      <th className="py-3 px-4">Tipo / Papel</th>
+                      <th className="py-3 px-4">Identificador / Contato</th>
+                      <th className="py-3 px-4">Código / Indicação</th>
+                      <th className="py-3 px-4 text-right">Saldo de Pontos</th>
+                      <th className="py-3 px-4 text-center">Ações Rápidas</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-850">
+                    {sandboxUsersList
+                      .filter((u) => {
+                        if (sandboxRoleFilter !== "all" && u.type !== sandboxRoleFilter) return false;
+                        if (!sandboxSearchTerm.trim()) return true;
+                        const q = sandboxSearchTerm.toLowerCase().trim();
+                        return (
+                          u.fullName.toLowerCase().includes(q) ||
+                          (u.email && u.email.toLowerCase().includes(q)) ||
+                          (u.identifier && u.identifier.toLowerCase().includes(q)) ||
+                          (u.phone && u.phone.includes(q)) ||
+                          (u.cpf && u.cpf.includes(q)) ||
+                          u.referralCode.toLowerCase().includes(q) ||
+                          (u.referredBy && u.referredBy.toLowerCase().includes(q))
+                        );
+                      })
+                      .map((u) => {
+                        const isCurrentActive = sharedSandboxStore.getActiveUser().id === u.id;
+                        return (
+                          <tr key={u.id} className={`hover:bg-zinc-900/60 transition ${isCurrentActive ? "bg-purple-950/20" : ""}`}>
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-2.5">
+                                <div className="size-8 rounded-full bg-gradient-to-tr from-purple-700 to-lime-400 grid place-items-center text-white font-black text-xs shrink-0">
+                                  {u.fullName.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="font-bold text-white text-xs flex items-center gap-1.5">
+                                    <span>{u.fullName}</span>
+                                    {isCurrentActive && (
+                                      <span className="text-[9px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30 px-1.5 py-0.2 rounded-full">
+                                        Sessão Ativa
+                                      </span>
+                                    )}
+                                  </p>
+                                  <p className="text-[10px] text-zinc-500 font-mono">ID: {u.id}</p>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="py-3 px-4">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                                  u.type === "admin"
+                                    ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                                    : u.type === "associado"
+                                    ? "bg-purple-600/30 text-purple-300 border-purple-500/40"
+                                    : u.type === "partner"
+                                    ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                                    : "bg-lime-400/20 text-lime-400 border-lime-400/30"
+                                }`}
+                              >
+                                {u.type === "admin"
+                                  ? "👑 Admin"
+                                  : u.type === "associado"
+                                  ? "🟣 Associado"
+                                  : u.type === "partner"
+                                  ? "🏢 Parceiro"
+                                  : "🏃 Atleta"}
+                              </span>
+                              {u.specialty && (
+                                <p className="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[140px]">{u.specialty}</p>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-4">
+                              <p className="text-zinc-200 font-medium">{u.email || u.identifier}</p>
+                              <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5">
+                                {u.phone && <span>Tel: {u.phone}</span>}
+                                {u.cpf && <span>CPF: {u.cpf}</span>}
+                              </div>
+                            </td>
+
+                            <td className="py-3 px-4 font-mono">
+                              <span className="text-lime-400 font-bold bg-lime-950/60 px-2 py-0.5 rounded border border-lime-500/20">
+                                {u.referralCode}
+                              </span>
+                              {u.referredBy && (
+                                <p className="text-[10px] text-zinc-400 mt-1">
+                                  Indicado por: <strong className="text-purple-300">{u.referredBy}</strong>
+                                </p>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-4 text-right">
+                              {editingUserId === u.id ? (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <input
+                                    type="number"
+                                    value={editingBalanceValue}
+                                    onChange={(e) => setEditingBalanceValue(Number(e.target.value))}
+                                    className="w-20 bg-zinc-900 border border-lime-400 rounded-lg px-2 py-1 text-xs text-white font-mono text-right"
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      sharedSandboxStore.adjustUserBalance(u.id, editingBalanceValue);
+                                      setEditingUserId(null);
+                                    }}
+                                    className="p-1 rounded bg-lime-400 text-zinc-950 font-bold hover:bg-lime-300"
+                                    title="Salvar Saldo"
+                                  >
+                                    <Check className="size-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingUserId(null)}
+                                    className="p-1 rounded bg-zinc-800 text-zinc-400 hover:text-white"
+                                    title="Cancelar"
+                                  >
+                                    <X className="size-3.5" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <span className="font-mono font-bold text-white text-xs">
+                                    {u.nfsBalance.toLocaleString("pt-BR")} <span className="text-lime-400">nfs</span>
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      setEditingUserId(u.id);
+                                      setEditingBalanceValue(u.nfsBalance);
+                                    }}
+                                    className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition"
+                                    title="Editar Saldo"
+                                  >
+                                    <Edit3 className="size-3" />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-4 text-center">
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  onClick={() => sharedSandboxStore.setActiveUser(u.id)}
+                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition cursor-pointer ${
+                                    isCurrentActive
+                                      ? "bg-lime-400 text-zinc-950 font-black shadow-xs"
+                                      : "bg-purple-600 hover:bg-purple-500 text-white shadow-xs"
+                                  }`}
+                                  title="Assumir esta conta de teste como sessão ativa"
+                                >
+                                  <LogIn className="size-3" />
+                                  <span>{isCurrentActive ? "Ativo" : "Assumir"}</span>
+                                </button>
+                                {u.id !== "user-admin" && (
+                                  <button
+                                    onClick={() => {
+                                      if (confirm(`Excluir o usuário de teste "${u.fullName}"?`)) {
+                                        sharedSandboxStore.deleteUser(u.id);
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg bg-zinc-850 hover:bg-red-950 hover:text-red-400 text-zinc-500 transition cursor-pointer"
+                                    title="Excluir Usuário de Teste"
+                                  >
+                                    <Trash2 className="size-3" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* MODAL: CRIAR NOVO USUÁRIO DE TESTE */}
+            {showAddTestUserModal && (
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="bg-zinc-950 border border-purple-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 animate-in zoom-in-95">
+                  <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <h3 className="font-bold text-white text-base flex items-center gap-2">
+                      <UserPlus className="size-5 text-lime-400" />
+                      <span>Cadastrar Novo Usuário de Teste</span>
+                    </h3>
+                    <button
+                      onClick={() => setShowAddTestUserModal(false)}
+                      className="size-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white grid place-items-center"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!newTestUserForm.fullName.trim() || !newTestUserForm.email.trim()) {
+                        toast.error("Preencha Nome e E-mail.");
+                        return;
+                      }
+
+                      if (newTestUserForm.type === "associado") {
+                        sharedSandboxStore.registerAssociado({
+                          fullName: newTestUserForm.fullName.trim(),
+                          email: newTestUserForm.email.trim(),
+                          phone: newTestUserForm.phone.trim(),
+                          register: "CRM/SP 999.888",
+                          specialty: "Medicina / Performance",
+                          city: "São Paulo - SP",
+                        });
+                      } else {
+                        const res = sharedSandboxStore.registerAthlete({
+                          fullName: newTestUserForm.fullName.trim(),
+                          email: newTestUserForm.email.trim(),
+                          phone: newTestUserForm.phone.trim(),
+                          cpf: newTestUserForm.cpf.trim(),
+                          birthDate: newTestUserForm.birthDate.trim(),
+                          referralCode: newTestUserForm.referralCode.trim(),
+                        });
+                        if (res.user && newTestUserForm.initialNfs > 0) {
+                          sharedSandboxStore.adjustUserBalance(res.user.id, newTestUserForm.initialNfs);
+                        }
+                      }
+
+                      setShowAddTestUserModal(false);
+                      toast.success(`Usuário de teste "${newTestUserForm.fullName}" criado com sucesso!`);
+                    }}
+                    className="space-y-3 text-xs"
+                  >
+                    <div>
+                      <label className="block text-zinc-300 font-bold mb-1">Nome Completo *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ex: Roberto Triatleta"
+                        value={newTestUserForm.fullName}
+                        onChange={(e) => setNewTestUserForm({ ...newTestUserForm, fullName: e.target.value })}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-lime-400"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-zinc-300 font-bold mb-1">E-mail *</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="roberto@email.com"
+                          value={newTestUserForm.email}
+                          onChange={(e) => setNewTestUserForm({ ...newTestUserForm, email: e.target.value })}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-lime-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-300 font-bold mb-1">Tipo / Papel *</label>
+                        <select
+                          value={newTestUserForm.type}
+                          onChange={(e) => setNewTestUserForm({ ...newTestUserForm, type: e.target.value as any })}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-lime-400"
+                        >
+                          <option value="athlete">🏃 Atleta</option>
+                          <option value="associado">🟣 Associado</option>
+                          <option value="partner">🏢 Parceiro</option>
+                          <option value="admin">👑 Admin</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-zinc-300 font-bold mb-1">Saldo Inicial (nfs)</label>
+                        <input
+                          type="number"
+                          value={newTestUserForm.initialNfs}
+                          onChange={(e) => setNewTestUserForm({ ...newTestUserForm, initialNfs: Number(e.target.value) })}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-lime-400 font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-300 font-bold mb-1">Código Indicação (Opcional)</label>
+                        <input
+                          type="text"
+                          placeholder="GALLO-NETFITS"
+                          value={newTestUserForm.referralCode}
+                          onChange={(e) => setNewTestUserForm({ ...newTestUserForm, referralCode: e.target.value.toUpperCase() })}
+                          className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-lime-400 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddTestUserModal(false)}
+                        className="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs shadow-md"
+                      >
+                        Salvar e Criar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

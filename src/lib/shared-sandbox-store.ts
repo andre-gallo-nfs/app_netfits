@@ -466,41 +466,18 @@ class HomologationSandboxStore {
     if (typeof window === "undefined" || this.isSyncingCloud) return this.state.users;
     this.isSyncingCloud = true;
     try {
-      const res = await fetch(CLOUD_SYNC_ENDPOINT, { cache: "no-store" });
-      if (res.ok) {
-        const json = await res.json();
-        const cloudUsers: SandboxUser[] = json?.data?.users || [];
-        if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
-          let hasChanges = false;
-          for (const cu of cloudUsers) {
-            if (!cu || !cu.id) continue;
-            const idx = this.state.users.findIndex(
-              (u) =>
-                u.id === cu.id ||
-                (u.email && cu.email && u.email.trim().toLowerCase() === cu.email.trim().toLowerCase()) ||
-                (u.identifier && cu.identifier && u.identifier.trim().toLowerCase() === cu.identifier.trim().toLowerCase()) ||
-                (u.cpf && cu.cpf && u.cpf.replace(/\D/g, "") === cu.cpf.replace(/\D/g, ""))
-            );
-            if (idx >= 0) {
-              const prev = JSON.stringify(this.state.users[idx]);
-              this.state.users[idx] = { ...this.state.users[idx], ...cu };
-              if (prev !== JSON.stringify(this.state.users[idx])) {
-                hasChanges = true;
-              }
-            } else {
-              this.state.users.push(cu);
-              hasChanges = true;
-            }
-          }
-
-          if (hasChanges) {
-            this.saveToStorageLocally();
-            this.notify();
-          }
-        }
+      // Recarrega do localStorage e sincroniza entre abas/janelas
+      const fresh = this.loadFromStorage();
+      if (fresh && Array.isArray(fresh.users)) {
+        this.state.users = fresh.users;
+        this.state.transactions = fresh.transactions;
+        this.state.partners = fresh.partners;
+        this.state.tickets = fresh.tickets;
+        this.state.orders = fresh.orders;
+        this.notify();
       }
     } catch (err) {
-      console.warn("[CloudSync Fetch Warning]", err);
+      console.warn("[LocalSync Warning]", err);
     } finally {
       this.isSyncingCloud = false;
     }
@@ -510,58 +487,48 @@ class HomologationSandboxStore {
   public async syncToCloud(): Promise<void> {
     if (typeof window === "undefined") return;
     try {
-      // 1. Buscar cadastros prévios da nuvem para mesclar antes de enviar
-      let cloudUsers: SandboxUser[] = [];
-      try {
-        const res = await fetch(CLOUD_SYNC_ENDPOINT, { cache: "no-store" });
-        if (res.ok) {
-          const json = await res.json();
-          if (Array.isArray(json?.data?.users)) {
-            cloudUsers = json.data.users;
-          }
-        }
-      } catch (e) {
-        console.warn("[CloudSync Pre-fetch Warning]", e);
-      }
-
-      // 2. Consolidar usuários únicos em um Map
-      const userMap = new Map<string, SandboxUser>();
-      
-      // Inserir remotos
-      for (const cu of cloudUsers) {
-        if (cu && cu.id) {
-          userMap.set(cu.id, cu);
-        }
-      }
-
-      // Inserir/Atualizar locais
-      for (const lu of this.state.users) {
-        if (lu && lu.id) {
-          userMap.set(lu.id, lu);
-        }
-      }
-
-      const mergedUsers = Array.from(userMap.values());
-      this.state.users = mergedUsers;
       this.saveToStorageLocally();
-
-      // 3. Enviar base unificada para o servidor de sincronização
-      await fetch(CLOUD_SYNC_ENDPOINT, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "Netfits Global Sync",
-          data: {
-            users: mergedUsers,
-            transactions: this.state.transactions.slice(0, 50),
-          },
-        }),
-      });
-      
-      this.notify();
+      this.broadcastChannel?.postMessage("sync");
     } catch (err) {
-      console.warn("[CloudSync Push Warning]", err);
+      console.warn("[LocalSync Broadcast Warning]", err);
     }
+  }
+
+  public deleteUser(userId: string): boolean {
+    const idx = this.state.users.findIndex((u) => u.id === userId);
+    if (idx >= 0) {
+      const removed = this.state.users.splice(idx, 1)[0];
+      if (this.state.activeUserId === userId) {
+        this.state.activeUserId = this.state.users[0]?.id || "user-athlete-1";
+      }
+      this.saveToStorage();
+      toast.success(`Usuário "${removed.fullName}" excluído com sucesso!`);
+      return true;
+    }
+    return false;
+  }
+
+  public adjustUserBalance(userId: string, newBalance: number): boolean {
+    const user = this.state.users.find((u) => u.id === userId);
+    if (user) {
+      const diff = newBalance - user.nfsBalance;
+      user.nfsBalance = Math.max(0, newBalance);
+      if (diff !== 0) {
+        this.state.transactions.unshift({
+          id: `tx-${Date.now()}-adj`,
+          userId: user.id,
+          userName: user.fullName,
+          amount: diff,
+          description: `Ajuste Administrativo de Saldo (${diff > 0 ? "+" : ""}${diff} nfs)`,
+          category: "associado_bonus",
+          timestamp: new Date().toISOString(),
+        });
+      }
+      this.saveToStorage();
+      toast.success(`Saldo de ${user.fullName} ajustado para ${user.nfsBalance} nfs!`);
+      return true;
+    }
+    return false;
   }
 
   private loadFromStorage(): SandboxSchema {
