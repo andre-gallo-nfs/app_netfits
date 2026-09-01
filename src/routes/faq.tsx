@@ -214,7 +214,7 @@ function FaqPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 1: Regulamento Geral */}
             <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
               <div className="space-y-2">
@@ -287,36 +287,6 @@ function FaqPage() {
                 >
                   <Download className="size-3.5 text-lime-400" />
                   <span>.DOCX</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Card 3: Estudo Comparativo Benchmark Stix e Livelo */}
-            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-lime-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
-                    Estudo Benchmark · 2026.2
-                  </span>
-                  <Scale className="size-4 text-lime-400" />
-                </div>
-                <h4 className="font-extrabold text-white text-sm">
-                  Comparativo Fidelidade: Stix & Livelo
-                </h4>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Estudo comparativo independente de 12 dimensões: regras de pontos, matriz de risco, combate a fraudes e conformidade regulatória.
-                </p>
-              </div>
-              <div className="pt-2 flex items-center gap-2">
-                <a
-                  href="/docs/Netfits_Estudo_Comparativo_Programas_Fidelidade_Stix_Livelo.docx"
-                  download="Netfits_Estudo_Comparativo_Programas_Fidelidade_Stix_Livelo.docx"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md"
-                >
-                  <Download className="size-3.5 text-lime-400" />
-                  <span>Baixar Estudo (.DOCX)</span>
                 </a>
               </div>
             </div>
