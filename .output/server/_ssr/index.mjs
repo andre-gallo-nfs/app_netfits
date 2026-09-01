@@ -86,7 +86,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-CNn6-xkG.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BBNFrSGB.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -1163,7 +1163,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-xNV5rcUR.mjs").then((n) => n.r),
+    import("./router-Cze9vO0N.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1497,9 +1497,64 @@ async function handleServerRoutes({ getRouter, request, url, executeRouter, cont
   }
   return normalizeSsrResponse(response);
 }
+let globalServerUsers = [];
+let lastSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
 const handler = createStartHandler(defaultStreamHandler);
 const server = {
-  fetch(req) {
+  async fetch(req) {
+    const url = new URL(req.url);
+    if (url.pathname === "/api/users-sync" || url.pathname === "/api/users-sync/") {
+      const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+      };
+      if (req.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: corsHeaders });
+      }
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const incomingUsers = Array.isArray(body?.users) ? body.users : body?.user ? [body.user] : [];
+          const userMap = /* @__PURE__ */ new Map();
+          for (const u of globalServerUsers) {
+            if (u && u.id) userMap.set(u.id, u);
+          }
+          for (const u of incomingUsers) {
+            if (u && u.id) {
+              const existing = userMap.get(u.id);
+              userMap.set(u.id, { ...existing, ...u });
+            }
+          }
+          globalServerUsers = Array.from(userMap.values());
+          lastSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
+          return new Response(
+            JSON.stringify({
+              success: true,
+              count: globalServerUsers.length,
+              users: globalServerUsers,
+              updatedAt: lastSyncTimestamp
+            }),
+            { status: 200, headers: corsHeaders }
+          );
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ success: false, error: String(err) }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+      }
+      return new Response(
+        JSON.stringify({
+          success: true,
+          count: globalServerUsers.length,
+          users: globalServerUsers,
+          updatedAt: lastSyncTimestamp
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
     return handler(req);
   }
 };

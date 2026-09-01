@@ -697,7 +697,19 @@ class HomologationSandboxStore {
       });
 
       // Sincronização inicial pontual ao carregar
-      setTimeout(() => this.syncFromCloud(), 500);
+      setTimeout(() => {
+        this.syncToCloud();
+        this.syncFromCloud();
+      }, 500);
+
+      // Polling periódico automático (a cada 6s) para buscar cadastros feitos em outros celulares
+      setInterval(() => {
+        this.syncFromCloud();
+      }, 6000);
+
+      window.addEventListener("focus", () => {
+        this.syncFromCloud();
+      });
     }
   }
 
@@ -705,7 +717,7 @@ class HomologationSandboxStore {
     if (typeof window === "undefined" || this.isSyncingCloud) return this.state.users;
     this.isSyncingCloud = true;
     try {
-      // Recarrega do localStorage e sincroniza entre abas/janelas
+      // 1. Recarrega do localStorage e sincroniza entre abas locais
       const fresh = this.loadFromStorage();
       if (fresh && Array.isArray(fresh.users)) {
         this.state.users = fresh.users;
@@ -713,10 +725,38 @@ class HomologationSandboxStore {
         this.state.partners = fresh.partners;
         this.state.tickets = fresh.tickets;
         this.state.orders = fresh.orders;
-        this.notify();
       }
+
+      // 2. Busca do servidor de sincronização global /api/users-sync
+      const res = await fetch("/api/users-sync", { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        const serverUsers: SandboxUser[] = json?.users || [];
+        if (Array.isArray(serverUsers) && serverUsers.length > 0) {
+          let hasNew = false;
+          for (const su of serverUsers) {
+            if (!su || !su.id) continue;
+            const idx = this.state.users.findIndex(
+              (u) =>
+                u.id === su.id ||
+                (u.email && su.email && u.email.trim().toLowerCase() === su.email.trim().toLowerCase()) ||
+                (u.identifier && su.identifier && u.identifier.trim().toLowerCase() === su.identifier.trim().toLowerCase())
+            );
+            if (idx >= 0) {
+              this.state.users[idx] = { ...this.state.users[idx], ...su };
+            } else {
+              this.state.users.push(su);
+              hasNew = true;
+            }
+          }
+          if (hasNew) {
+            this.saveToStorageLocally();
+          }
+        }
+      }
+      this.notify();
     } catch (err) {
-      console.warn("[LocalSync Warning]", err);
+      console.warn("[CloudSync Fetch Warning]", err);
     } finally {
       this.isSyncingCloud = false;
     }
@@ -728,8 +768,15 @@ class HomologationSandboxStore {
     try {
       this.saveToStorageLocally();
       this.broadcastChannel?.postMessage("sync");
+
+      // Transmite cadastro/atualização para o servidor global assincronamente
+      await fetch("/api/users-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ users: this.state.users }),
+      });
     } catch (err) {
-      console.warn("[LocalSync Broadcast Warning]", err);
+      console.warn("[CloudSync Push Warning]", err);
     }
   }
 
