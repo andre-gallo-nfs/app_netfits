@@ -23,7 +23,14 @@ import {
   Instagram,
   FileText,
   Search,
-  Check
+  Check,
+  ShoppingBag,
+  Code,
+  Terminal,
+  Copy,
+  ExternalLink,
+  Zap,
+  Server
 } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { trackPartnerRegistration } from "@/lib/analytics";
@@ -33,13 +40,13 @@ import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 export const Route = createFileRoute("/parceiros")({
   head: () => ({
     meta: [
-      { title: "Cadastro de Parceiros Comerciais — Netfits" },
+      { title: "Cadastro de Parceiros Comerciais & Marketplace — Netfits" },
       {
         name: "description",
         content:
-          "Cadastre sua academia, assessoria esportiva, clínica de fisioterapia, consultório de nutrição ou medicina do esporte na Netfits.",
+          "Cadastre sua academia, assessoria esportiva, clínica de fisioterapia, consultório de nutrição ou e-commerce no ecossistema Netfits.",
       },
-      { property: "og:title", content: "Cadastro de Parceiros Comerciais — Netfits" },
+      { property: "og:title", content: "Cadastro de Parceiros Comerciais & Marketplace — Netfits" },
     ],
   }),
   component: ParceirosRegistrationPage,
@@ -52,6 +59,7 @@ type CategoryType =
   | "fisioterapia"
   | "assessorias" 
   | "medicina" 
+  | "marketplace_sellers"
   | "outros";
 
 interface PartnerCategoryInfo {
@@ -66,6 +74,16 @@ interface PartnerCategoryInfo {
 }
 
 const PARTNER_CATEGORIES: PartnerCategoryInfo[] = [
+  {
+    id: "marketplace_sellers",
+    title: "Lojas & Sellers Marketplace (E-commerce / APIs)",
+    subtitle: "Suplementação, Vestuário esportivo, Acessórios e Equipamentos",
+    icon: ShoppingBag,
+    badge: "Varejo & APIs",
+    boardName: "CNPJ / E-commerce",
+    boardExample: "CNPJ 12.345.678/0001-90",
+    color: "from-lime-500/20 to-purple-950/40 border-lime-500/30 text-lime-400"
+  },
   {
     id: "academias",
     title: "Academias, Studios & Pilates",
@@ -104,7 +122,7 @@ const PARTNER_CATEGORIES: PartnerCategoryInfo[] = [
     badge: "Recovery & Prevenção",
     boardName: "CREFITO (Fisioterapia)",
     boardExample: "CREFITO-3 123456-F",
-    color: "from-cyan-500/20 to-cyan-950/40 border-cyan-500/30 text-cyan-400"
+    color: "from-purple-500/20 to-purple-950/40 border-purple-500/30 text-purple-400"
   },
   {
     id: "assessorias",
@@ -118,13 +136,13 @@ const PARTNER_CATEGORIES: PartnerCategoryInfo[] = [
   },
   {
     id: "medicina",
-    title: "Clínicas, Lojas & Eventos",
-    subtitle: "Clínicas integradas, Lojas de suplemento, Massoterapia e Provas de corrida",
+    title: "Clínicas Médicas & Saúde Integrada",
+    subtitle: "Medicina do esporte, Ortopedia, Cardiologia e Avaliação cardiorrespiratória",
     icon: Stethoscope,
-    badge: "Comércio & Saúde",
-    boardName: "CNPJ / Registro Profissional",
-    boardExample: "CNPJ 12.345.678/0001-90",
-    color: "from-blue-500/20 to-blue-950/40 border-blue-500/30 text-blue-400"
+    badge: "Medicina Esportiva",
+    boardName: "CNPJ / CRM",
+    boardExample: "CNPJ 12.345.678/0001-90 ou CRM/SP 123456",
+    color: "from-lime-500/20 to-emerald-950/40 border-lime-500/30 text-lime-400"
   }
 ];
 
@@ -765,6 +783,61 @@ function ParceirosRegistrationPage() {
                 </div>
               </div>
 
+              {/* Campos específicos quando for Seller de Marketplace / E-commerce */}
+              {selectedCategory === "marketplace_sellers" && (
+                <div className="bg-purple-950/30 border border-purple-500/40 rounded-2xl p-4 md:p-5 space-y-4 shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="size-4 text-lime-400" />
+                    <h3 className="text-xs md:text-sm font-bold text-white">Configurações de E-commerce & Integração de APIs</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+                        Plataforma de E-commerce *
+                      </label>
+                      <select
+                        className="w-full min-h-[44px] bg-zinc-950 border border-zinc-700 rounded-xl px-3 text-xs text-white focus:outline-none focus:border-lime-400"
+                        defaultValue="vtex"
+                      >
+                        <option value="vtex">VTEX IO / Commerce</option>
+                        <option value="shopify">Shopify Plus / Standard</option>
+                        <option value="nuvemshop">Nuvemshop Next</option>
+                        <option value="tray">Tray E-commerce</option>
+                        <option value="magento">Magento / Adobe Commerce</option>
+                        <option value="custom_api">API REST Própria (Webhook)</option>
+                        <option value="affiliate_network">Rede de Afiliados (Lomadee / Awin / Rakuten)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+                        URL da Loja / Catálogo Online *
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://www.sualoja.com.br"
+                        className="w-full min-h-[44px] bg-zinc-950 border border-zinc-700 rounded-xl px-3 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-lime-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-300 mb-1.5">
+                      Endpoint de Webhook para Notificação de Pedidos / Cashback (Opcional no cadastro)
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://api.sualoja.com.br/v1/netfits/webhook"
+                      className="w-full min-h-[44px] bg-zinc-950 border border-zinc-700 rounded-xl px-3 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-lime-400 font-mono text-[11px]"
+                    />
+                    <p className="text-[10px] text-zinc-400 mt-1">
+                      Nossas APIs suportam autenticação HMAC-SHA256 e sincronização automática de comissões e cashback.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Instagram / Website */}
               <div>
                 <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5 flex items-center gap-1.5">
@@ -806,7 +879,7 @@ function ParceirosRegistrationPage() {
                   className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-sm md:text-base text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition cursor-pointer"
                 >
                   <option value="discount_pct">Desconto Percentual Exclusivo (ex: 15% a 25%)</option>
-                  <option value="cashback_points">Pontuação / Cashback em nfs para os Atletas</option>
+                  <option value="cashback_points">Pontuação / Cashback em nfs para os Atletas (2 a 4 nfs / R$ 1)</option>
                   <option value="free_session">Sessão / Aula Experimental Cortesia</option>
                   <option value="free_assessment">Avaliação Física ou Bioimpedância Cortesia</option>
                   <option value="voucher">Voucher / Brinde de Boas-Vindas</option>
@@ -820,12 +893,12 @@ function ParceirosRegistrationPage() {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    "15% de Desconto em Mensalidades ou Consultas",
+                    "Cashback de 2 nfs por R$ 1,00 gasto no e-commerce",
+                    "15% de Desconto em Suplementos e Vestuário",
                     "1ª Sessão de Avaliação de Bioimpedância Grátis",
                     "Isenção Total da Taxa de Matrícula",
                     "Acúmulo de +50 nfs por treino ou consulta declarada",
                     "20% de Desconto em Tratamentos de Recovery",
-                    "Squeeze / Brinde Exclusivo no Primeiro Mês",
                   ].map((preset) => (
                     <button
                       key={preset}
@@ -851,7 +924,7 @@ function ParceirosRegistrationPage() {
                 <textarea
                   required
                   rows={3}
-                  placeholder="Ex: Oferecemos 15% de desconto nas mensalidades + 1ª avaliação de bioimpedância gratuita para todos os atletas cadastrados no Netfits."
+                  placeholder="Ex: Oferecemos 15% de desconto em todo o catálogo online + 2 nfs de cashback a cada R$ 1,00 pago em dinheiro para todos os atletas cadastrados na Netfits."
                   value={formData.benefitDescription}
                   onChange={(e) => setFormData({ ...formData, benefitDescription: e.target.value })}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
@@ -868,6 +941,105 @@ function ParceirosRegistrationPage() {
               <span>Enviar Cadastro de Parceiro Comercial Validado</span>
             </button>
           </form>
+        </section>
+
+        {/* Card de Destaque: Portal do Desenvolvedor & APIs de Marketplace B2B */}
+        <section className="bg-gradient-to-br from-zinc-900 via-purple-950/40 to-zinc-900 border-2 border-purple-500/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+            <div className="flex items-center gap-3.5">
+              <div className="size-12 rounded-2xl bg-lime-400 text-zinc-950 grid place-items-center font-black shrink-0 shadow-lg">
+                <Code className="size-6 text-zinc-950" />
+              </div>
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                  Prontidão Tecnológica & Integração B2B
+                </span>
+                <h2 className="text-xl md:text-2xl font-black text-white">
+                  Portal de APIs & Webhooks de Marketplace
+                </h2>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Conectores nativos para VTEX, Shopify, Nuvemshop, Tray, Redes de Afiliados e Webhooks REST customizados.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold bg-lime-400/10 text-lime-400 border border-lime-400/20 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <Server className="size-3.5 text-lime-400" />
+                API v1 Status: 100% Online
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Modelo 1 */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
+                  Modelo 1 · Zero Setup
+                </span>
+                <ExternalLink className="size-4 text-zinc-500" />
+              </div>
+              <h3 className="font-bold text-white text-sm">Afiliado Outbound & UTMs</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Integração imediata via links rastreados com SubID criptografado do atleta. Compatível com Lomadee, Awin, Rakuten, Netshoes e Centauro.
+              </p>
+            </div>
+
+            {/* Modelo 2 */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase text-lime-400 bg-lime-950/60 px-2 py-0.5 rounded-full border border-lime-500/30">
+                  Modelo 2 · E-commerce API
+                </span>
+                <Zap className="size-4 text-lime-400" />
+              </div>
+              <h3 className="font-bold text-white text-sm">Webhooks de Pedidos & Cashback</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Notificação automática de pedidos pagos (`ORDER_PAID`) e liberação atuarial de cashback com validação criptográfica HMAC-SHA256.
+              </p>
+            </div>
+
+            {/* Modelo 3 */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  Modelo 3 · Two-Phase Lock
+                </span>
+                <ShieldCheck className="size-4 text-emerald-400" />
+              </div>
+              <h3 className="font-bold text-white text-sm">Resgate de Vouchers em Checkout</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Validação de desconto e queima de pontos nfs diretamente no checkout do parceiro com reserva atuarial travada por 15 minutos.
+              </p>
+            </div>
+          </div>
+
+          {/* Endpoint Code Snippet cURL */}
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2">
+            <div className="flex items-center justify-between text-xs text-zinc-400 border-b border-zinc-800 pb-2">
+              <span className="font-mono text-lime-400 flex items-center gap-1.5">
+                <Terminal className="size-3.5" />
+                POST /api/v1/marketplace/orders/webhook
+              </span>
+              <span className="text-[10px] uppercase font-mono text-zinc-500">Header: X-Netfits-Signature: sha256=...</span>
+            </div>
+            <pre className="font-mono text-[11px] text-zinc-300 overflow-x-auto p-2 bg-zinc-900/60 rounded-xl leading-relaxed">
+{`curl -X POST https://app.netfits.com.br/api/v1/marketplace/orders/webhook \\
+  -H "Content-Type: application/json" \\
+  -H "X-Netfits-Signature: sha256=8f49a7102b..." \\
+  -d '{
+    "eventId": "EVT-ORD-2026-9901",
+    "eventType": "ORDER_PAID",
+    "merchantId": "liquidz",
+    "order": {
+      "partnerOrderId": "PED-88219",
+      "customer": { "email": "atleta@netfits.com.br", "name": "André Gallo" },
+      "totals": { "totalPaidBrl": 149.90, "subtotalBrl": 149.90 }
+    }
+  }'`}
+            </pre>
+          </div>
         </section>
 
         {/* Seção: Vitrine de Parceiros Credenciados (Grid 1 col mobile, 2 cols desktop) */}
