@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FechamentoContabilNetfits xmlns="http://schema.netfits.com.br/contabilidade/v1">
+  <Empresa>
+    <RazaoSocial>Netfits Ltda.</RazaoSocial>
+    <CNPJ>68.930.455/0001-40</CNPJ>
+    <InscricaoMunicipal>1089452</InscricaoMunicipal>
+    <Sede>Alameda das Embaúbas, 365 Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba-SP, CEP 06.542-195</Sede>
+    <CodigoMunicipioIBGE>3547304</CodigoMunicipioIBGE>
+    <CNAEPrincipal>82.99-7-99</CNAEPrincipal>
+    <Periodo>2026-10</Periodo>
+  </Empresa>
+  <MatrizCNAEsJUCESP>
+    <CNAE code="82.99-7-99" principal="true">Outras atividades de serviços prestados principalmente às empresas não especificadas anteriormente (Fidelidade &amp; Take-Rate)</CNAE>
+    <CNAE code="62.02-3-00" principal="false">Desenvolvimento e licenciamento de programas de computador customizáveis</CNAE>
+    <CNAE code="62.03-1-00" principal="false">Desenvolvimento e licenciamento de programas de computador não-customizáveis</CNAE>
+    <CNAE code="63.11-9-00" principal="false">Tratamento de dados, provedores de serviços de aplicação e serviços de hospedagem na internet</CNAE>
+    <CNAE code="63.19-4-00" principal="false">Portais, provedores de conteúdo e outros serviços de informação na internet</CNAE>
+    <CNAE code="73.19-0-02" principal="false">Promoção de vendas (Retail Media e campanhas esportivas)</CNAE>
+    <CNAE code="73.20-3-00" principal="false">Pesquisas de mercado e de opinião pública (BI e Insights)</CNAE>
+    <CNAE code="74.90-1-04" principal="false">Atividades de intermediação e agenciamento de serviços e negócios em geral, exceto imobiliários</CNAE>
+  </MatrizCNAEsJUCESP>
+  <DREConsolidada>
+    <ReceitaMarketplaceTakeRateBRL>320000.00</ReceitaMarketplaceTakeRateBRL>
+    <ReceitaMidiaFeedBRL>250000.00</ReceitaMidiaFeedBRL>
+    <ReceitaServicosEventosBRL>200000.00</ReceitaServicosEventosBRL>
+    <ReceitaLicenciamentoB2BBRL>123850.00</ReceitaLicenciamentoB2BBRL>
+    <ReceitaBrutaTotalBRL>893850.00</ReceitaBrutaTotalBRL>
+    <DeducoesImpostosBRL>53631.00</DeducoesImpostosBRL>
+    <ProvisaoSolvenciaPontosBRL>102720.00</ProvisaoSolvenciaPontosBRL>
+    <ReversaoPontosExpiradosBRL>12326.40</ReversaoPontosExpiradosBRL>
+    <ReceitaLiquidaAjustadaBRL>749825.40</ReceitaLiquidaAjustadaBRL>
+    <CustosDiretosServicosBRL>220000.00</CustosDiretosServicosBRL>
+    <DespesasOperacionaisBRL>362600.00</DespesasOperacionaisBRL>
+    <EbitdaMensalBRL>167225.40</EbitdaMensalBRL>
+  </DREConsolidada>
+</FechamentoContabilNetfits>

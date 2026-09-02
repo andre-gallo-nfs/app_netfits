@@ -138,10 +138,12 @@ function ContatoPage() {
               <MapPin className="size-4 text-purple-400" />
               Sede Corporativa
             </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Netfits Ltda.<br />
-              Av. Brigadeiro Faria Lima, 3477 — Itaim Bibi<br />
-              São Paulo / SP — Brasil
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              <strong className="text-white">Netfits Ltda.</strong><br />
+              <span className="font-mono text-purple-300 text-[11px]">CNPJ: 68.930.455/0001-40</span><br />
+              Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01<br />
+              Alphaville — Santana de Parnaíba / SP<br />
+              CEP: 06.542-195
             </p>
           </div>
         </div>

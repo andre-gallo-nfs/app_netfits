@@ -380,7 +380,7 @@ function FaqPage() {
               {/* Header Box */}
               <div className="bg-purple-950/40 border border-purple-500/30 p-4 rounded-2xl text-[11px] text-purple-200 space-y-1">
                 <p className="font-bold text-white text-xs">NETFITS LTDA. — ORGANIZADORA E PROMOTORA</p>
-                <p>CNPJ/MF nº 00.000.000/0001-00 · Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP - CEP 04538-133.</p>
+                <p>CNPJ/MF nº 68.930.455/0001-40 · Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba/SP - CEP 06.542-195.</p>
                 <p className="text-[10px] text-purple-300 pt-1">Este Regulamento estabelece as regras oficiais de adesão, acúmulo de pontos nfs, regras antifraude e exclusão do Programa Netfits.</p>
               </div>
 
@@ -510,14 +510,14 @@ function FaqPage() {
               {/* Header Box */}
               <div className="bg-lime-950/40 border border-lime-500/30 p-4 rounded-2xl text-[11px] text-lime-200 space-y-1">
                 <p className="font-bold text-white text-xs">NETFITS LTDA. — CONTROLADORA DE DADOS PESSOAIS</p>
-                <p>CNPJ/MF nº 00.000.000/0001-00 · Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP - CEP 04538-133.</p>
+                <p>CNPJ/MF nº 68.930.455/0001-40 · Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba/SP - CEP 06.542-195.</p>
                 <p className="text-[10px] text-lime-300 pt-1">Este Termo formaliza o consentimento livre, informado e inequívoco do Titular para o tratamento e armazenamento de dados pessoais e sensíveis.</p>
               </div>
 
               {/* Seção 1 */}
               <div className="space-y-1.5">
                 <h4 className="font-extrabold text-lime-400 text-sm">1. DA IDENTIFICAÇÃO DA CONTROLADORA</h4>
-                <p>NETFITS LTDA., pessoa jurídica de direito privado, inscrita no CNPJ/MF sob o nº 00.000.000/0001-00, com sede na Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP, doravante denominada "Controladora".</p>
+                <p>NETFITS LTDA., pessoa jurídica de direito privado, inscrita no CNPJ/MF sob o nº 68.930.455/0001-40, com sede na Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba/SP, CEP 06.542-195, doravante denominada "Controladora".</p>
               </div>
 
               {/* Seção 2 */}
@@ -554,7 +554,7 @@ function FaqPage() {
                 <p>5.1. O Titular pode solicitar a qualquer tempo: confirmação do tratamento, acesso aos dados, correção de erros, anonimização, eliminação de dados ou revogação do consentimento via e-mail <b>dpo@netfits.com.br</b>.</p>
 
                 <h4 className="font-extrabold text-lime-400 text-sm pt-2">6. CANAL DE ATENDIMENTO E DPO OFICIAL</h4>
-                <p>Encarregado pelo Tratamento de Dados (DPO): <b>dpo@netfits.com.br</b> ou <b>suporte@netfits.com.br</b>.<br/>Endereço: Av. Brigadeiro Faria Lima, 3477, Itaim Bibi, São Paulo/SP - CEP 04538-133.</p>
+                <p>Encarregado pelo Tratamento de Dados (DPO): <b>dpo@netfits.com.br</b> ou <b>suporte@netfits.com.br</b>.<br/>Endereço: Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba/SP - CEP 06.542-195.</p>
               </div>
 
               {/* PDF Preview Frame */}

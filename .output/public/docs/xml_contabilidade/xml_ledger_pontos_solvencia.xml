@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NetfitsLedgerAuditReport xmlns="http://schema.netfits.com.br/ledger/v1">
+  <Header>
+    <Company>Netfits Ltda.</Company>
+    <CNPJ>68.930.455/0001-40</CNPJ>
+    <InscricaoMunicipal>1089452</InscricaoMunicipal>
+    <Address>Alameda das Embaúbas, 365 Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba-SP, CEP 06.542-195</Address>
+    <PrimaryCNAE>82.99-7-99 - Outras atividades de serviços prestados principalmente às empresas não especificadas anteriormente</PrimaryCNAE>
+    <PeriodMonth>2026-10</PeriodMonth>
+    <GeneratedAt>2026-10-05T18:00:00Z</GeneratedAt>
+    <SolvencyRule>100% Backed by Cash Provision (R$ 0,01 per nfs point)</SolvencyRule>
+  </Header>
+  <Summary>
+    <TotalPointsIssued>10272000</TotalPointsIssued>
+    <SolvencyReserveProvisionBRL>102720.00</SolvencyReserveProvisionBRL>
+    <TotalPointsRedeemed>1200000</TotalPointsRedeemed>
+    <TotalPointsExpiredFEFO>1232640</TotalPointsExpiredFEFO>
+    <TotalLedgerTransactions>48290</TotalLedgerTransactions>
+    <AccountingClassification>Passivo Circulante - Recompensas e Pontos a Resgatar (CPC 47 / IFRS 15)</AccountingClassification>
+  </Summary>
+  <AccountingEntries>
+    <Entry id="ENT_1">
+      <AccountDebit>3.1.01.05 - Despesas com Programa de Fidelidade nfs</AccountDebit>
+      <AccountCredit>2.1.04.08 - Provisão para Solvência Atuarial de Pontos nfs</AccountCredit>
+      <AmountBRL>102720.00</AmountBRL>
+      <Description>Emissão mensal de pontos nfs com provisão de solvência 100% em caixa</Description>
+    </Entry>
+    <Entry id="ENT_2">
+      <AccountDebit>2.1.04.08 - Provisão para Solvência Atuarial de Pontos nfs</AccountDebit>
+      <AccountCredit>3.1.01.09 - Reversão de Provisão por Expiração FEFO (Breakage)</AccountCredit>
+      <AmountBRL>12326.40</AmountBRL>
+      <Description>Baixa de passivo de pontos expirados após 12 meses (FEFO Breakage Accounting)</Description>
+    </Entry>
+  </AccountingEntries>
+</NetfitsLedgerAuditReport>

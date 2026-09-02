@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompNfse xmlns="http://www.abrasf.org.br/nfse/v204">
+  <Nfse version="2.04">
+    <InfNfse id="NFS_104821">
+      <Numero>104821</Numero>
+      <CodigoVerificacao>NFS-104821-2026-NFS</CodigoVerificacao>
+      <DataEmissao>2026-10-05T10:15:00</DataEmissao>
+      <ValoresNfse>
+        <ValorServicos>200000.00</ValorServicos>
+        <ValorDeducoes>0.00</ValorDeducoes>
+        <ValorPis>1300.00</ValorPis>
+        <ValorCofins>6000.00</ValorCofins>
+        <ValorInss>0.00</ValorInss>
+        <ValorIr>3000.00</ValorIr>
+        <ValorCsll>2000.00</ValorCsll>
+        <OutrasRetencoes>0.00</OutrasRetencoes>
+        <ValorIss>4000.00</ValorIss>
+        <Aliquota>2.00</Aliquota>
+        <DescontoIncondicionado>0.00</DescontoIncondicionado>
+        <ValorLiquidoNfse>183700.00</ValorLiquidoNfse>
+      </ValoresNfse>
+      <PrestadorServico>
+        <IdentificacaoPrestador>
+          <Cnpj>68930455000140</Cnpj>
+          <InscricaoMunicipal>1089452</InscricaoMunicipal>
+        </IdentificacaoPrestador>
+        <RazaoSocial>Netfits Ltda.</RazaoSocial>
+        <NomeFantasia>Netfits</NomeFantasia>
+        <Endereco>
+          <Endereco>Alameda das Embaúbas</Endereco>
+          <Numero>365</Numero>
+          <Complemento>Quadra 06 Lote 19 sala 01</Complemento>
+          <Bairro>Alphaville</Bairro>
+          <CodigoMunicipio>3547304</CodigoMunicipio>
+          <Uf>SP</Uf>
+          <Cep>06542195</Cep>
+        </Endereco>
+        <Contato>
+          <Telefone>11998765432</Telefone>
+          <Email>contabilidade@netfits.com.br</Email>
+        </Contato>
+      </PrestadorServico>
+      <TomadorServico>
+        <IdentificacaoTomador>
+          <CpfCnpj>
+            <Cnpj>18420912000188</Cnpj>
+          </CpfCnpj>
+        </IdentificacaoTomador>
+        <RazaoSocial>Circuito das Estações / Norte Mkt Esportivo</RazaoSocial>
+        <Contato>
+          <Email>financeiro@nortemkt.com.br</Email>
+        </Contato>
+      </TomadorServico>
+      <Servico>
+        <Valores>
+          <ValorServicos>200000.00</ValorServicos>
+          <IssRetido>2</IssRetido>
+          <ValorIss>4000.00</ValorIss>
+        </Valores>
+        <ItemListaServico>10.05</ItemListaServico>
+        <CodigoCnae>7490104</CodigoCnae>
+        <Discriminacao>Intermediação de inscrições e credenciamento de atletas para provas e eventos esportivos credenciados. Prestado sob CNAE 74.90-1-04 em Santana de Parnaíba - SP.</Discriminacao>
+        <CodigoMunicipio>3547304</CodigoMunicipio>
+      </Servico>
+    </InfNfse>
+  </Nfse>
+</CompNfse>

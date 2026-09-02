@@ -1167,7 +1167,7 @@ function TermsOfServiceModal({
 
           <h3 className="font-extrabold text-zinc-900 text-sm">1. Objeto do Programa</h3>
           <p>
-            O Programa Netfits é um ecossistema digital de saúde (*healthspan*) e fidelidade operado pela <b>Netfits Ltda.</b> (CNPJ nº 00.000.000/0001-00), destinado a incentivar treinos, consumo de conteúdo e compras no Marketplace com acúmulo de pontos <b>nfs</b>.
+            O Programa Netfits é um ecossistema digital de saúde (*healthspan*) e fidelidade operado pela <b>Netfits Ltda.</b> (CNPJ/MF nº <b>68.930.455/0001-40</b>, com sede na Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba-SP, CEP 06.542-195), destinado a incentivar treinos, consumo de conteúdo e compras no Marketplace com acúmulo de pontos <b>nfs</b>.
           </p>
 
           <h3 className="font-extrabold text-zinc-900 text-sm">2. Matriz Antifraude e Retenção em Vídeos (100% Dwell Time)</h3>

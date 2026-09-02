@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompNfse xmlns="http://www.abrasf.org.br/nfse/v204">
+  <Nfse version="2.04">
+    <InfNfse id="NFS_104820">
+      <Numero>104820</Numero>
+      <CodigoVerificacao>NFS-104820-2026-NFS</CodigoVerificacao>
+      <DataEmissao>2026-10-05T10:00:00</DataEmissao>
+      <ValoresNfse>
+        <ValorServicos>320000.00</ValorServicos>
+        <ValorDeducoes>0.00</ValorDeducoes>
+        <ValorPis>2080.00</ValorPis>
+        <ValorCofins>9600.00</ValorCofins>
+        <ValorInss>0.00</ValorInss>
+        <ValorIr>4800.00</ValorIr>
+        <ValorCsll>3200.00</ValorCsll>
+        <OutrasRetencoes>0.00</OutrasRetencoes>
+        <ValorIss>6400.00</ValorIss>
+        <Aliquota>2.00</Aliquota>
+        <DescontoIncondicionado>0.00</DescontoIncondicionado>
+        <ValorLiquidoNfse>293920.00</ValorLiquidoNfse>
+      </ValoresNfse>
+      <PrestadorServico>
+        <IdentificacaoPrestador>
+          <Cnpj>68930455000140</Cnpj>
+          <InscricaoMunicipal>1089452</InscricaoMunicipal>
+        </IdentificacaoPrestador>
+        <RazaoSocial>Netfits Ltda.</RazaoSocial>
+        <NomeFantasia>Netfits</NomeFantasia>
+        <Endereco>
+          <Endereco>Alameda das Embaúbas</Endereco>
+          <Numero>365</Numero>
+          <Complemento>Quadra 06 Lote 19 sala 01</Complemento>
+          <Bairro>Alphaville</Bairro>
+          <CodigoMunicipio>3547304</CodigoMunicipio>
+          <Uf>SP</Uf>
+          <Cep>06542195</Cep>
+        </Endereco>
+        <Contato>
+          <Telefone>11998765432</Telefone>
+          <Email>contabilidade@netfits.com.br</Email>
+        </Contato>
+      </PrestadorServico>
+      <TomadorServico>
+        <IdentificacaoTomador>
+          <CpfCnpj>
+            <Cnpj>07594978000178</Cnpj>
+          </CpfCnpj>
+        </IdentificacaoTomador>
+        <RazaoSocial>Centauro Esportes / Grupo SBF S.A.</RazaoSocial>
+        <Contato>
+          <Email>marketplace-sellers@centauro.com.br</Email>
+        </Contato>
+      </TomadorServico>
+      <Servico>
+        <Valores>
+          <ValorServicos>320000.00</ValorServicos>
+          <IssRetido>2</IssRetido>
+          <ValorIss>6400.00</ValorIss>
+        </Valores>
+        <ItemListaServico>10.05</ItemListaServico>
+        <CodigoCnae>8299799</CodigoCnae>
+        <Discriminacao>Comissão / Take-Rate de 8,0% sobre intermediação de vendas e-commerce no Netfits Shop durante o período apurado. Prestado sob CNAE 82.99-7-99 em Santana de Parnaíba - SP.</Discriminacao>
+        <CodigoMunicipio>3547304</CodigoMunicipio>
+      </Servico>
+    </InfNfse>
+  </Nfse>
+</CompNfse>
