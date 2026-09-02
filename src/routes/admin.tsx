@@ -44,23 +44,70 @@ const TIME_PERIODS: { id: PeriodType; label: string; shortLabel: string; factor:
   { id: "year", label: "🚀 No Ano (2026)", shortLabel: "Ano", factor: 11.40, desc: "Acumulado no ano de 2026" },
 ];
 
-type TabType = "overview" | "qa" | "interactions" | "xml" | "associados" | "params" | "points" | "feed" | "market" | "activities" | "users" | "partners" | "controls" | "results";
+type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "interactions";
 
-const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: any; category: string }[] = [
-  { id: "overview", label: "Visão Geral & Executivo", iconEmoji: "📊", icon: BarChart3, category: "Consolidado" },
-  { id: "qa", label: "Squad QA Autônomo & Health Check", iconEmoji: "🤖", icon: Sparkles, category: "Inteligência & Qualidade" },
-  { id: "interactions", label: "Inteligência de Interações & Insights", iconEmoji: "💡", icon: Send, category: "Omnichannel BI" },
-  { id: "xml", label: "Arquivos XML Contábeis", iconEmoji: "📑", icon: FileText, category: "Fiscal & Contabilidade" },
-  { id: "associados", label: "Gestão de Associados", iconEmoji: "👑", icon: Award, category: "Influenciadores" },
-  { id: "points", label: "Programa de Pontos", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo" },
-  { id: "params", label: "Parâmetros da Operação", iconEmoji: "⚙️", icon: Sliders, category: "Regras Operacionais" },
-  { id: "feed", label: "Feed & Conteúdo", iconEmoji: "📰", icon: Rss, category: "Mídias & Anúncios" },
-  { id: "market", label: "Marketplace (Shop)", iconEmoji: "🛍️", icon: ShoppingBag, category: "Vendas & Sellers" },
-  { id: "activities", label: "Atividades & Sensor", iconEmoji: "⚡", icon: Activity, category: "Engajamento" },
-  { id: "users", label: "Base de Usuários", iconEmoji: "👥", icon: Users, category: "Comunidade" },
-  { id: "partners", label: "Parceiros & Assessorias", iconEmoji: "🤝", icon: Handshake, category: "Ecossistema" },
-  { id: "controls", label: "Controles & OPEX TI", iconEmoji: "🛡️", icon: Cpu, category: "Governança" },
-  { id: "results", label: "Resultados & DRE", iconEmoji: "📈", icon: DollarSign, category: "Demonstrações Financeiras" },
+export interface AdminPillarDef {
+  id: string;
+  title: string;
+  subtitle: string;
+  emoji: string;
+  color: string;
+  tabIds: TabType[];
+}
+
+export const ADMIN_PILLARS: AdminPillarDef[] = [
+  {
+    id: "finances",
+    title: "1. Estratégia & Finanças",
+    subtitle: "DRE, Cockpit Executivo & SPED Contábil",
+    emoji: "📊",
+    color: "text-purple-400 border-purple-500/30 bg-purple-950/40",
+    tabIds: ["overview", "results", "xml"],
+  },
+  {
+    id: "ai_tech",
+    title: "2. IA, Tecnologia & QA",
+    subtitle: "Squads de IA, Health Check & FinOps Cloud",
+    emoji: "🤖",
+    color: "text-lime-400 border-lime-500/30 bg-lime-950/40",
+    tabIds: ["qa", "controls", "activities"],
+  },
+  {
+    id: "community",
+    title: "3. Ecossistema & Usuários",
+    subtitle: "Base 24 Personas, Associados 10% & Sellers",
+    emoji: "👥",
+    color: "text-amber-400 border-amber-500/30 bg-amber-950/40",
+    tabIds: ["users", "associados", "partners"],
+  },
+  {
+    id: "operations",
+    title: "4. Governança & Operação",
+    subtitle: "Parâmetros, Shop, Feed & Interações",
+    emoji: "⚙️",
+    color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40",
+    tabIds: ["params", "points", "feed", "market", "interactions"],
+  },
+];
+
+const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: any; category: string; pillarId: string }[] = [
+  { id: "overview", label: "Visão Geral & Cockpit", iconEmoji: "📊", icon: BarChart3, category: "Consolidado", pillarId: "finances" },
+  { id: "results", label: "Resultados & DRE Projetada", iconEmoji: "📈", icon: DollarSign, category: "Demonstrações Financeiras", pillarId: "finances" },
+  { id: "xml", label: "Arquivos XML & SPED", iconEmoji: "📑", icon: FileText, category: "Fiscal & Contabilidade", pillarId: "finances" },
+  
+  { id: "qa", label: "Squad QA Autônomo & Health Check", iconEmoji: "🤖", icon: Sparkles, category: "Inteligência & Qualidade", pillarId: "ai_tech" },
+  { id: "controls", label: "Controles & FinOps TI", iconEmoji: "🛡️", icon: Cpu, category: "Governança TI", pillarId: "ai_tech" },
+  { id: "activities", label: "Atividades & Wearables", iconEmoji: "⚡", icon: Activity, category: "Engajamento", pillarId: "ai_tech" },
+
+  { id: "users", label: "Base de Usuários (24 Personas)", iconEmoji: "👥", icon: Users, category: "Comunidade", pillarId: "community" },
+  { id: "associados", label: "Gestão de Associados (10%)", iconEmoji: "👑", icon: Award, category: "Prescritores", pillarId: "community" },
+  { id: "partners", label: "Parceiros & Assessorias B2B", iconEmoji: "🤝", icon: Handshake, category: "Ecossistema", pillarId: "community" },
+
+  { id: "params", label: "Parâmetros da Operação", iconEmoji: "⚙️", icon: Sliders, category: "Regras de Negócio", pillarId: "operations" },
+  { id: "points", label: "Programa de Pontos nfs", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo", pillarId: "operations" },
+  { id: "feed", label: "Feed & Retail Media", iconEmoji: "📰", icon: Rss, category: "Mídias & Anúncios", pillarId: "operations" },
+  { id: "market", label: "Marketplace (Shop)", iconEmoji: "🛍️", icon: ShoppingBag, category: "Vendas & Sellers", pillarId: "operations" },
+  { id: "interactions", label: "Central de Interações & Insights", iconEmoji: "💡", icon: Send, category: "Omnichannel BI", pillarId: "operations" },
 ];
 
 // Mock Realtime Data
@@ -963,55 +1010,65 @@ function AdminDashboardPage() {
   );
   }
 
+  const activePillar = ADMIN_PILLARS.find((p) => p.tabIds.includes(activeTab)) || ADMIN_PILLARS[0];
+
   return (
-    <div className="min-h-screen max-w-full overflow-x-hidden bg-zinc-950 text-zinc-100 font-sans pb-12">
-      {/* 1. Header Web Corporativo Unificado */}
-      <InstitutionalWebHeader />
-      {/* Top Header Navigation */}
-      <header className="sticky top-0 z-40 bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <div className="min-h-screen max-w-full overflow-x-hidden bg-zinc-950 text-zinc-100 font-sans">
+      {/* 1. Header Executivo Interno Netfits Admin (Exclusivo, sem menu público) */}
+      <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-zinc-900 border border-purple-500/30 grid place-items-center p-1">
+          <div className="flex items-center gap-2.5">
+            <div className="size-8 rounded-lg bg-zinc-900 border border-purple-500/40 grid place-items-center p-1 shadow-md">
               <img src={netfitsLogo} alt="Netfits" className="h-full w-auto object-contain" />
             </div>
-            <span className="font-extrabold tracking-tight text-lg text-white">
-              Netfits <span className="text-lime-400 text-xs uppercase tracking-widest font-mono">ADMIN</span>
-            </span>
-          </Link>
-          <span className="hidden sm:inline-block text-xs bg-zinc-800 text-zinc-400 px-2.5 py-1 rounded-full border border-zinc-700">
-            Painel Executivo v2.0
-          </span>
+            <div className="flex flex-col">
+              <span className="font-black tracking-tight text-base text-white flex items-center gap-1.5 leading-none">
+                Netfits <span className="text-lime-400 text-[10px] uppercase tracking-widest font-mono bg-lime-950/60 border border-lime-500/30 px-1.5 py-0.5 rounded">ADMIN COCKPIT</span>
+              </span>
+              <span className="text-[10px] text-zinc-400 font-medium">Governança &amp; Inteligência Interna</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800 text-xs">
+        {/* Controles de Topo: Realtime, Período, Pitch Deck e Logout */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Seletor Rápido de Período */}
+          <div className="relative hidden md:block">
+            <select
+              value={selectedPeriod}
+              onChange={(e) => {
+                const nextPeriod = e.target.value as PeriodType;
+                setSelectedPeriod(nextPeriod);
+                const periodObj = TIME_PERIODS.find((p) => p.id === nextPeriod);
+                toast.info(`Período alterado para: ${periodObj?.label}`);
+              }}
+              className="bg-zinc-900 text-lime-400 font-bold text-xs rounded-xl px-3 py-1.5 border border-zinc-800 hover:border-lime-400/50 focus:outline-none appearance-none cursor-pointer pr-8 shadow-inner"
+            >
+              {TIME_PERIODS.map((p) => (
+                <option key={p.id} value={p.id} className="bg-zinc-900 text-white font-medium py-1">
+                  {p.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="size-3.5 text-zinc-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-zinc-900 px-2.5 py-1.5 rounded-xl border border-zinc-800 text-[11px]">
             <span className={`size-2 rounded-full ${isLive ? "bg-lime-400 animate-pulse" : "bg-zinc-500"}`} />
-            <span className="font-mono text-zinc-300">{isLive ? "REALTIME ON" : "PAUSADO"}</span>
-            <span className="text-[10px] text-zinc-500">• {lastUpdated}</span>
+            <span className="font-mono text-zinc-300 font-bold hidden sm:inline">{isLive ? "REALTIME" : "PAUSA"}</span>
           </div>
 
           <button
             onClick={() => {
               setShowPitchDeckModal(true);
-              toast.info("Apresentação de Investidores (Pitch Deck Seed/Series A) aberta!");
+              toast.info("Pitch Deck Estratégico para Investidores aberto!");
             }}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 flex items-center gap-2 transition cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 flex items-center gap-1.5 transition cursor-pointer"
           >
-            <TrendingUp className="size-4" />
-            <span>🚀 Pitch Deck Investidores</span>
+            <TrendingUp className="size-3.5" />
+            <span className="hidden sm:inline">Pitch Deck</span>
           </button>
 
-          <button
-            onClick={() => {
-              setIsLive((v) => !v);
-              toast.info(isLive ? "Atualização realtime pausada" : "Realtime reativado!");
-            }}
-            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
-            title="Alternar modo Realtime"
-          >
-            <RefreshCw className={`size-4 ${isLive ? "animate-spin" : ""}`} />
-          </button>
-          
           <button
             onClick={() => {
               setIsAuthenticated(false);
@@ -1020,87 +1077,124 @@ function AdminDashboardPage() {
               }
               toast.info("Sessão administrativa encerrada.");
             }}
-            className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-red-950/60 hover:border-red-500/40 text-zinc-300 hover:text-red-300 border border-zinc-700 text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
+            className="px-2.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-red-950/60 hover:border-red-500/40 text-zinc-400 hover:text-red-300 border border-zinc-800 text-xs font-bold transition cursor-pointer flex items-center gap-1"
             title="Encerrar Sessão Admin"
           >
             <Lock className="size-3.5" />
-            <span>Sair</span>
+            <span className="hidden sm:inline">Sair</span>
           </button>
         </div>
       </header>
 
-      {/* BARRA DE CONTROLES DRILL-DOWN (SUBSTITUINDO OS MENUS POR SELETORES HIERÁRQUICOS) */}
-      <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-3.5 sticky top-[57px] z-30 shadow-xl">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          
-          {/* Seletor Drill-Down 1: Módulo / Seção da Página */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
-            <label className="text-xs font-extrabold text-zinc-300 flex items-center gap-1.5 shrink-0">
-              <Layers className="size-4 text-purple-400" />
-              <span>Seção Executiva:</span>
-            </label>
+      {/* 2. Layout Dividido: Sidebar Lateral com 4 Pilares + Conteúdo Principal */}
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-57px)] w-full">
+        {/* SIDEBAR LATERAL (4 PILARES ESTRATÉGICOS) */}
+        <aside className="w-full lg:w-72 bg-zinc-900/90 border-r border-zinc-800/80 p-4 space-y-5 shrink-0 overflow-y-auto">
+          <div className="flex items-center justify-between border-b border-zinc-800/60 pb-3">
+            <span className="text-[10px] font-extrabold text-zinc-400 uppercase tracking-wider">
+              4 Pilares de Gestão
+            </span>
+            <span className="text-[10px] font-mono text-purple-400 font-bold bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">
+              14 Módulos
+            </span>
+          </div>
 
-            <div className="relative flex-1 max-w-xs">
-              <select
-                value={activeTab}
-                onChange={(e) => {
-                  const nextTab = e.target.value as TabType;
-                  setActiveTab(nextTab);
-                  const tabObj = TAB_DEFINITIONS.find((t) => t.id === nextTab);
-                  toast.info(`Navegando para: ${tabObj?.label || nextTab}`);
-                }}
-                className="w-full bg-zinc-950 text-white font-extrabold text-xs rounded-xl px-3.5 py-2.5 border border-zinc-700 hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none cursor-pointer pr-10 shadow-inner"
-              >
-                {TAB_DEFINITIONS.map((tab) => (
-                  <option key={tab.id} value={tab.id} className="bg-zinc-900 text-white font-medium py-1">
-                    {tab.iconEmoji} {tab.label} — [{tab.category}]
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="size-4 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <nav className="space-y-4">
+            {ADMIN_PILLARS.map((pillar) => {
+              const isPillarActive = pillar.tabIds.includes(activeTab);
+              return (
+                <div key={pillar.id} className="space-y-1.5">
+                  <div className="flex items-center justify-between px-2 py-1">
+                    <span className="text-xs font-black text-white flex items-center gap-1.5">
+                      <span>{pillar.emoji}</span>
+                      <span>{pillar.title}</span>
+                    </span>
+                  </div>
+                  <div className="space-y-1 pl-1">
+                    {pillar.tabIds.map((tabId) => {
+                      const tab = TAB_DEFINITIONS.find((t) => t.id === tabId);
+                      if (!tab) return null;
+                      const isSelected = activeTab === tabId;
+                      const IconComponent = tab.icon;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            toast.info(`Módulo ativo: ${tab.label}`);
+                          }}
+                          className={`w-full px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+                            isSelected
+                              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 ring-1 ring-purple-400"
+                              : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2 truncate">
+                            <IconComponent className={`size-3.5 ${isSelected ? "text-lime-400" : "text-zinc-500"}`} />
+                            <span className="truncate">{tab.label}</span>
+                          </span>
+                          {isSelected && <span className="size-1.5 rounded-full bg-lime-400 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Card Inferior de Status de Nuvem & Dossiê */}
+          <div className="bg-zinc-950/80 p-3.5 rounded-2xl border border-zinc-800/80 space-y-2 mt-6">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-extrabold text-lime-400 uppercase tracking-widest">
+                Sync Nuvem Ativo
+              </span>
+              <span className="size-2 rounded-full bg-lime-400 animate-pulse"></span>
+            </div>
+            <p className="text-[11px] text-zinc-400 leading-snug">
+              Base de 24 personas e cadastros mobile sincronizados via <code className="text-purple-300 font-mono">/api/users-sync</code>.
+            </p>
+          </div>
+        </aside>
+
+        {/* ÁREA DE CONTEÚDO PRINCIPAL (MAIN CONTENT) */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full space-y-6 overflow-x-hidden">
+          {/* Header da Seção Ativa & Sub-menu Horizontal */}
+          <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400">
+                <span className="text-purple-400 font-bold">{activePillar.title}</span>
+                <span>&rsaquo;</span>
+                <span className="text-white font-extrabold">{currentTabObj?.label}</span>
+              </div>
+              <h2 className="text-lg font-black text-white flex items-center gap-2">
+                <span>{currentTabObj?.iconEmoji}</span>
+                <span>{currentTabObj?.label}</span>
+              </h2>
+            </div>
+
+            {/* Abas Rápidas do Mesmo Pilar */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none">
+              {activePillar.tabIds.map((tid) => {
+                const tObj = TAB_DEFINITIONS.find((t) => t.id === tid);
+                if (!tObj) return null;
+                const isCur = activeTab === tid;
+                return (
+                  <button
+                    key={tid}
+                    onClick={() => setActiveTab(tid)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                      isCur
+                        ? "bg-zinc-800 text-lime-400 border border-lime-500/30"
+                        : "bg-zinc-950 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
+                    }`}
+                  >
+                    {tObj.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
-
-          {/* Seletor Drill-Down 2: Período Temporal Acumulado */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 md:justify-end">
-            <label className="text-xs font-extrabold text-zinc-300 flex items-center gap-1.5 shrink-0">
-              <Clock className="size-4 text-lime-400" />
-              <span>Período Acumulado:</span>
-            </label>
-
-            <div className="relative flex-1 max-w-xs">
-              <select
-                value={selectedPeriod}
-                onChange={(e) => {
-                  const nextPeriod = e.target.value as PeriodType;
-                  setSelectedPeriod(nextPeriod);
-                  const periodObj = TIME_PERIODS.find((p) => p.id === nextPeriod);
-                  toast.info(`Período alterado para: ${periodObj?.label}`);
-                }}
-                className="w-full bg-zinc-950 text-lime-400 font-extrabold text-xs rounded-xl px-3.5 py-2.5 border border-zinc-700 hover:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/50 appearance-none cursor-pointer pr-10 shadow-inner"
-              >
-                {TIME_PERIODS.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-zinc-900 text-white font-medium py-1">
-                    {p.label} ({p.desc})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="size-4 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Breadcrumb Trail de Navegação Ativa */}
-          <div className="hidden lg:flex items-center gap-2 text-xs font-mono bg-zinc-950 px-3.5 py-2 rounded-xl border border-zinc-800 shrink-0 shadow-inner">
-            <span className="text-purple-400 font-bold">{currentTabObj?.iconEmoji} {currentTabObj?.label}</span>
-            <span className="text-zinc-600">&rsaquo;</span>
-            <span className="text-lime-400 font-bold">{currentPeriodObj.shortLabel}</span>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Main Body Container */}
-      <main className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-6 overflow-x-hidden">
 
         {/* Tab XML Contábeis Dedicada */}
         {activeTab === "xml" && (
@@ -4716,6 +4810,7 @@ function AdminDashboardPage() {
           );
         })()}
       </main>
+      </div>
 
       {/* Modal Interativo de Apresentação de Investidores (Pitch Deck) */}
       {showPitchDeckModal && (
