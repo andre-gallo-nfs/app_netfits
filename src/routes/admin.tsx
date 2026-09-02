@@ -4285,11 +4285,101 @@ function AdminDashboardPage() {
 
           return (
             <div className="space-y-6">
+              {/* CARD DE VINCULAÇÃO E DOWNLOAD DA PLANILHA REAL X ORÇADO (2026 - 2030) */}
+              <div className="bg-gradient-to-r from-purple-950/90 via-zinc-900 to-zinc-950 border border-purple-500/50 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/30">
+                        MODELO FINANCEIRO OFICIAL (51 MESES: OUT/2026 A DEZ/2030)
+                      </span>
+                      <span className="text-[10px] font-mono text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/30">
+                        VPL: R$ 116,2M • TIR: 245%
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-black text-white flex items-center gap-2">
+                      <TrendingUp className="size-6 text-lime-400" />
+                      <span>Planilha Corporativa: Acompanhamento Real x Orçado</span>
+                    </h3>
+                    <p className="text-xs text-zinc-300 max-w-3xl leading-relaxed">
+                      Planilha mestre contábil e orçamentária parametrizada mês a mês para input dos resultados contábeis reais, cálculo automático de variâncias (<strong className="text-lime-400">R$ e %</strong>) e consolidação do DRE gerencial da Netfits.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                    <a
+                      href="/docs/real x orçado.xlsx"
+                      download="real x orçado.xlsx"
+                      onClick={() => toast.success("Download da planilha 'real x orçado.xlsx' iniciado!")}
+                      className="px-5 py-3 rounded-2xl bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-300 hover:to-emerald-300 text-zinc-950 font-black text-xs shadow-xl shadow-lime-400/20 flex items-center justify-center gap-2 transition cursor-pointer active:scale-98"
+                    >
+                      <Download className="size-4" />
+                      <span>Baixar Planilha Real x Orçado (.xlsx)</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Grade dos 5 Anos Consolidados (2026 a 2030) */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-2 border-t border-zinc-800/80">
+                  <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">2026 (Launch)</span>
+                    <p className="text-xs font-bold text-zinc-300">1k usuários</p>
+                    <p className="text-xs font-black text-rose-400">EBITDA: -R$ 112k</p>
+                    <span className="text-[9px] text-zinc-500 block">3 meses (Setup)</span>
+                  </div>
+
+                  <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-lime-400 uppercase">2027 (Scale)</span>
+                    <p className="text-xs font-bold text-zinc-300">50k usuários</p>
+                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 884k</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 36,7%</span>
+                  </div>
+
+                  <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-lime-400 uppercase">2028 (Growth)</span>
+                    <p className="text-xs font-bold text-zinc-300">250k usuários</p>
+                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 11,2M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 58,5%</span>
+                  </div>
+
+                  <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-purple-400 uppercase">2029 (Expansion)</span>
+                    <p className="text-xs font-bold text-zinc-300">1,0M usuários</p>
+                    <p className="text-xs font-black text-purple-400">EBITDA: +R$ 51,7M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 67,3%</span>
+                  </div>
+
+                  <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
+                    <span className="text-[10px] font-mono font-bold text-purple-400 uppercase">2030 (Maturity)</span>
+                    <p className="text-xs font-bold text-zinc-300">3,0M usuários</p>
+                    <p className="text-xs font-black text-purple-400">EBITDA: +R$ 164,2M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 71,3%</span>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-lime-950/60 to-purple-950/60 p-3 rounded-2xl border border-lime-500/40 space-y-1">
+                    <span className="text-[10px] font-mono font-black text-lime-400 uppercase">51 Meses Total</span>
+                    <p className="text-xs font-bold text-white">Receita R$ 328,8M</p>
+                    <p className="text-xs font-black text-lime-400">EBITDA: R$ 227,9M</p>
+                    <span className="text-[9px] text-purple-300 block">Margem 69,3%</span>
+                  </div>
+                </div>
+
+                {/* Descritivo das Abas da Planilha */}
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-400 pt-1 font-medium">
+                  <span className="text-zinc-500 font-bold">Abas da Planilha:</span>
+                  <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-300">📌 1. Premissas &amp; Parâmetros</span>
+                  <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-300">📊 2. Orçado (DRE Mês a Mês)</span>
+                  <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-300">📝 3. Realizado (Input Contábil)</span>
+                  <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-300">⚖️ 4. Variação Real x Orçado</span>
+                  <span className="bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-zinc-300">🚀 5. Dashboard Executivo</span>
+                </div>
+              </div>
+
               {/* Header Card com Seletor de Fases (Fase 1 Launch vs Fase 2 Com Clube) */}
               <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
-                    Demonstração do Resultado do Exercício — Business Case v1.xlsx ({currentPeriodObj.shortLabel})
+                    Demonstração do Resultado do Exercício — Proforma ({currentPeriodObj.shortLabel})
                   </span>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     <span>📈 DRE Financeiro Proforma — Netfits Ltda.</span>
