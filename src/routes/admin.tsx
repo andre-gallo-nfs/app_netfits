@@ -2138,7 +2138,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Receita Total de Anúncios"
-                value={`R$ ${feedMetrics.totalAdRevenueBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${(feedMetrics.totalAdRevenueBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+24.5%"
                 positive={true}
                 icon={DollarSign}
@@ -2147,7 +2147,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Receita por Anúncio"
-                value={`R$ ${feedMetrics.revenuePerAdBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${(feedMetrics.revenuePerAdBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+6.2%"
                 positive={true}
                 icon={Coins}
@@ -2156,7 +2156,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Quantidade Total de Clicks"
-                value={feedMetrics.totalClicks.toLocaleString("pt-BR")}
+                value={(feedMetrics.totalClicks ?? 0).toLocaleString("pt-BR")}
                 change="+31.0%"
                 positive={true}
                 icon={MousePointerClick}
@@ -2174,7 +2174,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Views por Postagem"
-                value={`${feedMetrics.viewsPerPost.toLocaleString("pt-BR")} views`}
+                value={`${(feedMetrics.viewsPerPost ?? 0).toLocaleString("pt-BR")} views`}
                 change="+15.0%"
                 positive={true}
                 icon={Eye}
@@ -2194,7 +2194,7 @@ function AdminDashboardPage() {
                   </h4>
                 </div>
                 <span className="text-xs font-mono font-bold text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20">
-                  Total: {feedMetrics.totalFeedNfsIssued.toLocaleString("pt-BR")} nfs
+                  Total: {(feedMetrics.totalFeedNfsIssued ?? 0).toLocaleString("pt-BR")} nfs
                 </span>
               </div>
 
@@ -2202,7 +2202,7 @@ function AdminDashboardPage() {
                 <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
                   <span className="text-xs text-zinc-400 font-semibold">Total NFS Emitidos ({currentPeriodObj.shortLabel})</span>
                   <p className="text-2xl font-black text-white">
-                    {feedMetrics.totalFeedNfsIssued.toLocaleString("pt-BR")} nfs
+                    {(feedMetrics.totalFeedNfsIssued ?? 0).toLocaleString("pt-BR")} nfs
                   </p>
                   <span className="text-[10px] text-purple-400 font-semibold">Economia total no período</span>
                 </div>
@@ -2210,7 +2210,7 @@ function AdminDashboardPage() {
                 <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
                   <span className="text-xs text-zinc-400 font-semibold">NFS Emitidos para Clicks</span>
                   <p className="text-2xl font-black text-lime-400">
-                    {feedMetrics.nfsIssuedForClicks.toLocaleString("pt-BR")} nfs
+                    {(feedMetrics.nfsIssuedForClicks ?? 0).toLocaleString("pt-BR")} nfs
                   </p>
                   <span className="text-[10px] text-lime-400 font-semibold">
                     {((feedMetrics.nfsIssuedForClicks / Math.max(1, feedMetrics.totalFeedNfsIssued)) * 100).toFixed(1)}% do total
@@ -2220,7 +2220,7 @@ function AdminDashboardPage() {
                 <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
                   <span className="text-xs text-zinc-400 font-semibold">NFS Emitidos para Views</span>
                   <p className="text-2xl font-black text-purple-400">
-                    {feedMetrics.nfsIssuedForViews.toLocaleString("pt-BR")} nfs
+                    {(feedMetrics.nfsIssuedForViews ?? 0).toLocaleString("pt-BR")} nfs
                   </p>
                   <span className="text-[10px] text-purple-300 font-semibold">
                     {((feedMetrics.nfsIssuedForViews / Math.max(1, feedMetrics.totalFeedNfsIssued)) * 100).toFixed(1)}% do total
@@ -2326,7 +2326,7 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="GMV Bruto das Vendas"
-                value={`R$ ${(selectedSeller.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedSeller?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+22.4%"
                 positive={true}
                 icon={ShoppingBag}
@@ -2335,7 +2335,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Receita Netfits (Take-Rate)"
-                value={`R$ ${(selectedSeller.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedSeller?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+22.4%"
                 positive={true}
                 icon={Coins}
@@ -2344,7 +2344,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Ticket Médio por Pedido"
-                value={`R$ ${selectedSeller.averageTicketBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${(selectedSeller?.averageTicketBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+5.8%"
                 positive={true}
                 icon={Tag}
@@ -2362,7 +2362,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Volume de NFS Queimados"
-                value={`${Math.round(selectedSeller.nfsBurnedTotal * pf).toLocaleString("pt-BR")} nfs`}
+                value={`${Math.round((selectedSeller?.nfsBurnedTotal ?? 0) * pf).toLocaleString("pt-BR")} nfs`}
                 change="+18.5%"
                 positive={true}
                 icon={Zap}
@@ -2389,7 +2389,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Pedidos Concluídos"
-                value={Math.round(selectedSeller.totalOrders * pf).toLocaleString("pt-BR")}
+                value={Math.round((selectedSeller?.totalOrders ?? 0) * pf).toLocaleString("pt-BR")}
                 change="+14.2%"
                 positive={true}
                 icon={ShoppingCart}
@@ -2529,7 +2529,7 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Tamanho da Carteira"
-                value={Math.round(selectedAssociado.capturedUsers * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                value={Math.round((selectedAssociado?.capturedUsers ?? 0) * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
                 change="+12.4%"
                 positive={true}
                 icon={Users}
@@ -2538,7 +2538,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="GMV do Shopping (R$)"
-                value={`R$ ${(selectedAssociado.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedAssociado?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+18.2%"
                 positive={true}
                 icon={ShoppingBag}
@@ -2547,7 +2547,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Receita Netfits (15% GMV)"
-                value={`R$ ${(selectedAssociado.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedAssociado?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+18.2%"
                 positive={true}
                 icon={Coins}
@@ -2556,7 +2556,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Comissão do Associado (30%)"
-                value={`R$ ${(selectedAssociado.commissionBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedAssociado?.commissionBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+18.2%"
                 positive={true}
                 icon={DollarSign}
@@ -2853,7 +2853,7 @@ function AdminDashboardPage() {
                             <span className="font-semibold text-zinc-300 truncate">{item.label}</span>
                           </div>
                           <div className="text-right shrink-0">
-                            <span className="font-mono font-bold text-white block">{item.count.toLocaleString("pt-BR")} nfs</span>
+                            <span className="font-mono font-bold text-white block">{(item?.count ?? 0).toLocaleString("pt-BR")} nfs</span>
                             <span className="text-[10px] text-lime-400 font-bold">{item.pct}%</span>
                           </div>
                         </div>
@@ -2908,7 +2908,7 @@ function AdminDashboardPage() {
                             <span className="font-semibold text-zinc-300 truncate">{item.label}</span>
                           </div>
                           <div className="text-right shrink-0">
-                            <span className="font-mono font-bold text-white block">{item.count.toLocaleString("pt-BR")} nfs</span>
+                            <span className="font-mono font-bold text-white block">{(item?.count ?? 0).toLocaleString("pt-BR")} nfs</span>
                             <span className="text-[10px] text-purple-400 font-bold">{item.pct}%</span>
                           </div>
                         </div>
@@ -3538,7 +3538,7 @@ function AdminDashboardPage() {
                           (u.identifier && u.identifier.toLowerCase().includes(q)) ||
                           (u.phone && u.phone.includes(q)) ||
                           (u.cpf && u.cpf.includes(q)) ||
-                          u.referralCode.toLowerCase().includes(q) ||
+                          (u.referralCode || '').toLowerCase().includes(q) ||
                           (u.referredBy && u.referredBy.toLowerCase().includes(q))
                         );
                       })
@@ -3549,7 +3549,7 @@ function AdminDashboardPage() {
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2.5">
                                 <div className="size-8 rounded-full bg-gradient-to-tr from-purple-700 to-lime-400 grid place-items-center text-white font-black text-xs shrink-0">
-                                  {u.fullName.substring(0, 2).toUpperCase()}
+                                  {(u.fullName || 'US').substring(0, 2).toUpperCase()}
                                 </div>
                                 <div>
                                   <p className="font-bold text-white text-xs flex items-center gap-1.5">
@@ -3639,12 +3639,12 @@ function AdminDashboardPage() {
                               ) : (
                                 <div className="flex items-center justify-end gap-1.5">
                                   <span className="font-mono font-bold text-white text-xs">
-                                    {u.nfsBalance.toLocaleString("pt-BR")} <span className="text-lime-400">nfs</span>
+                                    {(u.nfsBalance ?? 0).toLocaleString("pt-BR")} <span className="text-lime-400">nfs</span>
                                   </span>
                                   <button
                                     onClick={() => {
                                       setEditingUserId(u.id);
-                                      setEditingBalanceValue(u.nfsBalance);
+                                      setEditingBalanceValue(u.nfsBalance ?? 0);
                                     }}
                                     className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition"
                                     title="Editar Saldo"
@@ -3877,7 +3877,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="GMV Transacionado"
-                value={`R$ ${(selectedPartner.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedPartner?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+22.4%"
                 positive={true}
                 icon={ShoppingBag}
@@ -3886,7 +3886,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Comissão Netfits (15%)"
-                value={`R$ ${(selectedPartner.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                value={`R$ ${((selectedPartner?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 change="+24.5%"
                 positive={true}
                 icon={DollarSign}
@@ -6056,12 +6056,13 @@ function KrHistoricalModal({
   const maxVal = Math.max(...values);
   const avgVal = parseFloat((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2));
 
-  const formatVal = (v: number) => {
-    if (kr.unit === "R$") return `R$ ${v.toLocaleString("pt-BR")}`;
+  const formatVal = (v: number | undefined | null) => {
+    if (v == null || isNaN(v)) return "-";
+    if (kr.unit === "R$") return `R$ ${(v ?? 0).toLocaleString("pt-BR")}`;
     if (kr.unit === "%" || kr.unit === "% da base") return `${v}%`;
     if (kr.unit === "minutos") return `${v} min`;
     if (kr.unit === "horas") return `${v}h`;
-    return v.toLocaleString("pt-BR");
+    return (v ?? 0).toLocaleString("pt-BR");
   };
 
   return (
