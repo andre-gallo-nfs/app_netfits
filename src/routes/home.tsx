@@ -216,7 +216,6 @@ function InstitutionalHomePage() {
             <p><Link to="/market" className="hover:text-white transition">Netfits Shop</Link></p>
             <p><Link to="/activities" className="hover:text-white transition">Atividades & Wearables</Link></p>
             <p><Link to="/wallet" className="hover:text-white transition">Carteira nfs</Link></p>
-            <p><Link to="/admin" className="hover:text-white transition">Painel Executivo Admin</Link></p>
           </div>
 
           <div className="space-y-2">
