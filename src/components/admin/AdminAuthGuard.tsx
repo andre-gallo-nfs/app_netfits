@@ -34,7 +34,10 @@ export function AdminAuthGuard({ children, onUnlocked, onLock }: AdminAuthGuardP
       if (
         storedAuth === "true" ||
         currentUser?.email === "andre.gallo@netfits.com.br" ||
-        currentUser?.email === "andre@netfits.com.br"
+        currentUser?.email === "andre@netfits.com.br" ||
+        currentUser?.email === "gallo@netfits.com.br" ||
+        currentUser?.email === "luisa.formigari@netfits.com.br" ||
+        currentUser?.email === "luisa@netfits.com.br"
       ) {
         setIsUnlocked(true);
         if (onUnlocked) onUnlocked();
@@ -88,10 +91,23 @@ export function AdminAuthGuard({ children, onUnlocked, onLock }: AdminAuthGuardP
     const cleanEmail = email.trim().toLowerCase();
     const cleanPass = password.trim();
 
-    if (
-      (cleanEmail === "andre.gallo@netfits.com.br" || cleanEmail === "andre@netfits.com.br" || cleanEmail === "admin@netfits.com.br" || cleanEmail === "diretoria@netfits.com.br") &&
-      (cleanPass === "Netfits#2026" || cleanPass === "Admin@2026" || cleanPass === "202626")
-    ) {
+    const isMasterEmail = [
+      "andre.gallo@netfits.com.br",
+      "andre@netfits.com.br",
+      "gallo@netfits.com.br",
+      "luisa.formigari@netfits.com.br",
+      "luisa@netfits.com.br",
+      "admin@netfits.com.br",
+      "diretoria@netfits.com.br",
+    ].includes(cleanEmail);
+
+    const isAuthorizedPassword =
+      cleanPass === "Netfits@2026" ||
+      cleanPass === "Netfits#2026" ||
+      cleanPass === "Admin@2026" ||
+      cleanPass === "202626";
+
+    if (isMasterEmail && isAuthorizedPassword) {
       setIsUnlocked(true);
       if (typeof window !== "undefined") {
         sessionStorage.setItem(SESSION_STORAGE_KEY, "true");

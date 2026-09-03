@@ -1,21 +1,7 @@
-import { useSyncExternalStore } from "react";
-import { toast } from "sonner";
-import { wallet } from "./wallet-store";
-import { sharedSandboxStore } from "./shared-sandbox-store";
-
-export type StoredUser = {
-  id: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  cpf: string;
-  passwordHash: string;
-  userCategory: "atleta" | "associado" | "especialista" | "parceiro";
-  registeredAt: string;
-};
-
-// Banco de dados simulado de usuários já cadastrados
-const EXISTING_DATABASE_USERS: StoredUser[] = [
+import { r as reactExports } from "../_libs/react.mjs";
+import { t as toast } from "../_libs/sonner.mjs";
+import { s as sharedSandboxStore$1, w as wallet } from "./router-DfS7xcIA.mjs";
+const EXISTING_DATABASE_USERS = [
   {
     id: "usr_101",
     fullName: "Kite Larsen",
@@ -24,7 +10,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     cpf: "12345678900",
     passwordHash: "Pass@1234",
     userCategory: "atleta",
-    registeredAt: "2026-01-15T10:00:00Z",
+    registeredAt: "2026-01-15T10:00:00Z"
   },
   {
     id: "usr_102",
@@ -34,7 +20,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     cpf: "98765432111",
     passwordHash: "Netfits#2026",
     userCategory: "associado",
-    registeredAt: "2026-02-01T14:30:00Z",
+    registeredAt: "2026-02-01T14:30:00Z"
   },
   {
     id: "usr_104",
@@ -44,7 +30,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     cpf: "98765432122",
     passwordHash: "Netfits@2026",
     userCategory: "associado",
-    registeredAt: "2026-02-01T14:30:00Z",
+    registeredAt: "2026-02-01T14:30:00Z"
   },
   {
     id: "usr_103",
@@ -54,15 +40,13 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     cpf: "45678912344",
     passwordHash: "Saude!2026",
     userCategory: "especialista",
-    registeredAt: "2026-03-10T09:15:00Z",
-  },
+    registeredAt: "2026-03-10T09:15:00Z"
+  }
 ];
-
-export function cleanDigits(val: string): string {
+function cleanDigits(val) {
   return val.replace(/\D/g, "");
 }
-
-export function detectIdentifierType(val: string): "email" | "cpf" | "phone" | "unknown" {
+function detectIdentifierType(val) {
   const trimmed = val.trim();
   if (trimmed.includes("@") && trimmed.includes(".")) return "email";
   const digits = cleanDigits(trimmed);
@@ -73,75 +57,49 @@ export function detectIdentifierType(val: string): "email" | "cpf" | "phone" | "
   if (digits.length >= 10 && digits.length <= 11) return "phone";
   return "unknown";
 }
-
-export type PasswordRulesStatus = {
-  minLength: boolean;
-  hasNumber: boolean;
-  hasUppercase: boolean;
-  hasLowercase: boolean;
-  hasSpecial: boolean;
-  isValid: boolean;
-};
-
-export function validatePasswordRules(password: string): PasswordRulesStatus {
+function validatePasswordRules(password) {
   const minLength = password.length >= 8;
   const hasNumber = /[0-9]/.test(password);
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
   const isValid = minLength && hasNumber && hasUppercase && hasLowercase && hasSpecial;
-
   return {
     minLength,
     hasNumber,
     hasUppercase,
     hasLowercase,
     hasSpecial,
-    isValid,
+    isValid
   };
 }
-
-let storedUsers: StoredUser[] = [...EXISTING_DATABASE_USERS];
-let currentUser: StoredUser | null = EXISTING_DATABASE_USERS[0];
-
-type AuthState = {
-  currentUser: StoredUser | null;
-  usersCount: number;
-};
-
-let authState: AuthState = {
+let storedUsers = [...EXISTING_DATABASE_USERS];
+let currentUser = EXISTING_DATABASE_USERS[0];
+let authState = {
   currentUser: EXISTING_DATABASE_USERS[0],
-  usersCount: EXISTING_DATABASE_USERS.length,
+  usersCount: EXISTING_DATABASE_USERS.length
 };
-
-const listeners = new Set<() => void>();
-
+const listeners = /* @__PURE__ */ new Set();
 const emit = () => {
   authState = {
     currentUser,
-    usersCount: storedUsers.length,
+    usersCount: storedUsers.length
   };
   listeners.forEach((l) => l());
 };
-
-const subscribe = (fn: () => void) => {
+const subscribe = (fn) => {
   listeners.add(fn);
   return () => listeners.delete(fn);
 };
-
 const getSnapshot = () => authState;
-
-const SERVER_AUTH_STATE: AuthState = {
+const SERVER_AUTH_STATE = {
   currentUser: null,
-  usersCount: 0,
+  usersCount: 0
 };
-
 const getServerSnapshot = () => SERVER_AUTH_STATE;
-
-export const authStore = {
-  getCurrentUser: (): StoredUser => {
-    const active = sharedSandboxStore.getActiveUser();
+const authStore = {
+  getCurrentUser: () => {
+    const active = sharedSandboxStore$1.getActiveUser();
     return {
       id: active.id,
       fullName: active.fullName,
@@ -150,16 +108,13 @@ export const authStore = {
       cpf: "",
       passwordHash: "Pass@1234",
       userCategory: active.type === "associado" ? "associado" : "atleta",
-      registeredAt: active.registeredAt,
+      registeredAt: active.registeredAt
     };
   },
   getStoredUsers: () => storedUsers,
-
-  checkIdentifierExists(identifier: string): { exists: boolean; matchedField?: "email" | "phone" | "cpf"; matchedUser?: StoredUser } {
+  checkIdentifierExists(identifier) {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
-
-    // 1. Checar lista local de usuários salvos
     for (const u of storedUsers) {
       if (u.email.toLowerCase() === raw) {
         return { exists: true, matchedField: "email", matchedUser: u };
@@ -173,20 +128,16 @@ export const authStore = {
         }
       }
     }
-
-    // 2. Checar lista do Banco Provisório Compartilhado
-    const sandboxUsers = sharedSandboxStore.getUsers();
+    const sandboxUsers = sharedSandboxStore$1.getUsers();
     for (const su of sandboxUsers) {
       const uEmail = (su.email || su.identifier || "").toLowerCase().trim();
       const uPhone = cleanDigits(su.phone || su.identifier || "");
       const uCpf = cleanDigits(su.cpf || "");
-
       const isEmailMatch = uEmail.length > 0 && uEmail === raw;
       const isPhoneMatch = digits.length > 0 && uPhone.length > 0 && uPhone === digits;
       const isCpfMatch = digits.length > 0 && uCpf.length > 0 && uCpf === digits;
-
       if (isEmailMatch || isPhoneMatch || isCpfMatch) {
-        const adaptedUser: StoredUser = {
+        const adaptedUser = {
           id: su.id,
           fullName: su.fullName,
           email: su.email || su.identifier,
@@ -194,67 +145,49 @@ export const authStore = {
           cpf: su.cpf || "",
           passwordHash: "Pass@1234",
           userCategory: su.type === "associado" ? "associado" : "atleta",
-          registeredAt: su.registeredAt,
+          registeredAt: su.registeredAt
         };
         return {
           exists: true,
           matchedField: isEmailMatch ? "email" : isPhoneMatch ? "phone" : "cpf",
-          matchedUser: adaptedUser,
+          matchedUser: adaptedUser
         };
       }
     }
-
     return { exists: false };
   },
-
   registerUser({
     identifier,
     password,
     fullName = "Novo Netfiter",
-    referralCode,
-  }: {
-    identifier: string;
-    password: string;
-    fullName?: string;
-    referralCode?: string;
+    referralCode
   }) {
     const check = this.checkIdentifierExists(identifier);
     if (check.exists) {
-      const fieldLabel =
-        check.matchedField === "email"
-          ? "E-mail"
-          : check.matchedField === "cpf"
-          ? "CPF"
-          : "Celular";
-
+      const fieldLabel = check.matchedField === "email" ? "E-mail" : check.matchedField === "cpf" ? "CPF" : "Celular";
       return {
         success: false,
         error: `O ${fieldLabel} "${identifier}" já consta cadastrado em nosso banco de dados. Por favor, verifique as informações ou faça login na sua conta existente.`,
         isDuplicate: true,
-        matchedField: check.matchedField,
+        matchedField: check.matchedField
       };
     }
-
     const pwdRules = validatePasswordRules(password);
     if (!pwdRules.isValid) {
       return {
         success: false,
-        error: "A senha precisa ser alfanumérica com 8+ caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial.",
+        error: "A senha precisa ser alfanumérica com 8+ caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial."
       };
     }
-
-    // Cadastrar no Banco Provisório Compartilhado e definir como ativo deste dispositivo
-    const regResult = sharedSandboxStore.registerAthlete({
+    const regResult = sharedSandboxStore$1.registerAthlete({
       identifier,
       fullName,
-      referralCode,
+      referralCode
     });
-
     if (!regResult.success || !regResult.user) {
       return { success: false, error: regResult.error || "Erro ao efetuar cadastro." };
     }
-
-    const newUser: StoredUser = {
+    const newUser = {
       id: regResult.user.id,
       fullName: regResult.user.fullName,
       email: regResult.user.identifier,
@@ -262,48 +195,46 @@ export const authStore = {
       cpf: "",
       passwordHash: password,
       userCategory: "atleta",
-      registeredAt: regResult.user.registeredAt,
+      registeredAt: regResult.user.registeredAt
     };
-
     storedUsers.push(newUser);
     currentUser = newUser;
-    sharedSandboxStore.setActiveUser(regResult.user.id);
+    sharedSandboxStore$1.setActiveUser(regResult.user.id);
     emit();
-
     wallet.earn(50, "Bônus de Boas-Vindas");
     if (referralCode) {
       toast.success(`🎉 Cadastro realizado! Indicação "${referralCode.toUpperCase()}" vinculada (+50 nfs bônus).`);
     } else {
       toast.success("🎉 Cadastro realizado com sucesso! Você ganhou +50 nfs bônus.");
     }
-
     return { success: true, user: newUser };
   },
-
-  loginUser(identifier: string, password: string) {
+  loginUser(identifier, password) {
     const check = this.checkIdentifierExists(identifier);
     if (!check.exists || !check.matchedUser) {
       return {
         success: false,
-        error: "Usuário não encontrado. Verifique os dados digitados ou faça seu cadastro inicial.",
+        error: "Usuário não encontrado. Verifique os dados digitados ou faça seu cadastro inicial."
       };
     }
-
     currentUser = check.matchedUser;
-    sharedSandboxStore.setActiveUser(check.matchedUser.id);
+    sharedSandboxStore$1.setActiveUser(check.matchedUser.id);
     toast.success(`Bem-vindo de volta, ${check.matchedUser.fullName}!`);
     emit();
-
     return { success: true, user: currentUser };
   },
-
   logoutUser() {
     currentUser = null;
     toast.info("Você saiu da sua conta Netfits.");
     emit();
-  },
+  }
 };
-
-export function useAuth() {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+function useAuth() {
+  return reactExports.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
+export {
+  authStore as a,
+  detectIdentifierType as d,
+  useAuth as u,
+  validatePasswordRules as v
+};
