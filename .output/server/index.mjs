@@ -35,700 +35,700 @@ const assets = {
   "/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"a636-ogHQ/SWKkPdSbnRP4tz8snVaxzc"',
-    "mtime": "2026-09-03T23:01:15.179Z",
+    "mtime": "2026-09-03T23:27:18.937Z",
     "size": 42550,
     "path": "../public/Netfits_Regulamento_e_Termo_LGPD_Oficial.docx"
   },
   "/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"bab2-8DknPd1Dv3u12crHqRu0uvoOp/s"',
-    "mtime": "2026-09-03T23:01:15.180Z",
+    "mtime": "2026-09-03T23:27:18.939Z",
     "size": 47794,
     "path": "../public/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx"
-  },
-  "/favicon.ico": {
-    "type": "image/vnd.microsoft.icon",
-    "etag": '"299f-Dh3ONDb8C2LTSeWlH7QsxWqyOtE"',
-    "mtime": "2026-09-03T23:01:15.181Z",
-    "size": 10655,
-    "path": "../public/favicon.ico"
   },
   "/manifest.json": {
     "type": "application/json",
     "etag": '"24a-egiUneD/xPOAdxt+OE09OOHGoKc"',
-    "mtime": "2026-09-03T23:01:15.180Z",
+    "mtime": "2026-09-03T23:27:18.941Z",
     "size": 586,
     "path": "../public/manifest.json"
+  },
+  "/favicon.ico": {
+    "type": "image/vnd.microsoft.icon",
+    "etag": '"299f-Dh3ONDb8C2LTSeWlH7QsxWqyOtE"',
+    "mtime": "2026-09-03T23:27:18.940Z",
+    "size": 10655,
+    "path": "../public/favicon.ico"
   },
   "/sw.js": {
     "type": "text/javascript; charset=utf-8",
     "etag": '"6e8-Cdfa2l6p9QgvZ1KdvIOAdPp444U"',
-    "mtime": "2026-09-03T23:01:15.181Z",
+    "mtime": "2026-09-03T23:27:18.956Z",
     "size": 1768,
     "path": "../public/sw.js"
-  },
-  "/assets/InstitutionalWebHeader-EOCvHJQ5.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"c84-EoAmVXuJCIp4XmIl8+83TxvrYlA"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 3204,
-    "path": "../public/assets/InstitutionalWebHeader-EOCvHJQ5.js"
-  },
-  "/assets/ProductDetailSheet-Cr92MZB2.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"4841-OyXXRl0haRT61o9qwCJ6CLqma0g"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 18497,
-    "path": "../public/assets/ProductDetailSheet-Cr92MZB2.js"
-  },
-  "/assets/activities-4I_ftVsR.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"4ac-vTzMKIoTKeHzNG2o47+eaZi5NLM"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 1196,
-    "path": "../public/assets/activities-4I_ftVsR.js"
-  },
-  "/assets/apparel-shorts-BogQtink.jpg": {
-    "type": "image/jpeg",
-    "etag": '"90b9-q/vdlzv7/WFO1GgumaEAQVoW0hA"',
-    "mtime": "2026-09-03T23:01:08.233Z",
-    "size": 37049,
-    "path": "../public/assets/apparel-shorts-BogQtink.jpg"
-  },
-  "/assets/apparel-socks-BVqyprxp.jpg": {
-    "type": "image/jpeg",
-    "etag": '"cbcb-XcAHWHp4T0XLVekMR2rI0TEA1mk"',
-    "mtime": "2026-09-03T23:01:08.233Z",
-    "size": 52171,
-    "path": "../public/assets/apparel-socks-BVqyprxp.jpg"
-  },
-  "/assets/apple-wrYu95K0.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"13b-d5anDzPPMOLrgrNXFLCVd4HhndE"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 315,
-    "path": "../public/assets/apple-wrYu95K0.js"
-  },
-  "/assets/apparel-tee-Q_guZjsU.jpg": {
-    "type": "image/jpeg",
-    "etag": '"8c93-9IMGCWapgglLKVZ6+JcH9AntZZE"',
-    "mtime": "2026-09-03T23:01:08.233Z",
-    "size": 35987,
-    "path": "../public/assets/apparel-tee-Q_guZjsU.jpg"
-  },
-  "/assets/arrow-up-right-Bnd9ulPa.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"a8-u8Rjo6lKIz51PZcEUM7ofV+rGbA"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 168,
-    "path": "../public/assets/arrow-up-right-Bnd9ulPa.js"
-  },
-  "/assets/associado-B9gThrKd.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"743e-FQ8Hwe7TUeReHhgakt5YAcYOSpo"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 29758,
-    "path": "../public/assets/associado-B9gThrKd.js"
-  },
-  "/assets/asics-novablast-qmC10-ut.jpg": {
-    "type": "image/jpeg",
-    "etag": '"241db-/E9M/WLD0YISZq0l7tM2bsKHgoE"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 147931,
-    "path": "../public/assets/asics-novablast-qmC10-ut.jpg"
-  },
-  "/assets/auth-store-Cpp42BeX.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"1269-5C6sJorG/Wr9eAr4Xd5pqX8O088"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 4713,
-    "path": "../public/assets/auth-store-Cpp42BeX.js"
-  },
-  "/assets/calendar-BgPY3dC-.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"102-JR4dlkABRmRK9nVOdF0BNH7sS7U"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 258,
-    "path": "../public/assets/calendar-BgPY3dC-.js"
-  },
-  "/assets/circle-check-CWCU3UI9.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"ae-Tt27S/b5NS/Y00Sz6H+cfyspKOQ"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 174,
-    "path": "../public/assets/circle-check-CWCU3UI9.js"
-  },
-  "/assets/circle-x-DafOG2L4.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"195-+jqmQrFTnvwaCarTMj6dKzXkW+M"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 405,
-    "path": "../public/assets/circle-x-DafOG2L4.js"
-  },
-  "/assets/auth-BRVY5_Af.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"a432-3A00k3iXU2tTQwq6jfGbWFhZukA"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 42034,
-    "path": "../public/assets/auth-BRVY5_Af.js"
-  },
-  "/assets/clinic-fibios-rZItzhet.jpg": {
-    "type": "image/jpeg",
-    "etag": '"15504-Nx447g+ouRXnYD5XFcTDKRuIuiQ"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 87300,
-    "path": "../public/assets/clinic-fibios-rZItzhet.jpg"
-  },
-  "/assets/contato-DUlRpxiK.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"2325-PVA15JMz/J0Eybcy0M9Pg5KHc8U"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 8997,
-    "path": "../public/assets/contato-DUlRpxiK.js"
-  },
-  "/assets/admin-DTNwGWXK.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"acb1b-dKTBYv6M7IANWpEUC64ezC6o4kM"',
-    "mtime": "2026-09-03T23:01:08.242Z",
-    "size": 707355,
-    "path": "../public/assets/admin-DTNwGWXK.js"
-  },
-  "/assets/credit-card-DpYZNCxz.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"d0-TgG8k/mWCHx0XKzUH05XAxttg+c"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 208,
-    "path": "../public/assets/credit-card-DpYZNCxz.js"
-  },
-  "/assets/download-D0ah1PtQ.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"2049-T2gzi1aB/fzkEvPdY5XSv8imeRQ"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 8265,
-    "path": "../public/assets/download-D0ah1PtQ.js"
-  },
-  "/assets/download-DOLj5V_o.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"e9-iCr4x8h1vDw1vrgPGcvjcNhc47c"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 233,
-    "path": "../public/assets/download-DOLj5V_o.js"
-  },
-  "/assets/dumbbell-xiz1hF1K.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"231-E9Mk0R4LD8IaFpk7+2lIC3DUUa8"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 561,
-    "path": "../public/assets/dumbbell-xiz1hF1K.js"
-  },
-  "/assets/eye-CvqE3L9w.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"fc-JYsJzDEMkmZ4MQamnh0oATQWxq4"',
-    "mtime": "2026-09-03T23:01:08.241Z",
-    "size": 252,
-    "path": "../public/assets/eye-CvqE3L9w.js"
-  },
-  "/assets/faq-DezsSZWI.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"794c-fJe46Mz1ctnuSs0ELZH7LKiqqSc"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 31052,
-    "path": "../public/assets/faq-DezsSZWI.js"
-  },
-  "/assets/dra-isabella-MfvObR2M.jpeg": {
-    "type": "image/jpeg",
-    "etag": '"353e6-iGiW+I+P4vlSkGWTqTCqXFyYI/M"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 218086,
-    "path": "../public/assets/dra-isabella-MfvObR2M.jpeg"
-  },
-  "/assets/feed-data-BWeZJ53D.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"15d6-lPJ1GO2enidaKaj6QQrqslfkdIA"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 5590,
-    "path": "../public/assets/feed-data-BWeZJ53D.js"
-  },
-  "/assets/feed-cyclist-eSoC9Il9.jpg": {
-    "type": "image/jpeg",
-    "etag": '"33772-OWVLa1BqLqHLmd/pgs1NUce/Ons"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 210802,
-    "path": "../public/assets/feed-cyclist-eSoC9Il9.jpg"
-  },
-  "/assets/feed-runner-CCML8scl.jpg": {
-    "type": "image/jpeg",
-    "etag": '"1109a-rn72N4h19reVexOqwyboC1r8/nA"',
-    "mtime": "2026-09-03T23:01:08.233Z",
-    "size": 69786,
-    "path": "../public/assets/feed-runner-CCML8scl.jpg"
-  },
-  "/assets/feed-voturuna-DP-oQCwr.jpg": {
-    "type": "image/jpeg",
-    "etag": '"25cd4-dJbHDt1kEVlOgJJrwK2AjyOTMBY"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 154836,
-    "path": "../public/assets/feed-voturuna-DP-oQCwr.jpg"
-  },
-  "/assets/file-text-Bm5PF0Ui.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"182-3THtDmDJrWh0BCi/SGMMuUruBv8"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 386,
-    "path": "../public/assets/file-text-Bm5PF0Ui.js"
-  },
-  "/assets/gear-vest-CAbiKTT5.jpg": {
-    "type": "image/jpeg",
-    "etag": '"6b42-08WJvC4ZZnplB5JcNfARPPSPLQE"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 27458,
-    "path": "../public/assets/gear-vest-CAbiKTT5.jpg"
-  },
-  "/assets/gear-watch-CfsmAVPR.jpg": {
-    "type": "image/jpeg",
-    "etag": '"da95-/jpnlYfN6f8Ag0W3DzC4GtEibVk"',
-    "mtime": "2026-09-03T23:01:08.233Z",
-    "size": 55957,
-    "path": "../public/assets/gear-watch-CfsmAVPR.jpg"
-  },
-  "/assets/gift-C2f9oxGI.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"15e-UCljvXwW/2gj/nQRm+mAxSalAcI"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 350,
-    "path": "../public/assets/gift-C2f9oxGI.js"
-  },
-  "/assets/home-CKEUB0lV.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"2ab1-EIr9iFyKcGB+913y40Kh/NNC6oM"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 10929,
-    "path": "../public/assets/home-CKEUB0lV.js"
-  },
-  "/assets/index-qNNP-Gye.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"ef16-lQ5eze4B209AJy+vt6Rcg1l65Gs"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 61206,
-    "path": "../public/assets/index-qNNP-Gye.js"
-  },
-  "/assets/levels-aH_93x_p.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"1ad5-ksI7m5dgIxZp2dn8OJD8EqAXc78"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 6869,
-    "path": "../public/assets/levels-aH_93x_p.js"
-  },
-  "/assets/index-dKfsF__1.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"70ba3-2BScGCeGklsnpcCOnKVoPMlKqu0"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 461731,
-    "path": "../public/assets/index-dKfsF__1.js"
-  },
-  "/assets/link-2-49YdwOLX.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"f3-BCK9Qn8KkMvYrXfLs304VaATk5A"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 243,
-    "path": "../public/assets/link-2-49YdwOLX.js"
-  },
-  "/assets/lock-CjHFMiB5.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"ca-oRZl2PXcE28BPVhxdc7czRA1qvo"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 202,
-    "path": "../public/assets/lock-CjHFMiB5.js"
-  },
-  "/assets/log-in-PjUncdPk.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"e8-j33j/rcKH7aiqHgxxnG9LFwDE9E"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 232,
-    "path": "../public/assets/log-in-PjUncdPk.js"
-  },
-  "/assets/mail-DPhOUKP_.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"d6-J525lZcC9hCFXE1AinK+jinc0qE"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 214,
-    "path": "../public/assets/mail-DPhOUKP_.js"
-  },
-  "/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf": {
-    "type": "application/pdf",
-    "etag": '"324004-AvW98vM8MuoLzdYCE1XIIkioOaA"',
-    "mtime": "2026-09-03T23:01:15.190Z",
-    "size": 3293188,
-    "path": "../public/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-  },
-  "/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).pdf": {
-    "type": "application/pdf",
-    "etag": '"324004-AvW98vM8MuoLzdYCE1XIIkioOaA"',
-    "mtime": "2026-09-03T23:01:15.190Z",
-    "size": 3293188,
-    "path": "../public/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).pdf"
-  },
-  "/assets/map-pin-BPZ5jtQP.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"ff-8FThXtZLnKDmCTPJ8vRIlTFjkLg"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 255,
-    "path": "../public/assets/map-pin-BPZ5jtQP.js"
-  },
-  "/assets/market-CZWkbPXz.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"6769-oi0ddguYjlivJaQ9Sodj7U0RowI"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 26473,
-    "path": "../public/assets/market-CZWkbPXz.js"
-  },
-  "/assets/netfits-mark-BXGZywsy.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"3c-RfWDEN0MdMO3UVvuUMQZ36i63L0"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 60,
-    "path": "../public/assets/netfits-mark-BXGZywsy.js"
-  },
-  "/assets/parceiros-CLYHbO_y.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"9398-1jjMmRpy1tWGoxkS0B1bNb6F4V0"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 37784,
-    "path": "../public/assets/parceiros-CLYHbO_y.js"
-  },
-  "/assets/percent-RCVnKNVU.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"286-0LLO9bI2k7cXgVOsuB4Utyika2A"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 646,
-    "path": "../public/assets/percent-RCVnKNVU.js"
-  },
-  "/assets/phone-C1IIsfKr.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"143-KsPfldicjEyVTH8fjBm4t1zFnX4"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 323,
-    "path": "../public/assets/phone-C1IIsfKr.js"
-  },
-  "/assets/product-applewatch-LmhKu1MM.jpg": {
-    "type": "image/jpeg",
-    "etag": '"5a22-akHEXDf+Sxm6od7reGXhhcS1L10"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 23074,
-    "path": "../public/assets/product-applewatch-LmhKu1MM.jpg"
-  },
-  "/assets/product-bike-BESuKQ8H.jpg": {
-    "type": "image/jpeg",
-    "etag": '"f867-sgWHkoXMWAJnSqPqLvB0PLm9iho"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 63591,
-    "path": "../public/assets/product-bike-BESuKQ8H.jpg"
-  },
-  "/assets/product-creatine-B5HXc3oE.jpg": {
-    "type": "image/jpeg",
-    "etag": '"9a29-CHM2CHZEIbHGg24DekOXCmJOoE0"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 39465,
-    "path": "../public/assets/product-creatine-B5HXc3oE.jpg"
-  },
-  "/assets/product-electrolyte-DrWdY3I0.jpg": {
-    "type": "image/jpeg",
-    "etag": '"2d21-c5M/syVVwfw2VgYtGDV0sc1tom8"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 11553,
-    "path": "../public/assets/product-electrolyte-DrWdY3I0.jpg"
-  },
-  "/assets/product-gel-DMuC9e-t.jpg": {
-    "type": "image/jpeg",
-    "etag": '"f7e5-nJU2x2w1YTau5UOFYn9jkkI/+lA"',
-    "mtime": "2026-09-03T23:01:08.234Z",
-    "size": 63461,
-    "path": "../public/assets/product-gel-DMuC9e-t.jpg"
-  },
-  "/assets/product-glasses-BLSG7VXv.jpg": {
-    "type": "image/jpeg",
-    "etag": '"5c54-NJ9IpkGCWDQ5VB0/sc+RPY/gkt0"',
-    "mtime": "2026-09-03T23:01:08.238Z",
-    "size": 23636,
-    "path": "../public/assets/product-glasses-BLSG7VXv.jpg"
-  },
-  "/assets/product-helmet-BeQCwc7p.jpg": {
-    "type": "image/jpeg",
-    "etag": '"a296-z+6kJ4IHR88id+lTSwXCr6gPr4Q"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 41622,
-    "path": "../public/assets/product-helmet-BeQCwc7p.jpg"
-  },
-  "/assets/product-jbl-bone-BkrYMGlK.jpg": {
-    "type": "image/jpeg",
-    "etag": '"138fc-y2oxA54SUOPglpSTrP+mjvzyTcI"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 80124,
-    "path": "../public/assets/product-jbl-bone-BkrYMGlK.jpg"
-  },
-  "/assets/product-palatinose-DwQY1yxt.jpg": {
-    "type": "image/jpeg",
-    "etag": '"6df4-mCT7KDbtMC1/DTpVGicOuS/H+W4"',
-    "mtime": "2026-09-03T23:01:08.236Z",
-    "size": 28148,
-    "path": "../public/assets/product-palatinose-DwQY1yxt.jpg"
-  },
-  "/assets/product-ring-Bwo5Qd-4.jpg": {
-    "type": "image/jpeg",
-    "etag": '"3991-kkkKh9T5AZEV4Ob5FwcEClPVrq4"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 14737,
-    "path": "../public/assets/product-ring-Bwo5Qd-4.jpg"
-  },
-  "/assets/netfits-logo-dark.png": {
-    "type": "image/png",
-    "etag": '"a1d87-Pa/NTaYwuhsMbd3eBDIY5B1hG4Q"',
-    "mtime": "2026-09-03T23:01:15.189Z",
-    "size": 662919,
-    "path": "../public/assets/netfits-logo-dark.png"
-  },
-  "/assets/netfits-logo-green.png": {
-    "type": "image/png",
-    "etag": '"f672d-UONhTe6r0xtWFe3iNqHdlJJNIa0"',
-    "mtime": "2026-09-03T23:01:15.190Z",
-    "size": 1009453,
-    "path": "../public/assets/netfits-logo-green.png"
-  },
-  "/assets/netfits-logo-dark-D0RtFoJs.png": {
-    "type": "image/png",
-    "etag": '"a1d87-Pa/NTaYwuhsMbd3eBDIY5B1hG4Q"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 662919,
-    "path": "../public/assets/netfits-logo-dark-D0RtFoJs.png"
-  },
-  "/assets/product-shoes-CUzDX92n.jpg": {
-    "type": "image/jpeg",
-    "etag": '"4beb-G3Lt2zvPENVX/zXBYYgcynWwRUY"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 19435,
-    "path": "../public/assets/product-shoes-CUzDX92n.jpg"
-  },
-  "/assets/product-liquidz-Cj2dR76l.jpg": {
-    "type": "image/jpeg",
-    "etag": '"132f12-ERBl05JU9DchQK/6nDlrq15HXok"',
-    "mtime": "2026-09-03T23:01:08.243Z",
-    "size": 1257234,
-    "path": "../public/assets/product-liquidz-Cj2dR76l.jpg"
-  },
-  "/assets/product-swim-TYX_7gsi.jpg": {
-    "type": "image/jpeg",
-    "etag": '"6067-U8y86yrhZyAl8uJls7pidbnBPoM"',
-    "mtime": "2026-09-03T23:01:08.234Z",
-    "size": 24679,
-    "path": "../public/assets/product-swim-TYX_7gsi.jpg"
-  },
-  "/assets/product-whey-Wor1ExrG.jpg": {
-    "type": "image/jpeg",
-    "etag": '"cd09-BLHUMOW1s4s3lsEpMpqXB0k3pZ8"',
-    "mtime": "2026-09-03T23:01:08.234Z",
-    "size": 52489,
-    "path": "../public/assets/product-whey-Wor1ExrG.jpg"
-  },
-  "/assets/profile-DiYPk3z1.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"7893-cPPYUuOOpSaoSxPwzwLNZWuDJXE"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 30867,
-    "path": "../public/assets/profile-DiYPk3z1.js"
-  },
-  "/assets/race-berlin-CD4pj62D.jpg": {
-    "type": "image/jpeg",
-    "etag": '"37803-FkCDnP21FBGWwsdZzwZPl1USkG0"',
-    "mtime": "2026-09-03T23:01:08.234Z",
-    "size": 227331,
-    "path": "../public/assets/race-berlin-CD4pj62D.jpg"
-  },
-  "/assets/race-paraty-BwDctZiL.jpg": {
-    "type": "image/jpeg",
-    "etag": '"1c4fd-UUbONCMqzb7z1JxTAy4o8Jrt/DI"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 115965,
-    "path": "../public/assets/race-paraty-BwDctZiL.jpg"
-  },
-  "/assets/race-serra-fina-BvXw670x.jpg": {
-    "type": "image/jpeg",
-    "etag": '"16e62-0CH8omkX/CVS7e2ISPdnHhq3R3o"',
-    "mtime": "2026-09-03T23:01:08.232Z",
-    "size": 93794,
-    "path": "../public/assets/race-serra-fina-BvXw670x.jpg"
-  },
-  "/assets/search-BHTeMrYZ.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"aa-PnoZRlGZZLisvDfO+Jju9oR9xx0"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 170,
-    "path": "../public/assets/search-BHTeMrYZ.js"
-  },
-  "/assets/race-nyc-DsHtzJD5.jpg": {
-    "type": "image/jpeg",
-    "etag": '"3bcd6-Wo/9XKSM5An//XWIeJdycDDrgnA"',
-    "mtime": "2026-09-03T23:01:08.233Z",
-    "size": 244950,
-    "path": "../public/assets/race-nyc-DsHtzJD5.jpg"
-  },
-  "/assets/shield-check-C27KsME-.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"13c-Tx5MalzviAxDWkUk2pobjYP4RdE"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 316,
-    "path": "../public/assets/shield-check-C27KsME-.js"
-  },
-  "/assets/netfits-logo-ewIUGvXh.png": {
-    "type": "image/png",
-    "etag": '"209382-Cif9l3P/VaiUdPQRwq97gpHWdUM"',
-    "mtime": "2026-09-03T23:01:08.244Z",
-    "size": 2134914,
-    "path": "../public/assets/netfits-logo-ewIUGvXh.png"
-  },
-  "/assets/trash-2-YOd_FCUE.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"2b2-uu7UoTbE0hLaJukOWKdu1QNCRxo"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 690,
-    "path": "../public/assets/trash-2-YOd_FCUE.js"
-  },
-  "/assets/styles-Cce0mIlv.css": {
-    "type": "text/css; charset=utf-8",
-    "etag": '"296b8-EwvQaSyO8/V6ZDYII9cHscSSEeQ"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 169656,
-    "path": "../public/assets/styles-Cce0mIlv.css"
-  },
-  "/assets/truck-CqT5bxc2.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"455-HynSW97PAnguoq8IGAF3/taUUlI"',
-    "mtime": "2026-09-03T23:01:08.239Z",
-    "size": 1109,
-    "path": "../public/assets/truck-CqT5bxc2.js"
-  },
-  "/assets/user-plus-BFqYzCEz.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"137-KKUu6rzCx+LiyZ6MAmv2SkR2r3o"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 311,
-    "path": "../public/assets/user-plus-BFqYzCEz.js"
-  },
-  "/assets/users-BD1vdGOz.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"133-T98I1J9oZBCpIHpatCNX01ngOgs"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 307,
-    "path": "../public/assets/users-BD1vdGOz.js"
-  },
-  "/assets/wallet-DJEl9e-g.js": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": '"124f-YJnDM8Kw1CWIMFf5JYwvL5IRbEA"',
-    "mtime": "2026-09-03T23:01:08.240Z",
-    "size": 4687,
-    "path": "../public/assets/wallet-DJEl9e-g.js"
   },
   "/docs/Netfits_Arquitetura_Squad_QA_Autonomo_IA.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"a036-HM/Uv9ZICucTCxRAOik+F5RR47o"',
-    "mtime": "2026-09-03T23:01:15.167Z",
+    "mtime": "2026-09-03T23:27:18.890Z",
     "size": 41014,
     "path": "../public/docs/Netfits_Arquitetura_Squad_QA_Autonomo_IA.docx"
   },
   "/docs/Netfits_Diretrizes_Contratuais_Programa_Associados_10pct.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"a6e0-5jIBHRL3NZHAwrx3Qyujo1WwIFs"',
-    "mtime": "2026-09-03T23:01:15.168Z",
+    "mtime": "2026-09-03T23:27:18.896Z",
     "size": 42720,
     "path": "../public/docs/Netfits_Diretrizes_Contratuais_Programa_Associados_10pct.docx"
   },
   "/docs/Netfits_Dossie_Geral_do_Projeto_e_Linha_do_Tempo_Evolutiva.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"c472-6lRqgrJrc+gQ27tIKFGebwvQoMc"',
-    "mtime": "2026-09-03T23:01:15.169Z",
+    "mtime": "2026-09-03T23:27:18.896Z",
     "size": 50290,
     "path": "../public/docs/Netfits_Dossie_Geral_do_Projeto_e_Linha_do_Tempo_Evolutiva.docx"
-  },
-  "/assets/netfits-logo-transparent.png": {
-    "type": "image/png",
-    "etag": '"209382-Cif9l3P/VaiUdPQRwq97gpHWdUM"',
-    "mtime": "2026-09-03T23:01:15.208Z",
-    "size": 2134914,
-    "path": "../public/assets/netfits-logo-transparent.png"
   },
   "/docs/Netfits_Regulamento_Termos_e_LGPD_Revisao_Stix_Livelo.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"bab2-v+Kr3ny9RQpmmnNIdgvZkVlPsSE"',
-    "mtime": "2026-09-03T23:01:15.168Z",
+    "mtime": "2026-09-03T23:27:18.896Z",
     "size": 47794,
     "path": "../public/docs/Netfits_Regulamento_Termos_e_LGPD_Revisao_Stix_Livelo.docx"
   },
   "/docs/Plano_Mestre_de_Prontidao_e_Lancamento_Oficial_Netfits.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"a9a5-uH4bqxnKSUQgogTqioUrhsZYQIM"',
-    "mtime": "2026-09-03T23:01:15.170Z",
+    "mtime": "2026-09-03T23:27:18.900Z",
     "size": 43429,
     "path": "../public/docs/Plano_Mestre_de_Prontidao_e_Lancamento_Oficial_Netfits.docx"
   },
   "/docs/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"bab2-8DknPd1Dv3u12crHqRu0uvoOp/s"',
-    "mtime": "2026-09-03T23:01:15.171Z",
+    "mtime": "2026-09-03T23:27:18.900Z",
     "size": 47794,
     "path": "../public/docs/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).docx"
-  },
-  "/docs/Netfits_Slide_Arquitetura_Multiagentica_IA.pptx": {
-    "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "etag": '"fa79a-E+s133zKNx7Ae1OJ0c085GO0N5E"',
-    "mtime": "2026-09-03T23:01:15.174Z",
-    "size": 1025946,
-    "path": "../public/docs/Netfits_Slide_Arquitetura_Multiagentica_IA.pptx"
   },
   "/docs/estudo_impacto_finops_squad_multiagentico_netfits.docx": {
     "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "etag": '"9c5f-gNxleJiqA79WVl0jUdIcLC0pOdk"',
-    "mtime": "2026-09-03T23:01:15.172Z",
+    "mtime": "2026-09-03T23:27:18.905Z",
     "size": 40031,
     "path": "../public/docs/estudo_impacto_finops_squad_multiagentico_netfits.docx"
+  },
+  "/assets/InstitutionalWebHeader-D3429fyu.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"c84-iCmYjtLGpabUlTz0dMIp4+3Zgtc"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 3204,
+    "path": "../public/assets/InstitutionalWebHeader-D3429fyu.js"
   },
   "/docs/real x orçado.xlsx": {
     "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     "etag": '"dcb8-IVL5UCt+u3m22AYHmlnvajcTwuE"',
-    "mtime": "2026-09-03T23:01:15.173Z",
+    "mtime": "2026-09-03T23:27:18.905Z",
     "size": 56504,
     "path": "../public/docs/real x orçado.xlsx"
+  },
+  "/assets/ProductDetailSheet-IExd8ly9.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"4841-e0aplZJUjMuViS5p3Zu2fzDRf1U"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 18497,
+    "path": "../public/assets/ProductDetailSheet-IExd8ly9.js"
+  },
+  "/assets/activities-BdZfpczR.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"4ac-lOGMjHpKqS7jFxcdhaGeIkxW08I"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 1196,
+    "path": "../public/assets/activities-BdZfpczR.js"
+  },
+  "/assets/apparel-tee-Q_guZjsU.jpg": {
+    "type": "image/jpeg",
+    "etag": '"8c93-9IMGCWapgglLKVZ6+JcH9AntZZE"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 35987,
+    "path": "../public/assets/apparel-tee-Q_guZjsU.jpg"
+  },
+  "/assets/apple-D_oIvpF6.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"13b-H33HPeZATPrJPZFbHzjG1nlKvA4"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 315,
+    "path": "../public/assets/apple-D_oIvpF6.js"
+  },
+  "/assets/apparel-shorts-BogQtink.jpg": {
+    "type": "image/jpeg",
+    "etag": '"90b9-q/vdlzv7/WFO1GgumaEAQVoW0hA"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 37049,
+    "path": "../public/assets/apparel-shorts-BogQtink.jpg"
+  },
+  "/assets/apparel-socks-BVqyprxp.jpg": {
+    "type": "image/jpeg",
+    "etag": '"cbcb-XcAHWHp4T0XLVekMR2rI0TEA1mk"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 52171,
+    "path": "../public/assets/apparel-socks-BVqyprxp.jpg"
+  },
+  "/assets/admin-C60CtETc.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"acb1a-07plj3ZztAQMmDyMCzGSeiEQ3tk"',
+    "mtime": "2026-09-03T23:27:13.260Z",
+    "size": 707354,
+    "path": "../public/assets/admin-C60CtETc.js"
+  },
+  "/docs/Netfits_Slide_Arquitetura_Multiagentica_IA.pptx": {
+    "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "etag": '"fa79a-E+s133zKNx7Ae1OJ0c085GO0N5E"',
+    "mtime": "2026-09-03T23:27:18.902Z",
+    "size": 1025946,
+    "path": "../public/docs/Netfits_Slide_Arquitetura_Multiagentica_IA.pptx"
   },
   "/docs/Netfits_Slide_Arquitetura_Multiagentica_IA.pdf": {
     "type": "application/pdf",
     "etag": '"148310-/x4gqS1qv3Cu3SAVvzev/pB3mI8"',
-    "mtime": "2026-09-03T23:01:15.174Z",
+    "mtime": "2026-09-03T23:27:18.902Z",
     "size": 1344272,
     "path": "../public/docs/Netfits_Slide_Arquitetura_Multiagentica_IA.pdf"
   },
-  "/docs/xml_contabilidade/xml_fechamento_mensal_contabil.xml": {
-    "type": "application/xml",
-    "etag": '"9e4-VESQYPBYMiS7nY1cg79RtZ2yIT8"',
-    "mtime": "2026-09-03T23:01:15.167Z",
-    "size": 2532,
-    "path": "../public/docs/xml_contabilidade/xml_fechamento_mensal_contabil.xml"
+  "/assets/arrow-up-right-CmwrkrAC.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"a8-j57DY8YkYGzBW1iLscCMyRqlwpo"',
+    "mtime": "2026-09-03T23:27:13.259Z",
+    "size": 168,
+    "path": "../public/assets/arrow-up-right-CmwrkrAC.js"
+  },
+  "/assets/asics-novablast-qmC10-ut.jpg": {
+    "type": "image/jpeg",
+    "etag": '"241db-/E9M/WLD0YISZq0l7tM2bsKHgoE"',
+    "mtime": "2026-09-03T23:27:13.255Z",
+    "size": 147931,
+    "path": "../public/assets/asics-novablast-qmC10-ut.jpg"
+  },
+  "/assets/associado-DN85Ms7U.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"743e-oP39GYpxwDn4pQJNR7TExYeBz2k"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 29758,
+    "path": "../public/assets/associado-DN85Ms7U.js"
+  },
+  "/assets/auth-lC29kR0s.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"a431-pYgIxIJCtZFZ2Wy8nL3wGK3Pq3k"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 42033,
+    "path": "../public/assets/auth-lC29kR0s.js"
+  },
+  "/assets/calendar-9HQ3tX7R.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"102-Ic/BVseTz8Tb5v/arkPCESRmp60"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 258,
+    "path": "../public/assets/calendar-9HQ3tX7R.js"
+  },
+  "/assets/circle-x-DkImIdtE.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"195-2zUBMStIy++O8uEdf0VL00hnQrY"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 405,
+    "path": "../public/assets/circle-x-DkImIdtE.js"
+  },
+  "/assets/circle-check-C61WtX6h.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"ae-Lqo25BRLwtLj8bCvVYHOtm1PQ+o"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 174,
+    "path": "../public/assets/circle-check-C61WtX6h.js"
+  },
+  "/assets/contato-BeQlg1_U.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"2322-5shX0LkZHVyXR2RaTZ4QfpvBW3U"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 8994,
+    "path": "../public/assets/contato-BeQlg1_U.js"
+  },
+  "/assets/clinic-fibios-rZItzhet.jpg": {
+    "type": "image/jpeg",
+    "etag": '"15504-Nx447g+ouRXnYD5XFcTDKRuIuiQ"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 87300,
+    "path": "../public/assets/clinic-fibios-rZItzhet.jpg"
+  },
+  "/assets/credit-card-DgCeOLYs.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"d0-vWJE71k23d2Lj1idMlz0QbWIWHU"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 208,
+    "path": "../public/assets/credit-card-DgCeOLYs.js"
+  },
+  "/assets/download-QBc_7VHd.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"2049-IPNVEufPYINQYWOTzhwDnWkRLrE"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 8265,
+    "path": "../public/assets/download-QBc_7VHd.js"
+  },
+  "/assets/download-llYxf2ul.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"e9-Ae2vR7lGH3sq7Rhk/m/jJOliOK0"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 233,
+    "path": "../public/assets/download-llYxf2ul.js"
+  },
+  "/assets/dumbbell-Bw7coFza.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"231-g9he4/4D3eYdRY0B5L5p/XoyX+o"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 561,
+    "path": "../public/assets/dumbbell-Bw7coFza.js"
+  },
+  "/assets/eye-Crlmt3PP.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"fc-WMWi53PVqP8wYAxAMCBOBhc04cc"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 252,
+    "path": "../public/assets/eye-Crlmt3PP.js"
+  },
+  "/assets/faq-8oe8VUSO.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"794c-1RpGZpZzBNTlmsbjOYYErAMdPi0"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 31052,
+    "path": "../public/assets/faq-8oe8VUSO.js"
+  },
+  "/assets/dra-isabella-MfvObR2M.jpeg": {
+    "type": "image/jpeg",
+    "etag": '"353e6-iGiW+I+P4vlSkGWTqTCqXFyYI/M"',
+    "mtime": "2026-09-03T23:27:13.255Z",
+    "size": 218086,
+    "path": "../public/assets/dra-isabella-MfvObR2M.jpeg"
+  },
+  "/assets/feed-data-BWeZJ53D.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"15d6-lPJ1GO2enidaKaj6QQrqslfkdIA"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 5590,
+    "path": "../public/assets/feed-data-BWeZJ53D.js"
+  },
+  "/assets/feed-runner-CCML8scl.jpg": {
+    "type": "image/jpeg",
+    "etag": '"1109a-rn72N4h19reVexOqwyboC1r8/nA"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 69786,
+    "path": "../public/assets/feed-runner-CCML8scl.jpg"
+  },
+  "/assets/feed-voturuna-DP-oQCwr.jpg": {
+    "type": "image/jpeg",
+    "etag": '"25cd4-dJbHDt1kEVlOgJJrwK2AjyOTMBY"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 154836,
+    "path": "../public/assets/feed-voturuna-DP-oQCwr.jpg"
+  },
+  "/assets/feed-cyclist-eSoC9Il9.jpg": {
+    "type": "image/jpeg",
+    "etag": '"33772-OWVLa1BqLqHLmd/pgs1NUce/Ons"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 210802,
+    "path": "../public/assets/feed-cyclist-eSoC9Il9.jpg"
+  },
+  "/assets/file-text-DoWz9NvC.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"182-3/e8W3AUd8poX7cybaQ8CqeBzKg"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 386,
+    "path": "../public/assets/file-text-DoWz9NvC.js"
+  },
+  "/assets/gear-vest-CAbiKTT5.jpg": {
+    "type": "image/jpeg",
+    "etag": '"6b42-08WJvC4ZZnplB5JcNfARPPSPLQE"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 27458,
+    "path": "../public/assets/gear-vest-CAbiKTT5.jpg"
+  },
+  "/assets/gear-watch-CfsmAVPR.jpg": {
+    "type": "image/jpeg",
+    "etag": '"da95-/jpnlYfN6f8Ag0W3DzC4GtEibVk"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 55957,
+    "path": "../public/assets/gear-watch-CfsmAVPR.jpg"
+  },
+  "/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).pdf": {
+    "type": "application/pdf",
+    "etag": '"324004-AvW98vM8MuoLzdYCE1XIIkioOaA"',
+    "mtime": "2026-09-03T23:27:18.949Z",
+    "size": 3293188,
+    "path": "../public/Regulamento Oficial, Termos e Condições de uso e Consentimento para o uso de dados (LGPD).pdf"
+  },
+  "/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf": {
+    "type": "application/pdf",
+    "etag": '"324004-AvW98vM8MuoLzdYCE1XIIkioOaA"',
+    "mtime": "2026-09-03T23:27:18.956Z",
+    "size": 3293188,
+    "path": "../public/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+  },
+  "/assets/gift-B1OibZww.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"15e-660JeE9wnzW95a7viVQo/9hgiCg"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 350,
+    "path": "../public/assets/gift-B1OibZww.js"
+  },
+  "/assets/home-B7kr8Rd0.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"2ab1-edoK9wBKjR7Aot0qgGtQ2gbkVJ0"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 10929,
+    "path": "../public/assets/home-B7kr8Rd0.js"
+  },
+  "/assets/index-B0IKTKMX.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"ef0d-UIS0vO5MgLlOwGnsG7lxjiLCN2s"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 61197,
+    "path": "../public/assets/index-B0IKTKMX.js"
+  },
+  "/assets/index-BOXSPlKY.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"71dff-RBQOlf+1rVf//NUckTDn7uKsb0s"',
+    "mtime": "2026-09-03T23:27:13.256Z",
+    "size": 466431,
+    "path": "../public/assets/index-BOXSPlKY.js"
+  },
+  "/assets/key-round-B6wEhtV1.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"15f-i2qweybn/LN00fcOuv4F/DygvL0"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 351,
+    "path": "../public/assets/key-round-B6wEhtV1.js"
+  },
+  "/assets/levels-UfKiPpBg.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"1ad5-+ICm9imP/oeExUJ5gMoe9M5HGDA"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 6869,
+    "path": "../public/assets/levels-UfKiPpBg.js"
+  },
+  "/assets/link-2-kBA3rUb1.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"f3-igz8NO9e/JCE3iavSZO/yKDCXW0"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 243,
+    "path": "../public/assets/link-2-kBA3rUb1.js"
+  },
+  "/assets/lock-DkWzdR7C.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"ca-R0U0+32UqNkjubd4aksFA1ggty0"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 202,
+    "path": "../public/assets/lock-DkWzdR7C.js"
+  },
+  "/assets/log-in-CeJ1xRQu.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"e8-SKeEAAy7quHHor2X+7trofr2FUM"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 232,
+    "path": "../public/assets/log-in-CeJ1xRQu.js"
+  },
+  "/assets/mail-CW3v2d20.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"d6-4A1lu0x9gZb7I9NEU2VUVq7P0A8"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 214,
+    "path": "../public/assets/mail-CW3v2d20.js"
+  },
+  "/assets/map-pin-CGXp4iN4.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"ff-WATcpL9Nw1IMRj3qX4w+k/v8Swg"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 255,
+    "path": "../public/assets/map-pin-CGXp4iN4.js"
+  },
+  "/assets/market-M6oTYTxr.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"6769-AKF/PheveJp7ApQOIpQD+GWIwrk"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 26473,
+    "path": "../public/assets/market-M6oTYTxr.js"
+  },
+  "/assets/netfits-mark-BXGZywsy.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"3c-RfWDEN0MdMO3UVvuUMQZ36i63L0"',
+    "mtime": "2026-09-03T23:27:13.259Z",
+    "size": 60,
+    "path": "../public/assets/netfits-mark-BXGZywsy.js"
+  },
+  "/assets/parceiros-e28ksYrK.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"9398-Y2lQrdhQVe0c+C1RMBmNQkMimZY"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 37784,
+    "path": "../public/assets/parceiros-e28ksYrK.js"
+  },
+  "/assets/percent-DyZv7Gjl.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"286-GYmps9uqiJRd4ithCVZWNXFUM+U"',
+    "mtime": "2026-09-03T23:27:13.257Z",
+    "size": 646,
+    "path": "../public/assets/percent-DyZv7Gjl.js"
+  },
+  "/assets/netfits-logo-dark.png": {
+    "type": "image/png",
+    "etag": '"a1d87-Pa/NTaYwuhsMbd3eBDIY5B1hG4Q"',
+    "mtime": "2026-09-03T23:27:18.963Z",
+    "size": 662919,
+    "path": "../public/assets/netfits-logo-dark.png"
+  },
+  "/assets/netfits-logo-dark-D0RtFoJs.png": {
+    "type": "image/png",
+    "etag": '"a1d87-Pa/NTaYwuhsMbd3eBDIY5B1hG4Q"',
+    "mtime": "2026-09-03T23:27:13.259Z",
+    "size": 662919,
+    "path": "../public/assets/netfits-logo-dark-D0RtFoJs.png"
+  },
+  "/assets/netfits-logo-green.png": {
+    "type": "image/png",
+    "etag": '"f672d-UONhTe6r0xtWFe3iNqHdlJJNIa0"',
+    "mtime": "2026-09-03T23:27:18.964Z",
+    "size": 1009453,
+    "path": "../public/assets/netfits-logo-green.png"
+  },
+  "/assets/phone-C8314A7R.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"143-5TxbKBek+pkbKoA1Qad+pgUuSRY"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 323,
+    "path": "../public/assets/phone-C8314A7R.js"
+  },
+  "/assets/product-applewatch-LmhKu1MM.jpg": {
+    "type": "image/jpeg",
+    "etag": '"5a22-akHEXDf+Sxm6od7reGXhhcS1L10"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 23074,
+    "path": "../public/assets/product-applewatch-LmhKu1MM.jpg"
+  },
+  "/assets/product-bike-BESuKQ8H.jpg": {
+    "type": "image/jpeg",
+    "etag": '"f867-sgWHkoXMWAJnSqPqLvB0PLm9iho"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 63591,
+    "path": "../public/assets/product-bike-BESuKQ8H.jpg"
+  },
+  "/assets/product-creatine-B5HXc3oE.jpg": {
+    "type": "image/jpeg",
+    "etag": '"9a29-CHM2CHZEIbHGg24DekOXCmJOoE0"',
+    "mtime": "2026-09-03T23:27:13.255Z",
+    "size": 39465,
+    "path": "../public/assets/product-creatine-B5HXc3oE.jpg"
+  },
+  "/assets/product-electrolyte-DrWdY3I0.jpg": {
+    "type": "image/jpeg",
+    "etag": '"2d21-c5M/syVVwfw2VgYtGDV0sc1tom8"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 11553,
+    "path": "../public/assets/product-electrolyte-DrWdY3I0.jpg"
+  },
+  "/assets/product-gel-DMuC9e-t.jpg": {
+    "type": "image/jpeg",
+    "etag": '"f7e5-nJU2x2w1YTau5UOFYn9jkkI/+lA"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 63461,
+    "path": "../public/assets/product-gel-DMuC9e-t.jpg"
+  },
+  "/assets/product-glasses-BLSG7VXv.jpg": {
+    "type": "image/jpeg",
+    "etag": '"5c54-NJ9IpkGCWDQ5VB0/sc+RPY/gkt0"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 23636,
+    "path": "../public/assets/product-glasses-BLSG7VXv.jpg"
+  },
+  "/assets/product-helmet-BeQCwc7p.jpg": {
+    "type": "image/jpeg",
+    "etag": '"a296-z+6kJ4IHR88id+lTSwXCr6gPr4Q"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 41622,
+    "path": "../public/assets/product-helmet-BeQCwc7p.jpg"
+  },
+  "/assets/product-jbl-bone-BkrYMGlK.jpg": {
+    "type": "image/jpeg",
+    "etag": '"138fc-y2oxA54SUOPglpSTrP+mjvzyTcI"',
+    "mtime": "2026-09-03T23:27:13.255Z",
+    "size": 80124,
+    "path": "../public/assets/product-jbl-bone-BkrYMGlK.jpg"
+  },
+  "/assets/product-palatinose-DwQY1yxt.jpg": {
+    "type": "image/jpeg",
+    "etag": '"6df4-mCT7KDbtMC1/DTpVGicOuS/H+W4"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 28148,
+    "path": "../public/assets/product-palatinose-DwQY1yxt.jpg"
+  },
+  "/assets/product-ring-Bwo5Qd-4.jpg": {
+    "type": "image/jpeg",
+    "etag": '"3991-kkkKh9T5AZEV4Ob5FwcEClPVrq4"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 14737,
+    "path": "../public/assets/product-ring-Bwo5Qd-4.jpg"
+  },
+  "/assets/product-shoes-CUzDX92n.jpg": {
+    "type": "image/jpeg",
+    "etag": '"4beb-G3Lt2zvPENVX/zXBYYgcynWwRUY"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 19435,
+    "path": "../public/assets/product-shoes-CUzDX92n.jpg"
+  },
+  "/assets/product-swim-TYX_7gsi.jpg": {
+    "type": "image/jpeg",
+    "etag": '"6067-U8y86yrhZyAl8uJls7pidbnBPoM"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 24679,
+    "path": "../public/assets/product-swim-TYX_7gsi.jpg"
+  },
+  "/assets/product-whey-Wor1ExrG.jpg": {
+    "type": "image/jpeg",
+    "etag": '"cd09-BLHUMOW1s4s3lsEpMpqXB0k3pZ8"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 52489,
+    "path": "../public/assets/product-whey-Wor1ExrG.jpg"
+  },
+  "/assets/profile-DrZdB1Fx.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"7893-/Wo5Pc+SmzrL860XMLncDbL0VfQ"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 30867,
+    "path": "../public/assets/profile-DrZdB1Fx.js"
+  },
+  "/assets/race-berlin-CD4pj62D.jpg": {
+    "type": "image/jpeg",
+    "etag": '"37803-FkCDnP21FBGWwsdZzwZPl1USkG0"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 227331,
+    "path": "../public/assets/race-berlin-CD4pj62D.jpg"
+  },
+  "/assets/netfits-logo-ewIUGvXh.png": {
+    "type": "image/png",
+    "etag": '"209382-Cif9l3P/VaiUdPQRwq97gpHWdUM"',
+    "mtime": "2026-09-03T23:27:13.261Z",
+    "size": 2134914,
+    "path": "../public/assets/netfits-logo-ewIUGvXh.png"
+  },
+  "/assets/race-nyc-DsHtzJD5.jpg": {
+    "type": "image/jpeg",
+    "etag": '"3bcd6-Wo/9XKSM5An//XWIeJdycDDrgnA"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 244950,
+    "path": "../public/assets/race-nyc-DsHtzJD5.jpg"
+  },
+  "/assets/race-paraty-BwDctZiL.jpg": {
+    "type": "image/jpeg",
+    "etag": '"1c4fd-UUbONCMqzb7z1JxTAy4o8Jrt/DI"',
+    "mtime": "2026-09-03T23:27:13.253Z",
+    "size": 115965,
+    "path": "../public/assets/race-paraty-BwDctZiL.jpg"
+  },
+  "/assets/race-serra-fina-BvXw670x.jpg": {
+    "type": "image/jpeg",
+    "etag": '"16e62-0CH8omkX/CVS7e2ISPdnHhq3R3o"',
+    "mtime": "2026-09-03T23:27:13.254Z",
+    "size": 93794,
+    "path": "../public/assets/race-serra-fina-BvXw670x.jpg"
+  },
+  "/assets/netfits-logo-transparent.png": {
+    "type": "image/png",
+    "etag": '"209382-Cif9l3P/VaiUdPQRwq97gpHWdUM"',
+    "mtime": "2026-09-03T23:27:18.967Z",
+    "size": 2134914,
+    "path": "../public/assets/netfits-logo-transparent.png"
+  },
+  "/assets/search-CO5nOdq8.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"aa-jSVrDSWINJud7XcYy2ixVHt1AlE"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 170,
+    "path": "../public/assets/search-CO5nOdq8.js"
+  },
+  "/assets/shield-check-BmvNjtvY.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"13c-asdS4m9px7NB4lTMwcY+vXxmjec"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 316,
+    "path": "../public/assets/shield-check-BmvNjtvY.js"
+  },
+  "/assets/styles-Cce0mIlv.css": {
+    "type": "text/css; charset=utf-8",
+    "etag": '"296b8-EwvQaSyO8/V6ZDYII9cHscSSEeQ"',
+    "mtime": "2026-09-03T23:27:13.255Z",
+    "size": 169656,
+    "path": "../public/assets/styles-Cce0mIlv.css"
+  },
+  "/assets/trash-2-DwxU1CW3.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"2b2-YOb8oPIOrrD0oBxKTaOIsyW8fXk"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 690,
+    "path": "../public/assets/trash-2-DwxU1CW3.js"
+  },
+  "/assets/truck-DFshJVA3.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"455-ctV5btXwCsANZApLkcBHKncQaYk"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 1109,
+    "path": "../public/assets/truck-DFshJVA3.js"
+  },
+  "/assets/product-liquidz-Cj2dR76l.jpg": {
+    "type": "image/jpeg",
+    "etag": '"132f12-ERBl05JU9DchQK/6nDlrq15HXok"',
+    "mtime": "2026-09-03T23:27:13.261Z",
+    "size": 1257234,
+    "path": "../public/assets/product-liquidz-Cj2dR76l.jpg"
+  },
+  "/assets/user-plus-BlJPhmoI.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"137-NpdjR4b+BEch/nghgaF6O14dbHU"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 311,
+    "path": "../public/assets/user-plus-BlJPhmoI.js"
+  },
+  "/assets/users-T-613W9Z.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"133-i3B9GgB1miwTWDulsV2RAW6ddaI"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 307,
+    "path": "../public/assets/users-T-613W9Z.js"
+  },
+  "/assets/wallet-DbZPTh1b.js": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": '"124f-p3/aoh0ejf/EqSAdZ8xiYRMHuEw"',
+    "mtime": "2026-09-03T23:27:13.258Z",
+    "size": 4687,
+    "path": "../public/assets/wallet-DbZPTh1b.js"
   },
   "/docs/xml_contabilidade/xml_ledger_pontos_solvencia.xml": {
     "type": "application/xml",
     "etag": '"7ca-kATGz8x1SLGk8QlzS7UgeqgXmxQ"',
-    "mtime": "2026-09-03T23:01:15.172Z",
+    "mtime": "2026-09-03T23:27:18.903Z",
     "size": 1994,
     "path": "../public/docs/xml_contabilidade/xml_ledger_pontos_solvencia.xml"
+  },
+  "/docs/xml_contabilidade/xml_fechamento_mensal_contabil.xml": {
+    "type": "application/xml",
+    "etag": '"9e4-VESQYPBYMiS7nY1cg79RtZ2yIT8"',
+    "mtime": "2026-09-03T23:27:18.890Z",
+    "size": 2532,
+    "path": "../public/docs/xml_contabilidade/xml_fechamento_mensal_contabil.xml"
   },
   "/docs/xml_contabilidade/xml_nfse_servicos_eventos.xml": {
     "type": "application/xml",
     "etag": '"a07-ECis3dxpyVRrYxvG3YBcJ8yH1LA"',
-    "mtime": "2026-09-03T23:01:15.173Z",
+    "mtime": "2026-09-03T23:27:18.904Z",
     "size": 2567,
     "path": "../public/docs/xml_contabilidade/xml_nfse_servicos_eventos.xml"
   },
   "/docs/xml_contabilidade/xml_nfse_take_rate_marketplace.xml": {
     "type": "application/xml",
     "etag": '"a0f-ZEWWYe5lZOszlQlgopFp4HfdxTU"',
-    "mtime": "2026-09-03T23:01:15.173Z",
+    "mtime": "2026-09-03T23:27:18.903Z",
     "size": 2575,
     "path": "../public/docs/xml_contabilidade/xml_nfse_take_rate_marketplace.xml"
   }

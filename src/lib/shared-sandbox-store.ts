@@ -27,7 +27,7 @@ export interface SandboxTransaction {
   userName: string;
   amount: number; // positive for gain, negative for spent
   description: string;
-  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus";
+  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view";
   timestamp: string;
 }
 
@@ -825,6 +825,7 @@ class HomologationSandboxStore {
         partners: INITIAL_PARTNERS,
         tickets: INITIAL_TICKETS,
         orders: INITIAL_ORDERS,
+        interactions: INITIAL_INTERACTIONS,
         activeUserId: "user-athlete-1",
       };
     }
@@ -885,9 +886,11 @@ class HomologationSandboxStore {
     }
   }
 
-  public subscribe(listener: () => void) {
+  public subscribe(listener: () => void): () => void {
     this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
   }
 
   private notify() {
@@ -1154,13 +1157,15 @@ class HomologationSandboxStore {
     return newPartner;
   }
 
-  // 6 & 7. Curtida e Compartilhamento de Posts
-  public rewardEngagement(action: "like" | "share", postTitle: string) {
+  // 6 & 7. Curtida, Compartilhamento e Visualização de Posts
+  public rewardEngagement(action: "like" | "share" | "view", postTitle: string) {
     const active = this.getActiveUser();
-    const amount = action === "like" ? 5 : 10;
+    const amount = action === "like" ? 5 : action === "share" ? 10 : 15;
     const desc = action === "like"
       ? `Curtida no conteúdo: ${postTitle}`
-      : `Compartilhamento pós-visualização: ${postTitle}`;
+      : action === "share"
+      ? `Compartilhamento pós-visualização: ${postTitle}`
+      : `Visualização completa: ${postTitle}`;
 
     active.nfsBalance += amount;
     this.state.transactions.unshift({
@@ -1249,6 +1254,7 @@ class HomologationSandboxStore {
       partners: JSON.parse(JSON.stringify(INITIAL_PARTNERS)),
       tickets: JSON.parse(JSON.stringify(INITIAL_TICKETS)),
       orders: JSON.parse(JSON.stringify(INITIAL_ORDERS)),
+      interactions: JSON.parse(JSON.stringify(INITIAL_INTERACTIONS)),
       activeUserId: "user-athlete-1",
     };
 

@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "typecheck": "tsc --noEmit",
+    "validate": "node scripts/validate-routes.cjs && tsc --noEmit",
+    "qa:check": "node scripts/validate-routes.cjs && tsc --noEmit && vite build",
+    "build": "node scripts/validate-routes.cjs && tsc --noEmit && vite build",
+    "build:dev": "node scripts/validate-routes.cjs && tsc --noEmit && vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."

@@ -244,9 +244,13 @@ export const authStore = {
     }
 
     // Cadastrar no Banco Provisório Compartilhado e definir como ativo deste dispositivo
+    const isEmail = identifier.includes("@");
     const regResult = sharedSandboxStore.registerAthlete({
-      identifier,
       fullName,
+      email: isEmail ? identifier : `${identifier.replace(/\D/g, "")}@user.netfits.com.br`,
+      phone: isEmail ? "(11) 99999-0000" : identifier,
+      cpf: "000.000.000-00",
+      birthDate: "1990-01-01",
       referralCode,
     });
 

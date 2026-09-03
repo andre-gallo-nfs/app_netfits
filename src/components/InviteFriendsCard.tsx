@@ -148,7 +148,7 @@ export function InviteFriendsCard() {
 
             <div className="flex items-center gap-2 bg-muted rounded-full pl-4 pr-1 py-1 mb-5 ring-1 ring-black/5">
               <span className="flex-1 text-xs font-medium truncate text-muted-foreground">
-                {INVITE_URL}
+                {inviteUrl}
               </span>
               <button
                 onClick={copyLink}

@@ -27,8 +27,11 @@ const INITIAL_MESSAGES: Message[] = [
 ];
 
 import { useOperationalParams } from "@/lib/operational-params-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { useAuth } from "@/lib/auth-store";
 
 export function NetfitAiAssistant() {
+  const { currentUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState("");
@@ -157,10 +160,14 @@ export function NetfitAiAssistant() {
     setIsTyping(true);
 
     // Tabulação automática da pergunta do usuário para a Central de Inteligência
+    const senderRole = currentUser?.userCategory === "associado" ? "associado" : currentUser?.userCategory === "parceiro" ? "parceiro" : "atleta";
+    const senderName = currentUser?.fullName || "Atleta Netfits";
+    const senderContact = currentUser?.email || currentUser?.phone || "chat-anonimo";
+
     sharedSandboxStore.addInteraction({
-      sourceRole: activeUser.type === "associado" ? "associado" : activeUser.type === "partner" ? "parceiro" : "atleta",
-      sourceName: activeUser.fullName,
-      sourceContact: activeUser.identifier,
+      sourceRole: senderRole,
+      sourceName: senderName,
+      sourceContact: senderContact,
       channel: "chat",
       subject: `Consulta AI: ${query.slice(0, 40)}...`,
       intent: "duvida",
