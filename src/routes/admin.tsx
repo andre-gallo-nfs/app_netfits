@@ -19,7 +19,7 @@ import { operationalParamsStore, useOperationalParams } from "@/lib/operational-
 import { sharedSandboxStore, SandboxInteraction } from "@/lib/shared-sandbox-store";
 import { qaEngine, QaTestRunResult } from "@/lib/qa-autonomous-engine";
 import netfitsLogo from "@/assets/netfits-logo.png";
-import { InstitutionalWebHeader } from "@/components/InstitutionalWebHeader";
+import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -935,91 +935,7 @@ function AdminDashboardPage() {
   }, [isLive]);
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
-        <InstitutionalWebHeader />
-        <div className="flex-1 flex flex-col justify-center items-center px-4 py-12">
-          <div className="w-full max-w-md bg-zinc-900 border border-purple-500/40 rounded-3xl p-8 shadow-2xl space-y-6 text-left animate-in fade-in zoom-in-95">
-          <div className="text-center space-y-2">
-            <div className="size-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-lime-400 p-0.5 mx-auto shadow-xl mb-3">
-              <div className="w-full h-full bg-zinc-950 rounded-[14px] grid place-items-center">
-                <ShieldAlert className="size-7 text-lime-400" />
-              </div>
-            </div>
-            <h1 className="text-xl font-black text-white tracking-tight">
-              Acesso Restrito — Netfits ADMIN
-            </h1>
-            <p className="text-xs text-zinc-400">
-              Autenticação obrigatória para acesso às métricas executivas e parâmetros da operação.
-            </p>
-          </div>
-
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-zinc-300">E-mail Administrativo *</label>
-              <input
-                type="text"
-                value={adminUser}
-                onChange={(e) => setAdminUser(e.target.value)}
-                placeholder="admin@netfits.com.br"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-zinc-300">Senha Master *</label>
-              <input
-                type="password"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3.5 rounded-xl font-bold text-xs bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 active:scale-98"
-            >
-              <ShieldAlert className="size-4 text-lime-400" />
-              Autenticar Acesso Executivo
-            </button>
-          </form>
-
-          <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 text-[11px] text-zinc-400 text-center">
-            <p>🔒 Credenciais de Teste Admin:</p>
-            <p className="font-mono text-zinc-300 mt-0.5"><b>admin@netfits.com.br</b> | <b>Admin@2026</b></p>
-          </div>
-        </div>
-
-        {/* Atalhos Rápidos de Abas (Pills Nav) */}
-        <div className="max-w-7xl mx-auto pt-3 flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none">
-          {TAB_DEFINITIONS.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  toast.info(`Navegando para: ${tab.label}`);
-                }}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
-                  isActive
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 ring-1 ring-purple-400"
-                    : "bg-zinc-950 text-zinc-400 border border-zinc-800 hover:bg-zinc-800 hover:text-zinc-200"
-                }`}
-              >
-                <span>{tab.iconEmoji}</span>
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+    return <AdminAuthGuard onUnlocked={() => setIsAuthenticated(true)} />;
   }
 
   const activePillar = ADMIN_PILLARS.find((p) => p.tabIds.includes(activeTab)) || ADMIN_PILLARS[0];

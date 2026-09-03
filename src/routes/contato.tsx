@@ -44,9 +44,21 @@ function ContatoPage() {
   });
 
   const [submittedTicket, setSubmittedTicket] = useState<string | null>(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
+
+  useEffect(() => {
+    if (cooldownSeconds > 0) {
+      const timer = setTimeout(() => setCooldownSeconds((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldownSeconds]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (cooldownSeconds > 0) {
+      alert(`Por favor, aguarde ${cooldownSeconds} segundos antes de enviar uma nova mensagem.`);
+      return;
+    }
     if (!formData.name || !formData.email || !formData.message) {
       alert("Por favor, preencha todos os campos obrigatórios (Nome, E-mail e Mensagem).");
       return;
@@ -56,6 +68,7 @@ function ContatoPage() {
     const newTicket = `NFS-TICKET-2026-${randomNum}`;
 
     setSubmittedTicket(newTicket);
+    setCooldownSeconds(30);
     trackSupportTicket(newTicket, formData.subject);
 
     // Sincronizar com o Banco Provisório Compartilhado
