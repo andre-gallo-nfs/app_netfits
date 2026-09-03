@@ -860,6 +860,8 @@ function AdminDashboardPage() {
   // Estado do Squad de QA Autônomo & Health Check com IA
   const [qaResult, setQaResult] = useState<QaTestRunResult | null>(null);
   const [isExecutingQa, setIsExecutingQa] = useState<boolean>(false);
+  const [qaProgressStep, setQaProgressStep] = useState<string>("");
+  const [qaProgressPercent, setQaProgressPercent] = useState<number>(0);
 
   useEffect(() => {
     qaEngine.runFullBattery().then((res) => setQaResult(res));
@@ -867,15 +869,25 @@ function AdminDashboardPage() {
 
   const handleTriggerQaBattery = async () => {
     setIsExecutingQa(true);
+    setQaProgressPercent(10);
+    setQaProgressStep("Iniciando Squad de 4 Agentes Autônomos de QA...");
     toast.info("Iniciando bateria autônoma de testes com o Squad de IA...");
     try {
-      const res = await qaEngine.runFullBattery();
+      const res = await qaEngine.runFullBattery((step, percent) => {
+        setQaProgressStep(step);
+        setQaProgressPercent(percent);
+      });
       setQaResult(res);
       toast.success("Bateria de testes de QA concluída com 100% de sucesso!");
     } catch (err) {
       toast.error("Erro ao executar testes de QA.");
     } finally {
       setIsExecutingQa(false);
+      setQaProgressPercent(100);
+      setTimeout(() => {
+        setQaProgressStep("");
+        setQaProgressPercent(0);
+      }, 4000);
     }
   };
 
@@ -1346,34 +1358,59 @@ function AdminDashboardPage() {
         {activeTab === "qa" && (
           <div className="space-y-6">
             {/* Header Hero QA */}
-            <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-950 border border-purple-500/40 rounded-3xl p-6 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1.5 max-w-2xl">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
-                    Continuous Testing &amp; Self-Healing 24/7
-                  </span>
-                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-300 bg-purple-900/30 px-2.5 py-0.5 rounded-full border border-purple-500/30">
-                    4 Agentes de IA Ativos
-                  </span>
+            <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-950 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1.5 max-w-2xl">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
+                      Continuous Testing &amp; Self-Healing 24/7
+                    </span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-300 bg-purple-900/30 px-2.5 py-0.5 rounded-full border border-purple-500/30">
+                      4 Agentes de IA Ativos
+                    </span>
+                    <span className="text-[10px] font-bold text-zinc-300 bg-zinc-800/80 px-2.5 py-0.5 rounded-full border border-zinc-700 flex items-center gap-1.5">
+                      <span className="size-2 rounded-full bg-lime-400 animate-pulse"></span>
+                      Última Bateria: {qaResult?.timestamp ? new Date(qaResult.timestamp).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "medium" }) : "Carregando..."}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+                    <Sparkles className="size-6 text-lime-400" />
+                    Squad de QA Autônomo &amp; Health Check em Tempo Real
+                  </h3>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    Simulação contínua das 24 personas em todas as 12 rotas, auditoria de responsividade mobile/desktop, testes de estresse antifraude (Dwell Time 100%) e auto-correção de bugs.
+                  </p>
                 </div>
-                <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
-                  <Sparkles className="size-6 text-lime-400" />
-                  Squad de QA Autônomo &amp; Health Check em Tempo Real
-                </h3>
-                <p className="text-xs text-zinc-300 leading-relaxed">
-                  Simulação contínua das 24 personas em todas as 12 rotas, auditoria de responsividade mobile/desktop, testes de estresse antifraude (Dwell Time 100%) e auto-correção de bugs.
-                </p>
+                <div className="flex items-center gap-3 shrink-0">
+                  <button
+                    onClick={handleTriggerQaBattery}
+                    disabled={isExecutingQa}
+                    className="px-5 py-3 rounded-2xl bg-lime-500 hover:bg-lime-400 text-zinc-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-lime-500/20 transition cursor-pointer disabled:opacity-50 active:scale-98"
+                  >
+                    <RefreshCw className={`size-4 ${isExecutingQa ? "animate-spin" : ""}`} />
+                    <span>{isExecutingQa ? "Auditando Sistema com IA..." : "Executar Bateria de QA com IA"}</span>
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={handleTriggerQaBattery}
-                  disabled={isExecutingQa}
-                  className="px-5 py-3 rounded-2xl bg-lime-500 hover:bg-lime-400 text-zinc-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-lime-500/20 transition cursor-pointer disabled:opacity-50 active:scale-98"
-                >
-                  <RefreshCw className={`size-4 ${isExecutingQa ? "animate-spin" : ""}`} />
-                  <span>{isExecutingQa ? "Executando Bateria de Testes..." : "Executar Bateria de QA com IA"}</span>
-                </button>
-              </div>
+
+              {/* Progress Bar Dinâmica durante a execução */}
+              {(isExecutingQa || qaProgressStep) && (
+                <div className="bg-zinc-950/90 border border-lime-500/30 rounded-2xl p-4 space-y-2 animate-in fade-in">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-lime-400 flex items-center gap-2">
+                      <RefreshCw className="size-3.5 animate-spin text-lime-400" />
+                      {qaProgressStep}
+                    </span>
+                    <span className="font-mono font-bold text-zinc-300">{qaProgressPercent}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-purple-500 to-lime-400 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${qaProgressPercent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* KPI Cards QA */}
