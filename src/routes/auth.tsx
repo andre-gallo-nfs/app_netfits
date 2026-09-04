@@ -5,9 +5,7 @@ import {
   CheckCircle2, XCircle, Eye, EyeOff, Sparkles, ArrowRight, KeyRound,
   LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar
 } from "lucide-react";
-import netfitsLogo from "@/assets/netfits-logo.png";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
-import netfitsMark from "@/assets/netfits-mark.png";
 import {
   authStore,
   detectIdentifierType,
@@ -227,23 +225,23 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center px-4 py-8 max-w-md mx-auto font-sans">
-      {/* Header Branding (Mesma configuração do Header do Feed com contorno em Verde Limão) */}
+    <div className="min-h-screen bg-white text-zinc-900 flex flex-col justify-center px-4 py-8 max-w-md mx-auto font-sans">
+      {/* Header Branding (Logo verde no fundo preto e marca Netfits em preto no fundo branco) */}
       <div className="text-center mb-6 space-y-2">
-        <div className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-zinc-200 dark:bg-zinc-800 border-2 border-lime-400 rounded-2xl shadow-md mb-2">
+        <div className="inline-flex items-center justify-center gap-2.5 mb-2">
           <img
             src={netfitsDarkLogo}
             alt="Netfits"
-            className="h-9 w-auto object-contain shrink-0 rounded-lg shadow-xs"
+            className="h-10 w-auto object-contain shrink-0 rounded-lg shadow-sm"
           />
-          <span className="font-extrabold tracking-tight text-2xl text-zinc-900 dark:text-white">
+          <span className="font-extrabold tracking-tight text-3xl text-zinc-900">
             Netfits
           </span>
         </div>
-        <h1 className="text-2xl font-black text-foreground tracking-tight">
+        <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
           {mode === "register" ? "Crie sua conta Netfits" : "Acesse sua conta"}
         </h1>
-        <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+        <p className="text-xs text-zinc-500 max-w-xs mx-auto">
           {mode === "register"
             ? "Cadastre-se com seu E-mail, Celular ou CPF e receba +50 nfs bônus."
             : "Digite suas credenciais para continuar no aplicativo."}
