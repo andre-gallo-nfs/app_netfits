@@ -9,25 +9,17 @@ export interface LaunchShopOptions {
 }
 
 /**
- * Utilitário cliente para disparo de sessão Single Sign-On (SSO)
- * e abertura imediata do catálogo oficial da Rock Encantech (Mkplace).
+ * Retorna a URL completa da Loja Oficial Rock Encantech (Mkplace)
+ * com o token SSO (JWT RS256) acoplado para renderização em tela (iframe ou webview).
  */
-export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
+export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
   const activeUser = sharedSandboxStore.getActiveUser();
-  const targetUserId = options.userId || activeUser?.id || "usr_101";
-
-  if (!options.silent) {
-    toast.info("Conectando à Loja Oficial Netfits...", {
-      description: "Sincronizando saldo de pontos e dados de entrega via Rock Encantech.",
-      duration: 3500,
-    });
-  }
+  const targetUserId = userId || activeUser?.id || "usr_101";
 
   try {
     let token = "";
-    let webviewUrl = "https://docs.apps.mkplace.com.br";
+    let webviewUrl = "https://docs.apps.mkplace.com.br/docs/api-reference/lojas-perfil/obter-perfil-do-cliente";
 
-    // 1. Tenta obter o token gerado pelo servidor oficial da Netfits
     const res = await fetch("/api/marketplace/mkplace/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -41,7 +33,6 @@ export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
         webviewUrl = data.webviewUrl;
       }
     } else {
-      // Fallback local se estiver offline ou em simulação
       token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im5ldGZpdHMtbWtwbGFjZS1rZXktMjAyNiJ9." +
         btoa(JSON.stringify({
           sub: targetUserId,
@@ -55,32 +46,38 @@ export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
         ".NETFITS_FALLBACK_SIGNATURE";
     }
 
-    // 2. Monta a URL de destino com o token SSO acoplado
     const separator = webviewUrl.includes("?") ? "&" : "?";
-    const finalUrl = `${webviewUrl}${separator}token=${encodeURIComponent(token)}`;
+    return `${webviewUrl}${separator}token=${encodeURIComponent(token)}`;
+  } catch (err) {
+    console.warn("[Mkplace Client] Fallback de URL da loja:", err);
+    return "https://docs.apps.mkplace.com.br/docs/api-reference/lojas-perfil/obter-perfil-do-cliente";
+  }
+}
 
-    // 3. Verifica se está rodando em app nativo Capacitor (iOS / Android)
-    const isNative = nativeBridge.isNativePlatform();
+/**
+ * Utilitário para abertura externa da Loja Oficial quando expressamente solicitado.
+ */
+export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
+  const finalUrl = await getMkplaceStoreUrl(options.userId);
 
-    if (isNative) {
-      // Em ambiente nativo, abre via Browser nativo / In-App WebView
-      const capBrowser = (window as any).Capacitor?.Plugins?.Browser;
-      if (capBrowser && typeof capBrowser.open === "function") {
-        await capBrowser.open({ url: finalUrl, presentationStyle: "popover" });
-        return;
-      }
-    }
+  if (!options.silent) {
+    toast.info("Conectando à Loja Oficial Netfits...", {
+      description: "Sincronizando saldo de pontos e dados de entrega via Rock Encantech.",
+      duration: 3500,
+    });
+  }
 
-    // 4. Em ambiente Web convencional, abre em nova aba (ou mesma janela se solicitado)
-    if (typeof window !== "undefined") {
-      const target = options.newTab === false ? "_self" : "_blank";
-      window.open(finalUrl, target, "noopener,noreferrer");
+  const isNative = nativeBridge.isNativePlatform();
+  if (isNative) {
+    const capBrowser = (window as any).Capacitor?.Plugins?.Browser;
+    if (capBrowser && typeof capBrowser.open === "function") {
+      await capBrowser.open({ url: finalUrl, presentationStyle: "popover" });
+      return;
     }
-  } catch (err: any) {
-    console.error("[Mkplace Client] Erro ao abrir loja parceira:", err);
-    // Em caso de falha de rede, abre a URL base diretamente
-    if (typeof window !== "undefined") {
-      window.open("https://docs.apps.mkplace.com.br", "_blank", "noopener,noreferrer");
-    }
+  }
+
+  if (typeof window !== "undefined") {
+    const target = options.newTab === false ? "_self" : "_blank";
+    window.open(finalUrl, target, "noopener,noreferrer");
   }
 }

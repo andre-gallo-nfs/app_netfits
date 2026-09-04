@@ -19,7 +19,6 @@ import { useEffect } from "react";
 import { nativeBridge } from "@/lib/native-bridge";
 
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
-import { launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -64,7 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen w-full flex justify-center bg-zinc-200/40">
       <div className="w-full max-w-md min-h-screen bg-background flex flex-col relative shadow-2xl ring-1 ring-black/5">
         <TopBar />
-        <main className="flex-1 overflow-y-auto pb-28">{children}</main>
+        <main className={`flex-1 ${path === "/market" ? "overflow-hidden pb-16" : "overflow-y-auto pb-28"}`}>{children}</main>
         <NetfitAiAssistant />
         {/* Footer Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */}
         <nav className="fixed bottom-0 w-full max-w-md bg-white text-zinc-500 border-t border-zinc-200 px-6 pt-3 pb-8 flex items-center justify-between z-40 shadow-lg">
@@ -75,11 +74,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={t.to}
                 to={t.to}
-                onClick={() => {
-                  if (t.to === "/market") {
-                    launchMkplaceShop();
-                  }
-                }}
                 className={`flex flex-col items-center gap-1 transition-all active:scale-95 ${
                   active ? "text-purple-600 font-bold" : "text-zinc-500 hover:text-zinc-900"
                 }`}
