@@ -1,4 +1,6 @@
 import process from "node:process";
+import { Buffer } from "node:buffer";
+import crypto from "node:crypto";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { H as H3Event, t as toResponse } from "../_libs/h3-v2.mjs";
 import { y as resolveManifestAssetLink, u as resolveManifestCssLink, k as rootRouteId, z as getNormalizedURL, A as getOrigin, C as normalizeSsrResponse, D as attachRouterServerSsrUtils, E as defineHandlerCallback, F as createSerializationAdapter, G as createRawStreamRPCPlugin, i as invariant, g as isNotFound, m as isRedirect, H as isResolvedRedirect, I as replaceSsrResponse, J as mergeHeaders, K as executeRewriteInput, L as stripSsrResponseBody, M as defaultSerovalPlugins, N as makeSerovalPlugin, s as getScriptPreloadAttrs, O as getStylesheetHref, P as isSsrResponse } from "../_libs/tanstack__router-core.mjs";
@@ -7,7 +9,6 @@ import { c as createMemoryHistory } from "../_libs/tanstack__history.mjs";
 import { j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { r as renderRouterToStream, R as RouterProvider } from "../_libs/tanstack__react-router.mjs";
 import "../_libs/unenv.mjs";
-
 
 
 
@@ -86,7 +87,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-FQbTaqVR.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-8g_zb9uq.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -1163,7 +1164,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-BaLv3VOf.mjs").then((n) => n.r),
+    import("./router-ByDwDdkJ.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1497,22 +1498,505 @@ async function handleServerRoutes({ getRouter, request, url, executeRouter, cont
   }
   return normalizeSsrResponse(response);
 }
-let globalServerUsers = [];
+const DEFAULT_DEV_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCPXPvtJvFAshot
+ugqXTex0iQLzhjNuA6/asTQOTNShZBq3rT2/T6/nVGzL04RoA/n6IfMHki4tJ3mE
+Rt+/DGKW8mOcdTtqjNVuAEc9YCiWub3mTmO4ACzCJ9aD7EaqekxOhOOMRsJI7ZUh
+0ZaFtJT7cd8ipPtEj/UYHmWRskmHAKdXQXokEAVVeD0UGrKVaf+D0jOO50X4Ion7
+E9zIV0oHeEYWTl9kYWyMn9jiRGQjKkNx6a6rjV0amrhurkiJ8Sq7AY000ipJWCiq
+HzEcAzT0/NDmDhvVgTrbFDa17JNZ8SYKQOwIHD58Va2MGjRVUYwOnYOAR5YwgUo+
+z77R6n3lAgMBAAECggEAFF/gpemc69bkBY+lJa+7ZSx7sORntsDrYydAALBGn9E8
+QtJqLiBDHZtQAv/Cl43JHxVoFrFdwqkTigsQjXRTJqS4J2o50YDGbGW5ui1KV3F6
+XZrSbToJImbLA+C2gk/zPE2CkVMVFYw+X5oLzGDHs5yRW7kaxLm42X6obLZr4LWu
+npIlcsf2c0LiAkd8kFPAPpTXgbGgpffqakvRBD8hIdHiyh29JRd7JIPlVGr/+z5A
+kcZsXNlqYvqPVxB/GHtT70HSElskmM9sR87UC68D41QLdWTL31FhVOgFvCYYn/hp
+sMwO+Q6zezTBIu5LRfK31TSQwhSpBF+sd2kIYk5ZGQKBgQC/rxTnlHKIYUQgK64+
+FqE2wYQ/9++P9JbP8/WYZ2oYZiqUjVG1U8NhZFf1Xi1+YE6pO7miPUQsNrzObWtV
+JnjtHSplpy13ES+6lYpVO3AmC+GT8Dv6d3BeG8pZq0GmlNqSil7R3jxu6wZBD2vT
+VAFZFiNijV0gUaupooRl4i6E+wKBgQC/d1a8F/WgtNcfPV4jsWdqMyFQCUax5vIE
+ZdOwuYkp6HaFLGa5ROCpeVWiwGIyYlKChLbHWiwv8dvC7k0PneRphbcD0Tls6ail
+u3FoGB74o0uJOHBNV1Mxx41LlWtNWiQbvUrwMKUIMLg+fCWpEMKnnwc9hBw75w+n
+V5glxtDSnwKBgQC9xKXbhvnEzxbVCqmcSmccgIVflySSzkEoa4vvcCJ3OV5aZ3ZH
+IEBEAUWbY7uCa/I0VS640hLV+vL9IxKp4EbD6KX6sYGvaVJpVHb5Xrju0cBn5+RZ
+WTnj0XuJPqTmOGQTw+2PtIb8AK3WZ2AGfho/ik1J2k4iGvjqHj0ZaM1JVQKBgQCu
+2IRUcGzWvU5WMOxvG+qciOS6+j2c6JHKglK26DfiFW9mXg3Q0p13Jl6VqaoC6NcA
+acGgezAu+Gb/tC6bPE0CMCHZUo9mblqcPnhp3t0pobWxMeEcP8qxgtH9XA4JLXAc
+BNkSTtnmiNc3+JdLtQqNmCQ8gRBng7I/1zYSCWVZcQKBgCM8rsBTLptqgmFLbsZ7
+/yFEWefRrMtU5q3isL8ZZugXsg7Wbv5H05mMO5T4SRnuF6gRtlAi3iaKK0EtKCUp
+noPcTD1gvcvudvWs+8GVFwhYfAmtm1wve0uN+IHTbfp/RFjyjXdoE0Ny4ioDFx7h
+TNlXWM+bPNRm5QYCdFlHiCRJ
+-----END PRIVATE KEY-----`;
+const DEFAULT_DEV_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj1z77SbxQLIaLboKl03s
+dIkC84YzbgOv2rE0DkzUoWQat609v0+v51Rsy9OEaAP5+iHzB5IuLSd5hEbfvwxi
+lvJjnHU7aozVbgBHPWAolrm95k5juAAswifWg+xGqnpMToTjjEbCSO2VIdGWhbSU
++3HfIqT7RI/1GB5lkbJJhwCnV0F6JBAFVXg9FBqylWn/g9IzjudF+CKJ+xPcyFdK
+B3hGFk5fZGFsjJ/Y4kRkIypDcemuq41dGpq4bq5IifEquwGNNNIqSVgoqh8xHAM0
+9PzQ5g4b1YE62xQ2teyTWfEmCkDsCBw+fFWtjBo0VVGMDp2DgEeWMIFKPs++0ep9
+5QIDAQAB
+-----END PUBLIC KEY-----`;
+function getMkplaceConfig() {
+  const env = typeof process !== "undefined" && process.env ? process.env : {};
+  const hasRealKey = Boolean(env.MKPLACE_PRIVATE_KEY && env.MKPLACE_PRIVATE_KEY.length > 50);
+  return {
+    storeId: env.MKPLACE_STORE_ID || "netfits-store-prod",
+    accountId: env.MKPLACE_ACCOUNT_ID || "netfits-acc-2026",
+    keyId: env.MKPLACE_KEY_ID || "nfs-mkplace-rsa-v1",
+    privateKey: hasRealKey ? env.MKPLACE_PRIVATE_KEY.replace(/\\n/g, "\n") : DEFAULT_DEV_PRIVATE_KEY,
+    publicKey: env.MKPLACE_PUBLIC_KEY ? env.MKPLACE_PUBLIC_KEY.replace(/\\n/g, "\n") : DEFAULT_DEV_PUBLIC_KEY,
+    webviewUrl: env.MKPLACE_WEBVIEW_URL || "https://shop.netfits.com.br",
+    webhookSecret: env.MKPLACE_WEBHOOK_SECRET || "sec_nfs_mkplace_default_2026",
+    isMock: !hasRealKey
+  };
+}
+function base64UrlEncode(str) {
+  const buf = typeof str === "string" ? Buffer.from(str, "utf8") : str;
+  return buf.toString("base64").replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+function base64UrlDecode(str) {
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) {
+    base64 += "=";
+  }
+  return Buffer.from(base64, "base64").toString("utf8");
+}
+function generateMkplaceJwt(user, expiresInSeconds = 86400) {
+  const config = getMkplaceConfig();
+  const now = Math.floor(Date.now() / 1e3);
+  const header = {
+    alg: "RS256",
+    typ: "JWT",
+    kid: config.keyId
+  };
+  const customerId = user.id;
+  const payload = {
+    exp: now + expiresInSeconds,
+    iat: now,
+    sub: customerId,
+    typ: "Bearer",
+    azp: "customer-services",
+    realm_access: {
+      roles: [
+        "profile:roles=STORE",
+        `profile:accountId=${config.accountId}`,
+        `profile:storeId=${config.storeId}`,
+        `profile:customerId=${customerId}`
+      ]
+    },
+    scope: "email openid profile",
+    email_verified: true,
+    clientId: "customer-services",
+    customerId,
+    name: user.fullName || "Atleta Netfits",
+    preferred_username: user.email,
+    storeId: config.storeId,
+    email: user.email
+  };
+  const headerEncoded = base64UrlEncode(JSON.stringify(header));
+  const payloadEncoded = base64UrlEncode(JSON.stringify(payload));
+  const signingInput = `${headerEncoded}.${payloadEncoded}`;
+  const signer = crypto.createSign("RSA-SHA256");
+  signer.update(signingInput);
+  signer.end();
+  const signature = signer.sign(config.privateKey);
+  const signatureEncoded = base64UrlEncode(signature);
+  return `${signingInput}.${signatureEncoded}`;
+}
+function verifyMkplaceJwt(token) {
+  try {
+    const parts = token.trim().split(".");
+    if (parts.length !== 3) {
+      return { valid: false, error: "Formato de JWT inválido (esperado header.payload.signature)" };
+    }
+    const [headerB64, payloadB64, signatureB64] = parts;
+    const config = getMkplaceConfig();
+    const verifier = crypto.createVerify("RSA-SHA256");
+    verifier.update(`${headerB64}.${payloadB64}`);
+    verifier.end();
+    const signatureBuf = Buffer.from(signatureB64.replace(/-/g, "+").replace(/_/g, "/"), "base64");
+    const isSignatureValid = verifier.verify(config.publicKey, signatureBuf);
+    if (!isSignatureValid) {
+      return { valid: false, error: "Assinatura RS256 inválida para a chave pública registrada." };
+    }
+    const payloadJson = JSON.parse(base64UrlDecode(payloadB64));
+    const now = Math.floor(Date.now() / 1e3);
+    if (payloadJson.exp && payloadJson.exp < now) {
+      return { valid: false, error: "Token expirado.", payload: payloadJson };
+    }
+    return { valid: true, payload: payloadJson };
+  } catch (err) {
+    return { valid: false, error: err.message || "Erro ao verificar JWT" };
+  }
+}
+function getMkplaceWebviewUrl(user) {
+  const config = getMkplaceConfig();
+  const token = generateMkplaceJwt(user);
+  const baseUrl = config.webviewUrl.replace(/\/+$/, "");
+  return `${baseUrl}?token=${encodeURIComponent(token)}`;
+}
+function buildMkplaceProfile(user) {
+  const rawPhone = user.phone || "11999998888";
+  const digits = rawPhone.replace(/\D/g, "");
+  const areaCode = digits.length >= 10 ? digits.slice(-11, -9) : "11";
+  const number = digits.length >= 10 ? digits.slice(-9) : digits;
+  const rawCpf = (user.cpf || "12345678900").replace(/\D/g, "");
+  return {
+    name: user.fullName || "Atleta Netfits",
+    email: user.email || "atleta@netfits.com.br",
+    document: rawCpf,
+    type: "individual",
+    addresses: [
+      {
+        isPrimary: true,
+        receiverName: user.fullName || "Atleta Netfits",
+        street: user.street || "Av. Paulista",
+        number: user.number || "1000",
+        complement: user.complement || "Apto Netfits",
+        neighborhood: user.neighborhood || "Bela Vista",
+        city: user.city || "São Paulo",
+        state: user.state || "São Paulo",
+        shortState: user.shortState || "SP",
+        zipcode: user.zipcode || "01310-100",
+        countryCode: "BR",
+        type: "residential"
+      }
+    ],
+    phones: [
+      {
+        countryCode: "55",
+        areaCode: areaCode || "11",
+        number: number || "999998888",
+        isWhatsapp: true
+      }
+    ],
+    gender: user.gender || null,
+    verifyToken: `vrf_${crypto.createHash("sha256").update(String(user.id || "") + String(user.email || "")).digest("hex").slice(0, 16)}`
+  };
+}
+function buildMkplaceLoyaltyWallet(nfsBalance) {
+  const pointValueBrl = 0.01;
+  return {
+    wallets: [
+      {
+        id: "netfits_loyalty_wallet_main",
+        name: "Pontos Netfits nfs",
+        balance: Math.max(0, nfsBalance),
+        currency: "NFS",
+        limit: 1e6,
+        exchangeRateBrl: pointValueBrl
+      }
+    ],
+    totalBalance: Math.max(0, nfsBalance),
+    totalValueBrl: Number((Math.max(0, nfsBalance) * pointValueBrl).toFixed(2)),
+    currency: "NFS",
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+}
+function processMkplaceOrderNotification(event, isClubMember = false) {
+  const { order } = event;
+  const totalPaid = order.totals.totalPaidBrl || 0;
+  const baseRate = 4;
+  const effectiveRate = isClubMember ? baseRate * 2 : baseRate;
+  const baseCashback = Math.floor(totalPaid * effectiveRate);
+  const firstPurchaseBonus = order.isFirstPurchase ? 100 : 0;
+  const totalNfsEarned = baseCashback + firstPurchaseBonus;
+  const friendCommissionNfs = order.referralCode ? Math.floor(baseCashback * 0.05) : 0;
+  const takeRatePct = 6;
+  const netfitsTakeRateBrl = Number((totalPaid * (takeRatePct / 100)).toFixed(2));
+  const settlement = /* @__PURE__ */ new Date();
+  settlement.setDate(settlement.getDate() + 14);
+  const auditLogId = `AUDIT-MKP-${Date.now()}-${Math.floor(Math.random() * 1e5)}`;
+  return {
+    success: true,
+    statusCode: 200,
+    message: `Pedido Mkplace ${order.orderId} (Status: ${order.status}) processado com sucesso.`,
+    nfsEarned: totalNfsEarned,
+    cashbackRate: `${effectiveRate.toFixed(2)} nfs por R$ 1,00`,
+    firstPurchaseBonusNfs: firstPurchaseBonus,
+    friendCommissionNfs,
+    netfitsTakeRateBrl,
+    netfitsTakeRatePct: takeRatePct,
+    auditLogId,
+    settlementDate: settlement.toLocaleDateString("pt-BR")
+  };
+}
+const DEFAULT_PRESEEDED_USERS = [
+  {
+    id: "usr_101",
+    fullName: "Kite Larsen",
+    email: "atleta@netfits.com.br",
+    phone: "11999998888",
+    cpf: "12345678900",
+    nfsBalance: 1850,
+    userCategory: "atleta",
+    street: "Rua Oscar Freire",
+    number: "500",
+    complement: "Apto 42",
+    neighborhood: "Cerqueira César",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "01426-001",
+    registeredAt: "2026-01-15T10:00:00Z"
+  },
+  {
+    id: "usr_102",
+    fullName: "André Gallo",
+    email: "andre.gallo@netfits.com.br",
+    phone: "11987654321",
+    cpf: "98765432111",
+    nfsBalance: 12500,
+    userCategory: "associado",
+    street: "Av. Brigadeiro Faria Lima",
+    number: "2000",
+    complement: "Conjunto 81",
+    neighborhood: "Itaim Bibi",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "01452-000",
+    registeredAt: "2026-02-01T14:30:00Z"
+  },
+  {
+    id: "usr_104",
+    fullName: "Luísa Formigari",
+    email: "luisa.formigari@netfits.com.br",
+    phone: "11988887777",
+    cpf: "98765432122",
+    nfsBalance: 8400,
+    userCategory: "associado",
+    street: "Rua Bela Cintra",
+    number: "1200",
+    complement: "Apto 91",
+    neighborhood: "Consolação",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "01415-000",
+    registeredAt: "2026-02-01T14:30:00Z"
+  },
+  {
+    id: "usr_103",
+    fullName: "Dra. Isabella Santos",
+    email: "isabella@netfits.com.br",
+    phone: "11977776666",
+    cpf: "45678912344",
+    nfsBalance: 4200,
+    userCategory: "especialista",
+    street: "Alameda Santos",
+    number: "1800",
+    complement: "Consultório 12",
+    neighborhood: "Cerqueira César",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "01418-102",
+    registeredAt: "2026-03-10T09:15:00Z"
+  }
+];
+let globalServerUsers = [...DEFAULT_PRESEEDED_USERS];
 let lastSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
 const handler = createStartHandler(defaultStreamHandler);
+function getCorsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Netfits-Signature, X-Netfits-Merchant-Id, Idempotency-Key",
+    "Content-Type": "application/json"
+  };
+}
+function resolveUserFromToken(token) {
+  if (!token) return null;
+  const cleanToken = token.replace(/^Bearer\s+/i, "").trim();
+  const verification = verifyMkplaceJwt(cleanToken);
+  const payload = verification.payload;
+  if (!payload) return null;
+  const customerId = payload.customerId || payload.sub;
+  const user = globalServerUsers.find(
+    (u) => u.id === customerId || u.email === payload.email || u.cpf === customerId
+  );
+  if (user) return user;
+  return {
+    id: customerId,
+    fullName: payload.name || "Atleta Netfits",
+    email: payload.email || `${customerId}@netfits.com.br`,
+    phone: "11999998888",
+    cpf: "12345678900",
+    nfsBalance: 1500,
+    userCategory: "atleta"
+  };
+}
 const server = {
   async fetch(req) {
     const url = new URL(req.url);
-    if (url.pathname === "/api/users-sync" || url.pathname === "/api/users-sync/") {
-      const corsHeaders = {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Content-Type": "application/json"
-      };
-      if (req.method === "OPTIONS") {
-        return new Response(null, { status: 204, headers: corsHeaders });
+    const corsHeaders = getCorsHeaders();
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+    if (url.pathname === "/customer/profile" || url.pathname === "/customer/profile/") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({
+            exceptionType: "ForbiddenError",
+            message: "You have not permission for this operation (customer/customer/get)"
+          }),
+          { status: 403, headers: corsHeaders }
+        );
       }
+      const user = resolveUserFromToken(authHeader);
+      if (!user) {
+        return new Response(
+          JSON.stringify({
+            exceptionType: "NotFoundError",
+            message: "Customer profile not found"
+          }),
+          { status: 404, headers: corsHeaders }
+        );
+      }
+      if (req.method === "GET") {
+        const profile = buildMkplaceProfile(user);
+        return new Response(JSON.stringify(profile), { status: 200, headers: corsHeaders });
+      }
+      if (req.method === "PUT") {
+        try {
+          const body = await req.json();
+          if (body.name) user.fullName = body.name;
+          if (Array.isArray(body.phones) && body.phones[0]?.number) {
+            user.phone = `${body.phones[0].areaCode || "11"}${body.phones[0].number}`;
+          }
+          if (Array.isArray(body.addresses) && body.addresses[0]) {
+            const addr = body.addresses[0];
+            if (addr.street) user.street = addr.street;
+            if (addr.number) user.number = addr.number;
+            if (addr.complement !== void 0) user.complement = addr.complement;
+            if (addr.neighborhood) user.neighborhood = addr.neighborhood;
+            if (addr.city) user.city = addr.city;
+            if (addr.state) user.state = addr.state;
+            if (addr.shortState) user.shortState = addr.shortState;
+            if (addr.zipcode) user.zipcode = addr.zipcode;
+          }
+          if (body.gender !== void 0) user.gender = body.gender;
+          const updatedProfile = buildMkplaceProfile(user);
+          return new Response(JSON.stringify(updatedProfile), { status: 200, headers: corsHeaders });
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ exceptionType: "BadRequestError", message: err.message || "Invalid payload" }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+      }
+    }
+    if (url.pathname === "/loyalty/wallet" || url.pathname === "/loyalty/wallet/") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({
+            exceptionType: "ForbiddenError",
+            message: "Autenticação obrigatória para consulta de carteira"
+          }),
+          { status: 403, headers: corsHeaders }
+        );
+      }
+      const user = resolveUserFromToken(authHeader);
+      const balance = user ? user.nfsBalance ?? 1500 : 1500;
+      const walletResponse = buildMkplaceLoyaltyWallet(balance);
+      return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
+    }
+    if (url.pathname === "/api/marketplace/mkplace/webhook" || url.pathname === "/api/marketplace/mkplace/webhook/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const customerId = body?.order?.customerId;
+          const user = globalServerUsers.find((u) => u.id === customerId || u.email === body?.order?.customerEmail);
+          const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
+          const result = processMkplaceOrderNotification(body, isClubMember);
+          if (user && result.nfsEarned > 0) {
+            user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
+            lastSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
+          }
+          return new Response(JSON.stringify(result), { status: 200, headers: corsHeaders });
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ success: false, error: err.message || "Erro no processamento do webhook" }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+      }
+    }
+    if (url.pathname === "/api/marketplace/mkplace/token" || url.pathname === "/api/marketplace/mkplace/token/") {
+      let targetUser = globalServerUsers[0];
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          if (body?.userId) {
+            const found = globalServerUsers.find((u) => u.id === body.userId || u.email === body.userId);
+            if (found) targetUser = found;
+          }
+        } catch {
+        }
+      } else if (req.method === "GET") {
+        const userId = url.searchParams.get("userId") || url.searchParams.get("email");
+        if (userId) {
+          const found = globalServerUsers.find((u) => u.id === userId || u.email === userId);
+          if (found) targetUser = found;
+        }
+      }
+      const token = generateMkplaceJwt(targetUser);
+      const webviewUrl = getMkplaceWebviewUrl(targetUser);
+      const config = getMkplaceConfig();
+      return new Response(
+        JSON.stringify({
+          success: true,
+          user: {
+            id: targetUser.id,
+            fullName: targetUser.fullName,
+            email: targetUser.email
+          },
+          token,
+          webviewUrl,
+          expiresInSeconds: 86400,
+          keyId: config.keyId,
+          storeId: config.storeId,
+          accountId: config.accountId,
+          isMock: config.isMock
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+    if (url.pathname === "/api/marketplace/mkplace/status" || url.pathname === "/api/marketplace/mkplace/status/") {
+      const config = getMkplaceConfig();
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          partner: "Rock Encantech / Mkplace",
+          mode: config.isMock ? "sandbox_mock_keys" : "live_credentials",
+          config: {
+            storeId: config.storeId,
+            accountId: config.accountId,
+            keyId: config.keyId,
+            webviewUrl: config.webviewUrl
+          },
+          endpoints: [
+            { method: "GET", path: "/customer/profile", description: "Obter perfil do cliente (Bearer RS256)" },
+            { method: "PUT", path: "/customer/profile", description: "Atualizar perfil do cliente (Bearer RS256)" },
+            { method: "GET", path: "/loyalty/wallet", description: "Consultar carteira de pontos (Bearer RS256)" },
+            { method: "POST", path: "/api/marketplace/mkplace/webhook", description: "Recebimento de webhooks de pedidos/pagamentos" },
+            { method: "POST", path: "/api/marketplace/mkplace/token", description: "Emissão interna de token SSO para Webview" }
+          ],
+          operationalRules: {
+            cashbackNormalNfsPerBrl: 4,
+            cashbackClubNfsPerBrl: 8,
+            firstPurchaseBonusNfs: 100,
+            friendCommissionPct: 5,
+            netfitsTakeRatePct: 6,
+            settlementPeriodDays: 14
+          }
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+    if (url.pathname === "/api/users-sync" || url.pathname === "/api/users-sync/") {
       if (req.method === "POST") {
         try {
           const body = await req.json();

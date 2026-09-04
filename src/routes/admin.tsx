@@ -20,6 +20,7 @@ import { sharedSandboxStore, SandboxInteraction } from "@/lib/shared-sandbox-sto
 import { qaEngine, QaTestRunResult } from "@/lib/qa-autonomous-engine";
 import netfitsLogo from "@/assets/netfits-logo.png";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
+import { AdminMkplaceIntegrationTab } from "@/components/admin/AdminMkplaceIntegrationTab";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -44,7 +45,7 @@ const TIME_PERIODS: { id: PeriodType; label: string; shortLabel: string; factor:
   { id: "year", label: "🚀 No Ano (2026)", shortLabel: "Ano", factor: 11.40, desc: "Acumulado no ano de 2026" },
 ];
 
-type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "interactions";
+type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "mkplace" | "interactions";
 
 export interface AdminPillarDef {
   id: string;
@@ -86,7 +87,7 @@ export const ADMIN_PILLARS: AdminPillarDef[] = [
     subtitle: "Parâmetros, Shop, Feed & Interações",
     emoji: "⚙️",
     color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40",
-    tabIds: ["params", "points", "feed", "market", "interactions"],
+    tabIds: ["params", "points", "feed", "market", "mkplace", "interactions"],
   },
 ];
 
@@ -107,6 +108,7 @@ const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: an
   { id: "points", label: "Programa de Pontos nfs", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo", pillarId: "operations" },
   { id: "feed", label: "Feed & Retail Media", iconEmoji: "📰", icon: Rss, category: "Mídias & Anúncios", pillarId: "operations" },
   { id: "market", label: "Marketplace (Shop)", iconEmoji: "🛍️", icon: ShoppingBag, category: "Vendas & Sellers", pillarId: "operations" },
+  { id: "mkplace", label: "Rock Encantech (Mkplace)", iconEmoji: "⚡", icon: Zap, category: "Integração B2B", pillarId: "operations" },
   { id: "interactions", label: "Central de Interações & Insights", iconEmoji: "💡", icon: Send, category: "Omnichannel BI", pillarId: "operations" },
 ];
 
@@ -2443,6 +2445,9 @@ function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Tab: Rock Encantech (Mkplace) Integration */}
+        {activeTab === "mkplace" && <AdminMkplaceIntegrationTab />}
 
         {/* Tab: Gestão de Associados */}
         {activeTab === "associados" && (

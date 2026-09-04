@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, X } from "lucide-react";
+import { Search, X, Zap, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
 import { useMemo, useState, useRef } from "react";
 import { marketCategories, marketProducts } from "@/lib/feed-data";
 import { ProductDetailSheet, type DetailProduct } from "@/components/ProductDetailSheet";
@@ -696,6 +697,44 @@ function MarketPage() {
               <X className="size-3" />
             </button>
           )}
+        </div>
+      </section>
+
+      {/* Rock Encantech (Mkplace) SSO Banner */}
+      <section className="px-4 pb-3">
+        <div className="bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-3.5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                  <Zap className="size-3 text-purple-400" />
+                  Rock Encantech Integrado
+                </span>
+                <span className="text-[10px] text-lime-400 font-bold">
+                  4 a 8 nfs por R$ gasto
+                </span>
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-white">
+                Loja Parceira Oficial com Login SSO & Pontos Netfits
+              </h3>
+              <p className="text-[11px] text-zinc-400 leading-snug">
+                Ganhe até 8 nfs por R$ gasto (2x no Club) e bônus de 100 nfs na 1ª compra via Rock Encantech.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                toast.success("Autenticando via Rock Encantech SSO...", {
+                  description: "Redirecionando para a loja parceira com saldo de pontos integrado."
+                });
+                window.open("https://docs.apps.mkplace.com.br", "_blank");
+              }}
+              className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg shadow-purple-600/20 shrink-0"
+            >
+              <span>Acessar Loja Parceira</span>
+              <ExternalLink className="size-3.5" />
+            </button>
+          </div>
         </div>
       </section>
 
