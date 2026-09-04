@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { nativeBridge } from "@/lib/native-bridge";
 
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -74,6 +75,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={t.to}
                 to={t.to}
+                onClick={() => {
+                  if (t.to === "/market") {
+                    launchMkplaceShop();
+                  }
+                }}
                 className={`flex flex-col items-center gap-1 transition-all active:scale-95 ${
                   active ? "text-purple-600 font-bold" : "text-zinc-500 hover:text-zinc-900"
                 }`}
