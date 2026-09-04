@@ -115,21 +115,21 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   maxInteractionsPerMinute: 10,
   duplicateMediaFilterActive: true,
 
-  nfsPerWorkout: 50,
+  nfsPerWorkout: 25,
   nfsPerLoyaltyDeclaration: 20,
 
-  netfitsTakeRatePctFromGmv: 8.0,
+  netfitsTakeRatePctFromGmv: 6.0,
   associadoShareOfNetfitsRevenuePct: 10.0,
-  normalUserReferralSharePct: 10.0,
+  normalUserReferralSharePct: 5.0,
   normalUserNewReferralBonusNfs: 50,
 
   cppAcumuloBrl: 0.02,
   cppResgateBrl: 0.01,
   costPerProvisionedPointBrl: 0.01,
   netfitsClubMonthlyFeeBrl: 19.90,
-  nfsEarnedPerBrlSpent: 0.50,
-  nfsEarnedPerBrlSpentDouble: 1.00,
-  shopFirstPurchaseBonusNfs: 150,
+  nfsEarnedPerBrlSpent: 4.0,
+  nfsEarnedPerBrlSpentDouble: 8.0,
+  shopFirstPurchaseBonusNfs: 100,
   pointsValidityMonths: 24,
   targetBreakagePct: 12.0,
 
@@ -141,7 +141,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 294000.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v4";
+const STORAGE_KEY = "netfits_operational_params_v5";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

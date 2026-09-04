@@ -893,11 +893,11 @@ function ParceirosRegistrationPage() {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    "Cashback de 2 nfs por R$ 1,00 gasto no e-commerce",
+                    "Cashback de 4 nfs por R$ 1,00 gasto no e-commerce",
                     "15% de Desconto em Suplementos e Vestuário",
                     "1ª Sessão de Avaliação de Bioimpedância Grátis",
                     "Isenção Total da Taxa de Matrícula",
-                    "Acúmulo de +50 nfs por treino ou consulta declarada",
+                    "Acúmulo de +25 nfs por treino ou consulta declarada",
                     "20% de Desconto em Tratamentos de Recovery",
                   ].map((preset) => (
                     <button

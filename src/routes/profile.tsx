@@ -339,12 +339,12 @@ function ProfilePage() {
                     <Sparkles className="size-3.5" /> Link Direto de Cadastro (Member-Get-Member)
                   </span>
                   <span className="text-[10px] font-bold text-lime-600 dark:text-lime-400 bg-lime-500/10 px-2 py-0.5 rounded-full border border-lime-500/20">
-                    +50 nfs por amigo
+                    +50 nfs + 5% comissão
                   </span>
                 </div>
 
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Ao enviar este link direto, seu amigo abre a página de cadastro com seu código <strong className="text-foreground">{activeUser.referralCode}</strong> pré-preenchido automaticamente, sem precisar digitar nada!
+                  Ao enviar este link direto, seu amigo abre a página de cadastro com seu código <strong className="text-foreground">{activeUser.referralCode}</strong> pré-preenchido automaticamente! Você ganha +50 nfs no cadastro dele e <strong className="text-foreground">5% de comissão recorrente</strong> em nfs sobre todas as compras dele no Netfits Shop!
                 </p>
 
                 <div className="flex items-center gap-2 bg-card p-2.5 rounded-xl border border-border">
@@ -372,7 +372,7 @@ function ProfilePage() {
                     type="button"
                     onClick={() => {
                       const directUrl = `https://app-netfits.vercel.app/auth?ref=${activeUser.referralCode}`;
-                      const msg = `Vem para o Netfits comigo! Cadastre-se pelo meu link de convite e receba +50 nfs bônus de boas-vindas: ${directUrl}`;
+                      const msg = `Vem para o Netfits comigo! Cadastre-se pelo meu link de convite, receba +50 nfs bônus de boas-vindas e aproveite 4 nfs/R$ no Shop: ${directUrl}`;
                       window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
                     }}
                     className="flex-1 bg-[#25D366] text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-95 transition"

@@ -104,7 +104,7 @@ function InstitutionalHomePage() {
             </div>
             <h3 className="text-xl font-bold text-white">1. Feed Editorial & Recompensas</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Leitura curada de artigos esportivos, postagens de treinos com GPS de wearables (Garmin, Strava) e acúmulo de pontos por engajamento (+5 nfs por ler, +10 nfs por compartilhar, +50 nfs por treino).
+              Leitura curada de artigos esportivos, postagens de treinos com GPS de wearables (Garmin, Strava) e acúmulo de pontos por engajamento (+5 nfs por ler, +10 nfs por compartilhar, +25 nfs por treino).
             </p>
           </div>
 
@@ -112,9 +112,9 @@ function InstitutionalHomePage() {
             <div className="size-12 rounded-2xl bg-lime-400/20 border border-lime-400/30 grid place-items-center text-lime-400">
               <ShoppingBag className="size-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">2. Netfits Shop com 2 nfs / R$</h3>
+            <h3 className="text-xl font-bold text-white">2. Netfits Shop com 4 nfs / R$</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Marketplace integrado com os maiores agregadores de e-commerce esportivo do Brasil. Ganhe 2,00 nfs por R$ 1,00 gasto no Shop com pagamento parcial/total com pontos e rastreabilidade total.
+              Marketplace integrado com os maiores agregadores de e-commerce esportivo do Brasil. Ganhe 4,00 nfs por R$ 1,00 gasto no Shop com pagamento parcial/total com pontos e rastreabilidade total.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ function InstitutionalHomePage() {
             </div>
             <h3 className="text-xl font-bold text-white">3. Netfits Club (Fase 2)</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Assinatura por R$ 19,90/mês que dobra seus pontos em todas as compras no Shop (4,00 nfs por R$ 1,00) e concede cupons e acessos VIP a eventos e corridas de rua.
+              Assinatura por R$ 19,90/mês que dobra seus pontos em todas as compras no Shop (8,00 nfs por R$ 1,00) e concede cupons e acessos VIP a eventos e corridas de rua.
             </p>
           </div>
 

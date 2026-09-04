@@ -83,8 +83,7 @@ export function InviteFriendsCard() {
             {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe nfs <span className="text-brand">para sempre</span>.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">
-            Todo amigo que entrar pelo seu link vira parte da sua tribo.
-            Sempre que eles acumularem netfits, você também recebe. Sem limite.
+            Todo amigo que entrar pelo seu link ganha +50 nfs de boas-vindas e você recebe 5% de comissão recorrente sobre todas as compras deles no Shop. Sem limite.
           </p>
 
           <div className="grid grid-cols-3 gap-2 mb-5">

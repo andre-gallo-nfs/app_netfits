@@ -3120,7 +3120,7 @@ function AdminDashboardPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <ParamInput
-                    label="nfs por Treino Validadog (Smart Fit/GPS)"
+                    label="nfs por Treino Validado (Smart Fit/GPS)"
                     unit="nfs / treino"
                     value={operationalParams.nfsPerWorkout}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerWorkout: Number(v) }))}
@@ -3245,7 +3245,7 @@ function AdminDashboardPage() {
                 </h3>
               </div>
               <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3 py-1 rounded-full border border-lime-400/20 font-bold">
-                +50 nfs / treino validado
+                +{operationalParams.nfsPerWorkout || 25} nfs / treino validado
               </span>
             </div>
 
@@ -4233,40 +4233,40 @@ function AdminDashboardPage() {
         {(activeTab === "results" || activeTab === "controls") && (() => {
           const isFase2 = drePhase === "fase2";
 
-          const takeRatePct = operationalParams.netfitsTakeRatePctFromGmv ?? 8.0;
+          const takeRatePct = operationalParams.netfitsTakeRatePctFromGmv ?? 6.0;
           const clubMonthlyFeeBrl = operationalParams.netfitsClubMonthlyFeeBrl ?? 19.90;
           const provisionCostPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.01;
 
           // Receitas por Fonte (Fase 1 vs Fase 2 — Alinhadas aos Novos Parâmetros Padrão)
-          // Shop GMV R$ 4.000.000,00 * Take Rate 8,0% = R$ 320.000,00
-          const dreRevMarketplace = (4000000 * (takeRatePct / 100)) * pf; // Comissões Marketplace (8,0% Take-Rate)
+          // Shop GMV R$ 4.000.000,00 * Take Rate 6,0% = R$ 240.000,00
+          const dreRevMarketplace = (4000000 * (takeRatePct / 100)) * pf; // Comissões Marketplace (Take-Rate parametrizado)
           const dreRevMedia = 250000 * pf;       // Receita Mídias & Anúncios Patrocinados (Feed)
           const dreRevEvents = 200000 * pf;      // Inscrições em Provas & Eventos Esportivos Credenciados
           const dreRevB2b = 123850 * pf;         // Parcerias & Licenciamento B2B
           const dreRevClub = isFase2 ? (45000 * clubMonthlyFeeBrl * 12 / 12) * pf : 0; // Assinaturas Netfits Club (Fase 2 R$19,90/mês)
 
           // Receita Operacional Bruta
-          const dreGrossRev = dreRevMarketplace + dreRevMedia + dreRevEvents + dreRevB2b + dreRevClub; // R$ 893.850 (F1) | R$ 1.789.350 (F2)
+          const dreGrossRev = dreRevMarketplace + dreRevMedia + dreRevEvents + dreRevB2b + dreRevClub;
           const dreSalesTaxes = dreGrossRev * 0.060; // -6.0% DAS/ISS/PIS/COFINS
           const dreGrossNetRev = dreGrossRev - dreSalesTaxes;
 
           // Provisão do Passivo de Pontos Emitidos Válidos Não Resgatados (R$ 0,01 por ponto)
-          const validIssuedPointsCount = Math.round(10272000 * pf);
-          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint; // R$ 102.720 * pf (R$ 0,01 / nfs)
+          const validIssuedPointsCount = Math.round(18000000 * pf);
+          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint;
           const provisionPctOfGross = (drePointsProvision / dreGrossRev) * 100;
 
           // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting — 12% a.a.)
-          const expiredPointsCount = Math.round(1232640 * pf); // 12% Breakage de Pontos Expirados
-          const drePointsProvisionReversal = expiredPointsCount * provisionCostPerPoint; // R$ 12.326,40 * pf
+          const expiredPointsCount = Math.round(validIssuedPointsCount * ((operationalParams.targetBreakagePct ?? 12.0) / 100));
+          const drePointsProvisionReversal = expiredPointsCount * provisionCostPerPoint;
           const reversalPctOfGross = (drePointsProvisionReversal / dreGrossRev) * 100;
 
           // Receita Operacional Líquida Ajustada (após a Provisão e a Reversão de Pontos Expirados)
           const dreAdjustedNetRev = dreGrossNetRev - drePointsProvision + drePointsProvisionReversal;
           const adjustedNetRevPctOfGross = (dreAdjustedNetRev / dreGrossRev) * 100;
 
-          // Custos Diretos dos Serviços & Resgates (CSP - Resgate CPP R$ 0,01)
-          const dreShoppingRedemptionCost = 120000 * pf;
-          const dreAssociadoCommissionCost = 65000 * pf;
+          // Custos Diretos dos Serviços & Resgates (CSP - Base de Resgate e Repasses)
+          const dreShoppingRedemptionCost = Math.round((4000000 * (operationalParams.nfsEarnedPerBrlSpent ?? 4.0) * 0.25 * (operationalParams.cppResgateBrl ?? 0.01)) * pf);
+          const dreAssociadoCommissionCost = Math.round(dreRevMarketplace * ((operationalParams.associadoShareOfNetfitsRevenuePct ?? 10.0) / 100));
           const dreAcquiringFeesCost = 35000 * pf;
           const dreTotalCsp = dreShoppingRedemptionCost + dreAssociadoCommissionCost + dreAcquiringFeesCost;
 

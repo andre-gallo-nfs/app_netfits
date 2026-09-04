@@ -37,18 +37,18 @@ const MOCK_ASSOCIADO_DATA = {
   exclusiveUrl: "https://netfits.app/r/GALLO-NETFITS",
   
   // Modelo Financeiro do Business Plan:
-  // GMV Shopping -> Netfits Take-Rate (8%) -> Repasse ao Associado (10% da Receita Netfits)
-  netfitsTakeRatePct: 8.0, // Netfits cobra 8% do GMV do Shopping
+  // GMV Shopping -> Netfits Take-Rate (6%) -> Repasse ao Associado (10% da Receita Netfits)
+  netfitsTakeRatePct: 6.0, // Netfits cobra 6% do GMV do Shopping
   associadoShareOfNetfitsRevenuePct: 10.0, // Associado recebe 10% da receita da Netfits
   
   totalCapturedUsers: 1428,
   activeUsersThisMonth: 1248,
   retentionRatePct: 87.4,
   monthlyGmvBrl: 184920.0,
-  netfitsRevenueBrl: 27738.0, // 15% de R$ 184.920
-  monthlyCommissionBrl: 8321.4, // 30% de R$ 27.738
+  netfitsRevenueBrl: 11095.2, // 6% de R$ 184.920
+  monthlyCommissionBrl: 1109.52, // 10% de R$ 11.095,20
   totalCommissionPaidBrl: 58450.0,
-  pendingPaymentBrl: 8321.4,
+  pendingPaymentBrl: 1109.52,
   nextPayoutDate: "05/09/2026",
 
   syntheticActionsReport: {

@@ -129,8 +129,8 @@ export const REGISTERED_MARKETPLACE_SELLERS: Record<string, PartnerApiConfig> = 
     webhookUrl: "https://api.liquidz.com.br/webhooks/netfits",
     catalogEndpoint: "https://api.liquidz.com.br/v1/products/sync",
     status: "active",
-    takeRatePercentage: 8.0,
-    cashbackRewardMultiplier: 2.0,
+    takeRatePercentage: 6.0,
+    cashbackRewardMultiplier: 4.0,
     settlementGracePeriodDays: 14,
   },
   probiotica: {
@@ -142,8 +142,8 @@ export const REGISTERED_MARKETPLACE_SELLERS: Record<string, PartnerApiConfig> = 
     webhookUrl: "https://probiotica.vtexcommercestable.com.br/api/webhooks/netfits",
     catalogEndpoint: "https://probiotica.vtexcommercestable.com.br/api/catalog_system/pub/products/search",
     status: "active",
-    takeRatePercentage: 8.0,
-    cashbackRewardMultiplier: 2.0,
+    takeRatePercentage: 6.0,
+    cashbackRewardMultiplier: 4.0,
     settlementGracePeriodDays: 14,
   },
   netshoes: {
@@ -154,8 +154,8 @@ export const REGISTERED_MARKETPLACE_SELLERS: Record<string, PartnerApiConfig> = 
     apiSecret: "sec_ns_7728194019283748",
     webhookUrl: "https://api.netshoes.com.br/v1/orders/netfits/notifications",
     status: "active",
-    takeRatePercentage: 8.0,
-    cashbackRewardMultiplier: 2.0,
+    takeRatePercentage: 6.0,
+    cashbackRewardMultiplier: 4.0,
     settlementGracePeriodDays: 30,
   },
   centauro: {
@@ -166,8 +166,8 @@ export const REGISTERED_MARKETPLACE_SELLERS: Record<string, PartnerApiConfig> = 
     apiSecret: "sec_ct_1192837485920192",
     webhookUrl: "https://api.centauro.com.br/affiliates/netfits",
     status: "active",
-    takeRatePercentage: 8.0,
-    cashbackRewardMultiplier: 2.0,
+    takeRatePercentage: 6.0,
+    cashbackRewardMultiplier: 4.0,
     settlementGracePeriodDays: 30,
   },
   decathlon: {
@@ -178,8 +178,8 @@ export const REGISTERED_MARKETPLACE_SELLERS: Record<string, PartnerApiConfig> = 
     apiSecret: "sec_dc_9928174829102938",
     webhookUrl: "https://decathlon.vtexcommercestable.com.br/api/webhooks/netfits",
     status: "active",
-    takeRatePercentage: 8.0,
-    cashbackRewardMultiplier: 2.0,
+    takeRatePercentage: 6.0,
+    cashbackRewardMultiplier: 4.0,
     settlementGracePeriodDays: 30,
   }
 };
@@ -225,7 +225,7 @@ export function processMarketplaceOrderWebhook(
   const auditLogId = `AUDIT-ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
   const totalPaid = payload.order.totals.totalPaidBrl || 0;
-  const baseMultiplier = seller ? seller.cashbackRewardMultiplier : 2.0;
+  const baseMultiplier = seller ? seller.cashbackRewardMultiplier : 4.0;
   const effectiveMultiplier = isClubMember ? baseMultiplier * 2.0 : baseMultiplier;
   const nfsEarned = Math.floor(totalPaid * effectiveMultiplier);
 

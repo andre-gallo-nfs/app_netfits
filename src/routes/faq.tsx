@@ -63,9 +63,9 @@ const FAQ_ITEMS: FaqItem[] = [
     id: "faq_2",
     category: "shop",
     categoryLabel: "Netfits Shop & Cashback",
-    question: "Como funciona o acúmulo de 2 nfs a cada R$ 1,00 gasto no Netfits Shop?",
+    question: "Como funciona o acúmulo de 4 nfs a cada R$ 1,00 gasto no Netfits Shop?",
     answer:
-      "Nas compras realizadas no Netfits Shop através de nossos agregadores parceiros, o usuário ganha 2,00 pontos nfs para cada R$ 1,00 pago em dinheiro. O valor do cashback entra como pendente e é liberado na carteira após o prazo legal de arrependimento (7 a 14 dias). Usuários do Netfits Club recebem o dobro (4,00 nfs por R$ 1,00)."
+      "Nas compras realizadas no Netfits Shop através de nossos agregadores parceiros, o usuário ganha 4,00 pontos nfs para cada R$ 1,00 pago em dinheiro. O valor do cashback entra como pendente e é liberado na carteira após o prazo legal de arrependimento (7 a 14 dias). Usuários do Netfits Club recebem o dobro (8,00 nfs por R$ 1,00)."
   },
   {
     id: "faq_3",
@@ -105,7 +105,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Dispositivos & Wearables",
     question: "Como conectar smartwatches e wearables como Garmin, Strava ou Apple Watch?",
     answer:
-      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) concedendo bônus automáticos de +50 nfs por treino validado."
+      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) concedendo bônus automáticos de +25 nfs por treino validado."
   },
   {
     id: "faq_7",
@@ -113,7 +113,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Netfits Club",
     question: "O que é o Netfits Club e quais são as vantagens da assinatura de R$ 19,90/mês?",
     answer:
-      "O Netfits Club é o clube de benefícios e saúde da Fase 2 do ecossistema Netfits. Por R$ 19,90/mês, os membros ganham cashback em dobro no Shop (4,00 nfs por R$ 1,00 gasto), bônus de 150 nfs na 1ª compra, desconto em exames de check-up e prioridade em inscrições de corridas de rua."
+      "O Netfits Club é o clube de benefícios e saúde da Fase 2 do ecossistema Netfits. Por R$ 19,90/mês, os membros ganham cashback em dobro no Shop (8,00 nfs por R$ 1,00 gasto), bônus de 100 nfs na 1ª compra, desconto em exames de check-up e prioridade em inscrições de corridas de rua."
   }
 ];
 
@@ -408,7 +408,7 @@ function FaqPage() {
                 <ul className="list-disc pl-5 space-y-1 text-zinc-300">
                   <li><b>Prática de Atividades Físicas:</b> Validação de treinos via Apple Health, Google Fit, Garmin e GPS;</li>
                   <li><b>Consumo de Conteúdos no Feed:</b> Visualização e interações válidas com publicações e vídeos;</li>
-                  <li><b>Compras no Netfits Shop:</b> Cashback de 2,00 nfs por R$ 1,00 gasto junto a sellers credenciados;</li>
+                  <li><b>Compras no Netfits Shop:</b> Cashback de 4,00 nfs por R$ 1,00 gasto junto a sellers credenciados (8,00 nfs por R$ 1,00 no Netfits Club);</li>
                   <li><b>Indicação de Novos Usuários:</b> Bônus de boas-vindas via código de indicação do Usuário ou Associados;</li>
                   <li><b>Interação com Parceiros:</b> Check-in e desafios em academias, clínicas e assessorias esportivas.</li>
                 </ul>
