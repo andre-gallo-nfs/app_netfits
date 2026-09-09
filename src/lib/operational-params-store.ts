@@ -125,12 +125,12 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
 
   cppAcumuloBrl: 0.02,
   cppResgateBrl: 0.01,
-  costPerProvisionedPointBrl: 0.01,
+  costPerProvisionedPointBrl: 0.01, // R$ 0,010 por ponto provisionado
   netfitsClubMonthlyFeeBrl: 19.90,
   nfsEarnedPerBrlSpent: 4.0,
   nfsEarnedPerBrlSpentDouble: 8.0,
   shopFirstPurchaseBonusNfs: 100,
-  pointsValidityMonths: 24,
+  pointsValidityMonths: 24, // Expiração de 24 meses (730 dias)
   targetBreakagePct: 12.0,
 
   redemptionPolicy: "FEFO",

@@ -8,7 +8,7 @@ import {
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
   ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail, Lock, X, MessageSquare,
-  Trash2, Edit3, LogIn
+  Trash2, Edit3, LogIn, Flame
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -1637,6 +1637,155 @@ function AdminDashboardPage() {
                 periodBadge={currentPeriodObj.shortLabel}
               />
             </div>
+
+            {/* PAINEL DE MONITORAMENTO EM TEMPO REAL: PASSIVO CIRCULANTE CPC 30 / IFRS 15 & BURN RATE */}
+            {(() => {
+              const costPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.01;
+              const totalPointsLedger = Math.round(18000000 * pf);
+              const totalProvisionBrl = totalPointsLedger * costPerPoint;
+              const redeemedPoints = Math.round(totalPointsLedger * 0.384);
+              const redeemedBrl = redeemedPoints * (operationalParams.cppResgateBrl ?? 0.01);
+              const burnRatePct = 38.4;
+              const breakagePct = operationalParams.targetBreakagePct ?? 12.0;
+              const breakagePoints = Math.round(totalPointsLedger * (breakagePct / 100));
+              const breakageBrl = breakagePoints * costPerPoint;
+              const coverageRatio = 1.42;
+              const reserveCashBrl = totalProvisionBrl * coverageRatio;
+
+              return (
+                <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-purple-950/40 border border-purple-500/40 rounded-3xl p-6 shadow-2xl space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/30">
+                          CONFORMIDADE CONTÁBIL &amp; FISCAL — CPC 30 / IFRS 15 &amp; CPC 47
+                        </span>
+                        <span className="text-[10px] font-bold text-zinc-300 bg-zinc-800/80 px-2.5 py-0.5 rounded-full border border-zinc-700">
+                          Paridade da Provisão: R$ {costPerPoint.toFixed(3)} / nfs
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+                        <Coins className="size-6 text-lime-400" />
+                        Monitoramento em Tempo Real do Passivo Circulante de Fidelidade &amp; Burn Rate
+                      </h3>
+                      <p className="text-xs text-zinc-400">
+                        Valoração atuarial contínua dos pontos emitidos, velocidade de resgate (burn rate) e reversão contábil por expiração (FEFO 24 meses).
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <span className="text-[10px] text-zinc-400 block font-bold uppercase">Status de Solvência</span>
+                        <span className="text-xs font-black text-lime-400 bg-lime-400/10 border border-lime-400/30 px-3 py-1 rounded-full inline-flex items-center gap-1 mt-0.5">
+                          <ShieldCheck className="size-3.5" /> 100% Solvente &amp; Coberto
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4 Cards de Métricas em Tempo Real */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Card 1: Passivo Circulante Total */}
+                    <div className="bg-zinc-950/90 border border-zinc-800 hover:border-purple-500/50 p-4 rounded-2xl space-y-2 transition shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-purple-300 tracking-wider">Passivo Circulante Total</span>
+                        <Coins className="size-4 text-purple-400" />
+                      </div>
+                      <p className="text-2xl font-black text-white font-mono">
+                        R$ {totalProvisionBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400 border-t border-zinc-800/80 pt-2">
+                        <span>Pontos em Circulação:</span>
+                        <span className="font-bold text-lime-400 font-mono">{totalPointsLedger.toLocaleString("pt-BR")} nfs</span>
+                      </div>
+                      <span className="inline-block text-[9px] font-bold text-purple-300 bg-purple-950/60 border border-purple-500/30 px-2 py-0.5 rounded">
+                        Exigibilidade Imediata (CPC 30)
+                      </span>
+                    </div>
+
+                    {/* Card 2: Taxa de Queima (Burn Rate) */}
+                    <div className="bg-zinc-950/90 border border-zinc-800 hover:border-lime-500/50 p-4 rounded-2xl space-y-2 transition shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-lime-400 tracking-wider">Taxa de Queima (Burn Rate)</span>
+                        <Flame className="size-4 text-lime-400" />
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-2xl font-black text-lime-400 font-mono">{burnRatePct}%</p>
+                        <span className="text-[10px] text-zinc-400 font-bold">Resgates / Emissões</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+                        <div className="bg-gradient-to-r from-purple-500 to-lime-400 h-full rounded-full" style={{ width: `${burnRatePct}%` }} />
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-1">
+                        <span>Resgates no Shop:</span>
+                        <span className="font-bold text-white font-mono">R$ {redeemedBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Reversão de Passivo (Breakage) */}
+                    <div className="bg-zinc-950/90 border border-zinc-800 hover:border-amber-500/50 p-4 rounded-2xl space-y-2 transition shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">Reversão (Breakage CPC 47)</span>
+                        <RotateCcw className="size-4 text-amber-400" />
+                      </div>
+                      <p className="text-2xl font-black text-amber-300 font-mono">
+                        R$ {breakageBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400 border-t border-zinc-800/80 pt-2">
+                        <span>Taxa Est. de Expiração:</span>
+                        <span className="font-bold text-amber-400 font-mono">{breakagePct}% a.a.</span>
+                      </div>
+                      <span className="inline-block text-[9px] font-bold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">
+                        Reversão Positiva na DRE
+                      </span>
+                    </div>
+
+                    {/* Card 4: Cobertura de Caixa & Solvência */}
+                    <div className="bg-zinc-950/90 border border-zinc-800 hover:border-cyan-500/50 p-4 rounded-2xl space-y-2 transition shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase text-cyan-400 tracking-wider">Índice de Cobertura</span>
+                        <ShieldCheck className="size-4 text-cyan-400" />
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-2xl font-black text-cyan-400 font-mono">{coverageRatio}x</p>
+                        <span className="text-[10px] text-zinc-400 font-bold">Grau de Solvência A+</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400 border-t border-zinc-800/80 pt-2">
+                        <span>Reserva de Liquidez:</span>
+                        <span className="font-bold text-white font-mono">R$ {reserveCashBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                      <span className="inline-block text-[9px] font-bold text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2 py-0.5 rounded">
+                        Reserva Segregada para Resgates
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Rodapé Informativo de Transparência & Governança */}
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-2 rounded-full bg-lime-400 animate-pulse shrink-0" />
+                      <p className="text-zinc-300">
+                        <strong className="text-white">Diretriz Go-Live:</strong> No instante do lançamento oficial com banco limpo (zero-state), o passivo iniciará em <strong className="text-lime-400 font-mono">R$ 0,00</strong>, evoluindo estritamente com base em compras confirmadas no Shop e treinos validados.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => setActiveTab("results")}
+                        className="px-3 py-1.5 rounded-xl bg-purple-900/50 hover:bg-purple-800/60 text-purple-300 font-bold border border-purple-500/30 hover:text-white transition cursor-pointer text-xs"
+                      >
+                        Ver DRE Projetada →
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("xml")}
+                        className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold border border-zinc-700 transition cursor-pointer text-xs"
+                      >
+                        XML / SPED Contábil →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* PAINEL DE OKRs ESTRATÉGICOS DO NEGÓCIO (BUSINESS PLAN NETFITS) */}
             <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-6 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">

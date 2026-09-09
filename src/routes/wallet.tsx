@@ -78,7 +78,7 @@ function WalletPage() {
         ) : (
           <div className="space-y-2">
             {[
-              { id: "b1", source: "Lote de Pontos Ativos", amount: balance, expires: "Em 365 dias", days: 365, isNext: true },
+              { id: "b1", source: "Lote de Pontos Ativos", amount: balance, expires: "Em 24 meses", days: 730, isNext: true },
             ].map((batch) => (
               <div
                 key={batch.id}
