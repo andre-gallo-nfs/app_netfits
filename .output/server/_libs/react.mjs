@@ -9,7 +9,7 @@ var hasRequiredReact_production;
 function requireReact_production() {
   if (hasRequiredReact_production) return react_production;
   hasRequiredReact_production = 1;
-  var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
+  var REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_VIEW_TRANSITION_TYPE = /* @__PURE__ */ Symbol.for("react.view_transition"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
   function getIteratorFn(maybeIterable) {
     if (null === maybeIterable || "object" !== typeof maybeIterable) return null;
     maybeIterable = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable["@@iterator"];
@@ -193,19 +193,18 @@ function requireReact_production() {
   }
   function lazyInitializer(payload) {
     if (-1 === payload._status) {
-      var ctor = payload._result;
-      ctor = ctor();
-      ctor.then(
+      var ctor = payload._result, thenable = ctor();
+      thenable.then(
         function(moduleObject) {
           if (0 === payload._status || -1 === payload._status)
-            payload._status = 1, payload._result = moduleObject;
+            payload._status = 1, payload._result = moduleObject, void 0 === thenable.status && (thenable.status = "fulfilled", thenable.value = moduleObject);
         },
         function(error) {
           if (0 === payload._status || -1 === payload._status)
-            payload._status = 2, payload._result = error;
+            payload._status = 2, payload._result = error, void 0 === thenable.status && (thenable.status = "rejected", thenable.reason = error);
         }
       );
-      -1 === payload._status && (payload._status = 0, payload._result = ctor);
+      -1 === payload._status && (payload._status = 0, payload._result = thenable);
     }
     if (1 === payload._status) return payload._result.default;
     throw payload._result;
@@ -224,7 +223,29 @@ function requireReact_production() {
       return;
     }
     console.error(error);
-  }, Children = {
+  };
+  function startTransition(scope) {
+    var prevTransition = ReactSharedInternals.T, currentTransition = {};
+    currentTransition.types = null !== prevTransition ? prevTransition.types : null;
+    ReactSharedInternals.T = currentTransition;
+    try {
+      var returnValue = scope(), onStartTransitionFinish = ReactSharedInternals.S;
+      null !== onStartTransitionFinish && onStartTransitionFinish(currentTransition, returnValue);
+      "object" === typeof returnValue && null !== returnValue && "function" === typeof returnValue.then && returnValue.then(noop, reportGlobalError);
+    } catch (error) {
+      reportGlobalError(error);
+    } finally {
+      null !== prevTransition && null !== currentTransition.types && (prevTransition.types = currentTransition.types), ReactSharedInternals.T = prevTransition;
+    }
+  }
+  function addTransitionType(type) {
+    var transition = ReactSharedInternals.T;
+    if (null !== transition) {
+      var transitionTypes = transition.types;
+      null === transitionTypes ? transition.types = [type] : -1 === transitionTypes.indexOf(type) && transitionTypes.push(type);
+    } else startTransition(addTransitionType.bind(null, type));
+  }
+  var Children = {
     map: mapChildren,
     forEach: function(children, forEachFunc, forEachContext) {
       mapChildren(
@@ -263,6 +284,7 @@ function requireReact_production() {
   react_production.PureComponent = PureComponent;
   react_production.StrictMode = REACT_STRICT_MODE_TYPE;
   react_production.Suspense = REACT_SUSPENSE_TYPE;
+  react_production.ViewTransition = REACT_VIEW_TRANSITION_TYPE;
   react_production.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = ReactSharedInternals;
   react_production.__COMPILER_RUNTIME = {
     __proto__: null,
@@ -270,6 +292,7 @@ function requireReact_production() {
       return ReactSharedInternals.H.useMemoCache(size);
     }
   };
+  react_production.addTransitionType = addTransitionType;
   react_production.cache = function(fn) {
     return function() {
       return fn.apply(null, arguments);
@@ -350,19 +373,7 @@ function requireReact_production() {
       compare: void 0 === compare ? null : compare
     };
   };
-  react_production.startTransition = function(scope) {
-    var prevTransition = ReactSharedInternals.T, currentTransition = {};
-    ReactSharedInternals.T = currentTransition;
-    try {
-      var returnValue = scope(), onStartTransitionFinish = ReactSharedInternals.S;
-      null !== onStartTransitionFinish && onStartTransitionFinish(currentTransition, returnValue);
-      "object" === typeof returnValue && null !== returnValue && "function" === typeof returnValue.then && returnValue.then(noop, reportGlobalError);
-    } catch (error) {
-      reportGlobalError(error);
-    } finally {
-      null !== prevTransition && null !== currentTransition.types && (prevTransition.types = currentTransition.types), ReactSharedInternals.T = prevTransition;
-    }
-  };
+  react_production.startTransition = startTransition;
   react_production.unstable_useCacheRefresh = function() {
     return ReactSharedInternals.H.useCacheRefresh();
   };
@@ -426,7 +437,7 @@ function requireReact_production() {
   react_production.useTransition = function() {
     return ReactSharedInternals.H.useTransition();
   };
-  react_production.version = "19.2.5";
+  react_production.version = "19.3.0";
   return react_production;
 }
 var hasRequiredReact;

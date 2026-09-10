@@ -8,7 +8,7 @@ import {
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
   ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail, Lock, X, MessageSquare,
-  Trash2, Edit3, LogIn, Flame
+  Trash2, Edit3, LogIn, Flame, Archive, Database
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
 import { operationalParamsStore, useOperationalParams } from "@/lib/operational-params-store";
+import { useColdTier, coldTierStore } from "@/lib/cold-tier-store";
 import { sharedSandboxStore, SandboxInteraction } from "@/lib/shared-sandbox-store";
 import { qaEngine, QaTestRunResult } from "@/lib/qa-autonomous-engine";
 import netfitsLogo from "@/assets/netfits-logo.png";
@@ -896,6 +897,7 @@ function AdminDashboardPage() {
   // Estado dos Parâmetros da Operação (Sincronizado via Store Reativo Global)
   const storedParams = useOperationalParams();
   const [operationalParams, setOperationalParams] = useState(storedParams);
+  const coldTier = useColdTier();
 
   useEffect(() => {
     setOperationalParams(storedParams);
@@ -916,14 +918,14 @@ function AdminDashboardPage() {
     nfsIssuedForViews: Math.round(547200 * pf),
   };
 
-  const handleSaveParams = (e: React.FormEvent) => {
+  const handleSaveParams = async (e: React.FormEvent) => {
     e.preventDefault();
-    operationalParamsStore.updateParams(operationalParams);
-    toast.success("🎉 Parâmetros operacionais salvos e sincronizados em tempo real com o Painel do Associado, Feed, Shop e Wallet!");
+    await operationalParamsStore.updateParams(operationalParams);
+    toast.success("🎉 Parâmetros atualizados na Tabela de Dados Mestres (system_parameters) com reflexo imediato em tempo real!");
   };
 
-  const handleResetParams = () => {
-    operationalParamsStore.resetParams();
+  const handleResetParams = async () => {
+    await operationalParamsStore.resetParams();
     toast.info("🔄 Parâmetros operacionais restaurados para os valores padrão do Business Plan.");
   };
 
@@ -3100,16 +3102,25 @@ function AdminDashboardPage() {
         {/* Tab: Parâmetros da Operação */}
         {activeTab === "params" && (
           <form onSubmit={handleSaveParams} className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="bg-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
               <div>
-                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
-                  Configuração Global da Operação
-                </span>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400 bg-lime-400/10 px-2 py-0.5 rounded border border-lime-400/20">
+                    Tabela de Dados Mestres (system_parameters)
+                  </span>
+                  <span className="text-[9px] font-bold text-emerald-400 flex items-center gap-1">
+                    <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Sincronização Realtime Online
+                  </span>
+                </div>
                 <h3 className="text-sm font-bold text-white">
-                  Parâmetros Operacionais & Economia do Programa de Pontos
+                  Ponto Central de Parametrização Operacional & Economia dos Pontos
                 </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Qualquer alteração salva aqui atualiza a tabela de dados mestres em tempo real e reflete instantaneamente no Feed, Shop, Carteira e DRE.
+                </p>
               </div>
-              <div className="flex items-center gap-2 self-start md:self-auto">
+              <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
                 <button
                   type="button"
                   onClick={handleResetParams}
@@ -3123,7 +3134,7 @@ function AdminDashboardPage() {
                   className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer"
                 >
                   <Save className="size-3.5" />
-                  Salvar Parâmetros
+                  Salvar na Tabela Mestre
                 </button>
               </div>
             </div>
@@ -4380,6 +4391,126 @@ function AdminDashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* Painel FinOps: Cold Data Tiering & Particionamento Histórico */}
+            <div className="bg-zinc-900 border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-5 w-full bg-gradient-to-r from-cyan-950/30 via-zinc-900 to-blue-950/30">
+              <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-cyan-500/20 pb-4 gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 flex items-center gap-1.5">
+                      <Archive className="size-3 text-cyan-400" />
+                      Estratégia FinOps: Armazenamento & Banco de Dados
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-400/20 font-bold">
+                      SLA Ledger &lt; 10ms
+                    </span>
+                  </div>
+                  <h4 className="text-base font-black text-white flex items-center gap-2">
+                    <Database className="size-5 text-cyan-400" />
+                    Cold Data Tiering: Ledger de NFS &gt; 24 Meses (PostgreSQL + Cloudflare R2)
+                  </h4>
+                  <p className="text-xs text-zinc-300">
+                    Expurgo automatizado e arquivamento a frio de transações com mais de 24 meses. Previne inchaço de RAM/IOPS na nuvem e preserva trilha imutável no R2 a custo quase zero.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    disabled={coldTier.isArchiving}
+                    onClick={async () => {
+                      await coldTierStore.triggerColdArchiving();
+                    }}
+                    className={`px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-2 transition-all shadow-md cursor-pointer ${
+                      coldTier.isArchiving
+                        ? "bg-zinc-800 text-zinc-500 border border-zinc-700"
+                        : "bg-cyan-500 hover:bg-cyan-400 text-black shadow-cyan-500/20 active:scale-95"
+                    }`}
+                  >
+                    <RefreshCw className={`size-4 ${coldTier.isArchiving ? "animate-spin text-zinc-500" : "text-black"}`} />
+                    <span>{coldTier.isArchiving ? "Arquivando Lotes..." : "Executar Cold Tiering Agora"}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Grid de KPIs do Cold Tiering */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                    🔥 Hot Ledger (&lt; 24 Meses)
+                  </span>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-lg font-black text-white font-mono">
+                      {coldTier.hotLedgerRows.toLocaleString("pt-BR")}
+                    </span>
+                    <span className="text-[11px] font-mono text-cyan-400 font-bold">
+                      {coldTier.hotStorageMb} MB
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-500">Na RAM do PostgreSQL com B-Tree ativa.</p>
+                </div>
+
+                <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                    🧊 Cold Archive (&gt; 24 Meses)
+                  </span>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-lg font-black text-white font-mono">
+                      {coldTier.coldArchivedRows.toLocaleString("pt-BR")}
+                    </span>
+                    <span className="text-[11px] font-mono text-lime-400 font-bold">
+                      {coldTier.coldStorageMb} MB
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-500">Tiering comprimido Cloudflare R2 (US$ 0,015/GB).</p>
+                </div>
+
+                <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                    ⚡ Latência do Ledger
+                  </span>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-lg font-black text-emerald-400 font-mono">
+                      {coldTier.queryLatencyMs} ms
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-500 line-through">
+                      {coldTier.unoptimizedLatencyMs} ms
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-500">Aceleração de 95% sem varreduras full-scan.</p>
+                </div>
+
+                <div className="bg-zinc-950/80 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                    💰 Economia FinOps Mensal
+                  </span>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-lg font-black text-lime-400 font-mono">
+                      R$ {coldTier.costSavedMonthlyBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-[10px] font-mono bg-lime-950 text-lime-300 px-1.5 py-0.5 rounded">
+                      -{coldTier.ramSavedMb} MB RAM
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-500">Economia acumulada em instâncias cloud menores.</p>
+                </div>
+              </div>
+
+              {/* Status da Rotina e Políticas */}
+              <div className="bg-black/40 border border-zinc-800/80 rounded-2xl p-3.5 text-xs text-zinc-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <span>
+                    <b>Rotina Periódica:</b> Execução mensal automática ({coldTier.runsCount} ciclos realizados). Último ciclo:{" "}
+                    <span className="font-mono text-cyan-300">
+                      {coldTier.lastRunAt ? new Date(coldTier.lastRunAt).toLocaleDateString("pt-BR") : "Recente"}
+                    </span>
+                  </span>
+                </div>
+                <div className="text-[11px] text-zinc-400">
+                  Políticas ativas: <code className="text-purple-300 bg-purple-950/50 px-1.5 py-0.5 rounded">archive_expired_wallet_transactions()</code>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -4429,7 +4560,7 @@ function AdminDashboardPage() {
           const adjustedGrossMarginPct = (dreAdjustedGrossProfit / dreGrossRev) * 100;
 
           // OPEX (Fase 1 vs Fase 2)
-          const dreCloudCost = 72600 * pf;
+          const dreCloudCost = (operationalParams.cloudInfraMonthlyCostBrl ?? 7260) * pf;
           const drePayrollCost = (isFase2 ? 320000 : 240000) * pf;
           const dreMarketingCost = (isFase2 ? 150000 : 100000) * pf;
           const dreGaCost = (isFase2 ? 80000 : 50000) * pf;
@@ -4459,7 +4590,7 @@ function AdminDashboardPage() {
                         MODELO FINANCEIRO OFICIAL (51 MESES: OUT/2026 A DEZ/2030)
                       </span>
                       <span className="text-[10px] font-mono text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/30">
-                        VPL: R$ 116,2M • TIR: 245%
+                        VPL: R$ 117,9M • TIR: 248%
                       </span>
                     </div>
                     <h3 className="text-xl font-black text-white flex items-center gap-2">
@@ -4467,7 +4598,7 @@ function AdminDashboardPage() {
                       <span>Planilha Corporativa: Acompanhamento Real x Orçado</span>
                     </h3>
                     <p className="text-xs text-zinc-300 max-w-3xl leading-relaxed">
-                      Planilha mestre contábil e orçamentária parametrizada mês a mês para input dos resultados contábeis reais, cálculo automático de variâncias (<strong className="text-lime-400">R$ e %</strong>) e consolidação do DRE gerencial da Netfits.
+                      Planilha mestre contábil e orçamentária parametrizada mês a mês para input dos resultados contábeis reais, cálculo automático de variâncias (<strong className="text-lime-400">R$ e %</strong>) e consolidação do DRE gerencial da Netfits com as 3 frentes FinOps incorporadas.
                     </p>
                   </div>
 
@@ -4489,43 +4620,43 @@ function AdminDashboardPage() {
                   <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
                     <span className="text-[10px] font-mono font-bold text-zinc-400 uppercase">2026 (Launch)</span>
                     <p className="text-xs font-bold text-zinc-300">1k usuários</p>
-                    <p className="text-xs font-black text-rose-400">EBITDA: -R$ 112k</p>
-                    <span className="text-[9px] text-zinc-500 block">3 meses (Setup)</span>
+                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 1,7k</p>
+                    <span className="text-[9px] text-zinc-500 block">3 meses (Setup FinOps)</span>
                   </div>
 
                   <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
                     <span className="text-[10px] font-mono font-bold text-lime-400 uppercase">2027 (Scale)</span>
-                    <p className="text-xs font-bold text-zinc-300">50k usuários</p>
-                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 884k</p>
-                    <span className="text-[9px] text-zinc-500 block">Margem 36,7%</span>
+                    <p className="text-xs font-bold text-zinc-300">1,0M usuários</p>
+                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 6,31M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 60,4%</span>
                   </div>
 
                   <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
                     <span className="text-[10px] font-mono font-bold text-lime-400 uppercase">2028 (Growth)</span>
-                    <p className="text-xs font-bold text-zinc-300">250k usuários</p>
-                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 11,2M</p>
-                    <span className="text-[9px] text-zinc-500 block">Margem 58,5%</span>
+                    <p className="text-xs font-bold text-zinc-300">2,0M usuários</p>
+                    <p className="text-xs font-black text-lime-400">EBITDA: +R$ 29,45M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 74,7%</span>
                   </div>
 
                   <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
                     <span className="text-[10px] font-mono font-bold text-purple-400 uppercase">2029 (Expansion)</span>
-                    <p className="text-xs font-bold text-zinc-300">1,0M usuários</p>
-                    <p className="text-xs font-black text-purple-400">EBITDA: +R$ 51,7M</p>
-                    <span className="text-[9px] text-zinc-500 block">Margem 67,3%</span>
+                    <p className="text-xs font-bold text-zinc-300">2,6M usuários</p>
+                    <p className="text-xs font-black text-purple-400">EBITDA: +R$ 48,86M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 71,2%</span>
                   </div>
 
                   <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
                     <span className="text-[10px] font-mono font-bold text-purple-400 uppercase">2030 (Maturity)</span>
                     <p className="text-xs font-bold text-zinc-300">3,0M usuários</p>
-                    <p className="text-xs font-black text-purple-400">EBITDA: +R$ 164,2M</p>
-                    <span className="text-[9px] text-zinc-500 block">Margem 71,3%</span>
+                    <p className="text-xs font-black text-purple-400">EBITDA: +R$ 68,87M</p>
+                    <span className="text-[9px] text-zinc-500 block">Margem 65,6%</span>
                   </div>
 
                   <div className="bg-gradient-to-br from-lime-950/60 to-purple-950/60 p-3 rounded-2xl border border-lime-500/40 space-y-1">
                     <span className="text-[10px] font-mono font-black text-lime-400 uppercase">51 Meses Total</span>
-                    <p className="text-xs font-bold text-white">Receita R$ 328,8M</p>
-                    <p className="text-xs font-black text-lime-400">EBITDA: R$ 227,9M</p>
-                    <span className="text-[9px] text-purple-300 block">Margem 69,3%</span>
+                    <p className="text-xs font-bold text-white">Receita R$ 241,0M</p>
+                    <p className="text-xs font-black text-lime-400">EBITDA: R$ 153,5M</p>
+                    <span className="text-[9px] text-purple-300 block">Margem 69,0% (+R$ 810k)</span>
                   </div>
                 </div>
 
@@ -4593,10 +4724,10 @@ function AdminDashboardPage() {
                   </div>
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-lime-400">
-                      Impacto FinOps Incorporado à DRE (+R$ 918.920,00 /ano Economizados)
+                      Impacto FinOps Incorporado à DRE (+R$ 1.586.418,16 /ano Economizados)
                     </span>
                     <p className="text-xs text-white font-bold">
-                      Estrutura Multiagêntica (8 Agentes): -95.2% em IA (R$ 990/mês), -85.7% em Conciliação Fiscal e -78.1% em SAC.
+                      Otimizações FinOps Ativas: -55.5% em Tokens de IA (Fast-Path/Cache), -70.7% em Auth/OTP (Passkeys FIDO2) e -46.1% em Banco de Dados (Cold Tiering R2).
                     </p>
                   </div>
                 </div>
@@ -4816,8 +4947,8 @@ function AdminDashboardPage() {
                       </tr>
                       <tr className="hover:bg-purple-950/20 transition text-purple-300 font-semibold">
                         <td className="py-2.5 px-8">├─ Agentes de IA Autônomos (Squad de 8 Agentes)</td>
-                        <td className="py-2.5 px-4 text-right font-mono text-purple-300">(R$ {(9900 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right text-purple-300">-{(((9900 * pf) / dreGrossRev) * 100).toFixed(2)}%</td>
+                        <td className="py-2.5 px-4 text-right font-mono text-purple-300">(R$ {(990 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
+                        <td className="py-2.5 px-4 text-right text-purple-300">-{(((990 * pf) / dreGrossRev) * 100).toFixed(2)}%</td>
                         <td className="py-2.5 px-4 text-center text-lime-400 font-extrabold">R$ 990/mês (-95.2% IA)</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">

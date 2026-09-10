@@ -1452,9 +1452,9 @@ var hasRequiredIsBuffer;
 function requireIsBuffer() {
   if (hasRequiredIsBuffer) return isBuffer.exports;
   hasRequiredIsBuffer = 1;
-  (function(module, exports$1) {
+  (function(module, exports) {
     var root = require_root(), stubFalse = requireStubFalse();
-    var freeExports = exports$1 && !exports$1.nodeType && exports$1;
+    var freeExports = exports && !exports.nodeType && exports;
     var freeModule = freeExports && true && module && !module.nodeType && module;
     var moduleExports = freeModule && freeModule.exports === freeExports;
     var Buffer = moduleExports ? root.Buffer : void 0;
@@ -1527,9 +1527,9 @@ var hasRequired_nodeUtil;
 function require_nodeUtil() {
   if (hasRequired_nodeUtil) return _nodeUtil.exports;
   hasRequired_nodeUtil = 1;
-  (function(module, exports$1) {
+  (function(module, exports) {
     var freeGlobal = require_freeGlobal();
-    var freeExports = exports$1 && !exports$1.nodeType && exports$1;
+    var freeExports = exports && !exports.nodeType && exports;
     var freeModule = freeExports && true && module && !module.nodeType && module;
     var moduleExports = freeModule && freeModule.exports === freeExports;
     var freeProcess = moduleExports && freeGlobal.process;

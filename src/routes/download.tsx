@@ -192,7 +192,7 @@ function DownloadAppPage() {
 
             <div className="space-y-3 pt-4 border-t border-zinc-800">
               <Link
-                to="/"
+                to="/feed"
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition"
               >
                 <Activity className="size-4" />

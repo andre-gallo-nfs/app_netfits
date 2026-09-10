@@ -40,6 +40,7 @@ function sameValueZeroEqual(a, b) {
 const PREACT_VNODE = "__v";
 const PREACT_OWNER = "__o";
 const REACT_OWNER = "_owner";
+const HAS_FLOAT_16_ARRAY = typeof Float16Array !== "undefined";
 const { getOwnPropertyDescriptor, keys } = Object;
 function areArrayBuffersEqual(a, b) {
   return a.byteLength === b.byteLength && areTypedArraysEqual(new Uint8Array(a), new Uint8Array(b));
@@ -62,8 +63,8 @@ function areDataViewsEqual(a, b) {
 function areDatesEqual(a, b) {
   return sameValueZeroEqual(a.getTime(), b.getTime());
 }
-function areErrorsEqual(a, b) {
-  return a.name === b.name && a.message === b.message && a.cause === b.cause && a.stack === b.stack;
+function areErrorsEqual(a, b, state) {
+  return a.name === b.name && a.message === b.message && a.stack === b.stack && state.equals(a.cause, b.cause, "cause", "cause", a, b, state);
 }
 function areFunctionsEqual(a, b) {
   return a === b;
@@ -189,9 +190,17 @@ function areSetsEqual(a, b, state) {
   return true;
 }
 function areTypedArraysEqual(a, b) {
-  let index = a.byteLength;
-  if (b.byteLength !== index || a.byteOffset !== b.byteOffset) {
+  let index = a.length;
+  if (b.length !== index || a.byteOffset !== b.byteOffset) {
     return false;
+  }
+  if (a instanceof Float64Array || a instanceof Float32Array || HAS_FLOAT_16_ARRAY && a instanceof Float16Array) {
+    while (index-- > 0) {
+      if (a[index] !== b[index] && (a[index] === a[index] || b[index] === b[index])) {
+        return false;
+      }
+    }
+    return true;
   }
   while (index-- > 0) {
     if (a[index] !== b[index]) {
@@ -201,7 +210,18 @@ function areTypedArraysEqual(a, b) {
   return true;
 }
 function areUrlsEqual(a, b) {
-  return a.hostname === b.hostname && a.pathname === b.pathname && a.protocol === b.protocol && a.port === b.port && a.hash === b.hash && a.username === b.username && a.password === b.password;
+  if (a.href === b.href) {
+    return true;
+  }
+  return a.protocol === b.protocol && a.username === b.username && a.password === b.password && a.host === b.host && a.pathname === b.pathname && a.hash === b.hash && areSearchParamsEqual(a.searchParams, b.searchParams);
+}
+function areSearchParamsEqual(a, b) {
+  const serializedA = a.toString();
+  const serializedB = b.toString();
+  return serializedA === serializedB || sortSearchParams(serializedA) === sortSearchParams(serializedB);
+}
+function sortSearchParams(serialized) {
+  return serialized.split("&").sort().join("&");
 }
 function isPropertyEqual(a, b, state, property) {
   if ((property === REACT_OWNER || property === PREACT_OWNER || property === PREACT_VNODE) && (a.$$typeof || b.$$typeof)) {
@@ -338,7 +358,11 @@ function createEqualityComparatorConfig({ circular, createCustomConfig, strict }
     areArraysEqual: strict ? areObjectsEqualStrict : areArraysEqual,
     areDataViewsEqual,
     areDatesEqual,
-    areErrorsEqual,
+    // `Error` subclasses routinely carry their own enumerable properties (`status`, `code`, ...),
+    // which the error comparator alone does not see, so it is composed with the object comparator.
+    // `name` / `message` / `stack` are own but not enumerable, which is why errors need a
+    // comparator of their own rather than being treated as plain objects in the first place.
+    areErrorsEqual: strict ? combineComparators(areErrorsEqual, areObjectsEqualStrict) : combineComparators(areErrorsEqual, areObjectsEqual),
     areFunctionsEqual,
     areMapsEqual: strict ? combineComparators(areMapsEqual, areObjectsEqualStrict) : areMapsEqual,
     areNumbersEqual,
@@ -355,11 +379,13 @@ function createEqualityComparatorConfig({ circular, createCustomConfig, strict }
   }
   if (circular) {
     const areArraysEqual2 = createIsCircular(config.areArraysEqual);
+    const areErrorsEqual2 = createIsCircular(config.areErrorsEqual);
     const areMapsEqual2 = createIsCircular(config.areMapsEqual);
     const areObjectsEqual2 = createIsCircular(config.areObjectsEqual);
     const areSetsEqual2 = createIsCircular(config.areSetsEqual);
     config = Object.assign({}, config, {
       areArraysEqual: areArraysEqual2,
+      areErrorsEqual: areErrorsEqual2,
       areMapsEqual: areMapsEqual2,
       areObjectsEqual: areObjectsEqual2,
       areSetsEqual: areSetsEqual2

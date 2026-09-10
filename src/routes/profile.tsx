@@ -201,7 +201,7 @@ function ProfilePage() {
       <section className="bg-foreground text-background px-4 pt-6 pb-16 relative">
         <div className="flex items-center justify-between">
           <Link
-            to="/"
+            to="/feed"
             className="size-9 rounded-full bg-background/10 hover:bg-background/20 grid place-items-center transition"
           >
             <ArrowLeft className="size-5" />

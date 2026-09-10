@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LevelsRouteImport } from './routes/levels'
 import { Route as MarketRouteImport } from './routes/market'
@@ -64,6 +65,11 @@ const FaqRoute = FaqRouteImport.update({
   path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
+  '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
+  '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
+  '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/levels': typeof LevelsRoute
   '/market': typeof MarketRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/download'
     | '/faq'
+    | '/feed'
     | '/home'
     | '/levels'
     | '/market'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/download'
     | '/faq'
+    | '/feed'
     | '/home'
     | '/levels'
     | '/market'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/download'
     | '/faq'
+    | '/feed'
     | '/home'
     | '/levels'
     | '/market'
@@ -204,6 +216,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
+  FeedRoute: typeof FeedRoute
   HomeRoute: typeof HomeRoute
   LevelsRoute: typeof LevelsRoute
   MarketRoute: typeof MarketRoute
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home': {
       id: '/home'
       path: '/home'
@@ -324,6 +344,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,
+  FeedRoute: FeedRoute,
   HomeRoute: HomeRoute,
   LevelsRoute: LevelsRoute,
   MarketRoute: MarketRoute,

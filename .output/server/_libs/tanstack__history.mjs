@@ -78,7 +78,7 @@ function createHistory(opts) {
     go: (index, navigateOpts) => {
       tryNavigation({
         task: () => {
-          opts.go(index);
+          opts.go(index, navigateOpts?.ignoreBlocker ?? false);
           handleIndexChange({
             type: "GO",
             index

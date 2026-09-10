@@ -8,7 +8,7 @@
   "main": "index.mjs",
   "assets": {
     "binding": "ASSETS",
-    "directory": "../public"
+    "directory": "..\\public"
   },
   "no_bundle": true,
   "rules": [

@@ -136,9 +136,9 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   redemptionPolicy: "FEFO",
   redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
 
-  cloudInfraMonthlyCostBrl: 23500.0,
-  finOpsSavingsPct: 51.4,
-  finOpsAnnualGainBrl: 294000.0,
+  cloudInfraMonthlyCostBrl: 7260.0,
+  finOpsSavingsPct: 61.5,
+  finOpsAnnualGainBrl: 138930.0,
 };
 
 const STORAGE_KEY = "netfits_operational_params_v5";
@@ -174,7 +174,31 @@ function getSnapshot() {
   return currentParams;
 }
 
+export async function syncOperationalParamsWithServer(): Promise<OperationalParams> {
+  if (typeof window === "undefined") return currentParams;
+  try {
+    const res = await fetch("/api/operational-params");
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.params) {
+        currentParams = { ...DEFAULT_OPERATIONAL_PARAMS, ...data.params };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(currentParams));
+        } catch {}
+        emit();
+        return currentParams;
+      }
+    }
+  } catch (err) {
+    // Modo offline ou fallback local
+  }
+  return currentParams;
+}
+
 if (typeof window !== "undefined") {
+  syncOperationalParamsWithServer();
+  window.addEventListener("focus", () => syncOperationalParamsWithServer());
+
   window.addEventListener("storage", (e) => {
     if (e.key === STORAGE_KEY && e.newValue) {
       try {
@@ -189,7 +213,8 @@ if (typeof window !== "undefined") {
 
 export const operationalParamsStore = {
   getParams: () => currentParams,
-  updateParams: (newParams: Partial<OperationalParams>) => {
+  syncWithServer: syncOperationalParamsWithServer,
+  updateParams: async (newParams: Partial<OperationalParams>) => {
     currentParams = { ...currentParams, ...newParams };
     if (typeof window !== "undefined") {
       try {
@@ -197,16 +222,34 @@ export const operationalParamsStore = {
       } catch (e) {
         console.error(e);
       }
+      try {
+        await fetch("/api/operational-params", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(currentParams),
+        });
+      } catch (err) {
+        console.warn("Failed to sync operational params with server:", err);
+      }
     }
     emit();
   },
-  resetParams: () => {
-    currentParams = DEFAULT_OPERATIONAL_PARAMS;
+  resetParams: async () => {
+    currentParams = { ...DEFAULT_OPERATIONAL_PARAMS };
     if (typeof window !== "undefined") {
       try {
         localStorage.removeItem(STORAGE_KEY);
       } catch (e) {
         console.error(e);
+      }
+      try {
+        await fetch("/api/operational-params", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(DEFAULT_OPERATIONAL_PARAMS),
+        });
+      } catch (err) {
+        console.warn("Failed to reset operational params on server:", err);
       }
     }
     emit();

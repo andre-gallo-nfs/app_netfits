@@ -17,7 +17,7 @@ function NotFoundComponent() {
         <h1 className="text-7xl font-bold">404</h1>
         <p className="mt-2 text-sm text-muted-foreground">Página não encontrada.</p>
         <Link
-          to="/"
+          to="/feed"
           className="mt-6 inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
         >
           Voltar ao feed
@@ -27,13 +27,14 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error }: { error: Error }) {
+function ErrorComponent({ error }: { error?: any }) {
   console.error(error);
+  const message = error instanceof Error ? error.message : String(error ?? "Erro inesperado");
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Algo deu errado</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{message}</p>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { wallet } from "./wallet-store";
 import { sharedSandboxStore } from "./shared-sandbox-store";
+import { passkeyService } from "./webauthn-passkeys";
 
 export type StoredUser = {
   id: string;
@@ -305,6 +306,32 @@ export const authStore = {
     currentUser = null;
     toast.info("Você saiu da sua conta Netfits.");
     emit();
+  },
+
+  async loginWithPasskey(expectedUserId?: string) {
+    const res = await passkeyService.authenticate(expectedUserId);
+    if (!res.success) {
+      return { success: false, error: res.error || "Falha na validação biométrica." };
+    }
+
+    let targetUser: StoredUser | null = null;
+    if (res.credential?.userId) {
+      targetUser = storedUsers.find((u) => u.id === res.credential?.userId) || null;
+    }
+    if (!targetUser) {
+      targetUser = currentUser || storedUsers[0];
+    }
+
+    currentUser = targetUser;
+    sharedSandboxStore.setActiveUser(targetUser.id);
+    toast.success(`🎉 Biometria reconhecida: Bem-vindo(a), ${targetUser.fullName}!`);
+    emit();
+    return { success: true, user: targetUser };
+  },
+
+  async registerPasskeyForCurrentUser() {
+    const user = this.getCurrentUser();
+    return await passkeyService.registerPasskey(user.id, user.fullName, user.email);
   },
 };
 

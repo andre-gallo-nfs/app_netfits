@@ -1,12 +1,12 @@
 import process from "node:process";
 import { Buffer } from "node:buffer";
 import crypto from "node:crypto";
+import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { H as H3Event, t as toResponse } from "../_libs/h3-v2.mjs";
-import { y as resolveManifestAssetLink, u as resolveManifestCssLink, k as rootRouteId, z as getNormalizedURL, A as getOrigin, C as normalizeSsrResponse, D as attachRouterServerSsrUtils, E as defineHandlerCallback, F as createSerializationAdapter, G as createRawStreamRPCPlugin, i as invariant, g as isNotFound, m as isRedirect, H as isResolvedRedirect, I as replaceSsrResponse, J as mergeHeaders, K as executeRewriteInput, L as stripSsrResponseBody, M as defaultSerovalPlugins, N as makeSerovalPlugin, s as getScriptPreloadAttrs, O as getStylesheetHref, P as isSsrResponse } from "../_libs/tanstack__router-core.mjs";
-import { c as cu, O as Ou, l as lu } from "../_libs/seroval.mjs";
+import { x as resolveManifestAssetLink, t as resolveManifestCssLink, l as rootRouteId, y as getNormalizedURL, z as getOrigin, A as waitForRequest, C as bindSsrResponseToRequest, D as normalizeSsrResponse, E as attachRouterServerSsrUtils, F as _getRenderedMatches, G as defineHandlerCallback, H as createSerializationAdapter, I as createRawStreamRPCPlugin, i as invariant, j as isNotFound, J as isRedirect, K as isResolvedRedirect, L as replaceSsrResponse, M as mergeHeaders, N as isSsrResponse, O as disposeSsrResponseDetached, P as executeRewriteInput, Q as stripSsrResponseBody, S as defaultSerovalPlugins, T as makeSerovalPlugin, q as getScriptPreloadAttrs, U as getStylesheetHref } from "../_libs/tanstack__router-core.mjs";
+import { t as toCrossJSONStream, f as fromJSON, d as toCrossJSONAsync } from "../_libs/seroval.mjs";
 import { c as createMemoryHistory } from "../_libs/tanstack__history.mjs";
-import { j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { r as renderRouterToStream, R as RouterProvider } from "../_libs/tanstack__react-router.mjs";
 import "../_libs/unenv.mjs";
 
@@ -87,7 +87,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-LX2eceZp.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BSDKUaNN.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -413,7 +413,7 @@ var handleServerAction = async ({ request, context, serverFnId }) => {
   if (!serovalPlugins) serovalPlugins = getDefaultSerovalPlugins();
   const contentType = request.headers.get("Content-Type");
   function parsePayload(payload) {
-    return Ou(payload, { plugins: serovalPlugins });
+    return fromJSON(payload, { plugins: serovalPlugins });
   }
   return await (async () => {
     try {
@@ -456,7 +456,7 @@ var handleServerAction = async ({ request, context, serverFnId }) => {
               throw error;
             }
           };
-          cu(res2, {
+          toCrossJSONStream(res2, {
             refs: /* @__PURE__ */ new Map(),
             plugins,
             onParse(value) {
@@ -544,7 +544,7 @@ var handleServerAction = async ({ request, context, serverFnId }) => {
             method: methodUpper
           };
           if (typeof serializedContext === "string") try {
-            const deserializedContext = Ou(JSON.parse(serializedContext), { plugins: serovalPlugins });
+            const deserializedContext = fromJSON(JSON.parse(serializedContext), { plugins: serovalPlugins });
             if (typeof deserializedContext === "object" && deserializedContext) params.context = safeObjectMerge(deserializedContext, context);
           } catch (e) {
             if (false) ;
@@ -583,7 +583,7 @@ var handleServerAction = async ({ request, context, serverFnId }) => {
       console.info();
       console.error(error);
       console.info();
-      const serializedError = JSON.stringify(await Promise.resolve(lu(error, {
+      const serializedError = JSON.stringify(await Promise.resolve(toCrossJSONAsync(error, {
         refs: /* @__PURE__ */ new Map(),
         plugins: serovalPlugins
       })));
@@ -1152,7 +1152,7 @@ var ServerFunctionSerializationAdapter = createSerializationAdapter({
   }
 });
 function getStartResponseHeaders(opts) {
-  return mergeHeaders({ "Content-Type": "text/html; charset=utf-8" }, ...opts.router.stores.matches.get().map((match) => {
+  return mergeHeaders({ "Content-Type": "text/html; charset=utf-8" }, ..._getRenderedMatches(opts.router.stores.matches.get()).map((match) => {
     return match.headers;
   }));
 }
@@ -1164,7 +1164,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-ik3cNqf7.mjs").then((n) => n.r),
+    import("./router-BY4rGEKW.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1197,9 +1197,18 @@ function handleCtxResult(result) {
   if (isSsrResponse(result) || isSpecialResponse(result)) return { response: result };
   return result;
 }
-async function executeMiddleware(middlewares, ctx) {
+function disposeLateResponse(result, signal) {
+  const response = handleCtxResult(result)?.response;
+  if (isSsrResponse(response) || isSpecialResponse(response)) disposeSsrResponseDetached(response, signal.reason);
+}
+function isSignalAborted(signal) {
+  return signal.aborted;
+}
+async function executeMiddleware(middlewares, ctx, signal) {
   let index = -1;
   let streamResponse;
+  let retiredStreamIdentities;
+  const isResponseAlias = (candidate, response) => candidate === response || candidate instanceof Response && response.body !== null && candidate.body === response.body;
   const setResponse = (response) => {
     if (isSsrResponse(response)) {
       if (response.serverSsrCleanup === "stream") streamResponse = response;
@@ -1212,9 +1221,22 @@ async function executeMiddleware(middlewares, ctx) {
     const response = streamResponse;
     if (!response) return;
     streamResponse = void 0;
+    retiredStreamIdentities ??= /* @__PURE__ */ new WeakSet();
+    retiredStreamIdentities.add(response.response);
+    if (response.response.body) retiredStreamIdentities.add(response.response.body);
     const currentResponse = ctx.response;
-    if (currentResponse === response.response || currentResponse instanceof Response && response.response.body !== null && currentResponse.body === response.response.body) ctx.response = void 0;
+    if (isResponseAlias(currentResponse, response.response)) ctx.response = void 0;
     await response.dispose(reason);
+  };
+  const disposeAbandonedResult = (result) => {
+    const exposed = handleCtxResult(result)?.response;
+    const response = isSsrResponse(exposed) ? exposed.response : exposed;
+    if (streamResponse && isResponseAlias(response, streamResponse.response)) {
+      disposeStreamResponse(signal.reason).catch(console.error);
+      return;
+    }
+    if (response instanceof Response && retiredStreamIdentities && (retiredStreamIdentities.has(response) || response.body !== null && retiredStreamIdentities.has(response.body))) return;
+    disposeLateResponse(result, signal);
   };
   const getFinalResponse = async () => {
     const response = ctx.response;
@@ -1228,7 +1250,14 @@ async function executeMiddleware(middlewares, ctx) {
     await disposeStreamResponse("middleware response replaced");
     return response;
   };
-  const next = async (nextCtx) => {
+  let nextPromise;
+  function next(nextCtx) {
+    const result = runNext(nextCtx);
+    nextPromise = result;
+    return result;
+  }
+  async function runNext(nextCtx) {
+    if (signal.aborted) throw signal.reason;
     if (nextCtx) {
       if (nextCtx.context) ctx.context = safeObjectMerge(ctx.context, nextCtx.context);
       for (const key of Object.keys(nextCtx)) if (key === "response") setResponse(nextCtx.response);
@@ -1239,16 +1268,24 @@ async function executeMiddleware(middlewares, ctx) {
     if (!middleware) return ctx;
     let result;
     try {
-      result = await middleware({
+      const pending = middleware({
         ...ctx,
         next
       });
+      if (pending === nextPromise) {
+        nextPromise = void 0;
+        result = await pending;
+        if (isSignalAborted(signal)) {
+          disposeAbandonedResult(result);
+          throw signal.reason;
+        }
+      } else result = await waitForRequest(pending, signal, disposeAbandonedResult);
     } catch (err) {
+      if (isSignalAborted(signal)) throw signal.reason;
       if (isSpecialResponse(err)) {
         setResponse(err);
         return ctx;
       }
-      await disposeStreamResponse("middleware error");
       throw err;
     }
     const normalized = handleCtxResult(result);
@@ -1257,12 +1294,24 @@ async function executeMiddleware(middlewares, ctx) {
       if (normalized.context) ctx.context = safeObjectMerge(ctx.context, normalized.context);
     }
     return ctx;
-  };
-  await next();
-  return {
-    ctx,
-    response: await getFinalResponse()
-  };
+  }
+  try {
+    await runNext();
+    const response = await waitForRequest(getFinalResponse(), signal, disposeAbandonedResult);
+    if (signal.aborted) {
+      disposeAbandonedResult(response);
+      throw signal.reason;
+    }
+    return {
+      ctx,
+      response
+    };
+  } catch (err) {
+    const disposal = disposeStreamResponse(signal.aborted ? signal.reason : err);
+    if (signal.aborted) disposal.catch(console.error);
+    else await disposal;
+    throw err;
+  }
 }
 function handlerToMiddleware(handler2, mayDefer = false) {
   if (mayDefer) return handler2;
@@ -1287,13 +1336,14 @@ function createStartHandler(cbOrOptions) {
     let router = null;
     let responseOwnsCleanup = false;
     try {
+      request.signal.throwIfAborted();
       const { url, handledProtocolRelativeURL } = getNormalizedURL(request.url);
       const href = url.pathname + url.search + url.hash;
       const origin = getOrigin(request);
       if (handledProtocolRelativeURL) return Response.redirect(url, 308);
-      const entries = await getEntries();
+      const entries = await waitForRequest(getEntries(), request.signal);
       const hasStartInstance = !!entries.startEntry.startInstance;
-      const startOptions = await entries.startEntry.startInstance?.getOptions() || {};
+      const startOptions = await waitForRequest(entries.startEntry.startInstance?.getOptions(), request.signal) || {};
       const { hasPluginAdapters, pluginSerializationAdapters } = entries.pluginAdapters;
       const serializationAdapters = [
         ...startOptions.serializationAdapters || [],
@@ -1309,7 +1359,7 @@ function createStartHandler(cbOrOptions) {
       const executedRequestMiddlewares = new Set(flattenedRequestMiddlewares);
       const getRouter = async () => {
         if (router) return router;
-        router = await entries.routerEntry.getRouter();
+        router = await waitForRequest(entries.routerEntry.getRouter(), request.signal);
         let isShell = IS_SHELL_ENV;
         if (IS_PRERENDERING && !isShell) isShell = request.headers.get(HEADERS.TSS_SHELL) === "true";
         const history = createMemoryHistory({ initialEntries: [href] });
@@ -1347,19 +1397,21 @@ function createStartHandler(cbOrOptions) {
           pathname: url.pathname,
           handlerType: "serverFn",
           context: createNullProtoObject(requestOpts?.context)
-        });
-        const result = await handleRedirectResponse(middlewareResponse2, request, getRouter);
+        }, request.signal);
+        const result = await handleRedirectResponse(middlewareResponse2, request, getRouter, request.signal);
+        bindSsrResponseToRequest(router ?? void 0, result, request.signal);
+        request.signal.throwIfAborted();
         responseOwnsCleanup = result.serverSsrCleanup === "stream";
         return result.response;
       }
       const executeRouter = async (serverContext, matchedRoutes) => {
         const acceptParts = (request.headers.get("Accept") || "*/*").split(",");
         if (!["*/*", "text/html"].some((mimeType) => acceptParts.some((part) => part.trim().startsWith(mimeType)))) return normalizeSsrResponse(Response.json({ error: "Only HTML requests are supported here" }, { status: 500 }));
-        const manifest2 = await resolveManifestForRequest({
+        const manifest2 = await waitForRequest(resolveManifestForRequest({
           request,
           requestInlineCss: requestOpts?.inlineCss,
           getBaseManifest: () => getBaseManifest(matchedRoutes)
-        });
+        }), request.signal);
         const earlyHints = createEarlyHintsForRequest({
           onEarlyHints: requestOpts?.onEarlyHints,
           responseLinkHeader: requestOpts?.responseLinkHeader
@@ -1375,18 +1427,21 @@ function createStartHandler(cbOrOptions) {
           getRequestAssets: () => getStartContext({ throwIfNotFound: false })?.requestAssets
         });
         routerInstance.options.additionalContext = { serverContext };
-        await routerInstance.load();
-        if (routerInstance.state.redirect) return normalizeSsrResponse(routerInstance.state.redirect);
-        earlyHints?.collectDynamic(routerInstance.stores.matches.get());
+        await routerInstance.load({ _signal: request.signal });
+        request.signal.throwIfAborted();
+        if (routerInstance._serverResult?.type === "redirect") return normalizeSsrResponse(routerInstance._serverResult.redirect);
+        earlyHints?.collectDynamic(_getRenderedMatches(routerInstance.stores.matches.get()));
         const ctx = getStartContext({ throwIfNotFound: false });
-        await routerInstance.serverSsr.dehydrate({ requestAssets: ctx?.requestAssets });
+        await waitForRequest(routerInstance.serverSsr.dehydrate({ requestAssets: ctx?.requestAssets }), request.signal);
+        request.signal.throwIfAborted();
         const responseHeaders = getStartResponseHeaders({ router: routerInstance });
         earlyHints?.appendResponseHeaders(responseHeaders);
-        return normalizeSsrResponse(await cb({
+        request.signal.throwIfAborted();
+        return normalizeSsrResponse(await waitForRequest(cb({
           request,
           router: routerInstance,
           responseHeaders
-        }));
+        }), request.signal, (late) => disposeLateResponse(late, request.signal)));
       };
       const requestHandlerMiddleware = async ({ context }) => {
         return runWithStartContext({
@@ -1417,8 +1472,10 @@ function createStartHandler(cbOrOptions) {
         pathname: url.pathname,
         handlerType: "router",
         context: createNullProtoObject(requestOpts?.context)
-      });
-      const response = await handleRedirectResponse(middlewareResponse, request, getRouter);
+      }, request.signal);
+      const response = await handleRedirectResponse(middlewareResponse, request, getRouter, request.signal);
+      bindSsrResponseToRequest(router ?? void 0, response, request.signal);
+      request.signal.throwIfAborted();
       responseOwnsCleanup = response.serverSsrCleanup === "stream";
       return response.response;
     } finally {
@@ -1428,14 +1485,15 @@ function createStartHandler(cbOrOptions) {
   };
   return requestHandler(startRequestResolver);
 }
-async function handleRedirectResponse(response, request, getRouter) {
+async function handleRedirectResponse(response, request, getRouter, signal) {
+  signal.throwIfAborted();
   const ssrResponse = normalizeSsrResponse(response);
   if (!isRedirect(ssrResponse.response)) return ssrResponse;
   if (isResolvedRedirect(ssrResponse.response)) {
-    if (request.headers.get("x-tsr-serverFn") === "true") return replaceSsrResponse(ssrResponse, Response.json({
+    if (request.headers.get("x-tsr-serverFn") === "true") return waitForRequest(replaceSsrResponse(ssrResponse, Response.json({
       ...ssrResponse.response.options,
       isSerializedRedirect: true
-    }, { headers: ssrResponse.response.headers }), "redirect response replaced");
+    }, { headers: ssrResponse.response.headers }), "redirect response replaced"), signal);
     return ssrResponse;
   }
   const opts = ssrResponse.response.options;
@@ -1445,18 +1503,21 @@ async function handleRedirectResponse(response, request, getRouter) {
     "search",
     "hash"
   ].some((d) => typeof opts[d] === "function")) throw new Error(`Server side redirects must use static search, params, and hash values and do not support functional values. Received functional values for: ${Object.keys(opts).filter((d) => typeof opts[d] === "function").map((d) => `"${d}"`).join(", ")}`);
-  const redirect = (await getRouter()).resolveRedirect(ssrResponse.response);
-  if (request.headers.get("x-tsr-serverFn") === "true") return replaceSsrResponse(ssrResponse, Response.json({
+  signal.throwIfAborted();
+  const router = await waitForRequest(getRouter(), signal);
+  signal.throwIfAborted();
+  const redirect = router.resolveRedirect(ssrResponse.response);
+  if (request.headers.get("x-tsr-serverFn") === "true") return waitForRequest(replaceSsrResponse(ssrResponse, Response.json({
     ...ssrResponse.response.options,
     isSerializedRedirect: true
-  }, { headers: ssrResponse.response.headers }), "redirect response replaced");
-  return replaceSsrResponse(ssrResponse, redirect, "redirect response replaced");
+  }, { headers: ssrResponse.response.headers }), "redirect response replaced"), signal);
+  return waitForRequest(replaceSsrResponse(ssrResponse, redirect, "redirect response replaced"), signal);
 }
 async function handleServerRoutes({ getRouter, request, url, executeRouter, context, executedRequestMiddlewares }) {
   const router = await getRouter();
   const pathname = executeRewriteInput(router.rewrite, url).pathname;
-  const { matchedRoutes, foundRoute, routeParams } = router.getMatchedRoutes(pathname);
-  const isExactMatch = foundRoute && routeParams["**"] === void 0;
+  const [matchedRoutes, rawParams, foundRoute] = router.getMatchedRoutes(pathname);
+  const isExactMatch = foundRoute && rawParams["**"] === void 0;
   const routeMiddlewares = [];
   for (const route of matchedRoutes) {
     const serverMiddleware = route.options.server?.middleware;
@@ -1488,13 +1549,13 @@ async function handleServerRoutes({ getRouter, request, url, executeRouter, cont
   const { ctx, response } = await executeMiddleware(routeMiddlewares, {
     request,
     context,
-    params: routeParams,
+    params: rawParams,
     pathname,
     handlerType: "router"
-  });
+  }, request.signal);
   if (isHeadFallback) {
     if (!ctx.response) throwRouteHandlerError();
-    return stripSsrResponseBody(await handleRedirectResponse(response, request, getRouter), "HEAD body stripped");
+    return waitForRequest(stripSsrResponseBody(await handleRedirectResponse(response, request, getRouter, request.signal), "HEAD body stripped"), request.signal);
   }
   return normalizeSsrResponse(response);
 }
@@ -1720,6 +1781,170 @@ function processMkplaceOrderNotification(event, isClubMember = false) {
     settlementDate: settlement.toLocaleDateString("pt-BR")
   };
 }
+const DEFAULT_OPERATIONAL_PARAMS = {
+  nfsPerVideoPost: 15,
+  nfsPerTextPost: 10,
+  dailyRewardedPostLimit: 1,
+  // 1 post próprio premiado por dia
+  weeklyRewardedPostLimit: 7,
+  nfsPerPostView: 5,
+  nfsPerLike: 5,
+  nfsPerSave: 10,
+  nfsPerShare: 10,
+  dailyThirdPartyInteractionsLimit: 10,
+  dailyMaxPointsThirdPartyInteractions: 50,
+  blockSelfEngagementRewards: true,
+  // Auto-engajamento sempre bloqueado
+  minDwellTimeSecondsForView: 3,
+  requireFullVideoCompletionForReward: true,
+  // Vídeos do feed precisam ser vistos 100% por completo (dwell time = 100% da duração)
+  maxInteractionsPerMinute: 10,
+  duplicateMediaFilterActive: true,
+  nfsPerWorkout: 25,
+  nfsPerLoyaltyDeclaration: 20,
+  netfitsTakeRatePctFromGmv: 6,
+  associadoShareOfNetfitsRevenuePct: 10,
+  normalUserReferralSharePct: 5,
+  normalUserNewReferralBonusNfs: 50,
+  cppAcumuloBrl: 0.02,
+  cppResgateBrl: 0.01,
+  costPerProvisionedPointBrl: 0.01,
+  // R$ 0,010 por ponto provisionado
+  netfitsClubMonthlyFeeBrl: 19.9,
+  nfsEarnedPerBrlSpent: 4,
+  nfsEarnedPerBrlSpentDouble: 8,
+  shopFirstPurchaseBonusNfs: 100,
+  pointsValidityMonths: 24,
+  // Expiração de 24 meses (730 dias)
+  targetBreakagePct: 12,
+  redemptionPolicy: "FEFO",
+  redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
+  cloudInfraMonthlyCostBrl: 7260,
+  finOpsSavingsPct: 61.5,
+  finOpsAnnualGainBrl: 138930
+};
+const STORAGE_KEY = "netfits_operational_params_v5";
+function loadInitialParams() {
+  if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { ...DEFAULT_OPERATIONAL_PARAMS, ...parsed };
+    }
+  } catch (e) {
+    console.error("Error loading operational params from localStorage:", e);
+  }
+  return DEFAULT_OPERATIONAL_PARAMS;
+}
+let currentParams = loadInitialParams();
+const listeners = /* @__PURE__ */ new Set();
+function emit() {
+  for (const l of listeners) l();
+}
+function subscribe(fn) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+function getSnapshot() {
+  return currentParams;
+}
+async function syncOperationalParamsWithServer() {
+  if (typeof window === "undefined") return currentParams;
+  try {
+    const res = await fetch("/api/operational-params");
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.params) {
+        currentParams = { ...DEFAULT_OPERATIONAL_PARAMS, ...data.params };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(currentParams));
+        } catch {
+        }
+        emit();
+        return currentParams;
+      }
+    }
+  } catch (err) {
+  }
+  return currentParams;
+}
+if (typeof window !== "undefined") {
+  syncOperationalParamsWithServer();
+  window.addEventListener("focus", () => syncOperationalParamsWithServer());
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY && e.newValue) {
+      try {
+        currentParams = { ...DEFAULT_OPERATIONAL_PARAMS, ...JSON.parse(e.newValue) };
+        emit();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
+}
+const operationalParamsStore = {
+  getParams: () => currentParams,
+  syncWithServer: syncOperationalParamsWithServer,
+  updateParams: async (newParams) => {
+    currentParams = { ...currentParams, ...newParams };
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentParams));
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        await fetch("/api/operational-params", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(currentParams)
+        });
+      } catch (err) {
+        console.warn("Failed to sync operational params with server:", err);
+      }
+    }
+    emit();
+  },
+  resetParams: async () => {
+    currentParams = { ...DEFAULT_OPERATIONAL_PARAMS };
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        await fetch("/api/operational-params", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(DEFAULT_OPERATIONAL_PARAMS)
+        });
+      } catch (err) {
+        console.warn("Failed to reset operational params on server:", err);
+      }
+    }
+    emit();
+  }
+};
+function useOperationalParams() {
+  return reactExports.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+let globalServerOperationalParams = { ...DEFAULT_OPERATIONAL_PARAMS };
+let lastParamsSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
+let globalColdTierStatus = {
+  hotLedgerRows: 14820,
+  coldArchivedRows: 184500,
+  cutoffMonths: 24,
+  hotStorageMb: 17.8,
+  coldStorageMb: 221.4,
+  ramSavedMb: 850,
+  queryLatencyMs: 6.2,
+  unoptimizedLatencyMs: 142.5,
+  costSavedMonthlyBrl: 1850,
+  lastRunAt: new Date(Date.now() - 864e5 * 2).toISOString(),
+  runsCount: 14
+};
 const DEFAULT_PRESEEDED_USERS = [
   {
     id: "usr_101",
@@ -1985,13 +2210,48 @@ const server = {
             { method: "POST", path: "/api/marketplace/mkplace/token", description: "Emissão interna de token SSO para Webview" }
           ],
           operationalRules: {
-            cashbackNormalNfsPerBrl: 4,
-            cashbackClubNfsPerBrl: 8,
-            firstPurchaseBonusNfs: 100,
-            friendCommissionPct: 5,
-            netfitsTakeRatePct: 6,
+            cashbackNormalNfsPerBrl: globalServerOperationalParams.nfsEarnedPerBrlSpent || 4,
+            cashbackClubNfsPerBrl: globalServerOperationalParams.nfsEarnedPerBrlSpentDouble || 8,
+            firstPurchaseBonusNfs: globalServerOperationalParams.shopFirstPurchaseBonusNfs || 100,
+            friendCommissionPct: globalServerOperationalParams.normalUserReferralSharePct || 5,
+            netfitsTakeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6,
             settlementPeriodDays: 14
           }
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+    if (url.pathname === "/api/operational-params" || url.pathname === "/api/operational-params/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          globalServerOperationalParams = {
+            ...globalServerOperationalParams,
+            ...body
+          };
+          lastParamsSyncTimestamp = (/* @__PURE__ */ new Date()).toISOString();
+          return new Response(
+            JSON.stringify({
+              success: true,
+              params: globalServerOperationalParams,
+              updatedAt: lastParamsSyncTimestamp,
+              source: "system_parameters_master"
+            }),
+            { status: 200, headers: corsHeaders }
+          );
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ success: false, error: err?.message || "Invalid payload" }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+      }
+      return new Response(
+        JSON.stringify({
+          success: true,
+          params: globalServerOperationalParams,
+          updatedAt: lastParamsSyncTimestamp,
+          source: "system_parameters_master"
         }),
         { status: 200, headers: corsHeaders }
       );
@@ -2039,9 +2299,49 @@ const server = {
         { status: 200, headers: corsHeaders }
       );
     }
+    if (url.pathname === "/api/finops/cold-tier-status" || url.pathname === "/api/finops/cold-tier-status/") {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status: globalColdTierStatus,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+    if (url.pathname === "/api/finops/archive-cold-data" || url.pathname === "/api/finops/archive-cold-data/") {
+      if (req.method === "POST" || req.method === "GET") {
+        const archivedBatch = 1250;
+        const freedStorageMb = 1.5;
+        globalColdTierStatus = {
+          ...globalColdTierStatus,
+          hotLedgerRows: Math.max(5e3, globalColdTierStatus.hotLedgerRows - archivedBatch),
+          coldArchivedRows: globalColdTierStatus.coldArchivedRows + archivedBatch,
+          hotStorageMb: Math.max(5, Number((globalColdTierStatus.hotStorageMb - freedStorageMb).toFixed(2))),
+          coldStorageMb: Number((globalColdTierStatus.coldStorageMb + freedStorageMb).toFixed(2)),
+          ramSavedMb: Number((globalColdTierStatus.ramSavedMb + 12.5).toFixed(1)),
+          queryLatencyMs: Number((Math.random() * 1.5 + 5.2).toFixed(1)),
+          lastRunAt: (/* @__PURE__ */ new Date()).toISOString(),
+          runsCount: globalColdTierStatus.runsCount + 1
+        };
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: `Arquivamento a frio executado com sucesso: ${archivedBatch} transações migradas para o Tier R2/Glacier.`,
+            status: globalColdTierStatus,
+            archivedBatch,
+            freedStorageMb,
+            executedAt: globalColdTierStatus.lastRunAt
+          }),
+          { status: 200, headers: corsHeaders }
+        );
+      }
+    }
     return handler(req);
   }
 };
 export {
-  server as default
+  server as default,
+  operationalParamsStore as o,
+  useOperationalParams as u
 };

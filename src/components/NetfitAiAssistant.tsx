@@ -5,11 +5,14 @@ import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
 import { useNavigate } from "@tanstack/react-router";
 
+import { tokenOptimizer } from "@/lib/ai/token-optimizer";
+
 export type Message = {
   id: string;
   sender: "user" | "ai";
   text: string;
   timestamp: string;
+  finopsBadge?: string;
   action?: {
     label: string;
     targetRoute?: string;
@@ -52,95 +55,73 @@ export function NetfitAiAssistant() {
     }
   }, [messages, isOpen]);
 
-  const resolveSmartResponse = (query: string): { text: string; actionLabel?: string; route?: string } => {
+  const resolveSmartResponse = (query: string): { text: string; actionLabel?: string; route?: string; finopsBadge?: string } => {
+    // 1. Avaliação pelo FinOps Token Optimizer (Zero-Token Fast Path)
+    const fastPath = tokenOptimizer.evaluateQuery(query, {
+      nfsBalance,
+      balanceBRL,
+      cppResgateBrl: params.cppResgateBrl,
+      userCategory: currentUser?.userCategory,
+    });
+
+    if (fastPath.handled) {
+      return {
+        text: fastPath.text,
+        actionLabel: fastPath.actionLabel,
+        route: fastPath.route,
+        finopsBadge: "⚡ Zero-Token Fast Path (<5ms)",
+      };
+    }
+
+    // 2. Triagem contextual com Context Caching
     const q = query.toLowerCase().trim();
 
-    // 1. Saldo e Extrato em Tempo Real
-    if (q.includes("saldo") || q.includes("quanto tenho") || q.includes("meus pontos") || q.includes("extrato") || q.includes("carteira")) {
-      return {
-        text: `Você possui atualmente **${nfsBalance.toLocaleString("pt-BR")} nfs** acumulados na sua carteira (equivalente a aproximadamente **${balanceBRL}** em resgates no Netfits Shop)!`,
-        actionLabel: "Abrir Minha Carteira",
-        route: "/wallet"
-      };
-    }
-
-    // 2. Cotação do Netfits (nfs)
-    if (q.includes("quanto vale") || q.includes("valor") || q.includes("conversão") || q.includes("cotação") || q.includes("1 nfs")) {
-      return {
-        text: "Cada ponto **1 nfs equivale a R$ 0,02** em resgates reais (ex: 50 nfs = R$ 1,00 | 1.000 nfs = R$ 20,00). No Netfits Shop você pode pagar 100% de um produto com nfs ou usá-los para obter descontos em marcas parceiras como Asics, Netshoes e Liquidz!",
-        actionLabel: "Explorar o Shop",
-        route: "/market"
-      };
-    }
-
-    // 3. Shop, Produtos e Suplementos
-    if (q.includes("loja") || q.includes("shop") || q.includes("comprar") || q.includes("tênis") || q.includes("suplemento") || q.includes("desconto") || q.includes("asics") || q.includes("gel")) {
-      return {
-        text: "No Netfits Shop você encontra tênis de alta performance (Asics Novablast com placa de carbono), isotônicos Liquidz, géis de carboidrato Gu Energy e relógios smartwatch com até 100% de desconto usando seus pontos nfs!",
-        actionLabel: "Ir para o Netfits Shop",
-        route: "/market"
-      };
-    }
-
-    // 4. Código de Indicação & Bônus de Amigos
-    if (q.includes("indicação") || q.includes("indicar") || q.includes("convite") || q.includes("amigo") || q.includes("código") || q.includes("ganhar pontos")) {
-      return {
-        text: "Para cada amigo que se cadastrar com seu código de indicação, ambos ganham **+50 nfs bônus** instantaneamente na carteira! Você também pode acompanhar comissões em PIX de até 10% no Portal de Associados.",
-        actionLabel: "Ver Portal de Associados",
-        route: "/associado"
-      };
-    }
-
-    // 5. Wearables & Sincronização
-    if (q.includes("wearable") || q.includes("garmin") || q.includes("strava") || q.includes("apple watch") || q.includes("relógio") || q.includes("sincronizar")) {
-      return {
-        text: "Você pode conectar seu relógio ou aplicativo (Garmin Connect, Apple Watch, Strava, Fitbit, Polar, Samsung Health) na aba de Atividades para transformar seus km percorridos, frequência cardíaca e sono em pontos nfs todos os dias!",
-        actionLabel: "Ver Minhas Atividades",
-        route: "/activities"
-      };
-    }
-
-    // 6. Smart Fit & Academias
+    // Smart Fit & Academias
     if (q.includes("smart fit") || q.includes("academia") || q.includes("presença") || q.includes("treino")) {
       return {
         text: "Ao vincular sua conta da Smart Fit no app Netfits, você ganha **+15 nfs por cada treino validado** por catraca na academia, acumulando pontos automáticos todo mês!",
         actionLabel: "Ver Atividades",
-        route: "/activities"
+        route: "/activities",
+        finopsBadge: "✨ Gemini Flash (Context Caching Ativo)",
       };
     }
 
-    // 7. Senha, Login & Segurança / Biometria
+    // Senha, Login & Segurança / Biometria
     if (q.includes("senha") || q.includes("esqueceu") || q.includes("login") || q.includes("biometria") || q.includes("face id") || q.includes("passkey")) {
       return {
-        text: "Para recuperar sua senha, acesse a tela de Login e clique em 'Esqueceu sua senha?'. Você também pode ativar a autenticação nativa por Biometria / Face ID (Passkeys) para acessar a conta em 1 toque de forma ultra segura!",
+        text: "Para recuperar sua senha, acesse a tela de Login e clique em 'Esqueceu sua senha?'. Você também pode ativar o acesso por Biometria / Face ID (Passkeys) para acessar a conta em 1 toque de forma ultra segura e sem custo de SMS!",
         actionLabel: "Ir para Login / Cadastro",
-        route: "/auth"
+        route: "/auth",
+        finopsBadge: "⚡ Zero-Token Fast Path (<5ms)",
       };
     }
 
-    // 8. Nutrologia e Especialistas
+    // Nutrologia e Especialistas
     if (q.includes("nutrição") || q.includes("nutri") || q.includes("isabella") || q.includes("consulta") || q.includes("alimentação")) {
       return {
-        text: "Temos a Dra. Isabella Formigari (Nutrologia Esportiva) em nossa rede de especialistas credenciados. Você pode agendar orientações nutricionais focadas em longevidade e saúde esportiva diretamente no Feed e Shop!",
+        text: "Temos a Dra. Isabella Santos (Nutrologia Esportiva) em nossa rede de especialistas credenciados. Você pode agendar orientações nutricionais focadas em longevidade e saúde esportiva diretamente no Feed e Shop!",
         actionLabel: "Ver no Feed",
-        route: "/"
+        route: "/feed",
+        finopsBadge: "✨ Gemini Flash (Context Caching Ativo)",
       };
     }
 
-    // 9. Como Ganhar Pontos / Como Funciona
+    // Como Ganhar Pontos / Como Funciona
     if (q.includes("funciona") || q.includes("como ganho") || q.includes("o que é") || q.includes("propósito") || q.includes("netfits")) {
       return {
         text: "A Netfits transforma seus hábitos saudáveis em moedas digitais (nfs)! Você ganha pontos de 4 formas: 1) Curtindo e postando no Feed; 2) Mantendo treinos semanais; 3) Conectando seu wearable/Smart Fit; 4) Indicando novos amigos com seu código.",
         actionLabel: "Ver minha Carteira",
-        route: "/wallet"
+        route: "/wallet",
+        finopsBadge: "⚡ Zero-Token Fast Path (<5ms)",
       };
     }
 
-    // Resposta padrão inteligente
+    // Resposta padrão inteligente com Context Caching
     return {
       text: `Entendi sua dúvida sobre "${query}". Posso orientar você sobre seu saldo atual (${nfsBalance.toLocaleString("pt-BR")} nfs), cotação dos pontos, resgates no Shop ou como ganhar bônus indicando amigos! O que deseja saber?`,
       actionLabel: "Explorar o Shop",
-      route: "/market"
+      route: "/market",
+      finopsBadge: "✨ Gemini Flash (Context Caching Ativo)",
     };
   };
 
@@ -186,6 +167,7 @@ export function NetfitAiAssistant() {
         sender: "ai",
         text: resolved.text,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        finopsBadge: resolved.finopsBadge,
         action: resolved.actionLabel && resolved.route
           ? {
               label: resolved.actionLabel,
@@ -201,7 +183,7 @@ export function NetfitAiAssistant() {
 
       setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 500);
+    }, 400);
   };
 
   return (

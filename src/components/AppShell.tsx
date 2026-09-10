@@ -8,7 +8,7 @@ import { useBadges, badgesStore } from "@/lib/badges-store";
 import { NetfitAiAssistant } from "./NetfitAiAssistant";
 
 const tabs = [
-  { to: "/", label: "Feed", icon: Home },
+  { to: "/feed", label: "Feed", icon: Home },
   { to: "/market", label: "Shop", icon: ShoppingBag },
   { to: "/activities", label: "Atividades", icon: Activity },
   { to: "/levels", label: "Badges", icon: Award },
@@ -47,10 +47,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   if (
+    path === "/" ||
+    path === "/home" ||
     path === "/auth" ||
     path === "/admin" || 
     path.startsWith("/associado") || 
-    path === "/home" || 
     path === "/faq" || 
     path === "/contato" || 
     path === "/parceiros" ||
@@ -109,7 +110,7 @@ function TopBar() {
   return (
     /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
     <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3 py-2.5 flex items-center justify-between shadow-xs">
-      <Link to="/home" className="flex items-center gap-2 shrink-0" aria-label="Netfits Homepage Institucional">
+      <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Netfits Homepage Institucional">
         <img
           src={netfitsDarkLogo}
           alt="Netfits"

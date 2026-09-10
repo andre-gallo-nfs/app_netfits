@@ -21,7 +21,7 @@ export function InstitutionalWebHeader() {
   const currentPath = location.pathname;
 
   const navLinks = [
-    { to: "/home", label: "Home", icon: Home, color: "hover:text-purple-400" },
+    { to: "/", label: "Home", icon: Home, color: "hover:text-purple-400" },
     { to: "/associado", label: "Associados", icon: Users, color: "hover:text-amber-400" },
     { to: "/parceiros", label: "Parceiros", icon: Building2, color: "hover:text-lime-400" },
     { to: "/faq", label: "FAQ", icon: HelpCircle, color: "hover:text-cyan-400" },
@@ -33,7 +33,7 @@ export function InstitutionalWebHeader() {
     <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 px-6 py-4 transition-all">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Logo & Marca */}
-        <Link to="/home" className="flex items-center gap-2.5 shrink-0 group">
+        <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
           <img
             src={netfitsDarkLogo}
             alt="Netfits"
@@ -47,7 +47,7 @@ export function InstitutionalWebHeader() {
         {/* Links de Navegação Fixos & Unificados (Desktop) */}
         <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-zinc-300">
           {navLinks.map((item) => {
-            const isActive = currentPath === item.to || (item.to === "/home" && currentPath === "/");
+            const isActive = currentPath === item.to || (item.to === "/" && currentPath === "/home") || (item.to === "/home" && currentPath === "/");
             const Icon = item.icon;
             return (
               <Link
@@ -69,7 +69,7 @@ export function InstitutionalWebHeader() {
         {/* CTA Direct App Access */}
         <div className="flex items-center gap-3 shrink-0">
           <Link
-            to="/"
+            to="/feed"
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition-all duration-200 flex items-center gap-1.5"
           >
             <Activity className="size-4" />
@@ -81,7 +81,7 @@ export function InstitutionalWebHeader() {
       {/* Subbar de Navegação Responsiva (Mobile / Tablet) */}
       <div className="lg:hidden flex items-center justify-around pt-3 mt-3 border-t border-zinc-900 text-[11px] font-semibold text-zinc-400 overflow-x-auto no-scrollbar gap-2">
         {navLinks.map((item) => {
-          const isActive = currentPath === item.to;
+          const isActive = currentPath === item.to || (item.to === "/" && currentPath === "/home") || (item.to === "/home" && currentPath === "/");
           return (
             <Link
               key={item.to}

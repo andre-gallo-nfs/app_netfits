@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import {
   User, Lock, Mail, Phone, CreditCard, ShieldCheck, AlertCircle,
   CheckCircle2, XCircle, Eye, EyeOff, Sparkles, ArrowRight, KeyRound,
-  LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar
+  LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar, Fingerprint
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/lib/auth-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { nativeBridge } from "@/lib/native-bridge";
+import { passkeyService } from "@/lib/webauthn-passkeys";
 import { toast } from "sonner";
 
 function formatCPF(value: string): string {
@@ -202,6 +203,9 @@ function AuthPage() {
     }
 
     // Sucesso no cadastro
+    if (res.user) {
+      passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
+    }
     toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
     navigate({ to: "/" });
   };
@@ -822,20 +826,33 @@ function AuthPage() {
           </button>
 
           {/* Passkeys Biometric Login Button */}
-          <button
-            type="button"
-            onClick={async () => {
-              const res = await nativeBridge.triggerBiometricAuth();
-              if (res.success) {
-                authStore.loginUser("atleta@netfits.com.br", "Pass@1234");
-                navigate({ to: "/" });
-              }
-            }}
-            className="w-full py-2.5 rounded-xl font-bold text-xs bg-zinc-100 dark:bg-zinc-800 text-foreground border border-border hover:bg-zinc-200 dark:hover:bg-zinc-700 transition flex items-center justify-center gap-2 active:scale-98 shadow-xs"
-          >
-            <ShieldCheck className="size-4 text-purple-600" />
-            Entrar com Biometria / Face ID (Passkeys)
-          </button>
+          <div className="space-y-2 pt-1">
+            <button
+              type="button"
+              onClick={async () => {
+                const res = await authStore.loginWithPasskey();
+                if (res.success) {
+                  const finops = passkeyService.getFinOpsMetrics();
+                  toast.success(`⚡ FinOps: Login biométrico realizado sem custo de SMS OTP (Economia: ${finops.costSavedFormatted})`);
+                  navigate({ to: "/" });
+                } else if (res.error) {
+                  toast.error(res.error);
+                }
+              }}
+              className="w-full py-3 rounded-xl font-bold text-xs bg-zinc-900 dark:bg-zinc-800 text-white border border-purple-500/40 hover:bg-zinc-800 dark:hover:bg-zinc-700 transition-all flex items-center justify-center gap-2 active:scale-98 shadow-md cursor-pointer"
+            >
+              <Fingerprint className="size-4 text-purple-400" />
+              <span>Entrar com Biometria / Passkey (Face ID / Touch ID)</span>
+            </button>
+            <div className="flex items-center justify-between px-1 text-[10px] text-zinc-500">
+              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <ShieldCheck className="size-3" /> FIDO2 / WebAuthn (Sem SMS OTP)
+              </span>
+              <span className="font-semibold text-purple-600 dark:text-purple-400">
+                Economia: {passkeyService.getFinOpsMetrics().costSavedFormatted}
+              </span>
+            </div>
+          </div>
 
           <div className="bg-purple-950/20 p-3 rounded-xl border border-purple-500/30 space-y-1 text-center">
             <p className="text-[11px] font-bold text-purple-300">💡 Homologação e Testes:</p>
