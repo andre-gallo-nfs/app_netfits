@@ -44,7 +44,7 @@ export function AdminAuthGuard({ children, onUnlocked, onLock }: AdminAuthGuardP
       }
       setIsLoading(false);
     }
-  }, []);
+  }, [onUnlocked]);
 
   const handleUnlockPin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();

@@ -918,6 +918,7 @@ class HomologationSandboxStore {
   }
 
   public useActiveUser(): SandboxUser {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useSyncExternalStore(
       (fn) => this.subscribe(fn),
       () => this.getActiveUser(),

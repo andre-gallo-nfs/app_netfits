@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import {
   BarChart3, Users, ShoppingBag, Activity, Rss, Handshake, ShieldAlert,
   DollarSign, Cpu, ArrowUpRight, ArrowDownRight, RefreshCw, Zap, Award,
-  CheckCircle2, Clock, Filter, Eye, Heart, TrendingUp, Sparkles, Infinity,
+  CheckCircle2, Clock, Filter, Eye, Heart, TrendingUp, Sparkles,
   Share2, Video, Check, ExternalLink, Download, Search, ChevronDown, UserCheck,
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
@@ -6358,7 +6358,7 @@ export function getKrHistoricalSeries(
   return categories.map((cat, i) => {
     const progressRatio = (i + 1) / len;
     const fluctuation = Math.sin(i * 1.8) * 0.05 + Math.cos(i * 0.7) * 0.03;
-    let baseVal = isDecreaseTarget
+    const baseVal = isDecreaseTarget
       ? targetNum * 1.35 - (targetNum * 0.35 * progressRatio)
       : targetNum * 0.65 + (currentNum - targetNum * 0.65) * Math.pow(progressRatio, 0.85);
 

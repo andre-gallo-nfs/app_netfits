@@ -184,7 +184,9 @@ export async function syncOperationalParamsWithServer(): Promise<OperationalPara
         currentParams = { ...DEFAULT_OPERATIONAL_PARAMS, ...data.params };
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(currentParams));
-        } catch {}
+        } catch {
+          // Ignora falha de persistência no localStorage
+        }
         emit();
         return currentParams;
       }

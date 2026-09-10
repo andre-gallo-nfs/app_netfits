@@ -1,1 +1,0 @@
-import{u as e,r as a,n as o,j as s,I as n}from"./index-SqyZ0duT.js";function i(){const t=e();return a.useEffect(()=>{o.isNativePlatform()&&t({to:"/feed",replace:!0})},[t]),s.jsx(n,{})}export{i as component};

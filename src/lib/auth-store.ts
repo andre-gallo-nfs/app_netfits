@@ -89,7 +89,7 @@ export function validatePasswordRules(password: string): PasswordRulesStatus {
   const hasNumber = /[0-9]/.test(password);
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
 
   const isValid = minLength && hasNumber && hasUppercase && hasLowercase && hasSpecial;
 
@@ -103,7 +103,7 @@ export function validatePasswordRules(password: string): PasswordRulesStatus {
   };
 }
 
-let storedUsers: StoredUser[] = [...EXISTING_DATABASE_USERS];
+const storedUsers: StoredUser[] = [...EXISTING_DATABASE_USERS];
 let currentUser: StoredUser | null = EXISTING_DATABASE_USERS[0];
 
 type AuthState = {

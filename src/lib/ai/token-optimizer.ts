@@ -39,7 +39,9 @@ class TokenOptimizerService {
     try {
       const raw = localStorage.getItem(TELEMETRY_STORAGE_KEY);
       if (raw) return JSON.parse(raw);
-    } catch {}
+    } catch {
+      // Ignora falhas de leitura no localStorage
+    }
     return { totalQueries: 4280, fastPathHits: 3680, tokensSavedTotal: 1545600, estimatedCostSavedBrl: 850.08 };
   }
 
@@ -47,7 +49,9 @@ class TokenOptimizerService {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem(TELEMETRY_STORAGE_KEY, JSON.stringify(this.telemetry));
-    } catch {}
+    } catch {
+      // Ignora falhas de escrita no localStorage
+    }
   }
 
   /**

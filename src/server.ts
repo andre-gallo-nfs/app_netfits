@@ -295,7 +295,9 @@ export default {
             const found = globalServerUsers.find((u) => u.id === body.userId || u.email === body.userId);
             if (found) targetUser = found;
           }
-        } catch {}
+        } catch {
+          // Body JSON inválido ou vazio, prossegue com targetUser padrão
+        }
       } else if (req.method === "GET") {
         const userId = url.searchParams.get("userId") || url.searchParams.get("email");
         if (userId) {
