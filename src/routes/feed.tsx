@@ -449,12 +449,12 @@ function VideoFeedCard({
         {rewarded ? (
           <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center gap-2">
             <Check className="size-4 shrink-0" />
-            <span>Vídeo assistido por completo (100% de retenção) — +{params.nfsPerPostView || 15} nfs creditados</span>
+            <span>Vídeo assistido por completo (100% de retenção) — +{params.nfsPerPostView || 10} nfs creditados</span>
           </div>
         ) : (
           <div className="mb-3 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-medium flex items-center gap-2">
             <ShieldCheck className="size-4 text-lime-400 shrink-0" />
-            <span>Regra Antifraude: Assista 100% do vídeo ({item.duration}) para receber +{params.nfsPerPostView || 15} nfs</span>
+            <span>Regra Antifraude: Assista 100% do vídeo ({item.duration}) para receber +{params.nfsPerPostView || 10} nfs</span>
           </div>
         )}
 
