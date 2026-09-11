@@ -27,7 +27,7 @@ export interface SandboxTransaction {
   userName: string;
   amount: number; // positive for gain, negative for spent
   description: string;
-  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view";
+  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post";
   timestamp: string;
 }
 
@@ -1159,13 +1159,16 @@ class HomologationSandboxStore {
   }
 
   // 6 & 7. Curtida, Compartilhamento e Visualização de Posts
-  public rewardEngagement(action: "like" | "share" | "view", postTitle: string) {
+  // 6 & 7. Interações do Feed (Visualização, Clique em Link, Curtida, Compartilhamento)
+  public rewardEngagement(action: "like" | "share" | "view" | "click", postTitle: string, customAmount?: number) {
     const active = this.getActiveUser();
-    const amount = action === "like" ? 5 : action === "share" ? 10 : 15;
+    const amount = customAmount ?? (action === "click" ? 10 : action === "view" ? 10 : action === "share" ? 10 : 10);
     const desc = action === "like"
       ? `Curtida no conteúdo: ${postTitle}`
       : action === "share"
       ? `Compartilhamento pós-visualização: ${postTitle}`
+      : action === "click"
+      ? `Clique em link do post: ${postTitle}`
       : `Visualização completa: ${postTitle}`;
 
     active.nfsBalance += amount;

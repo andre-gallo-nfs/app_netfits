@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck } from "lucide-react";
+import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges } from "@/lib/badges-store";
@@ -291,11 +291,25 @@ function ProductFeedCard({
   item: Extract<FeedItem, { type: "product" }>;
 }) {
   const [open, setOpen] = useState(false);
+  const [linkRewarded, setLinkRewarded] = useState(false);
+  const params = useOperationalParams();
+
+  const handleOpenProduct = () => {
+    if (!linkRewarded) {
+      setLinkRewarded(true);
+      const points = params.nfsPerLinkClick || 10;
+      wallet.earn(points, `Clique em link de parceiro: ${item.title}`);
+      sharedSandboxStore.rewardEngagement("click", item.title, points);
+      toast.success(`🎉 +${points} nfs acumulados por acessar o link do produto!`);
+    }
+    setOpen(true);
+  };
+
   return (
     <>
       <article className="px-4">
         <button
-          onClick={() => setOpen(true)}
+          onClick={handleOpenProduct}
           className="block w-full text-left active:scale-[0.99] transition-transform"
         >
           <div className="flex items-center justify-between mb-3">
@@ -324,11 +338,11 @@ function ProductFeedCard({
           <span className="text-sm font-semibold block mb-3">{item.price}</span>
         </button>
         <button
-          onClick={() => setOpen(true)}
-          className="w-full mb-3 bg-foreground text-background text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2"
+          onClick={handleOpenProduct}
+          className="w-full mb-3 bg-foreground text-background text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
         >
           <ShoppingBag className="size-4" />
-          Ver produto · {item.price}
+          Ver produto · {item.price} (+{params.nfsPerLinkClick || 10} nfs)
         </button>
         <SocialActions id={item.id} title={item.title} />
       </article>
@@ -384,9 +398,9 @@ function VideoFeedCard({
   useEffect(() => {
     if (isCompleted && !rewarded) {
       setRewarded(true);
-      const points = params.nfsPerPostView || 15;
+      const points = params.nfsPerPostView || 10;
       wallet.earn(points, `Visualização 100% Completa de Vídeo: ${item.title}`);
-      sharedSandboxStore.rewardEngagement("view", item.title);
+      sharedSandboxStore.rewardEngagement("view", item.title, points);
       toast.success(`🎉 Retenção de 100% atingida! +${points} nfs creditados na sua carteira!`);
     }
   }, [isCompleted, rewarded, item.title, params.nfsPerPostView]);
@@ -643,9 +657,10 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
         if (isOwnPost || params.blockSelfEngagementRewards) {
           toast.warning("🔒 Antifraude: Curtir seu próprio post não acumula pontos nfs.");
         } else {
-          wallet.earn(params.nfsPerLike, `Curtida em post de terceiro: ${title}`);
-          sharedSandboxStore.rewardEngagement("like", title);
-          toast.success(`+${params.nfsPerLike} nfs acumulados por curtir post de terceiro!`);
+          const points = params.nfsPerLike || 10;
+          wallet.earn(points, `Curtida em post de terceiro: ${title}`);
+          sharedSandboxStore.rewardEngagement("like", title, points);
+          toast.success(`+${points} nfs acumulados por curtir post de terceiro!`);
         }
       }
       return next;
@@ -669,6 +684,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
   };
 
   const [viewed, setViewed] = useState(false);
+  const [linkClicked, setLinkClicked] = useState(false);
 
   const handleCompleteView = () => {
     if (!viewed) {
@@ -676,8 +692,24 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
       if (isOwnPost) {
         toast.warning("🔒 Antifraude: Visualizar seu próprio post não acumula pontos nfs.");
       } else {
-        wallet.earn(params.nfsPerPostView, `Visualização completa: ${title}`);
-        toast.success(`+${params.nfsPerPostView} nfs por visualizar post de terceiro!`);
+        const points = params.nfsPerPostView || 10;
+        wallet.earn(points, `Visualização completa: ${title}`);
+        sharedSandboxStore.rewardEngagement("view", title, points);
+        toast.success(`+${points} nfs por visualizar post de terceiro!`);
+      }
+    }
+  };
+
+  const handleLinkClick = () => {
+    if (!linkClicked) {
+      setLinkClicked(true);
+      if (isOwnPost) {
+        toast.info("Link acessado. (Ações próprias não geram pontos)");
+      } else {
+        const points = params.nfsPerLinkClick || 10;
+        wallet.earn(points, `Clique em link do post: ${title}`);
+        sharedSandboxStore.rewardEngagement("click", title, points);
+        toast.success(`+${points} nfs por clicar no link do post!`);
       }
     }
   };
@@ -694,7 +726,19 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
           }`}
         >
           <Eye className="size-4" />
-          {viewed ? "Lido (+5 nfs)" : "Concluir Leitura (+5 nfs)"}
+          {viewed ? `Lido (+${params.nfsPerPostView || 10} nfs)` : `Concluir Leitura (+${params.nfsPerPostView || 10} nfs)`}
+        </button>
+        <button
+          onClick={handleLinkClick}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 ${
+            linkClicked
+              ? "bg-emerald-600 text-white ring-emerald-600 shadow-sm"
+              : "bg-muted text-foreground ring-black/5 hover:bg-emerald-500/10 hover:text-emerald-400"
+          }`}
+          title="Acessar link externo / parceiro recomendado"
+        >
+          <ExternalLink className="size-4" />
+          {linkClicked ? `Link Aberto (+${params.nfsPerLinkClick || 10} nfs)` : `Ver Link (+${params.nfsPerLinkClick || 10} nfs)`}
         </button>
         <button
           onClick={handleLike}
@@ -715,7 +759,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
           aria-label="Compartilhar"
         >
           <Share2 className="size-4 text-lime-400" />
-          Compartilhar (+10 nfs)
+          Compartilhar
         </button>
         <button
           onClick={handleSave}
@@ -876,9 +920,10 @@ function ContactSendList({
                       if (isOwnPost) {
                         toast.warning("🔒 Antifraude: Compartilhar seu próprio post não gera acúmulo de nfs.");
                       } else {
-                        wallet.earn(params.nfsPerShare, `Compartilhamento pós-visualização: ${title}`);
-                        sharedSandboxStore.rewardEngagement("share", title);
-                        toast.success(`+${params.nfsPerShare} nfs acumulados por compartilhar post de terceiro!`);
+                        const points = params.nfsPerShare || 10;
+                        wallet.earn(points, `Compartilhamento pós-visualização: ${title}`);
+                        sharedSandboxStore.rewardEngagement("share", title, points);
+                        toast.success(`+${points} nfs acumulados por compartilhar post de terceiro!`);
                       }
                     }
                     setSent((prev) => (prev.includes(c.name) ? prev : [...prev, c.name]));

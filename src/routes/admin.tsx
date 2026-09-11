@@ -3158,32 +3158,33 @@ function AdminDashboardPage() {
                   </span>
                 </div>
 
-                {/* Subseção A: Publicação de Conteúdo Próprio */}
+                {/* Subseção A: Publicação de Conteúdo Próprio (Nova Tabela) */}
                 <div className="space-y-3 bg-zinc-950/60 p-4 rounded-2xl border border-zinc-800">
                   <h5 className="text-xs font-black text-lime-400 uppercase tracking-wider flex items-center gap-2">
                     <span>📌 Publicação de Conteúdo Próprio (Posts do Próprio Usuário)</span>
                   </h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <ParamInput
-                      label="nfs por VÍDEO PRÓPRIO"
-                      unit="nfs / vídeo"
-                      value={operationalParams.nfsPerVideoPost}
-                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerVideoPost: Number(v) }))}
-                    />
-                    <ParamInput
-                      label="nfs por TEXTO / FOTO PRÓPRIA"
+                      label="nfs por Post Próprio (vídeo, foto ou texto)"
                       unit="nfs / post"
-                      value={operationalParams.nfsPerTextPost}
-                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerTextPost: Number(v) }))}
+                      value={operationalParams.nfsPerOwnPost ?? 10}
+                      onChange={(v) =>
+                        setOperationalParams((p) => ({
+                          ...p,
+                          nfsPerOwnPost: Number(v),
+                          nfsPerVideoPost: Number(v),
+                          nfsPerTextPost: Number(v),
+                        }))
+                      }
                     />
                     <ParamInput
-                      label="Limite DIÁRIO de Posts Próprios"
-                      unit="posts / dia"
+                      label="Limite diário de posts próprios pontuáveis"
+                      unit="post / dia"
                       value={operationalParams.dailyRewardedPostLimit}
                       onChange={(v) => setOperationalParams((p) => ({ ...p, dailyRewardedPostLimit: Number(v) }))}
                     />
                     <ParamInput
-                      label="Limite SEMANAL de Posts Próprios"
+                      label="Limite semanal de posts próprios pontuáveis"
                       unit="posts / semana"
                       value={operationalParams.weeklyRewardedPostLimit}
                       onChange={(v) => setOperationalParams((p) => ({ ...p, weeklyRewardedPostLimit: Number(v) }))}
@@ -3191,47 +3192,29 @@ function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Subseção B: Interação em Conteúdo de Terceiros */}
+                {/* Subseção B: Interação em Conteúdo de Terceiros (Nova Tabela) */}
                 <div className="space-y-3 bg-zinc-950/60 p-4 rounded-2xl border border-zinc-800">
                   <h5 className="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center gap-2">
                     <span>👥 Interação em Conteúdo de Terceiros (Posts de Outros Usuários)</span>
                   </h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <ParamInput
-                      label="nfs por View em Post de Terceiro"
+                      label="nfs por view de posts"
                       unit="nfs / view"
                       value={operationalParams.nfsPerPostView}
                       onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerPostView: Number(v) }))}
                     />
                     <ParamInput
-                      label="nfs por Like em Post de Terceiro"
-                      unit="nfs / like"
-                      value={operationalParams.nfsPerLike}
-                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLike: Number(v) }))}
+                      label="nfs por click em link de posts"
+                      unit="nfs / clique"
+                      value={operationalParams.nfsPerLinkClick ?? 10}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLinkClick: Number(v) }))}
                     />
                     <ParamInput
-                      label="nfs por Share de Post de Terceiro"
-                      unit="nfs / share"
-                      value={operationalParams.nfsPerShare}
-                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerShare: Number(v) }))}
-                    />
-                    <ParamInput
-                      label="nfs por Post Salvo de Terceiro"
-                      unit="nfs / save"
-                      value={operationalParams.nfsPerSave}
-                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerSave: Number(v) }))}
-                    />
-                    <ParamInput
-                      label="Limite DIÁRIO Interações Terceiros"
+                      label="Limite máximo de interações com posts de terceiros"
                       unit="interações / dia"
                       value={operationalParams.dailyThirdPartyInteractionsLimit}
                       onChange={(v) => setOperationalParams((p) => ({ ...p, dailyThirdPartyInteractionsLimit: Number(v) }))}
-                    />
-                    <ParamInput
-                      label="Teto Máximo DIÁRIO nfs Terceiros"
-                      unit="nfs máx / dia"
-                      value={operationalParams.dailyMaxPointsThirdPartyInteractions}
-                      onChange={(v) => setOperationalParams((p) => ({ ...p, dailyMaxPointsThirdPartyInteractions: Number(v) }))}
                     />
                   </div>
                 </div>

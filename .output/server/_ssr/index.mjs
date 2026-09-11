@@ -87,7 +87,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-fkoq93k9.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-pxQ70r2K.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -1164,7 +1164,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-CB56YS_-.mjs").then((n) => n.r),
+    import("./router-pcKT0BdV.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1782,17 +1782,25 @@ function processMkplaceOrderNotification(event, isClubMember = false) {
   };
 }
 const DEFAULT_OPERATIONAL_PARAMS = {
-  nfsPerVideoPost: 15,
-  nfsPerTextPost: 10,
+  // Feed Rewards - Nova Tabela Oficial (10 nfs unificado)
+  nfsPerOwnPost: 10,
   dailyRewardedPostLimit: 1,
-  // 1 post próprio premiado por dia
+  // Limite diário de posts próprios pontuáveis
   weeklyRewardedPostLimit: 7,
-  nfsPerPostView: 5,
-  nfsPerLike: 5,
+  // Limite semanal de posts próprios pontuáveis
+  nfsPerPostView: 10,
+  // nfs por view de posts
+  nfsPerLinkClick: 10,
+  // nfs por click em link de posts
+  dailyThirdPartyInteractionsLimit: 10,
+  // limite máximo de interações com posts de terceiros
+  // Campos legados sincronizados
+  nfsPerVideoPost: 10,
+  nfsPerTextPost: 10,
+  nfsPerLike: 10,
   nfsPerSave: 10,
   nfsPerShare: 10,
-  dailyThirdPartyInteractionsLimit: 10,
-  dailyMaxPointsThirdPartyInteractions: 50,
+  dailyMaxPointsThirdPartyInteractions: 100,
   blockSelfEngagementRewards: true,
   // Auto-engajamento sempre bloqueado
   minDwellTimeSecondsForView: 3,
@@ -1823,7 +1831,7 @@ const DEFAULT_OPERATIONAL_PARAMS = {
   finOpsSavingsPct: 61.5,
   finOpsAnnualGainBrl: 138930
 };
-const STORAGE_KEY = "netfits_operational_params_v5";
+const STORAGE_KEY = "netfits_operational_params_v6";
 function loadInitialParams() {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
   try {

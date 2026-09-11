@@ -1,19 +1,21 @@
 import { useSyncExternalStore } from "react";
 
 export type OperationalParams = {
-  // Feed Rewards & Anti-Fraud (Criação de Conteúdo Próprio)
-  nfsPerVideoPost: number;
-  nfsPerTextPost: number;
-  dailyRewardedPostLimit: number;
-  weeklyRewardedPostLimit: number;
+  // Feed Rewards & Regras Oficiais (Nova Tabela)
+  nfsPerOwnPost: number; // nfs por Post Próprio (vídeo, foto ou texto) - 10 nfs
+  dailyRewardedPostLimit: number; // Limite diário de posts próprios pontuáveis - 1
+  weeklyRewardedPostLimit: number; // Limite semanal de posts próprios pontuáveis - 7
+  nfsPerPostView: number; // nfs por view de posts - 10 nfs
+  nfsPerLinkClick: number; // nfs por click em link de posts - 10 nfs
+  dailyThirdPartyInteractionsLimit: number; // limite máximo de interações com posts de terceiros - 10
 
-  // Engajamento em Posts de Terceiros
-  nfsPerPostView: number;
-  nfsPerLike: number;
-  nfsPerSave: number;
-  nfsPerShare: number;
-  dailyThirdPartyInteractionsLimit: number;
-  dailyMaxPointsThirdPartyInteractions: number;
+  // Parâmetros legados mantidos para compatibilidade com componentes existentes
+  nfsPerVideoPost?: number;
+  nfsPerTextPost?: number;
+  nfsPerLike?: number;
+  nfsPerSave?: number;
+  nfsPerShare?: number;
+  dailyMaxPointsThirdPartyInteractions?: number;
 
   // Travas de Segurança Antifraude & Moderação
   blockSelfEngagementRewards: boolean; // Antifraude: Bloqueia acúmulo de nfs por agir sobre o próprio post
@@ -97,17 +99,22 @@ export function deductPointsFEFO(
 }
 
 export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
-  nfsPerVideoPost: 15,
-  nfsPerTextPost: 10,
-  dailyRewardedPostLimit: 1, // 1 post próprio premiado por dia
-  weeklyRewardedPostLimit: 7,
+  // Feed Rewards - Nova Tabela Oficial (10 nfs unificado)
+  nfsPerOwnPost: 10,
+  dailyRewardedPostLimit: 1, // Limite diário de posts próprios pontuáveis
+  weeklyRewardedPostLimit: 7, // Limite semanal de posts próprios pontuáveis
 
-  nfsPerPostView: 5,
-  nfsPerLike: 5,
+  nfsPerPostView: 10, // nfs por view de posts
+  nfsPerLinkClick: 10, // nfs por click em link de posts
+  dailyThirdPartyInteractionsLimit: 10, // limite máximo de interações com posts de terceiros
+
+  // Campos legados sincronizados
+  nfsPerVideoPost: 10,
+  nfsPerTextPost: 10,
+  nfsPerLike: 10,
   nfsPerSave: 10,
   nfsPerShare: 10,
-  dailyThirdPartyInteractionsLimit: 10,
-  dailyMaxPointsThirdPartyInteractions: 50,
+  dailyMaxPointsThirdPartyInteractions: 100,
 
   blockSelfEngagementRewards: true, // Auto-engajamento sempre bloqueado
   minDwellTimeSecondsForView: 3,
@@ -141,7 +148,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v5";
+const STORAGE_KEY = "netfits_operational_params_v6";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
