@@ -25,3 +25,8 @@ Antes de realizar QUALQUER alteração, refatoração, edição em lote ou imple
 
 3. **Arquitetura FinOps**:
    - Priorizar soluções de custo zero (Zero-Token Fast-Path em IA, Passkeys biométricas para eliminar SMS OTP, Cold Data Tiering no PostgreSQL).
+
+4. **Deploy Contínuo Automático na Vercel (Produção)**:
+   - Toda alteração finalizada e validada deve ser enviada diretamente para o GitHub (`git push origin main`).
+   - Como a Vercel está conectada ao repositório via CI/CD, o push para a `main` dispara o deploy em produção (`https://app-netfits.vercel.app`) de forma 100% automática e transparente.
+
