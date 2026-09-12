@@ -3260,13 +3260,90 @@ function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Card 2: Engajamento, Treinos & Indicações */}
-              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+              {/* Card 2: Programa de Indicação & Regras de Comissionamento (Usuário Comum vs. Clube vs. Associado) */}
+              <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 shadow-xl space-y-5 lg:col-span-2 bg-gradient-to-r from-purple-950/30 via-zinc-900 to-zinc-900">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800 pb-3 gap-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="size-5 text-lime-400" />
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                        Regras Diferenciadas de Remuneração
+                      </span>
+                      <h4 className="font-bold text-base text-white">Programa de Indicação & Comissionamento de Indicados</h4>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-lime-300 bg-lime-500/10 px-3 py-1 rounded-full border border-lime-500/20 flex items-center gap-1.5 self-start sm:self-auto">
+                    <Sparkles className="size-3.5 text-lime-400" />
+                    Regra Estrutural de Negócio
+                  </span>
+                </div>
+
+                {/* Painel Explicativo das 3 Regras de Negócio */}
+                <div className="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="space-y-1.5 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                    <div className="flex items-center gap-1.5 text-blue-400 font-black uppercase text-[10px] tracking-wider">
+                      <span>👤</span> Usuário Comum (Atleta Free)
+                    </div>
+                    <p className="text-[11px] text-zinc-300 leading-snug">
+                      O indicador recebe <b>50 nfs</b> uma única vez por cada novo usuário cadastrado usando seu código. Embora a marcação seja <b>permanente</b> no banco, <b>esta premiação será a única</b> que o indicador comum receberá.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                    <div className="flex items-center gap-1.5 text-amber-400 font-black uppercase text-[10px] tracking-wider">
+                      <span>⭐</span> Assinante Netfits Club (Upgrade)
+                    </div>
+                    <p className="text-[11px] text-zinc-300 leading-snug">
+                      A regra só se altera se o usuário <b>assinar o Clube</b>. Ao virar assinante, passa aí sim a ganhar <b>10% de comissão em pontos</b> sobre todos os pontos ganhos nas compras do shop feitas pelos seus indicados.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 p-3 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                    <div className="flex items-center gap-1.5 text-purple-400 font-black uppercase text-[10px] tracking-wider">
+                      <span>🏢</span> Associados (Carteira Compartilhada)
+                    </div>
+                    <p className="text-[11px] text-zinc-300 leading-snug">
+                      <b>Esta limitação NÃO se aplica aos Associados</b>. Seus indicados estão sempre presentes na sua <b>Carteira Compartilhada perpétua</b>, recebendo repasse contínuo de <b>10% das receitas</b> geradas por eles.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Inputs dos Parâmetros de Indicação */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <ParamInput
+                    label="Pontos por indicação de novo usuário (usuário comum)"
+                    unit="nfs / novo usuário"
+                    value={operationalParams.normalUserNewReferralBonusNfs ?? 50}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, normalUserNewReferralBonusNfs: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Comissão pontos shop indicados (assinante Clube)"
+                    unit="% dos pontos do shop"
+                    value={operationalParams.clubMemberReferralShopPointsPct ?? 10}
+                    onChange={(v) =>
+                      setOperationalParams((p) => ({
+                        ...p,
+                        clubMemberReferralShopPointsPct: Number(v),
+                        normalUserReferralSharePct: Number(v),
+                      }))
+                    }
+                  />
+                  <ParamInput
+                    label="Repasse receitas Carteira Compartilhada (Associados)"
+                    unit="% da receita gerada"
+                    value={operationalParams.associadoShareOfNetfitsRevenuePct}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, associadoShareOfNetfitsRevenuePct: Number(v) }))}
+                  />
+                </div>
+              </div>
+
+              {/* Card 3: Engajamento de Treinos & Atribuição do Shopping */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                   <Zap className="size-5 text-lime-400" />
-                  <h4 className="font-bold text-sm text-white">Engajamento, Treinos & Indicações</h4>
+                  <h4 className="font-bold text-sm text-white">Engajamento de Treinos & Atribuição do Shopping</h4>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ParamInput
                     label="nfs por Treino Validado (Smart Fit/GPS)"
                     unit="nfs / treino"
@@ -3274,44 +3351,16 @@ function AdminDashboardPage() {
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerWorkout: Number(v) }))}
                   />
                   <ParamInput
-                    label="Bônus de Indicação de Amigo"
-                    unit="nfs / amigo"
-                    value={operationalParams.normalUserNewReferralBonusNfs}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, normalUserNewReferralBonusNfs: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="Comissão de Indicação de Amigo"
-                    unit="% das compras"
-                    value={operationalParams.normalUserReferralSharePct}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, normalUserReferralSharePct: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="nfs por Vínculo de Programa Fidelidade"
+                    label="nfs por Vínculo Fidelidade (Stix/Livelo)"
                     unit="nfs / vínculo"
                     value={operationalParams.nfsPerLoyaltyDeclaration}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLoyaltyDeclaration: Number(v) }))}
                   />
-                </div>
-              </div>
-
-              {/* Card 3: Comissões do Marketplace & Associados */}
-              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
-                <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
-                  <Percent className="size-5 text-purple-400" />
-                  <h4 className="font-bold text-sm text-white">Atribuição do Marketplace & Repasses</h4>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <ParamInput
                     label="Take-Rate Netfits no Shopping"
                     unit="% do GMV"
                     value={operationalParams.netfitsTakeRatePctFromGmv}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, netfitsTakeRatePctFromGmv: Number(v) }))}
-                  />
-                  <ParamInput
-                    label="Comissão Padrão do Associado Netfits"
-                    unit="% da Receita Netfits"
-                    value={operationalParams.associadoShareOfNetfitsRevenuePct}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, associadoShareOfNetfitsRevenuePct: Number(v) }))}
                   />
                   <ParamInput
                     label="Bônus 1ª Compra no Shopping"

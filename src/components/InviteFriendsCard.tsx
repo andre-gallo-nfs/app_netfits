@@ -80,16 +80,16 @@ export function InviteFriendsCard() {
           </div>
 
           <h2 className="text-[22px] font-semibold leading-tight text-balance mb-2">
-            {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe nfs <span className="text-brand">para sempre</span>.
+            {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe <span className="text-brand">+50 nfs</span> por amigo.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">
-            Todo amigo que entrar pelo seu link ganha +50 nfs de boas-vindas e você recebe 5% de comissão recorrente sobre todas as compras deles no Shop. Sem limite.
+            Todo amigo que se cadastrar com seu link ganha +50 nfs de boas-vindas e você ganha +50 nfs na hora. Assinantes do <b>Netfits Club</b> turbinam a regra e passam a ganhar 10% de comissão em pontos sobre todas as compras deles no Shop!
           </p>
 
           <div className="grid grid-cols-3 gap-2 mb-5">
-            <Stat icon={<Users className="size-3.5" />} value="12" label="já entraram" />
-            <Stat icon={<Gift className="size-3.5" />} value="+2.480" label="nfs gerados" />
-            <Stat icon={<Sparkles className="size-3.5" />} value="∞" label="recorrente" />
+            <Stat icon={<Users className="size-3.5" />} value="+50" label="nfs / amigo" />
+            <Stat icon={<Gift className="size-3.5" />} value="10%" label="no Shop (Clube)" />
+            <Stat icon={<Sparkles className="size-3.5" />} value="Vínculo" label="permanente" />
           </div>
 
           <div className="flex items-center gap-2 bg-background/10 ring-1 ring-background/15 rounded-full pl-4 pr-1 py-1 mb-3">

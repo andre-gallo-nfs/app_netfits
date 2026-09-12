@@ -27,11 +27,12 @@ export type OperationalParams = {
   nfsPerWorkout: number;
   nfsPerLoyaltyDeclaration: number;
 
-  // Economics & Revenue Share
+  // Economics, Indicações & Revenue Share
   netfitsTakeRatePctFromGmv: number;
-  associadoShareOfNetfitsRevenuePct: number;
-  normalUserReferralSharePct: number;
-  normalUserNewReferralBonusNfs: number;
+  associadoShareOfNetfitsRevenuePct: number; // 10% de repasse das receitas da Carteira Compartilhada aos Associados
+  normalUserNewReferralBonusNfs: number; // Pontos por indicação de novo usuário (usuário comum: 50 nfs, premiação única)
+  clubMemberReferralShopPointsPct: number; // Comissão de pontos por compras no shop de indicados (assinante Netfits Club: 10%)
+  normalUserReferralSharePct: number; // Legado sincronizado com clubMemberReferralShopPointsPct
 
   // Point Economics
   cppAcumuloBrl: number;
@@ -127,8 +128,9 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
 
   netfitsTakeRatePctFromGmv: 6.0,
   associadoShareOfNetfitsRevenuePct: 10.0,
-  normalUserReferralSharePct: 5.0,
   normalUserNewReferralBonusNfs: 50,
+  clubMemberReferralShopPointsPct: 10.0,
+  normalUserReferralSharePct: 10.0,
 
   cppAcumuloBrl: 0.02,
   cppResgateBrl: 0.01,
@@ -148,7 +150,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v6";
+const STORAGE_KEY = "netfits_operational_params_v7";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

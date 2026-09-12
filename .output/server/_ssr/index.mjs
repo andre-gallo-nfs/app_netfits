@@ -87,7 +87,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-DOfV-Owj.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-duTHMYFs.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -1164,7 +1164,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-tKdzCQyA.mjs").then((n) => n.r),
+    import("./router-Bmlk0ggh.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1812,8 +1812,9 @@ const DEFAULT_OPERATIONAL_PARAMS = {
   nfsPerLoyaltyDeclaration: 20,
   netfitsTakeRatePctFromGmv: 6,
   associadoShareOfNetfitsRevenuePct: 10,
-  normalUserReferralSharePct: 5,
   normalUserNewReferralBonusNfs: 50,
+  clubMemberReferralShopPointsPct: 10,
+  normalUserReferralSharePct: 10,
   cppAcumuloBrl: 0.02,
   cppResgateBrl: 0.01,
   costPerProvisionedPointBrl: 0.01,
@@ -1831,7 +1832,7 @@ const DEFAULT_OPERATIONAL_PARAMS = {
   finOpsSavingsPct: 61.5,
   finOpsAnnualGainBrl: 138930
 };
-const STORAGE_KEY = "netfits_operational_params_v6";
+const STORAGE_KEY = "netfits_operational_params_v7";
 function loadInitialParams() {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
   try {
