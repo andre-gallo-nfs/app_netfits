@@ -24,7 +24,18 @@ export type OperationalParams = {
   maxInteractionsPerMinute: number;     // Rate limit contra robôs/scripts (ex: máx 10 interações/min)
   duplicateMediaFilterActive: boolean;  // Filtro de hash de mídia duplicada ou spam
 
-  nfsPerWorkout: number;
+  // Atividades Físicas, Wearables & Regras Sweat-to-Earn
+  nfsPerWorkout: number; // nfs por atividade executada (20 nfs)
+  weeklyMaxRewardedWorkouts: number; // Máximo de atividades pontuáveis por semana (5 treinos)
+  dailyMaxRewardedWorkouts: number; // Máximo de atividades pontuáveis por dia (1 treino)
+  minWorkoutDurationMinutes: number; // Duração mínima para modalidades gerais (30 min)
+  minWorkoutDurationHiitMinutes: number; // Duração mínima para treinos HIIT (20 min)
+  minWorkoutActiveCalories: number; // Gasto calórico ativo mínimo (150 kcal)
+  maxRetroactiveSyncHours: number; // Janela máxima de sincronização retroativa (48 horas)
+  workoutStreakBonusNfs: number; // Bônus de consistência ao completar a meta semanal de 5 treinos (20 nfs)
+  requireHardwareSensorsForWorkout: boolean; // Antifraude: exige sensores de hardware (GPS/Cardíaco) e rejeita manual
+  maxRunningPaceThresholdMinutesPerKm: number; // Antifraude corrida: velocidade limite (~26,6 km/h / 2:15 min/km)
+  maxCyclingSpeedKmh: number; // Antifraude bike: velocidade contínua máxima sem motor (55 km/h)
   nfsPerLoyaltyDeclaration: number;
 
   // Economics, Indicações & Revenue Share
@@ -123,7 +134,18 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   maxInteractionsPerMinute: 10,
   duplicateMediaFilterActive: true,
 
-  nfsPerWorkout: 25,
+  // Atividades Físicas, Wearables & Regras Sweat-to-Earn
+  nfsPerWorkout: 20, // 20 nfs por atividade executada
+  weeklyMaxRewardedWorkouts: 5, // Limite de 5 treinos por semana
+  dailyMaxRewardedWorkouts: 1, // Limite de 1 treino por dia
+  minWorkoutDurationMinutes: 30, // 30 minutos mínimos para treinos gerais
+  minWorkoutDurationHiitMinutes: 20, // 20 minutos para HIIT
+  minWorkoutActiveCalories: 150, // 150 kcal ativas mínimas
+  maxRetroactiveSyncHours: 48, // 48 horas retroativas
+  workoutStreakBonusNfs: 20, // Bônus de consistência de +20 nfs ao completar 5 treinos na semana
+  requireHardwareSensorsForWorkout: true, // Rejeita entradas manuais sem sensores ópticos/GPS
+  maxRunningPaceThresholdMinutesPerKm: 2.25, // Trava veículos motorizados em corrida (2:15 min/km)
+  maxCyclingSpeedKmh: 55, // Trava velocidade contínua de bike acima de 55 km/h
   nfsPerLoyaltyDeclaration: 20,
 
   netfitsTakeRatePctFromGmv: 6.0,
@@ -150,7 +172,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v7";
+const STORAGE_KEY = "netfits_operational_params_v8";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

@@ -201,11 +201,11 @@ export const marketProducts = [
 ];
 
 export const activities = [
-  { id: "a1", icon: "🏃", title: "Corrida — 12,4 km", date: "Hoje, 06:12", reward: "+10 nfs" },
-  { id: "a2", icon: "😴", title: "Sono 7h42 registrado", date: "Hoje, 07:00", reward: "+10 nfs" },
-  { id: "a3", icon: "🥗", title: "Check-in nutricional", date: "Ontem, 20:30", reward: "+15 nfs" },
-  { id: "a4", icon: "🚴", title: "Bike — 38,1 km", date: "Ontem, 17:50", reward: "+10 nfs" },
-  { id: "a5", icon: "🩺", title: "Consulta Dra. Isabella Formigari", date: "12 mai", reward: "+500 nfs" },
+  { id: "a1", icon: "🏃", title: "Corrida — 12,4 km (GPS)", date: "Hoje, 06:12", reward: "+20 nfs" },
+  { id: "a2", icon: "🏋️", title: "Musculação & Força — 54 min (FC)", date: "Ontem, 18:30", reward: "+20 nfs" },
+  { id: "a3", icon: "🚴", title: "Ciclismo Estrada — 38,1 km", date: "12 mai, 07:15", reward: "+20 nfs" },
+  { id: "a4", icon: "😴", title: "Sono Reparador 7h42 registrado", date: "Hoje, 07:00", reward: "+10 nfs" },
+  { id: "a5", icon: "🩺", title: "Consulta Dra. Isabella Formigari", date: "10 mai", reward: "+500 nfs" },
 ];
 
 export const walletTxs = [

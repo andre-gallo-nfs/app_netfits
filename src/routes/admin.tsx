@@ -3337,19 +3337,135 @@ function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Card 3: Engajamento de Treinos & Atribuição do Shopping */}
+              {/* Card 3: Atividades Físicas, Wearables & Regras Sweat-to-Earn */}
+              <div className="bg-zinc-900 border border-lime-500/30 rounded-3xl p-6 shadow-xl space-y-5 lg:col-span-2 bg-gradient-to-r from-lime-950/20 via-zinc-900 to-zinc-900">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800 pb-3 gap-2">
+                  <div className="flex items-center gap-2">
+                    <Activity className="size-5 text-lime-400" />
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
+                        Motor Biométrico & Sweat-to-Earn
+                      </span>
+                      <h4 className="font-bold text-base text-white">Atividades Físicas, Wearables & Regras de Treino</h4>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-lime-400 bg-lime-500/10 px-3 py-1 rounded-full border border-lime-500/20 flex items-center gap-1.5">
+                    <ShieldCheck className="size-3.5 text-lime-400" />
+                    Validação Biometria / GPS Ativa
+                  </span>
+                </div>
+
+                {/* Subseção A: Parâmetros Centrais de Pontuação */}
+                <div className="space-y-3 bg-zinc-950/60 p-4 rounded-2xl border border-zinc-800">
+                  <h5 className="text-xs font-black text-lime-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>🏃 Parâmetros de Recompensa & Limites de Frequência</span>
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <ParamInput
+                      label="nfs por Atividade Executada (GPS/Sensores)"
+                      unit="nfs / treino"
+                      value={operationalParams.nfsPerWorkout ?? 20}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerWorkout: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Limite semanal de treinos pontuáveis"
+                      unit="treinos / semana"
+                      value={operationalParams.weeklyMaxRewardedWorkouts ?? 5}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, weeklyMaxRewardedWorkouts: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Limite diário de treinos pontuáveis"
+                      unit="treino / dia"
+                      value={operationalParams.dailyMaxRewardedWorkouts ?? 1}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, dailyMaxRewardedWorkouts: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Bônus Semanal de Consistência (Streak)"
+                      unit="nfs bônus"
+                      value={operationalParams.workoutStreakBonusNfs ?? 20}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, workoutStreakBonusNfs: Number(v) }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Subseção B: Critérios Mínimos de Elegibilidade */}
+                <div className="space-y-3 bg-zinc-950/60 p-4 rounded-2xl border border-zinc-800">
+                  <h5 className="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center gap-2">
+                    <span>⏱️ Critérios de Duração, Biometria & Ingestão</span>
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <ParamInput
+                      label="Duração Mínima Treino Geral"
+                      unit="minutos"
+                      value={operationalParams.minWorkoutDurationMinutes ?? 30}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, minWorkoutDurationMinutes: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Duração Mínima Treino HIIT"
+                      unit="minutos"
+                      value={operationalParams.minWorkoutDurationHiitMinutes ?? 20}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, minWorkoutDurationHiitMinutes: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Gasto Calórico Mínimo Ativo"
+                      unit="kcal ativas"
+                      value={operationalParams.minWorkoutActiveCalories ?? 150}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, minWorkoutActiveCalories: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Janela Máx. Sincronia Retroativa"
+                      unit="horas"
+                      value={operationalParams.maxRetroactiveSyncHours ?? 48}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, maxRetroactiveSyncHours: Number(v) }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Subseção C: Matriz de Travas Antifraude de Sensores */}
+                <div className="space-y-3 bg-purple-950/30 p-4 rounded-2xl border border-purple-500/30">
+                  <h5 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="size-4 text-lime-400" />
+                    <span>Matriz de Governança Antifraude de Sensores & Wearables</span>
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-red-400 block">🚫 Bloqueio Treino Manual</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Entradas manuais no Strava/Apple sem dados brutos de GPS ou frequência cardíaca são <b>automaticamente descartadas (0 nfs)</b>.
+                      </p>
+                    </div>
+
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-purple-500/40 space-y-1">
+                      <span className="font-extrabold text-amber-400 block">🚗 Filtro Anti-Automotivo</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Corridas com ritmo abaixo de <b>2:15 min/km (&gt;26,6 km/h)</b> ou ciclismo contínuo acima de <b>55 km/h</b> caem em auditoria manual.
+                      </p>
+                    </div>
+
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-blue-400 block">🛡️ Teto Diário Anti-Split</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Apenas <b>1 atividade por dia</b> pontua, coibindo a divisão de um treino longo em vários blocos para burlar a pontuação.
+                      </p>
+                    </div>
+
+                    <div className="bg-zinc-900/90 p-3 rounded-xl border border-zinc-800 space-y-1">
+                      <span className="font-extrabold text-lime-400 block">📈 Bônus Golden Streak</span>
+                      <p className="text-[11px] text-zinc-400 leading-snug">
+                        Prêmio adicional de <b>+{operationalParams.workoutStreakBonusNfs ?? 20} nfs</b> concedido ao atleta que atinge os 5 treinos semanais.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Atribuição Comercial & Shopping (Take-Rate e Fidelidade) */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
-                  <Zap className="size-5 text-lime-400" />
-                  <h4 className="font-bold text-sm text-white">Engajamento de Treinos & Atribuição do Shopping</h4>
+                  <Zap className="size-5 text-amber-400" />
+                  <h4 className="font-bold text-sm text-white">Atribuição Comercial, Fidelidade Bancária & Shopping</h4>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <ParamInput
-                    label="nfs por Treino Validado (Smart Fit/GPS)"
-                    unit="nfs / treino"
-                    value={operationalParams.nfsPerWorkout}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerWorkout: Number(v) }))}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <ParamInput
                     label="nfs por Vínculo Fidelidade (Stix/Livelo)"
                     unit="nfs / vínculo"

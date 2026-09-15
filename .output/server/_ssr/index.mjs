@@ -87,7 +87,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-duTHMYFs.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BEUTZUsx.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -1164,7 +1164,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-Bmlk0ggh.mjs").then((n) => n.r),
+    import("./router-DaDBMgHi.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1808,7 +1808,29 @@ const DEFAULT_OPERATIONAL_PARAMS = {
   // Vídeos do feed precisam ser vistos 100% por completo (dwell time = 100% da duração)
   maxInteractionsPerMinute: 10,
   duplicateMediaFilterActive: true,
-  nfsPerWorkout: 25,
+  // Atividades Físicas, Wearables & Regras Sweat-to-Earn
+  nfsPerWorkout: 20,
+  // 20 nfs por atividade executada
+  weeklyMaxRewardedWorkouts: 5,
+  // Limite de 5 treinos por semana
+  dailyMaxRewardedWorkouts: 1,
+  // Limite de 1 treino por dia
+  minWorkoutDurationMinutes: 30,
+  // 30 minutos mínimos para treinos gerais
+  minWorkoutDurationHiitMinutes: 20,
+  // 20 minutos para HIIT
+  minWorkoutActiveCalories: 150,
+  // 150 kcal ativas mínimas
+  maxRetroactiveSyncHours: 48,
+  // 48 horas retroativas
+  workoutStreakBonusNfs: 20,
+  // Bônus de consistência de +20 nfs ao completar 5 treinos na semana
+  requireHardwareSensorsForWorkout: true,
+  // Rejeita entradas manuais sem sensores ópticos/GPS
+  maxRunningPaceThresholdMinutesPerKm: 2.25,
+  // Trava veículos motorizados em corrida (2:15 min/km)
+  maxCyclingSpeedKmh: 55,
+  // Trava velocidade contínua de bike acima de 55 km/h
   nfsPerLoyaltyDeclaration: 20,
   netfitsTakeRatePctFromGmv: 6,
   associadoShareOfNetfitsRevenuePct: 10,
@@ -1832,7 +1854,7 @@ const DEFAULT_OPERATIONAL_PARAMS = {
   finOpsSavingsPct: 61.5,
   finOpsAnnualGainBrl: 138930
 };
-const STORAGE_KEY = "netfits_operational_params_v7";
+const STORAGE_KEY = "netfits_operational_params_v8";
 function loadInitialParams() {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
   try {
