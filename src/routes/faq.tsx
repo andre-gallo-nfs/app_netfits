@@ -554,7 +554,7 @@ function FaqPage() {
                 <p>5.1. O Titular pode solicitar a qualquer tempo: confirmação do tratamento, acesso aos dados, correção de erros, anonimização, eliminação de dados ou revogação do consentimento via e-mail <b>dpo@netfits.com.br</b>.</p>
 
                 <h4 className="font-extrabold text-lime-400 text-sm pt-2">6. CANAL DE ATENDIMENTO E DPO OFICIAL</h4>
-                <p>Encarregado pelo Tratamento de Dados (DPO): <b>dpo@netfits.com.br</b> ou <b>suporte@netfits.com.br</b>.<br/>Endereço: Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba/SP - CEP 06.542-195.</p>
+                <p>Encarregado pelo Tratamento de Dados (DPO): <b>dpo@netfits.com.br</b> ou <b>contato@netfits.com.br</b>.<br/>Endereço: Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba/SP - CEP 06.542-195.</p>
               </div>
 
               {/* PDF Preview Frame */}

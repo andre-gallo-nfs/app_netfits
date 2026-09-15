@@ -130,8 +130,8 @@ function ContatoPage() {
 
             <div className="space-y-3 text-xs text-zinc-300">
               <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">E-mail Corporativo</span>
-                <p className="font-semibold text-white">suporte@netfits.com.br</p>
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">E-mail Corporativo & Suporte</span>
+                <p className="font-semibold text-white">contato@netfits.com.br</p>
               </div>
 
               <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1">

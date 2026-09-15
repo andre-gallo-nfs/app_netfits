@@ -385,9 +385,9 @@ export function InstitutionalHomePage() {
           </div>
 
           <div className="space-y-2">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Contato Corporativo</h4>
+            <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Contato Corporativo & Suporte</h4>
             <p className="text-zinc-400">Netfits Ltda.</p>
-            <p className="text-zinc-400">suporte@netfits.com.br</p>
+            <p className="text-zinc-400">contato@netfits.com.br</p>
             <p className="text-zinc-400">São Paulo, SP — Brasil</p>
           </div>
         </div>
