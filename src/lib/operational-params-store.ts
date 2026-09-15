@@ -162,7 +162,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   nfsEarnedPerBrlSpentDouble: 8.0,
   shopFirstPurchaseBonusNfs: 100,
   pointsValidityMonths: 24, // Expiração de 24 meses (730 dias)
-  targetBreakagePct: 12.0,
+  targetBreakagePct: 5.0, // Taxa de expiração estimada (Breakage CPC 47): 5,0% a.a.
 
   redemptionPolicy: "FEFO",
   redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
@@ -172,7 +172,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v8";
+const STORAGE_KEY = "netfits_operational_params_v9";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

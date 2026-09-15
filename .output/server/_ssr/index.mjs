@@ -87,7 +87,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BEUTZUsx.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-D2T22gDa.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -1164,7 +1164,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-DaDBMgHi.mjs").then((n) => n.r),
+    import("./router-DIJZWtNc.mjs").then((n) => n.r),
     import("./start-HYkvq4Ni.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
@@ -1847,14 +1847,15 @@ const DEFAULT_OPERATIONAL_PARAMS = {
   shopFirstPurchaseBonusNfs: 100,
   pointsValidityMonths: 24,
   // Expiração de 24 meses (730 dias)
-  targetBreakagePct: 12,
+  targetBreakagePct: 5,
+  // Taxa de expiração estimada (Breakage CPC 47): 5,0% a.a.
   redemptionPolicy: "FEFO",
   redemptionPolicyName: "FEFO — First-Expiring, First-Out (Consumo Prioritário do Ponto Mais Próximo do Vencimento)",
   cloudInfraMonthlyCostBrl: 7260,
   finOpsSavingsPct: 61.5,
   finOpsAnnualGainBrl: 138930
 };
-const STORAGE_KEY = "netfits_operational_params_v8";
+const STORAGE_KEY = "netfits_operational_params_v9";
 function loadInitialParams() {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
   try {

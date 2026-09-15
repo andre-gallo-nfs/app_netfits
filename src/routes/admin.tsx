@@ -1648,7 +1648,7 @@ function AdminDashboardPage() {
               const redeemedPoints = Math.round(totalPointsLedger * 0.384);
               const redeemedBrl = redeemedPoints * (operationalParams.cppResgateBrl ?? 0.01);
               const burnRatePct = 38.4;
-              const breakagePct = operationalParams.targetBreakagePct ?? 12.0;
+              const breakagePct = operationalParams.targetBreakagePct ?? 5.0;
               const breakagePoints = Math.round(totalPointsLedger * (breakagePct / 100));
               const breakageBrl = breakagePoints * costPerPoint;
               const coverageRatio = 1.42;
@@ -4688,8 +4688,8 @@ function AdminDashboardPage() {
           const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint;
           const provisionPctOfGross = (drePointsProvision / dreGrossRev) * 100;
 
-          // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting — 12% a.a.)
-          const expiredPointsCount = Math.round(validIssuedPointsCount * ((operationalParams.targetBreakagePct ?? 12.0) / 100));
+          // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting — 5% a.a.)
+          const expiredPointsCount = Math.round(validIssuedPointsCount * ((operationalParams.targetBreakagePct ?? 5.0) / 100));
           const drePointsProvisionReversal = expiredPointsCount * provisionCostPerPoint;
           const reversalPctOfGross = (drePointsProvisionReversal / dreGrossRev) * 100;
 
@@ -5970,7 +5970,7 @@ function AdminDashboardPage() {
                         <p className="text-zinc-400 text-[11px]">Fundo de liquidez para 100% dos pontos válidos.</p>
                       </div>
                       <div className="bg-zinc-900 p-3.5 rounded-2xl border border-emerald-400/30 space-y-1">
-                        <span className="text-emerald-300 font-bold block">Breakage (12% a.a.)</span>
+                        <span className="text-emerald-300 font-bold block">Breakage (5% a.a.)</span>
                         <p className="text-zinc-400 text-[11px]">Baixa contábil de pontos expirados auditada por IA.</p>
                       </div>
                       <div className="bg-zinc-900 p-3.5 rounded-2xl border border-zinc-700 space-y-1">
