@@ -194,8 +194,8 @@ export function AdminMkplaceIntegrationTab() {
       payload: {
         sub: activeUser.id,
         customerId: activeUser.id,
-        storeId: "netfits_store_01",
-        accountId: "netfits_acc_brazil",
+        storeId: "RhOFkbZJIN",
+        accountId: "RhOFkbZJIN",
         name: activeUser.name,
         email: activeUser.email,
         preferred_username: activeUser.email.split("@")[0],
@@ -331,8 +331,8 @@ export function AdminMkplaceIntegrationTab() {
         status: "DELIVERED",
         totalAmount: numAmount,
         isFirstPurchase: isFirstPurchase,
-        storeId: "netfits_store_01",
-        accountId: "netfits_acc_brazil",
+        storeId: "RhOFkbZJIN",
+        accountId: "RhOFkbZJIN",
         items: [
           {
             sku: "MKP-ASICS-NOVABLAST-5",

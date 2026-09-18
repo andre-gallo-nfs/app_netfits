@@ -71,8 +71,8 @@ export function getMkplaceConfig(): MkplaceConfig {
   const hasRealKey = Boolean(env.MKPLACE_PRIVATE_KEY && env.MKPLACE_PRIVATE_KEY.length > 50);
 
   return {
-    storeId: env.MKPLACE_STORE_ID || "netfits-store-prod",
-    accountId: env.MKPLACE_ACCOUNT_ID || "netfits-acc-2026",
+    storeId: env.MKPLACE_STORE_ID || "RhOFkbZJIN",
+    accountId: env.MKPLACE_ACCOUNT_ID || "RhOFkbZJIN",
     keyId: env.MKPLACE_KEY_ID || "nfs-mkplace-rsa-v1",
     privateKey: hasRealKey
       ? env.MKPLACE_PRIVATE_KEY!.replace(/\\n/g, "\n")

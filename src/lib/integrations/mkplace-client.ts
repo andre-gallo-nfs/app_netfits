@@ -37,8 +37,8 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
         btoa(JSON.stringify({
           sub: targetUserId,
           customerId: targetUserId,
-          storeId: "netfits_store_01",
-          accountId: "netfits_acc_brazil",
+          storeId: "RhOFkbZJIN",
+          accountId: "RhOFkbZJIN",
           realm_access: { roles: ["profile:roles=STORE", "profile:roles=CUSTOMER"] },
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 28800,
