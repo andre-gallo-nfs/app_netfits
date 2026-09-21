@@ -100,7 +100,7 @@ export function AdminMkplaceIntegrationTab() {
 
   // Webhook order simulator
   const [orderAmount, setOrderAmount] = useState("250.00");
-  const [isFirstPurchase, setIsFirstPurchase] = useState(true);
+  const [isFirstPurchase, setIsFirstPurchase] = useState(false);
   const [isClubMember, setIsClubMember] = useState(false);
   const [webhookResult, setWebhookResult] = useState<any>(null);
   const [isSubmittingWebhook, setIsSubmittingWebhook] = useState(false);
@@ -301,18 +301,19 @@ export function AdminMkplaceIntegrationTab() {
   };
 
   const simulateLocalWallet = () => {
+    const clubMultiplier = isClubMember ? (params?.clubShopPointsMultiplier ?? 1.0) : 1.0;
     const mockWallet = {
       balance: activeUser.balance,
       unit: "nfs",
-      currencyEquivalentBrl: (activeUser.balance * (params?.cppResgateBrl || 0.1)).toFixed(2),
+      currencyEquivalentBrl: (activeUser.balance * (params?.cppResgateBrl || 0.01)).toFixed(2),
       tier: activeUser.tier,
       tierName: "Atleta Conectado",
       ratePerReal: params?.nfsEarnedPerBrlSpent || 4,
-      clubRatePerReal: (params?.nfsEarnedPerBrlSpent || 4) * 2,
+      clubRatePerReal: (params?.nfsEarnedPerBrlSpent || 4) * clubMultiplier,
       clubMember: isClubMember,
-      firstPurchaseBonusAvailable: isFirstPurchase,
+      firstPurchaseBonusAvailable: isFirstPurchase && ((params?.shopFirstPurchaseBonusNfs ?? 0) > 0),
       benefits: [
-        "Cashback de 4 nfs por R$ em todo o catálogo",
+        `Cashback de ${params?.nfsEarnedPerBrlSpent || 4} nfs por R$ em todo o catálogo`,
         "Resgate imediato em suplementos e calçados",
         "Garantia de autenticidade oficial",
       ],
@@ -365,9 +366,10 @@ export function AdminMkplaceIntegrationTab() {
   };
 
   const simulateLocalWebhook = (amount: number) => {
-    const rate = isClubMember ? (params?.nfsEarnedPerBrlSpent || 4) * 2 : (params?.nfsEarnedPerBrlSpent || 4);
+    const clubMultiplier = isClubMember ? (params?.clubShopPointsMultiplier ?? 1.0) : 1.0;
+    const rate = (params?.nfsEarnedPerBrlSpent || 4) * clubMultiplier;
     const basePoints = Math.round(amount * rate);
-    const bonusPoints = isFirstPurchase ? (params?.shopFirstPurchaseBonusNfs || 100) : 0;
+    const bonusPoints = isFirstPurchase ? (params?.shopFirstPurchaseBonusNfs ?? 0) : 0;
     const totalPoints = basePoints + bonusPoints;
     const takeRateAmount = amount * ((params?.netfitsTakeRatePctFromGmv || 6.0) / 100);
     const referralAmount = amount * ((params?.normalUserReferralSharePct || 5.0) / 100);
@@ -386,7 +388,7 @@ export function AdminMkplaceIntegrationTab() {
         orderAmount: `R$ ${amount.toFixed(2)}`,
         netfitsTakeRateAmount: `R$ ${takeRateAmount.toFixed(2)} (${params?.netfitsTakeRatePctFromGmv || 6.0}%)`,
         friendReferralCommission: `R$ ${referralAmount.toFixed(2)} (${params?.normalUserReferralSharePct || 5.0}%)`,
-        cashbackValueBrl: `R$ ${(totalPoints * (params?.cppResgateBrl || 0.1)).toFixed(2)}`,
+        cashbackValueBrl: `R$ ${(totalPoints * (params?.cppResgateBrl || 0.01)).toFixed(2)}`,
       },
       newBalance: activeUser.balance + totalPoints,
     };
@@ -403,8 +405,9 @@ export function AdminMkplaceIntegrationTab() {
 
   // Live calculation preview
   const numAmount = parseFloat(orderAmount) || 0;
-  const currentRate = isClubMember ? (params?.nfsEarnedPerBrlSpent || 4) * 2 : (params?.nfsEarnedPerBrlSpent || 4);
-  const previewPoints = Math.round(numAmount * currentRate) + (isFirstPurchase ? (params?.shopFirstPurchaseBonusNfs || 100) : 0);
+  const clubMultiplier = isClubMember ? (params?.clubShopPointsMultiplier ?? 1.0) : 1.0;
+  const currentRate = (params?.nfsEarnedPerBrlSpent || 4) * clubMultiplier;
+  const previewPoints = Math.round(numAmount * currentRate) + (isFirstPurchase ? (params?.shopFirstPurchaseBonusNfs ?? 0) : 0);
   const previewTakeRate = numAmount * ((params?.netfitsTakeRatePctFromGmv || 6.0) / 100);
   const previewReferral = numAmount * ((params?.normalUserReferralSharePct || 5.0) / 100);
 
@@ -475,12 +478,16 @@ export function AdminMkplaceIntegrationTab() {
             <span className="text-sm font-black text-lime-400">{params?.nfsEarnedPerBrlSpent || 4.0} nfs / R$</span>
           </div>
           <div className="bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
-            <span className="text-[10px] uppercase font-bold text-zinc-400 block">Netfits Club (2x)</span>
-            <span className="text-sm font-black text-purple-400">{(params?.nfsEarnedPerBrlSpent || 4.0) * 2} nfs / R$</span>
+            <span className="text-[10px] uppercase font-bold text-zinc-400 block">
+              Netfits Club ({params?.clubShopPointsMultiplier ?? 1.0}x)
+            </span>
+            <span className="text-sm font-black text-purple-400">
+              {((params?.nfsEarnedPerBrlSpent || 4.0) * (params?.clubShopPointsMultiplier ?? 1.0)).toFixed(1)} nfs / R$
+            </span>
           </div>
           <div className="bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
             <span className="text-[10px] uppercase font-bold text-zinc-400 block">1ª Compra Shop</span>
-            <span className="text-sm font-black text-amber-400">+{params?.shopFirstPurchaseBonusNfs || 100} nfs</span>
+            <span className="text-sm font-black text-amber-400">+{params?.shopFirstPurchaseBonusNfs ?? 0} nfs</span>
           </div>
           <div className="bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
             <span className="text-[10px] uppercase font-bold text-zinc-400 block">Take Rate Netfits</span>
@@ -491,8 +498,8 @@ export function AdminMkplaceIntegrationTab() {
             <span className="text-sm font-black text-blue-400">{params?.normalUserReferralSharePct || 5.0}%</span>
           </div>
           <div className="bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
-            <span className="text-[10px] uppercase font-bold text-zinc-400 block">Paridade Ponto</span>
-            <span className="text-sm font-black text-emerald-400">R$ {(params?.cppResgateBrl || 0.1).toFixed(2)}</span>
+            <span className="text-[10px] uppercase font-bold text-zinc-400 block">Paridade Resgate</span>
+            <span className="text-sm font-black text-emerald-400">R$ {(params?.cppResgateBrl || 0.01).toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -750,7 +757,7 @@ export function AdminMkplaceIntegrationTab() {
                     className="rounded accent-amber-500 size-4"
                   />
                   <span className="text-xs text-zinc-300 font-medium">
-                    1ª Compra (+100 nfs)
+                    1ª Compra (+{params?.shopFirstPurchaseBonusNfs ?? 0} nfs)
                   </span>
                 </label>
               </div>
@@ -764,7 +771,7 @@ export function AdminMkplaceIntegrationTab() {
                     className="rounded accent-purple-500 size-4"
                   />
                   <span className="text-xs text-zinc-300 font-medium">
-                    Netfits Club (2x nfs)
+                    Netfits Club ({params?.clubShopPointsMultiplier ?? 1.0}x nfs)
                   </span>
                 </label>
               </div>

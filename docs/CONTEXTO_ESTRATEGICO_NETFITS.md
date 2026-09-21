@@ -19,11 +19,11 @@ A Netfits é uma plataforma pioneira de **Sweat-to-Earn**, saúde preventiva e l
 
 Toda a lógica atuarial do aplicativo em `src/lib/operational-params-store.ts`, no painel administrativo `src/routes/admin.tsx` e na carteira `src/routes/wallet.tsx` segue estritamente as seguintes diretrizes:
 
-1. **Custo do Ponto Provisionado:** **`R$ 0,010 / nfs`** (R$ 0,010 tanto para emissão quanto para resgate de parceiros).
+1. **Custo por Ponto (CPPs):** **CPP de Acúmulo de `R$ 0,015 / nfs`**, **CPP de Resgate de `R$ 0,010 / nfs`** e **CPP de Provisionamento de `R$ 0,010 / nfs`** (Spread de R$ 0,005 retido na emissão).
 2. **Validade dos Pontos:** **`24 meses`** (730 dias no algoritmo de amortização FEFO - *First-Expiring, First-Out*).
-3. **Paridade de Pontos no Shop:** **4 a 8 nfs por R$ 1,00 gasto** em compras no e-commerce.
-4. **Bônus de Boas-Vindas:** **+100 nfs** na primeira compra confirmada.
-5. **Programa Indique um Amigo (Member-Get-Member):** **+50 nfs** para quem indica e **+50 nfs** para o novo atleta.
+3. **Paridade de Pontos no Shop:** **4,00 nfs por R$ 1,00 gasto** em compras no e-commerce (multiplicador do Clube parametrizado em 1.0x).
+4. **Bônus de Boas-Vindas:** **+50 nfs** no novo cadastro do atleta no aplicativo (primeira compra inicialmente com 0 nfs).
+5. **Programa Indique um Amigo (Member-Get-Member):** **+50 nfs** para quem indica e **+50 nfs** no cadastro do novo atleta.
 6. **Passivo Circulante Inicial (Go-Live):** **R$ 0,00** (banco relacional de produção inicia limpo, sem distorções de testes).
 
 ---

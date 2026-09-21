@@ -102,7 +102,7 @@ class TokenOptimizerService {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       return {
         handled: true,
-        text: `Cada ponto **1 nfs equivale a R$ ${context.cppResgateBrl.toFixed(2)}** em resgates reais no catálogo oficial da Rock Encantech (ex: 50 nfs = R$ 1,00 | 1.000 nfs = R$ 20,00). No Netfits Shop você pode pagar até 100% de produtos com pontos ou combiná-los com cartão!`,
+        text: `Cada ponto **1 nfs equivale a R$ ${context.cppResgateBrl.toFixed(2)}** em resgates reais no catálogo oficial da Rock Encantech (ex: 100 nfs = R$ 1,00 | 1.000 nfs = R$ 10,00). No Netfits Shop você pode pagar até 100% de produtos com pontos ou combiná-los com cartão!`,
         actionLabel: "Explorar o Shop",
         route: "/market",
         source: "deterministic_fast_path",

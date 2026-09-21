@@ -7,7 +7,7 @@
  * - Endpoints de Perfil do Cliente (/customer/profile)
  * - Endpoints de Carteira de Pontos (/loyalty/wallet)
  * - Processamento de Webhooks de Pedidos e Pagamentos
- * - Parâmetros operacionais 2026 (4.0 nfs/R$, 8.0 nfs/R$ Club, 100 nfs 1ª compra, 5% amigo, 6% take rate)
+ * - Parâmetros operacionais 2026 (4.0 nfs/R$, 5% amigo, 6% take rate, 1.0x Clube, 0 nfs 1ª compra)
  */
 
 import crypto from "node:crypto";
@@ -453,25 +453,32 @@ export interface MkplaceWebhookResult {
 
 /**
  * Processa a notificação de compra da Mkplace aplicando as regras econômicas de 2026:
- * - 4.0 nfs por R$ (Normal) ou 8.0 nfs por R$ (Club)
- * - 100 nfs de bônus na 1ª compra
+ * - 4.0 nfs por R$ (Normal e Club 1.0x neste momento)
+ * - 0 nfs de bônus na 1ª compra (parametrizável)
  * - 5% de comissão de indicação em pontos
  * - 6.0% de Take Rate Netfits sobre o valor faturado
  */
 export function processMkplaceOrderNotification(
   event: MkplaceOrderWebhookEvent,
-  isClubMember: boolean = false
+  isClubMember: boolean = false,
+  customParams?: {
+    baseRate?: number;
+    clubMultiplier?: number;
+    firstPurchaseBonus?: number;
+    takeRatePct?: number;
+  }
 ): MkplaceWebhookResult {
   const { order } = event;
   const totalPaid = order.totals.totalPaidBrl || 0;
 
   // Diretrizes Operacionais de 2026
-  const baseRate = 4.0;
-  const effectiveRate = isClubMember ? baseRate * 2.0 : baseRate; // 8.0 se Club
+  const baseRate = customParams?.baseRate ?? 4.0;
+  const clubMultiplier = isClubMember ? (customParams?.clubMultiplier ?? 1.0) : 1.0;
+  const effectiveRate = baseRate * clubMultiplier;
   const baseCashback = Math.floor(totalPaid * effectiveRate);
 
-  // Bônus de Primeira Compra (+100 nfs)
-  const firstPurchaseBonus = order.isFirstPurchase ? 100 : 0;
+  // Bônus de Primeira Compra (inicialmente 0 nfs)
+  const firstPurchaseBonus = order.isFirstPurchase ? (customParams?.firstPurchaseBonus ?? 0) : 0;
   const totalNfsEarned = baseCashback + firstPurchaseBonus;
 
   // Comissão de Indicação de Amigo (5% em nfs)

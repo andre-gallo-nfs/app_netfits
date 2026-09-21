@@ -219,14 +219,15 @@ export async function verifyWebhookSignature(
 
 export function processMarketplaceOrderWebhook(
   payload: WebhookOrderPayload,
-  isClubMember: boolean = false
+  isClubMember: boolean = false,
+  clubMultiplier: number = 1.0
 ): WebhookProcessingResult {
   const seller = REGISTERED_MARKETPLACE_SELLERS[payload.merchantId];
   const auditLogId = `AUDIT-ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
   const totalPaid = payload.order.totals.totalPaidBrl || 0;
   const baseMultiplier = seller ? seller.cashbackRewardMultiplier : 4.0;
-  const effectiveMultiplier = isClubMember ? baseMultiplier * 2.0 : baseMultiplier;
+  const effectiveMultiplier = isClubMember ? baseMultiplier * clubMultiplier : baseMultiplier;
   const nfsEarned = Math.floor(totalPaid * effectiveMultiplier);
 
   const graceDays = seller ? seller.settlementGracePeriodDays : 14;

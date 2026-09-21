@@ -197,7 +197,7 @@ export const marketProducts = [
   { id: "m18", image: productPalatinose, title: "Palatinose Endurance 400g", price: "R$ 139", cashback: "+139 nfs" },
   { id: "m19", image: productCreatine, title: "Creatina Monohidratada 300g", price: "R$ 179", cashback: "+179 nfs" },
   { id: "m20", image: productAppleWatch, title: "Apple Watch Series 10 GPS 46mm", price: "R$ 4.299", cashback: "+4.299 nfs" },
-  { id: "m21", image: productJblBone, title: "JBL Soundgear Sense — fone por indução", price: "R$ 1.199", cashback: "+2.398 nfs", doubleNfs: true },
+  { id: "m21", image: productJblBone, title: "JBL Soundgear Sense — fone por indução", price: "R$ 1.199", cashback: "+1.199 nfs" },
 ];
 
 export const activities = [

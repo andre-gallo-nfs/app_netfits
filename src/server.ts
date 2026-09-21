@@ -266,7 +266,12 @@ export default {
           const user = globalServerUsers.find((u) => u.id === customerId || u.email === body?.order?.customerEmail);
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
-          const result = processMkplaceOrderNotification(body, isClubMember);
+          const result = processMkplaceOrderNotification(body, isClubMember, {
+            baseRate: globalServerOperationalParams.nfsEarnedPerBrlSpent || 4.0,
+            clubMultiplier: globalServerOperationalParams.clubShopPointsMultiplier ?? 1.0,
+            firstPurchaseBonus: globalServerOperationalParams.shopFirstPurchaseBonusNfs ?? 0,
+            takeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6.0,
+          });
 
           // Credita cashback no usuário se for status aprovado/faturado
           if (user && result.nfsEarned > 0) {
@@ -353,8 +358,12 @@ export default {
           ],
           operationalRules: {
             cashbackNormalNfsPerBrl: globalServerOperationalParams.nfsEarnedPerBrlSpent || 4.0,
-            cashbackClubNfsPerBrl: globalServerOperationalParams.nfsEarnedPerBrlSpentDouble || 8.0,
-            firstPurchaseBonusNfs: globalServerOperationalParams.shopFirstPurchaseBonusNfs || 100,
+            clubShopMultiplier: globalServerOperationalParams.clubShopPointsMultiplier ?? 1.0,
+            cashbackClubNfsPerBrl: (globalServerOperationalParams.nfsEarnedPerBrlSpent || 4.0) * (globalServerOperationalParams.clubShopPointsMultiplier ?? 1.0),
+            firstPurchaseBonusNfs: globalServerOperationalParams.shopFirstPurchaseBonusNfs ?? 0,
+            newUserRegistrationBonusNfs: globalServerOperationalParams.newUserRegistrationBonusNfs ?? 50,
+            cppAcumuloBrl: globalServerOperationalParams.cppAcumuloBrl ?? 0.015,
+            cppResgateBrl: globalServerOperationalParams.cppResgateBrl ?? 0.01,
             friendCommissionPct: globalServerOperationalParams.normalUserReferralSharePct || 5.0,
             netfitsTakeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6.0,
             settlementPeriodDays: 14,

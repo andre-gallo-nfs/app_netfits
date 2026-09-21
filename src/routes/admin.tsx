@@ -3308,11 +3308,17 @@ function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Inputs dos Parâmetros de Indicação */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Inputs dos Parâmetros de Indicação & Cadastro */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ParamInput
-                    label="Pontos por indicação de novo usuário (usuário comum)"
-                    unit="nfs / novo usuário"
+                    label="Bônus por Novo Cadastro no App (Boas-Vindas)"
+                    unit="nfs / novo cadastro"
+                    value={operationalParams.newUserRegistrationBonusNfs ?? 50}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, newUserRegistrationBonusNfs: Number(v) }))}
+                  />
+                  <ParamInput
+                    label="Pontos por indicação de novo usuário (comum)"
+                    unit="nfs / amigo indicado"
                     value={operationalParams.normalUserNewReferralBonusNfs ?? 50}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, normalUserNewReferralBonusNfs: Number(v) }))}
                   />
@@ -3465,7 +3471,7 @@ function AdminDashboardPage() {
                   <Zap className="size-5 text-amber-400" />
                   <h4 className="font-bold text-sm text-white">Atribuição Comercial, Fidelidade Bancária & Shopping</h4>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ParamInput
                     label="nfs por Vínculo Fidelidade (Stix/Livelo)"
                     unit="nfs / vínculo"
@@ -3479,21 +3485,39 @@ function AdminDashboardPage() {
                     onChange={(v) => setOperationalParams((p) => ({ ...p, netfitsTakeRatePctFromGmv: Number(v) }))}
                   />
                   <ParamInput
+                    label="Multiplicador Clube no Shop"
+                    unit="x (1.0 = sem dobro)"
+                    value={operationalParams.clubShopPointsMultiplier ?? 1.0}
+                    onChange={(v) =>
+                      setOperationalParams((p) => ({
+                        ...p,
+                        clubShopPointsMultiplier: Number(v),
+                        nfsEarnedPerBrlSpentDouble: (p.nfsEarnedPerBrlSpent || 4.0) * Number(v),
+                      }))
+                    }
+                  />
+                  <ParamInput
                     label="Bônus 1ª Compra no Shopping"
-                    unit="nfs bônus"
-                    value={operationalParams.shopFirstPurchaseBonusNfs}
+                    unit="nfs bônus (0 = inativo)"
+                    value={operationalParams.shopFirstPurchaseBonusNfs ?? 0}
                     onChange={(v) => setOperationalParams((p) => ({ ...p, shopFirstPurchaseBonusNfs: Number(v) }))}
                   />
                 </div>
               </div>
 
-              {/* Card 4: Economia, Resgate & Validade dos Pontos */}
+              {/* Card 5: Economia, Resgate & Validade dos Pontos */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 lg:col-span-2">
                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-3">
                   <Coins className="size-5 text-amber-400" />
                   <h4 className="font-bold text-sm text-white">Economia do Programa de Pontos & Validade</h4>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                  <ParamInput
+                    label="CPP de Acúmulo (Emissão)"
+                    unit="R$ / nfs"
+                    value={operationalParams.cppAcumuloBrl ?? 0.015}
+                    onChange={(v) => setOperationalParams((p) => ({ ...p, cppAcumuloBrl: Number(v) }))}
+                  />
                   <ParamInput
                     label="CPP de Resgate (Cotação R$)"
                     unit="R$ / nfs"
@@ -3510,7 +3534,13 @@ function AdminDashboardPage() {
                     label="Netfits por R$ 1,00 Gasto"
                     unit="nfs / R$"
                     value={operationalParams.nfsEarnedPerBrlSpent}
-                    onChange={(v) => setOperationalParams((p) => ({ ...p, nfsEarnedPerBrlSpent: Number(v) }))}
+                    onChange={(v) =>
+                      setOperationalParams((p) => ({
+                        ...p,
+                        nfsEarnedPerBrlSpent: Number(v),
+                        nfsEarnedPerBrlSpentDouble: Number(v) * (p.clubShopPointsMultiplier ?? 1.0),
+                      }))
+                    }
                   />
                   <ParamInput
                     label="Validade dos Pontos nfs"
@@ -5962,8 +5992,8 @@ function AdminDashboardPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="bg-zinc-900 p-3.5 rounded-2xl border border-lime-400/30 space-y-1">
-                        <span className="text-lime-400 font-bold block">1 nfs = R$ 0,02</span>
-                        <p className="text-zinc-400 text-[11px]">Cotação fixa de referência e conversão no Shop.</p>
+                        <span className="text-lime-400 font-bold block">Acúmulo: R$ 0,015 | Resgate: R$ 0,01</span>
+                        <p className="text-zinc-400 text-[11px]">CPP de emissão R$ 0,015 e conversão no Shop a R$ 0,01.</p>
                       </div>
                       <div className="bg-zinc-900 p-3.5 rounded-2xl border border-purple-500/30 space-y-1">
                         <span className="text-purple-300 font-bold block">Provisão R$ 0,01</span>

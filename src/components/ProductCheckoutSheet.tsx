@@ -22,8 +22,8 @@ export type CheckoutProduct = {
   badge?: string;
 };
 
-// Conversão fixa: 1 nfs = R$ 0,02
-const NFS_RATE = 0.02;
+// Conversão oficial de resgate no checkout: 1 nfs = R$ 0,01 (100 nfs = R$ 1,00)
+const NFS_RATE = 0.01;
 
 function parseBRL(price: string): number {
   // "R$ 199,90" -> 199.90

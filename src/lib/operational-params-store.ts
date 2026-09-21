@@ -42,6 +42,7 @@ export type OperationalParams = {
   netfitsTakeRatePctFromGmv: number;
   associadoShareOfNetfitsRevenuePct: number; // 10% de repasse das receitas da Carteira Compartilhada aos Associados
   normalUserNewReferralBonusNfs: number; // Pontos por indicação de novo usuário (usuário comum: 50 nfs, premiação única)
+  newUserRegistrationBonusNfs: number; // Pontos por novo cadastro no app (onboarding boas-vindas: 50 nfs)
   clubMemberReferralShopPointsPct: number; // Comissão de pontos por compras no shop de indicados (assinante Netfits Club: 10%)
   normalUserReferralSharePct: number; // Legado sincronizado com clubMemberReferralShopPointsPct
 
@@ -51,8 +52,9 @@ export type OperationalParams = {
   costPerProvisionedPointBrl: number;
   netfitsClubMonthlyFeeBrl: number;
   nfsEarnedPerBrlSpent: number;
-  nfsEarnedPerBrlSpentDouble: number;
-  shopFirstPurchaseBonusNfs: number;
+  clubShopPointsMultiplier: number; // Multiplicador de pontos no Shop para assinantes do Clube (padrão atual: 1.0x, sem o dobro)
+  nfsEarnedPerBrlSpentDouble: number; // Legado mantido para compatibilidade
+  shopFirstPurchaseBonusNfs: number; // Bônus 1ª compra no Shop (inicialmente 0 nfs)
   pointsValidityMonths: number;
   targetBreakagePct: number;
 
@@ -151,16 +153,18 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   netfitsTakeRatePctFromGmv: 6.0,
   associadoShareOfNetfitsRevenuePct: 10.0,
   normalUserNewReferralBonusNfs: 50,
+  newUserRegistrationBonusNfs: 50,
   clubMemberReferralShopPointsPct: 10.0,
   normalUserReferralSharePct: 10.0,
 
-  cppAcumuloBrl: 0.02,
+  cppAcumuloBrl: 0.015, // R$ 0,015 por ponto de acúmulo (atualizado conforme diretriz executiva)
   cppResgateBrl: 0.01,
   costPerProvisionedPointBrl: 0.01, // R$ 0,010 por ponto provisionado
   netfitsClubMonthlyFeeBrl: 19.90,
   nfsEarnedPerBrlSpent: 4.0,
-  nfsEarnedPerBrlSpentDouble: 8.0,
-  shopFirstPurchaseBonusNfs: 100,
+  clubShopPointsMultiplier: 1.0, // Neste momento o assinante do clube NÃO ganha o dobro no Shop (1.0x = 4 nfs/R$)
+  nfsEarnedPerBrlSpentDouble: 4.0, // Legado alinhado com 1.0x
+  shopFirstPurchaseBonusNfs: 0, // Bônus 1ª compra inicialmente zerado (0 nfs)
   pointsValidityMonths: 24, // Expiração de 24 meses (730 dias)
   targetBreakagePct: 5.0, // Taxa de expiração estimada (Breakage CPC 47): 5,0% a.a.
 
@@ -172,7 +176,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v9";
+const STORAGE_KEY = "netfits_operational_params_v10";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

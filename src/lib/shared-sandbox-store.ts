@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
+import { operationalParamsStore } from "./operational-params-store";
 
 export interface SandboxUser {
   id: string;
@@ -1058,10 +1059,10 @@ class HomologationSandboxStore {
       referrer = this.state.users.find((u) => u.referralCode.toUpperCase() === codeClean);
     }
 
-    // Regra da Experiencia Real:
-    // - Sem codigo de indicacao: Saldo ZERO, ZERO historico de compras ou transacoes.
-    // - Com codigo de indicacao valido: +50 nfs bonus de boas-vindas da indicacao.
-    const initialNfs = referrer ? 50 : 0;
+    // Regra Operacional 2026:
+    // - Todo novo cadastro no app ganha o bônus de boas-vindas: 50 nfs (newUserRegistrationBonusNfs)
+    const welcomeBonus = operationalParamsStore.getParams().newUserRegistrationBonusNfs ?? 50;
+    const initialNfs = welcomeBonus;
 
     const newUser: SandboxUser = {
       id: newId,
@@ -1081,25 +1082,28 @@ class HomologationSandboxStore {
 
     this.state.users.push(newUser);
 
-    // Se houve indicacao valida, criar a transacao inicial de bonus
-    if (referrer) {
+    // Registra a transação inicial de boas-vindas do novo usuário
+    if (welcomeBonus > 0) {
       this.state.transactions.unshift({
         id: `tx-${Date.now()}-welcome`,
         userId: newUser.id,
         userName: newUser.fullName,
-        amount: 50,
-        description: `Bônus por Cadastro via Indicação (${referrer.referralCode})`,
-        category: "referral",
+        amount: welcomeBonus,
+        description: "Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+        category: "welcome",
         timestamp: new Date().toISOString(),
       });
+    }
 
-      // Creditar quem indicou (+50 nfs)
-      referrer.nfsBalance += 50;
+    // Se houve indicação válida, creditar o indicador (+50 nfs / normalUserNewReferralBonusNfs)
+    if (referrer) {
+      const referralBonus = operationalParamsStore.getParams().normalUserNewReferralBonusNfs ?? 50;
+      referrer.nfsBalance += referralBonus;
       this.state.transactions.unshift({
         id: `tx-${Date.now()}-referrer`,
         userId: referrer.id,
         userName: referrer.fullName,
-        amount: 50,
+        amount: referralBonus,
         description: `Bônus por Indicar Novo Usuário (${newUser.fullName})`,
         category: "referral",
         timestamp: new Date().toISOString(),
