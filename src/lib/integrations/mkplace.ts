@@ -69,19 +69,27 @@ export interface MkplaceConfig {
 export function getMkplaceConfig(): MkplaceConfig {
   const env = typeof process !== "undefined" && process.env ? process.env : {};
   const hasRealKey = Boolean(env.MKPLACE_PRIVATE_KEY && env.MKPLACE_PRIVATE_KEY.length > 50);
+  const privateKey = hasRealKey
+    ? env.MKPLACE_PRIVATE_KEY!.replace(/\\n/g, "\n")
+    : DEFAULT_DEV_PRIVATE_KEY;
 
-  // Seleciona o Key ID apropriado (Staging default: mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA | Prod: PUQ4cwt2n3Czt4aiW-DaXHttZIYebVUmhJVfZK1zgDw)
-  const defaultKeyId = env.MKPLACE_ENV === "production"
-    ? "PUQ4cwt2n3Czt4aiW-DaXHttZIYebVUmhJVfZK1zgDw"
-    : "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA";
+  // Auto-detecta o KID correto com base no par de chaves RSA utilizado
+  let detectedKeyId = "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA"; // Default: Staging
+  if (privateKey.includes("MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCbBxVJ2tk1vLo1")) {
+    detectedKeyId = "PUQ4cwt2n3Czt4aiW-DaXHttZIYebVUmhJVfZK1zgDw"; // Chave de Produção Oficial
+  } else if (privateKey.includes("MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCbjuornMIroe1d")) {
+    detectedKeyId = "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA"; // Chave de Homologação (Staging)
+  }
+
+  const finalKeyId = env.MKPLACE_KEY_ID && env.MKPLACE_KEY_ID !== "nfs-mkplace-rsa-v1"
+    ? env.MKPLACE_KEY_ID
+    : detectedKeyId;
 
   return {
     storeId: env.MKPLACE_STORE_ID || "RhOFkbZJIN",
     accountId: env.MKPLACE_ACCOUNT_ID || "RhOFkbZJIN",
-    keyId: env.MKPLACE_KEY_ID || defaultKeyId,
-    privateKey: hasRealKey
-      ? env.MKPLACE_PRIVATE_KEY!.replace(/\\n/g, "\n")
-      : DEFAULT_DEV_PRIVATE_KEY,
+    keyId: finalKeyId,
+    privateKey,
     publicKey: env.MKPLACE_PUBLIC_KEY
       ? env.MKPLACE_PUBLIC_KEY.replace(/\\n/g, "\n")
       : DEFAULT_DEV_PUBLIC_KEY,
