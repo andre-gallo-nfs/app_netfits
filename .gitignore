@@ -3,6 +3,13 @@ node_modules
 dist
 .cache
 
+# Environment variables & Private Keys
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
 # Mobile Native Build Caches (Capacitor)
 android/.gradle/
 android/build/
@@ -10,3 +17,4 @@ android/app/build/
 ios/App/build/
 ios/App/Pods/
 ios/DerivedData/
+
