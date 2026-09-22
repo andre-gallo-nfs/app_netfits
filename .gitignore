@@ -16,5 +16,11 @@ android/build/
 android/app/build/
 ios/App/build/
 ios/App/Pods/
+# Build outputs & framework artifacts
+.output
+.tanstack
+.wrangler
+backups/*.zip
 ios/DerivedData/
+
 

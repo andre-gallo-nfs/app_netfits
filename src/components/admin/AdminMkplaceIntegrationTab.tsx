@@ -162,15 +162,24 @@ export function AdminMkplaceIntegrationTab() {
       if (res.ok) {
         const data = await res.json();
         setJwtToken(data.token);
-        if (data.claims) {
-          setDecodedJwt({
-            header: {
-              alg: "RS256",
-              typ: "JWT",
-              kid: "netfits-mkplace-key-2026",
-            },
-            payload: data.claims,
-          });
+        if (data.token) {
+          try {
+            const parts = data.token.split(".");
+            const h = JSON.parse(atob(parts[0].replace(/-/g, "+").replace(/_/g, "/")));
+            const p = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+            setDecodedJwt({ header: h, payload: p });
+          } catch {
+            if (data.claims) {
+              setDecodedJwt({
+                header: {
+                  alg: "RS256",
+                  typ: "JWT",
+                  kid: data.keyId || "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA",
+                },
+                payload: data.claims,
+              });
+            }
+          }
         }
         toast.success(`Token JWT RS256 gerado com sucesso para ${activeUser.name}!`);
       } else {
@@ -189,7 +198,7 @@ export function AdminMkplaceIntegrationTab() {
       header: {
         alg: "RS256",
         typ: "JWT",
-        kid: "netfits-mkplace-key-2026",
+        kid: "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA",
       },
       payload: {
         sub: activeUser.id,
@@ -208,7 +217,7 @@ export function AdminMkplaceIntegrationTab() {
         aud: "https://docs.apps.mkplace.com.br",
       },
     };
-    const mockJwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im5ldGZpdHMtbWtwbGFjZS1rZXktMjAyNiJ9." +
+    const mockJwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im11bE9BYWo1aVRJQVd0enZZQnN0SDI0ZWZCaFRiRDd0SVN2QlRWSkN2QkEifQ." +
       btoa(JSON.stringify(mockClaims.payload)) +
       ".MOCK_RS256_SIGNATURE_NETFITS_SECURITY_READY";
     setJwtToken(mockJwt);

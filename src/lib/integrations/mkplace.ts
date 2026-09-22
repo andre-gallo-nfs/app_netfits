@@ -17,42 +17,42 @@ import crypto from "node:crypto";
 // ==========================================
 
 const DEFAULT_DEV_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCPXPvtJvFAshot
-ugqXTex0iQLzhjNuA6/asTQOTNShZBq3rT2/T6/nVGzL04RoA/n6IfMHki4tJ3mE
-Rt+/DGKW8mOcdTtqjNVuAEc9YCiWub3mTmO4ACzCJ9aD7EaqekxOhOOMRsJI7ZUh
-0ZaFtJT7cd8ipPtEj/UYHmWRskmHAKdXQXokEAVVeD0UGrKVaf+D0jOO50X4Ion7
-E9zIV0oHeEYWTl9kYWyMn9jiRGQjKkNx6a6rjV0amrhurkiJ8Sq7AY000ipJWCiq
-HzEcAzT0/NDmDhvVgTrbFDa17JNZ8SYKQOwIHD58Va2MGjRVUYwOnYOAR5YwgUo+
-z77R6n3lAgMBAAECggEAFF/gpemc69bkBY+lJa+7ZSx7sORntsDrYydAALBGn9E8
-QtJqLiBDHZtQAv/Cl43JHxVoFrFdwqkTigsQjXRTJqS4J2o50YDGbGW5ui1KV3F6
-XZrSbToJImbLA+C2gk/zPE2CkVMVFYw+X5oLzGDHs5yRW7kaxLm42X6obLZr4LWu
-npIlcsf2c0LiAkd8kFPAPpTXgbGgpffqakvRBD8hIdHiyh29JRd7JIPlVGr/+z5A
-kcZsXNlqYvqPVxB/GHtT70HSElskmM9sR87UC68D41QLdWTL31FhVOgFvCYYn/hp
-sMwO+Q6zezTBIu5LRfK31TSQwhSpBF+sd2kIYk5ZGQKBgQC/rxTnlHKIYUQgK64+
-FqE2wYQ/9++P9JbP8/WYZ2oYZiqUjVG1U8NhZFf1Xi1+YE6pO7miPUQsNrzObWtV
-JnjtHSplpy13ES+6lYpVO3AmC+GT8Dv6d3BeG8pZq0GmlNqSil7R3jxu6wZBD2vT
-VAFZFiNijV0gUaupooRl4i6E+wKBgQC/d1a8F/WgtNcfPV4jsWdqMyFQCUax5vIE
-ZdOwuYkp6HaFLGa5ROCpeVWiwGIyYlKChLbHWiwv8dvC7k0PneRphbcD0Tls6ail
-u3FoGB74o0uJOHBNV1Mxx41LlWtNWiQbvUrwMKUIMLg+fCWpEMKnnwc9hBw75w+n
-V5glxtDSnwKBgQC9xKXbhvnEzxbVCqmcSmccgIVflySSzkEoa4vvcCJ3OV5aZ3ZH
-IEBEAUWbY7uCa/I0VS640hLV+vL9IxKp4EbD6KX6sYGvaVJpVHb5Xrju0cBn5+RZ
-WTnj0XuJPqTmOGQTw+2PtIb8AK3WZ2AGfho/ik1J2k4iGvjqHj0ZaM1JVQKBgQCu
-2IRUcGzWvU5WMOxvG+qciOS6+j2c6JHKglK26DfiFW9mXg3Q0p13Jl6VqaoC6NcA
-acGgezAu+Gb/tC6bPE0CMCHZUo9mblqcPnhp3t0pobWxMeEcP8qxgtH9XA4JLXAc
-BNkSTtnmiNc3+JdLtQqNmCQ8gRBng7I/1zYSCWVZcQKBgCM8rsBTLptqgmFLbsZ7
-/yFEWefRrMtU5q3isL8ZZugXsg7Wbv5H05mMO5T4SRnuF6gRtlAi3iaKK0EtKCUp
-noPcTD1gvcvudvWs+8GVFwhYfAmtm1wve0uN+IHTbfp/RFjyjXdoE0Ny4ioDFx7h
-TNlXWM+bPNRm5QYCdFlHiCRJ
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCbjuornMIroe1d
+VhSIFO+YZz6nUOzoka1aU09g2RJvctgOXeWfSXpnBqFvDTMQxnu2/YPKrEdw2e6a
+zjQ9YwsrDmOUBco6MJqMh7aPdcH40Ayc6jE1L9X1TK/qP39oilxtb5c61x5Ez4pv
+DryB5+Tz66QV5CsXsoYVEf41EqWJwpFmBewGWCLO28sPsmdp1RXxj5xiUJTBbV9j
+mujPKGsuYo4U3pNWr89YAUwMD9PVQ9oAbbWXQhie62uhnVrNHMJJT+7mbWKL8eb8
+P4Bq0mV2YqB7BP6415M7c9lwatAT0PcgmesOZG695qjyhROov+q+7+YA6WVguEGM
+5x3Mc4yVAgMBAAECggEAFcQPe/65JIXJwq+Su9/CDp8TozGtlHUdvm+9wZ1d+P4m
+wQveX0VWvSeuWu2L4aMEGHysfiVQ8bdsrXiA0r4TB/lBcarFuxKl7Vfn8XbWp0vl
+F+ek7v48f9A1JR+xYh1KBX4BuRf0gkhP5G45bivWW1LzaKS+atht7nDQEvkC9J1v
+BJO5Wdk7agIFaRhBgOiKMWZmANpT4IyOR3N8I7LDpxLclHPNslxN3vFfal8Ak4Gb
+GbHYPt6o3zdpJ7FWXR29Vw5w94xVeeaaGlQAUNNoJoTPG+fbG45yFkMB9i4BFNSe
+SXvDpfKTuf39plYXbjhvqDkD4NyrQ1taq+Nrpmcy2QKBgQDKx/Xzd26QkhY4Z82s
+ojP5ioQg/2Hty+fGLP8jqrWyVkpqIGFAvV/9edEFj2ZMmw8KHlGuUbNtiUnFMjBY
+5kAt4dyJKP09OraGYeIkLCEynvWOxOIjHZ7vBZN3x7TxhvP+wOObR6T8FjqgNuRC
++2CADV4zv7oFYcx4UBV67CSJowKBgQDEYj5CcFrS29v6iD6pcE2p8aot9xtpLpKH
+ZulkIBFdgPqAjB/oZcbaGLlWoVVqWMxilE5WM42rpXPbDl9FR/RaM920hbwp1VVl
+YPbUqADYyG+JSdi8zV90yZVVgoVQbcWZrRjT1RdIw2302Mfn1vkTdk9rEcQ5v6TD
+npUDXNnkZwKBgBJavxxmdw+G6ZP5cVhq5iF0NDl4ZDjN+BCsCfwEe6XEwb+RZrwh
+aArdd9n0/OF6N4ZG8EXDB2amwpKi1FV3od+FThzsJN/h7JuFSJ7Vj7uxP7DIiV98
+UuJ3sr1oyiwCdxtcAj4P4hMfP/c4gLi/YCC3FQvCEuhhzcwmE4uozDXZAoGAWqOd
+aLzCrp+bID7R7RJQRiesDBsJI7rDFouBHR1P5oApHjuOXozbAr52jG1aJwNlEfqx
+TUfuE1MB7hDsF+Xl+dwGb9NpzUURbQEb63q/KU8Za5wR1NJVRGnl6tma/kwr74nc
+86heXs8UaPXFDlRCEaGBdkF099JkEYWX8T1hs/ECgYAa4hMQPcuNOiIE8gOGdiMB
+K9t3FBviOiYBy8ZTVjLu698RYidb0Eysfv9hk82xiShtTQhgX+zeUDFPRxILbB0C
+TygmeiKljoT4GUJPpZ/e3UPK98UVILLDYr4EE2i4U8XA9f38Ecw/RyDG4Cmc8lYm
+/okb6u0MAAZ2ETxrdxv6wA==
 -----END PRIVATE KEY-----`;
 
 const DEFAULT_DEV_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj1z77SbxQLIaLboKl03s
-dIkC84YzbgOv2rE0DkzUoWQat609v0+v51Rsy9OEaAP5+iHzB5IuLSd5hEbfvwxi
-lvJjnHU7aozVbgBHPWAolrm95k5juAAswifWg+xGqnpMToTjjEbCSO2VIdGWhbSU
-+3HfIqT7RI/1GB5lkbJJhwCnV0F6JBAFVXg9FBqylWn/g9IzjudF+CKJ+xPcyFdK
-B3hGFk5fZGFsjJ/Y4kRkIypDcemuq41dGpq4bq5IifEquwGNNNIqSVgoqh8xHAM0
-9PzQ5g4b1YE62xQ2teyTWfEmCkDsCBw+fFWtjBo0VVGMDp2DgEeWMIFKPs++0ep9
-5QIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm47qK5zCK6HtXVYUiBTv
+mGc+p1Ds6JGtWlNPYNkSb3LYDl3ln0l6Zwahbw0zEMZ7tv2DyqxHcNnums40PWML
+Kw5jlAXKOjCajIe2j3XB+NAMnOoxNS/V9Uyv6j9/aIpcbW+XOtceRM+Kbw68gefk
+8+ukFeQrF7KGFRH+NRKlicKRZgXsBlgiztvLD7JnadUV8Y+cYlCUwW1fY5rozyhr
+LmKOFN6TVq/PWAFMDA/T1UPaAG21l0IYnutroZ1azRzCSU/u5m1ii/Hm/D+AatJl
+dmKgewT+uNeTO3PZcGrQE9D3IJnrDmRuveao8oUTqL/qvu/mAOllYLhBjOcdzHOM
+lQIDAQAB
 -----END PUBLIC KEY-----`;
 
 export interface MkplaceConfig {
@@ -70,17 +70,22 @@ export function getMkplaceConfig(): MkplaceConfig {
   const env = typeof process !== "undefined" && process.env ? process.env : {};
   const hasRealKey = Boolean(env.MKPLACE_PRIVATE_KEY && env.MKPLACE_PRIVATE_KEY.length > 50);
 
+  // Seleciona o Key ID apropriado (Staging default: mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA | Prod: PUQ4cwt2n3Czt4aiW-DaXHttZIYebVUmhJVfZK1zgDw)
+  const defaultKeyId = env.MKPLACE_ENV === "production"
+    ? "PUQ4cwt2n3Czt4aiW-DaXHttZIYebVUmhJVfZK1zgDw"
+    : "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA";
+
   return {
     storeId: env.MKPLACE_STORE_ID || "RhOFkbZJIN",
     accountId: env.MKPLACE_ACCOUNT_ID || "RhOFkbZJIN",
-    keyId: env.MKPLACE_KEY_ID || "nfs-mkplace-rsa-v1",
+    keyId: env.MKPLACE_KEY_ID || defaultKeyId,
     privateKey: hasRealKey
       ? env.MKPLACE_PRIVATE_KEY!.replace(/\\n/g, "\n")
       : DEFAULT_DEV_PRIVATE_KEY,
     publicKey: env.MKPLACE_PUBLIC_KEY
       ? env.MKPLACE_PUBLIC_KEY.replace(/\\n/g, "\n")
       : DEFAULT_DEV_PUBLIC_KEY,
-    webviewUrl: env.MKPLACE_WEBVIEW_URL || "https://shop.netfits.com.br",
+    webviewUrl: env.MKPLACE_WEBVIEW_URL || "https://netfits-ruddy.vercel.app",
     webhookSecret: env.MKPLACE_WEBHOOK_SECRET || "sec_nfs_mkplace_default_2026",
     isMock: !hasRealKey,
   };
