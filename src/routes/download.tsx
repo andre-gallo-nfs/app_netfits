@@ -64,7 +64,7 @@ function DownloadAppPage() {
               O App Oficial Netfits estará disponível em breve nas lojas!
             </h2>
             <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
-              Estamos concluindo os testes finais de integração com o catálogo da Rock Encantech. Cadastre-se na Lista VIP de Lançamento para ser notificado e garantir <span className="text-lime-400 font-bold">500 pontos bônus</span> na sua largada!
+              Estamos concluindo os testes finais de integração com o catálogo da Rock Encantech. Cadastre-se na Lista VIP de Lançamento para ser notificado em primeira mão assim que o aplicativo for liberado nas lojas!
             </p>
           </div>
           <Link
