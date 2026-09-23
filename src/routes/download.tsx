@@ -52,8 +52,33 @@ function DownloadAppPage() {
         </div>
       </section>
 
+      {/* Banner Especial de Pré-Lançamento / Em Breve */}
+      <div className="max-w-4xl mx-auto px-6 -mt-8 mb-4">
+        <div className="bg-gradient-to-r from-purple-900/80 via-zinc-900 to-lime-950/80 border border-purple-500/40 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-lime-400 bg-lime-950/80 px-3 py-1 rounded-full border border-lime-500/30">
+              <Sparkles className="size-3.5 text-lime-400 animate-pulse" />
+              Fase Final de Homologação com a Rock
+            </div>
+            <h2 className="text-xl md:text-2xl font-black text-white">
+              O App Oficial Netfits estará disponível em breve nas lojas!
+            </h2>
+            <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
+              Estamos concluindo os testes finais de integração com o catálogo da Rock Encantech. Cadastre-se na Lista VIP de Lançamento para ser notificado e garantir <span className="text-lime-400 font-bold">500 pontos bônus</span> na sua largada!
+            </p>
+          </div>
+          <Link
+            to="/contato"
+            className="shrink-0 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-300 hover:to-lime-400 text-zinc-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-lime-500/20 hover:scale-105 transition-all flex items-center gap-2"
+          >
+            Entrar na Lista VIP
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </div>
+
       {/* 3 Download Cards Grid */}
-      <section className="max-w-5xl mx-auto px-6 py-16">
+      <section className="max-w-5xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Apple App Store */}
           <div className="bg-zinc-900/90 border border-zinc-800 rounded-3xl p-6 flex flex-col justify-between space-y-6 hover:border-purple-500/50 transition-all duration-300 shadow-xl group">
