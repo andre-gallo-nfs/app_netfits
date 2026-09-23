@@ -6,7 +6,6 @@ import {
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
-import { AssociadoDashboardCard } from "../components/AssociadoDashboardCard";
 import { LoyaltyProgramsCard } from "../components/LoyaltyProgramsCard";
 import { sharedSandboxStore } from "../lib/shared-sandbox-store";
 
@@ -282,11 +281,6 @@ function ProfilePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Painel do Associado VIP */}
-      <section className="px-4 pt-5">
-        <AssociadoDashboardCard />
       </section>
 
       {/* Programas de Fidelidade Declarados */}

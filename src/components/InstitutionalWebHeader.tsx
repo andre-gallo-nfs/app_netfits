@@ -6,7 +6,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { 
   Building2, 
-  Users, 
   HelpCircle, 
   Mail, 
   Lock, 
@@ -22,7 +21,6 @@ export function InstitutionalWebHeader() {
 
   const navLinks = [
     { to: "/", label: "Home", icon: Home, color: "hover:text-purple-400" },
-    { to: "/associado", label: "Associados", icon: Users, color: "hover:text-amber-400" },
     { to: "/parceiros", label: "Parceiros", icon: Building2, color: "hover:text-lime-400" },
     { to: "/faq", label: "FAQ", icon: HelpCircle, color: "hover:text-cyan-400" },
     { to: "/contato", label: "Contato", icon: Mail, color: "hover:text-indigo-400" },

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AssociadoRouteImport } from './routes/associado'
+import { Route as AssociadosRouteImport } from './routes/associados'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DownloadRouteImport } from './routes/download'
@@ -43,6 +44,11 @@ const AdminRoute = AdminRouteImport.update({
 const AssociadoRoute = AssociadoRouteImport.update({
   id: '/associado',
   path: '/associado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssociadosRoute = AssociadosRouteImport.update({
+  id: '/associados',
+  path: '/associados',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
   '/associado': typeof AssociadoRoute
+  '/associados': typeof AssociadosRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
   '/associado': typeof AssociadoRoute
+  '/associados': typeof AssociadosRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
   '/associado': typeof AssociadoRoute
+  '/associados': typeof AssociadosRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/activities'
     | '/admin'
     | '/associado'
+    | '/associados'
     | '/auth'
     | '/contato'
     | '/download'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/activities'
     | '/admin'
     | '/associado'
+    | '/associados'
     | '/auth'
     | '/contato'
     | '/download'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/activities'
     | '/admin'
     | '/associado'
+    | '/associados'
     | '/auth'
     | '/contato'
     | '/download'
@@ -212,6 +224,7 @@ export interface RootRouteChildren {
   ActivitiesRoute: typeof ActivitiesRoute
   AdminRoute: typeof AdminRoute
   AssociadoRoute: typeof AssociadoRoute
+  AssociadosRoute: typeof AssociadosRoute
   AuthRoute: typeof AuthRoute
   ContatoRoute: typeof ContatoRoute
   DownloadRoute: typeof DownloadRoute
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/associado'
       fullPath: '/associado'
       preLoaderRoute: typeof AssociadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/associados': {
+      id: '/associados'
+      path: '/associados'
+      fullPath: '/associados'
+      preLoaderRoute: typeof AssociadosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -340,6 +360,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivitiesRoute: ActivitiesRoute,
   AdminRoute: AdminRoute,
   AssociadoRoute: AssociadoRoute,
+  AssociadosRoute: AssociadosRoute,
   AuthRoute: AuthRoute,
   ContatoRoute: ContatoRoute,
   DownloadRoute: DownloadRoute,

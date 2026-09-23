@@ -333,28 +333,7 @@ export function InstitutionalHomePage() {
         </div>
       </section>
 
-      {/* 5. Seção Para Associados */}
-      <section className="py-20 px-6 max-w-6xl mx-auto">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-4 max-w-lg">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-amber-400">Programa de Afiliados & Criadores</span>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white">Programa de Associados Netfits</h2>
-            <p className="text-sm text-zinc-300 leading-relaxed">
-              Treinadores, atletas e criadores de conteúdo esportivo recebem <strong className="text-amber-400">10,0% de comissão padrão</strong> sobre as receitas geradas a partir de seus links de indicação.
-            </p>
-          </div>
-
-          <Link
-            to="/associado"
-            className="px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-extrabold text-xs flex items-center justify-center gap-2 shrink-0 transition"
-          >
-            <Users className="size-4" />
-            Conhecer o Painel do Associado →
-          </Link>
-        </div>
-      </section>
-
-      {/* 6. Footer Corporativo Institucional */}
+      {/* 5. Footer Corporativo Institucional */}
       <footer className="bg-zinc-950 border-t border-zinc-800 pt-16 pb-12 px-6 text-xs text-zinc-400">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="space-y-3">
@@ -371,7 +350,6 @@ export function InstitutionalHomePage() {
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Navegação Web</h4>
             <p><Link to="/home" className="hover:text-white transition">Homepage Institucional</Link></p>
             <p><Link to="/parceiros" className="hover:text-white transition">Cadastro de Parceiros</Link></p>
-            <p><Link to="/associado" className="hover:text-white transition">Programa de Associados</Link></p>
             <p><Link to="/faq" className="hover:text-white transition">FAQ / Central de Ajuda</Link></p>
             <p><Link to="/contato" className="hover:text-white transition">Contato & Suporte</Link></p>
             <p><Link to="/download" className="hover:text-white transition">Download do Aplicativo</Link></p>

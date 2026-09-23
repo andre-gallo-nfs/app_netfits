@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /associado
+Disallow: /associados
+Disallow: /admin
+Disallow: /auth
+Allow: /
+
+Sitemap: https://www.netfits.com.br/sitemap.xml

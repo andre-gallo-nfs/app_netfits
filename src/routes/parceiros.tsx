@@ -208,56 +208,7 @@ interface RegisteredPartner {
   createdAt: string;
 }
 
-const FEATURED_PARTNERS: RegisteredPartner[] = [
-  {
-    id: "p_101",
-    protocol: "NFS-PARTNER-2026-9012",
-    companyName: "Smart Fit Escola de Ginástica e Dança S.A.",
-    tradeName: "Smart Fit Academias",
-    category: "academias",
-    categoryName: "Academias & Studios",
-    cityState: "São Paulo / SP",
-    responsibleName: "Diretoria de Parcerias B2B",
-    email: "parcerias@smartfit.com.br",
-    phone: "(11) 98765-4321",
-    documentValidated: "CNPJ: 07.594.978/0001-78 (Ativo - Receita Federal)",
-    benefitProposed: "Matrícula grátis + 10% de cashback em pontos nfs nas mensalidades",
-    status: "approved",
-    createdAt: "15/08/2026"
-  },
-  {
-    id: "p_102",
-    protocol: "NFS-PARTNER-2026-8841",
-    companyName: "Fibios Fisioterapia e Recovery Esportivo Ltda",
-    tradeName: "Clínica Fibios Health & Recovery",
-    category: "fisioterapia",
-    categoryName: "Fisioterapia & Recovery",
-    cityState: "São Paulo / SP",
-    responsibleName: "Dr. Roberto Alves",
-    email: "contato@fibios.com.br",
-    phone: "(11) 97123-4567",
-    documentValidated: "CREFITO-3 189421-F (Verificado & Ativo)",
-    benefitProposed: "15% de desconto em sessões de recovery com bota de compressão",
-    status: "approved",
-    createdAt: "18/08/2026"
-  },
-  {
-    id: "p_103",
-    protocol: "NFS-PARTNER-2026-7612",
-    companyName: "Dra. Isabella Silva Nutrologia Esportiva",
-    tradeName: "Dra. Isabella Silva — Medicina & Nutrologia",
-    category: "nutricao",
-    categoryName: "Nutricionistas & Nutrologia",
-    cityState: "Campinas / SP",
-    responsibleName: "Dra. Isabella Silva",
-    email: "dra.isabella@nutrologia.com.br",
-    phone: "(19) 99887-1122",
-    documentValidated: "CRM/SP 145902 (Verificado & Ativo)",
-    benefitProposed: "Bioimpedância cortesia na primeira consulta de check-up esportivo",
-    status: "approved",
-    createdAt: "19/08/2026"
-  }
-];
+const FEATURED_PARTNERS: RegisteredPartner[] = [];
 
 function ParceirosRegistrationPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>("academias");
@@ -985,53 +936,65 @@ function ParceirosRegistrationPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {partnersList.map((partner) => (
-              <div
-                key={partner.id}
-                className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-3.5 hover:border-zinc-700 transition flex flex-col justify-between shadow-lg"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-500/20">
-                      {partner.categoryName}
-                    </span>
-
-                    <span
-                      className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
-                        partner.status === "approved"
-                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                          : "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                      }`}
-                    >
-                      {partner.status === "approved" ? "Credenciado" : "Em Análise"}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base md:text-lg font-bold text-white leading-tight">{partner.tradeName}</h3>
-                    <p className="text-xs text-zinc-400 flex items-center gap-1 mt-1">
-                      <MapPin className="size-3.5 text-zinc-500 shrink-0" />
-                      <span>{partner.cityState}</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-xs text-zinc-300 space-y-2">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
-                    <ShieldCheck className="size-4 shrink-0" />
-                    <span>{partner.documentValidated}</span>
-                  </div>
-                  <p className="font-medium text-zinc-200 leading-snug">{partner.benefitProposed}</p>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2 border-t border-zinc-800/80">
-                  <span>Protocolo: <strong className="text-zinc-300">{partner.protocol}</strong></span>
-                  <span>Cadastrado em: {partner.createdAt}</span>
-                </div>
+          {partnersList.length === 0 ? (
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-3xl p-8 text-center space-y-3">
+              <div className="size-12 rounded-2xl bg-lime-950/80 border border-lime-500/30 text-lime-400 mx-auto grid place-items-center">
+                <Building2 className="size-6" />
               </div>
-            ))}
-          </div>
+              <h3 className="text-base font-bold text-white">Rede em Fase de Homologação & Credenciamento</h3>
+              <p className="text-xs text-zinc-400 max-w-lg mx-auto leading-relaxed">
+                Estamos homologando as primeiras academias, clínicas, assessorias e consultórios esportivos. Cadastre o seu estabelecimento no formulário acima para receber o selo oficial e ser destacado para a comunidade Netfits.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {partnersList.map((partner) => (
+                <div
+                  key={partner.id}
+                  className="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-5 space-y-3.5 hover:border-zinc-700 transition flex flex-col justify-between shadow-lg"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-500/20">
+                        {partner.categoryName}
+                      </span>
+
+                      <span
+                        className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full border ${
+                          partner.status === "approved"
+                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                            : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                        }`}
+                      >
+                        {partner.status === "approved" ? "Credenciado" : "Em Análise"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-base md:text-lg font-bold text-white leading-tight">{partner.tradeName}</h3>
+                      <p className="text-xs text-zinc-400 flex items-center gap-1 mt-1">
+                        <MapPin className="size-3.5 text-zinc-500 shrink-0" />
+                        <span>{partner.cityState}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-xs text-zinc-300 space-y-2">
+                    <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
+                      <ShieldCheck className="size-4 shrink-0" />
+                      <span>{partner.documentValidated}</span>
+                    </div>
+                    <p className="font-medium text-zinc-200 leading-snug">{partner.benefitProposed}</p>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2 border-t border-zinc-800/80">
+                    <span>Protocolo: <strong className="text-zinc-300">{partner.protocol}</strong></span>
+                    <span>Cadastrado em: {partner.createdAt}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </div>

@@ -44,7 +44,7 @@ export const Route = createFileRoute("/faq")({
 
 interface FaqItem {
   id: string;
-  category: "pontos" | "shop" | "parceiros" | "associados" | "wearables" | "club" | "legal";
+  category: "pontos" | "shop" | "parceiros" | "wearables" | "club" | "legal";
   categoryLabel: string;
   question: string;
   answer: string;
@@ -90,14 +90,6 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Como academias, assessorias, clínicas, nutricionistas e médicos se cadastram?",
     answer:
       "Basta acessar a página de Parceiros (/parceiros), selecionar a categoria do seu negócio e preencher os dados de identificação. O formulário possui validador oficial de CNPJ na Receita Federal e verificador de registros profissionais (CRM, CRN, CREF, CREFITO). Após o envio, nossa equipe comercial entra em contato em até 48h úteis para ativar seu selo credenciado."
-  },
-  {
-    id: "faq_5",
-    category: "associados",
-    categoryLabel: "Programa de Associados",
-    question: "Como funciona o repasse de 10% do Programa de Associados Netfits?",
-    answer:
-      "Treinadores, atletas e criadores de conteúdo esportivo cadastrados como Associados Netfits recebem um link único de indicação (referralCode). O associado recebe 10,0% de comissão padrão sobre todas as receitas geradas pelos usuários indicados na plataforma, com painel transparente em tempo real (/associado) e solicitação de saque."
   },
   {
     id: "faq_6",
@@ -174,7 +166,6 @@ function FaqPage() {
           { id: "pontos", label: "Pontos nfs & FEFO" },
           { id: "shop", label: "Shop & Cashback" },
           { id: "parceiros", label: "Parceiros Comerciais" },
-          { id: "associados", label: "Associados Netfits" },
           { id: "wearables", label: "Wearables & GPS" },
           { id: "club", label: "Netfits Club" }
         ].map((tab) => (

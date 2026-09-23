@@ -58,13 +58,13 @@ function DownloadAppPage() {
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-lime-400 bg-lime-950/80 px-3 py-1 rounded-full border border-lime-500/30">
               <Sparkles className="size-3.5 text-lime-400 animate-pulse" />
-              Fase Final de Homologação com a Rock
+              Fase Final de Homologação & Pré-Lançamento
             </div>
             <h2 className="text-xl md:text-2xl font-black text-white">
               O App Oficial Netfits estará disponível em breve nas lojas!
             </h2>
             <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
-              Estamos concluindo os testes finais de integração com o catálogo da Rock Encantech. Cadastre-se na Lista VIP de Lançamento para ser notificado em primeira mão assim que o aplicativo for liberado nas lojas!
+              Estamos concluindo os testes finais de homologação do aplicativo e da rede credenciada de parceiros. Cadastre-se na Lista VIP de Lançamento para ser notificado em primeira mão assim que o aplicativo for liberado nas lojas!
             </p>
           </div>
           <Link
@@ -88,7 +88,7 @@ function DownloadAppPage() {
                   <Apple className="size-6 text-white" />
                 </div>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-500/30">
-                  iOS / iPhone
+                  iOS · Em Breve
                 </span>
               </div>
 
@@ -116,17 +116,14 @@ function DownloadAppPage() {
             </div>
 
             <div className="space-y-3 pt-4 border-t border-zinc-800">
-              <a
-                href="https://apps.apple.com/app/netfits"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackAppDownload("ios")}
-                className="w-full py-3.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+              <Link
+                to="/contato"
+                className="w-full py-3.5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 border border-zinc-700 transition"
               >
                 <Apple className="size-4" />
-                Baixar na App Store
-              </a>
-              <p className="text-[10px] text-center text-zinc-500">Versão 2.4.0 · 48.5 MB</p>
+                Entrar na Lista VIP (iOS)
+              </Link>
+              <p className="text-[10px] text-center text-zinc-500">Lançamento oficial em breve</p>
             </div>
           </div>
 
@@ -138,7 +135,7 @@ function DownloadAppPage() {
                   <Smartphone className="size-6 text-lime-400" />
                 </div>
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-lime-400 bg-lime-950/60 px-2.5 py-1 rounded-full border border-lime-500/30">
-                  Android
+                  Android · Em Breve
                 </span>
               </div>
 
@@ -166,17 +163,14 @@ function DownloadAppPage() {
             </div>
 
             <div className="space-y-3 pt-4 border-t border-zinc-800">
-              <a
-                href="https://play.google.com/store/apps/details?id=br.com.netfits.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackAppDownload("android")}
-                className="w-full py-3.5 rounded-2xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+              <Link
+                to="/contato"
+                className="w-full py-3.5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 border border-zinc-700 transition"
               >
                 <Smartphone className="size-4" />
-                Baixar no Google Play
-              </a>
-              <p className="text-[10px] text-center text-zinc-500">Versão 2.4.0 · 34.2 MB</p>
+                Entrar na Lista VIP (Android)
+              </Link>
+              <p className="text-[10px] text-center text-zinc-500">Lançamento oficial em breve</p>
             </div>
           </div>
 
