@@ -25,12 +25,10 @@ import {
   Search,
   Check,
   ShoppingBag,
-  Code,
-  Terminal,
+  Coins,
   Copy,
   ExternalLink,
-  Zap,
-  Server
+  Zap
 } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { trackPartnerRegistration } from "@/lib/analytics";
@@ -362,11 +360,6 @@ function ParceirosRegistrationPage() {
       return;
     }
 
-    if (!formData.benefitDescription.trim()) {
-      alert("Por favor, descreva a proposta de benefício ou desconto exclusivo que seu estabelecimento/consultório oferecerá aos usuários Netfits.");
-      return;
-    }
-
     if (validationState.status !== "valid") {
       alert("Por favor, clique em 'Verificar Registro / CNPJ' para validar os dados junto aos órgãos competentes antes de enviar.");
       return;
@@ -374,6 +367,10 @@ function ParceirosRegistrationPage() {
 
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     const newProtocol = `NFS-PARTNER-2026-${randomNum}`;
+
+    const finalBenefit = formData.benefitDescription.trim()
+      ? `Pontuação por Real pago (a definir com a Netfits) + ${formData.benefitDescription.trim()}`
+      : "Pontuação por Real pago aos atletas (quantidade avaliada em conjunto com a Netfits)";
 
     const newPartner: RegisteredPartner = {
       id: `p_${Date.now()}`,
@@ -387,7 +384,7 @@ function ParceirosRegistrationPage() {
       email: formData.email,
       phone: formData.phone,
       documentValidated: validationState.verifiedDetails || `${docType.toUpperCase()}: ${formData.document} (Verificado)`,
-      benefitProposed: formData.benefitDescription,
+      benefitProposed: finalBenefit,
       status: "analysis",
       createdAt: new Date().toLocaleDateString("pt-BR"),
     };
@@ -406,7 +403,7 @@ function ParceirosRegistrationPage() {
       state: formData.state || "SP",
       email: formData.email,
       phone: formData.phone,
-      benefitOffer: formData.benefitDescription,
+      benefitOffer: finalBenefit,
     });
 
     sharedSandboxStore.addInteraction({
@@ -416,7 +413,7 @@ function ParceirosRegistrationPage() {
       channel: "form",
       subject: `Credenciamento B2B — ${selectedCategoryObj?.title || selectedCategory}`,
       intent: "parceria",
-      content: `Solicitação de credenciamento comercial para ${formData.tradeName}. Documento: ${formData.document}. Benefício proposto: ${formData.benefitDescription}`,
+      content: `Solicitação de credenciamento comercial para ${formData.tradeName}. Documento: ${formData.document}. Benefício proposto: ${finalBenefit}`,
       sentiment: "positivo",
       businessInsight: `Nova oportunidade B2B de expansão em ${formData.city || "São Paulo"}/${formData.state || "SP"}. Protocolo: ${newProtocol}.`,
       status: "em_analise",
@@ -435,7 +432,7 @@ function ParceirosRegistrationPage() {
       state: "SP",
       neighborhood: "",
       websiteOrInstagram: "",
-      benefitType: "cashback_points",
+      benefitType: "none",
       benefitDescription: "",
     });
     setValidationState({ status: "idle", message: "" });
@@ -855,7 +852,7 @@ function ParceirosRegistrationPage() {
             </div>
 
             {/* Header do Passo 3 */}
-            <div className="pt-6 border-t border-zinc-800/80 space-y-5">
+            <div className="pt-6 border-t border-zinc-800/80 space-y-6">
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-lime-950/60 px-2.5 py-1 rounded-full border border-lime-500/30">
                   Passo 3 de 3
@@ -864,71 +861,100 @@ function ParceirosRegistrationPage() {
                   Proposta de Benefício para Atletas Netfits *
                 </h2>
                 <p className="text-xs md:text-sm text-zinc-400">
-                  Informe a vantagem, desconto exclusivo ou bônus de cashback em nfs que seu estabelecimento oferecerá.
+                  Condição base do programa e eventuais vantagens adicionais aos usuários da rede.
                 </p>
               </div>
 
-              {/* Tipo de Benefício */}
-              <div>
-                <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
-                  Tipo de Benefício Proposto *
-                </label>
-                <select
-                  value={formData.benefitType}
-                  onChange={(e) => setFormData({ ...formData, benefitType: e.target.value })}
-                  className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-sm md:text-base text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition cursor-pointer"
-                >
-                  <option value="discount_pct">Desconto Percentual Exclusivo (ex: 15% a 25%)</option>
-                  <option value="cashback_points">Pontuação / Cashback em nfs para os Atletas (2 a 4 nfs / R$ 1)</option>
-                  <option value="free_session">Sessão / Aula Experimental Cortesia</option>
-                  <option value="free_assessment">Avaliação Física ou Bioimpedância Cortesia</option>
-                  <option value="voucher">Voucher / Brinde de Boas-Vindas</option>
-                </select>
-              </div>
-
-              {/* Sugestões Rápidas de Benefícios (Toque Amigável no Celular) */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-zinc-400">
-                  Sugestões rápidas (Clique para aplicar):
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Cashback de 4 nfs por R$ 1,00 gasto no e-commerce",
-                    "15% de Desconto em Suplementos e Vestuário",
-                    "1ª Sessão de Avaliação de Bioimpedância Grátis",
-                    "Isenção Total da Taxa de Matrícula",
-                    "Acúmulo de +25 nfs por treino ou consulta declarada",
-                    "20% de Desconto em Tratamentos de Recovery",
-                  ].map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, benefitDescription: preset })}
-                      className={`px-3 py-2 text-xs md:text-sm font-medium rounded-xl border transition cursor-pointer active:scale-95 ${
-                        formData.benefitDescription === preset
-                          ? "bg-lime-400 text-zinc-950 border-lime-400 font-extrabold shadow-sm"
-                          : "bg-zinc-950 text-zinc-300 border-zinc-800 hover:border-zinc-600"
-                      }`}
-                    >
-                      + {preset}
-                    </button>
-                  ))}
+              {/* Condição Obrigatória: Pontuação por Real Pago */}
+              <div className="bg-gradient-to-r from-lime-950/40 via-zinc-900 to-zinc-950 border border-lime-500/40 rounded-2xl p-5 space-y-3 shadow-lg">
+                <div className="flex items-center gap-2.5 text-lime-400">
+                  <Coins className="size-5 shrink-0" />
+                  <span className="text-xs font-black uppercase tracking-wider bg-lime-950/80 px-2.5 py-0.5 rounded-full border border-lime-500/30">
+                    Condição Obrigatória do Programa
+                  </span>
+                </div>
+                <h3 className="text-base font-extrabold text-white">
+                  Pontuação em nfs por Real Pago aos Atletas Netfits
+                </h3>
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  Todos os parceiros credenciados na Netfits devem conceder pontuação em pontos <strong className="text-lime-400">nfs</strong> aos atletas e clientes a cada Real gasto/pago em serviços, consultas, mensalidades ou produtos.
+                </p>
+                <div className="p-3 bg-zinc-950/80 rounded-xl border border-zinc-800 text-[11px] text-zinc-400 flex items-start gap-2">
+                  <CheckCircle2 className="size-4 text-lime-400 shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Definição Conjunta:</strong> A quantidade exata de pontos por Real será avaliada e definida em conjunto com a equipe da Netfits durante a validação comercial do seu credenciamento.
+                  </span>
                 </div>
               </div>
 
-              {/* Textarea Detalhamento */}
-              <div>
-                <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
-                  Detalhamento da Proposta de Benefício *
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="Ex: Oferecemos 15% de desconto em todo o catálogo online + 2 nfs de cashback a cada R$ 1,00 pago em dinheiro para todos os atletas cadastrados na Netfits."
-                  value={formData.benefitDescription}
-                  onChange={(e) => setFormData({ ...formData, benefitDescription: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                />
+              {/* Benefícios Adicionais (Opcional) */}
+              <div className="space-y-4 pt-2">
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1">
+                    Benefícios Adicionais Complementares (Opcional)
+                  </label>
+                  <p className="text-xs text-zinc-400 mb-2">
+                    Além da pontuação por Real pago, deseja oferecer algum benefício, cortesia ou desconto exclusivo para atrair ainda mais atletas?
+                  </p>
+                  <select
+                    value={formData.benefitType}
+                    onChange={(e) => setFormData({ ...formData, benefitType: e.target.value })}
+                    className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-sm md:text-base text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition cursor-pointer"
+                  >
+                    <option value="none">Apenas pontuação por Real pago (sem benefício adicional no momento)</option>
+                    <option value="discount_pct">Desconto Percentual Exclusivo (ex: 10% a 25%)</option>
+                    <option value="free_session">Sessão / Aula Experimental Cortesia</option>
+                    <option value="free_assessment">Avaliação Física ou Bioimpedância Cortesia</option>
+                    <option value="voucher">Voucher / Brinde de Boas-Vindas</option>
+                    <option value="waiver_fee">Isenção Total da Taxa de Matrícula</option>
+                    <option value="other">Outro benefício personalizado</option>
+                  </select>
+                </div>
+
+                {/* Sugestões Rápidas de Benefícios Adicionais */}
+                {formData.benefitType !== "none" && (
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-zinc-400">
+                      Sugestões rápidas de adicionais (Clique para preencher):
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "15% de Desconto em Mensalidades e Serviços",
+                        "1ª Sessão de Avaliação ou Bioimpedância Grátis",
+                        "Isenção Total da Taxa de Matrícula",
+                        "1 Aula Experimental Gratuita",
+                        "20% de Desconto em Tratamentos de Recovery",
+                      ].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, benefitDescription: preset })}
+                          className={`px-3 py-2 text-xs font-medium rounded-xl border transition cursor-pointer active:scale-95 ${
+                            formData.benefitDescription === preset
+                              ? "bg-lime-400 text-zinc-950 border-lime-400 font-extrabold shadow-sm"
+                              : "bg-zinc-950 text-zinc-300 border-zinc-800 hover:border-zinc-600"
+                          }`}
+                        >
+                          + {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Textarea Detalhamento do Benefício Adicional */}
+                <div>
+                  <label className="block text-xs md:text-sm font-bold text-zinc-200 mb-1.5">
+                    Detalhamento dos Benefícios Adicionais (Opcional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Ex: Além dos pontos por Real, concederemos 15% de desconto no primeiro mês e 1 avaliação física cortesia para membros da Netfits."
+                    value={formData.benefitDescription}
+                    onChange={(e) => setFormData({ ...formData, benefitDescription: e.target.value })}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  />
+                </div>
               </div>
             </div>
 
@@ -943,104 +969,7 @@ function ParceirosRegistrationPage() {
           </form>
         </section>
 
-        {/* Card de Destaque: Portal do Desenvolvedor & APIs de Marketplace B2B */}
-        <section className="bg-gradient-to-br from-zinc-900 via-purple-950/40 to-zinc-900 border-2 border-purple-500/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
-            <div className="flex items-center gap-3.5">
-              <div className="size-12 rounded-2xl bg-lime-400 text-zinc-950 grid place-items-center font-black shrink-0 shadow-lg">
-                <Code className="size-6 text-zinc-950" />
-              </div>
-              <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400">
-                  Prontidão Tecnológica & Integração B2B
-                </span>
-                <h2 className="text-xl md:text-2xl font-black text-white">
-                  Portal de APIs & Webhooks de Marketplace
-                </h2>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Conectores nativos para VTEX, Shopify, Nuvemshop, Tray, Redes de Afiliados e Webhooks REST customizados.
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold bg-lime-400/10 text-lime-400 border border-lime-400/20 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                <Server className="size-3.5 text-lime-400" />
-                API v1 Status: 100% Online
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Modelo 1 */}
-            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-extrabold uppercase text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-500/30">
-                  Modelo 1 · Zero Setup
-                </span>
-                <ExternalLink className="size-4 text-zinc-500" />
-              </div>
-              <h3 className="font-bold text-white text-sm">Afiliado Outbound & UTMs</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Integração imediata via links rastreados com SubID criptografado do atleta. Compatível com Lomadee, Awin, Rakuten, Netshoes e Centauro.
-              </p>
-            </div>
-
-            {/* Modelo 2 */}
-            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-extrabold uppercase text-lime-400 bg-lime-950/60 px-2 py-0.5 rounded-full border border-lime-500/30">
-                  Modelo 2 · E-commerce API
-                </span>
-                <Zap className="size-4 text-lime-400" />
-              </div>
-              <h3 className="font-bold text-white text-sm">Webhooks de Pedidos & Cashback</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Notificação automática de pedidos pagos (`ORDER_PAID`) e liberação atuarial de cashback com validação criptográfica HMAC-SHA256.
-              </p>
-            </div>
-
-            {/* Modelo 3 */}
-            <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                  Modelo 3 · Two-Phase Lock
-                </span>
-                <ShieldCheck className="size-4 text-emerald-400" />
-              </div>
-              <h3 className="font-bold text-white text-sm">Resgate de Vouchers em Checkout</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Validação de desconto e queima de pontos nfs diretamente no checkout do parceiro com reserva atuarial travada por 15 minutos.
-              </p>
-            </div>
-          </div>
-
-          {/* Endpoint Code Snippet cURL */}
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2">
-            <div className="flex items-center justify-between text-xs text-zinc-400 border-b border-zinc-800 pb-2">
-              <span className="font-mono text-lime-400 flex items-center gap-1.5">
-                <Terminal className="size-3.5" />
-                POST /api/v1/marketplace/orders/webhook
-              </span>
-              <span className="text-[10px] uppercase font-mono text-zinc-500">Header: X-Netfits-Signature: sha256=...</span>
-            </div>
-            <pre className="font-mono text-[11px] text-zinc-300 overflow-x-auto p-2 bg-zinc-900/60 rounded-xl leading-relaxed">
-{`curl -X POST https://app.netfits.com.br/api/v1/marketplace/orders/webhook \\
-  -H "Content-Type: application/json" \\
-  -H "X-Netfits-Signature: sha256=8f49a7102b..." \\
-  -d '{
-    "eventId": "EVT-ORD-2026-9901",
-    "eventType": "ORDER_PAID",
-    "merchantId": "liquidz",
-    "order": {
-      "partnerOrderId": "PED-88219",
-      "customer": { "email": "atleta@netfits.com.br", "name": "André Gallo" },
-      "totals": { "totalPaidBrl": 149.90, "subtotalBrl": 149.90 }
-    }
-  }'`}
-            </pre>
-          </div>
-        </section>
 
         {/* Seção: Vitrine de Parceiros Credenciados (Grid 1 col mobile, 2 cols desktop) */}
         <section className="space-y-4 pt-4 border-t border-zinc-800/80">

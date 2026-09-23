@@ -25,7 +25,7 @@ export const NETFITS_OFFICIAL_COMPANY_DATA = {
   cep: "06542195",
   cepFormatted: "06.542-195",
   codigoMunicipioIbge: "3547304",
-  telefone: "11998765432",
+  telefone: "11934981311",
   emailFiscal: "contabilidade@netfits.com.br",
   emailDpo: "dpo@netfits.com.br",
   cnaes: [

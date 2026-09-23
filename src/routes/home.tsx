@@ -107,7 +107,7 @@ export function InstitutionalHomePage() {
             </div>
             <h3 className="text-xl font-bold text-white">1. Feed Editorial & Recompensas</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Leitura curada de artigos esportivos, postagens de treinos com GPS de wearables (Garmin, Strava) e acúmulo de pontos por engajamento (+5 nfs por ler, +10 nfs por compartilhar, +25 nfs por treino).
+              Leitura curada de artigos esportivos, postagens de treinos com GPS de wearables (Garmin, Strava e Apple Health) e acúmulo de pontos nfs por engajamento ao ler, compartilhar e registrar suas atividades físicas.
             </p>
           </div>
 
@@ -115,9 +115,9 @@ export function InstitutionalHomePage() {
             <div className="size-12 rounded-2xl bg-lime-400/20 border border-lime-400/30 grid place-items-center text-lime-400">
               <ShoppingBag className="size-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">2. Netfits Shop com 4 nfs / R$</h3>
+            <h3 className="text-xl font-bold text-white">2. Netfits Shop & Recompensas</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Marketplace integrado com os maiores agregadores de e-commerce esportivo do Brasil. Ganhe 4,00 nfs por R$ 1,00 gasto no Shop com pagamento parcial/total com pontos e rastreabilidade total.
+              Marketplace integrado com os maiores agregadores de e-commerce esportivo do Brasil. Ganhe pontos nfs em todas as compras no Shop, com opção de resgate com pontos e rastreabilidade total de pedidos.
             </p>
           </div>
 
@@ -127,7 +127,7 @@ export function InstitutionalHomePage() {
             </div>
             <h3 className="text-xl font-bold text-white">3. Netfits Club (Fase 2)</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Assinatura por R$ 19,90/mês que dobra seus pontos em todas as compras no Shop (8,00 nfs por R$ 1,00) e concede cupons e acessos VIP a eventos e corridas de rua.
+              Clube de vantagens por assinatura mensal que concede cupons exclusivos, condições especiais no marketplace, conteúdos aprofundados e acessos VIP a eventos e corridas de rua.
             </p>
           </div>
 
@@ -356,7 +356,7 @@ export function InstitutionalHomePage() {
 
       {/* 6. Footer Corporativo Institucional */}
       <footer className="bg-zinc-950 border-t border-zinc-800 pt-16 pb-12 px-6 text-xs text-zinc-400">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <img src={netfitsDarkLogo} alt="Netfits" className="h-7 w-auto rounded bg-zinc-900 p-0.5" />
@@ -374,21 +374,24 @@ export function InstitutionalHomePage() {
             <p><Link to="/associado" className="hover:text-white transition">Programa de Associados</Link></p>
             <p><Link to="/faq" className="hover:text-white transition">FAQ / Central de Ajuda</Link></p>
             <p><Link to="/contato" className="hover:text-white transition">Contato & Suporte</Link></p>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Ecossistema App</h4>
-            <p><Link to="/feed" className="hover:text-white transition">App Feed de Notícias</Link></p>
-            <p><Link to="/market" className="hover:text-white transition">Netfits Shop</Link></p>
-            <p><Link to="/activities" className="hover:text-white transition">Atividades & Wearables</Link></p>
-            <p><Link to="/wallet" className="hover:text-white transition">Carteira nfs</Link></p>
+            <p><Link to="/download" className="hover:text-white transition">Download do Aplicativo</Link></p>
           </div>
 
           <div className="space-y-2">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Contato Corporativo & Suporte</h4>
             <p className="text-zinc-400">Netfits Ltda.</p>
             <p className="text-zinc-400">contato@netfits.com.br</p>
-            <p className="text-zinc-400">São Paulo, SP — Brasil</p>
+            <p>
+              <a 
+                href="https://wa.me/5511934981311" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-lime-400 hover:text-lime-300 font-semibold transition flex items-center gap-1.5"
+              >
+                WhatsApp Oficial: +55 (11) 93498-1311
+              </a>
+            </p>
+            <p className="text-zinc-400">Santana de Parnaíba / SP — Brasil</p>
           </div>
         </div>
 

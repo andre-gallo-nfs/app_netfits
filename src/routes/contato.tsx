@@ -134,10 +134,18 @@ function ContatoPage() {
                 <p className="font-semibold text-white">contato@netfits.com.br</p>
               </div>
 
-              <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1">
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">WhatsApp Oficial</span>
-                <p className="font-semibold text-white">(11) 99876-5432</p>
-              </div>
+              <a
+                href="https://wa.me/5511934981311"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/50 transition-all block space-y-1 group"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block group-hover:text-lime-400 transition-colors">WhatsApp Oficial</span>
+                  <span className="text-[9px] font-bold text-lime-400 bg-lime-950/60 px-2 py-0.5 rounded-full border border-lime-500/30">Chamar no WhatsApp →</span>
+                </div>
+                <p className="font-semibold text-white">+55 (11) 93498-1311</p>
+              </a>
 
               <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Horário de Atendimento</span>

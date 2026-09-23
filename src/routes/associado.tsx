@@ -178,7 +178,7 @@ function AssociadoDashboardPage() {
   const [regPhone, setRegPhone] = useState("");
   const [regRegister, setRegRegister] = useState("");
   const [regSpecialty, setRegSpecialty] = useState("");
-  const [regCity, setRegCity] = useState("São Paulo - SP");
+  const [regCity, setRegCity] = useState("");
 
   const handleRegisterAssociadoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,8 +192,8 @@ function AssociadoDashboardPage() {
       email: regEmail.trim(),
       phone: regPhone.trim(),
       register: regRegister.trim(),
-      specialty: regSpecialty.trim() || "Nutrologia Esportiva",
-      city: regCity.trim(),
+      specialty: regSpecialty.trim() || "Especialista em Saúde",
+      city: regCity.trim() || "Não informado",
     });
 
     setShowRegModal(false);
@@ -231,7 +231,7 @@ function AssociadoDashboardPage() {
                 type="text"
                 value={loginCode}
                 onChange={(e) => setLoginCode(e.target.value)}
-                placeholder="ASSOC-SP-001 ou GALLO-NETFITS"
+                placeholder="Digite seu código ou e-mail cadastrado"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-medium text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
@@ -266,11 +266,6 @@ function AssociadoDashboardPage() {
               Caso tenha sido convidado, consulte os links de acesso enviados para o seu e-mail e WhatsApp.
             </p>
           </div>
-
-          <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 text-[11px] text-zinc-400 text-center">
-            <p>🔑 Credenciais de Teste Rápidas:</p>
-            <p className="font-mono text-zinc-300 mt-0.5"><b>ASSOC-SP-001</b> ou <b>GALLO-NETFITS</b></p>
-          </div>
         </div>
 
         {/* Modal de Cadastro de Novo Associado */}
@@ -289,7 +284,7 @@ function AssociadoDashboardPage() {
                     type="text"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
-                    placeholder="Ex: Dra. Juliana Medeiros"
+                    placeholder="Seu nome completo"
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
                     required
                   />
@@ -301,7 +296,7 @@ function AssociadoDashboardPage() {
                     type="email"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
-                    placeholder="dra.juliana@netfits.com.br"
+                    placeholder="seu.email@exemplo.com"
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
                     required
                   />
@@ -314,7 +309,7 @@ function AssociadoDashboardPage() {
                       type="text"
                       value={regRegister}
                       onChange={(e) => setRegRegister(e.target.value)}
-                      placeholder="CRM/CRN/CREF 12345"
+                      placeholder="Ex: CRM / CRN / CREF"
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
                       required
                     />
@@ -325,7 +320,7 @@ function AssociadoDashboardPage() {
                       type="text"
                       value={regPhone}
                       onChange={(e) => setRegPhone(e.target.value)}
-                      placeholder="(11) 98888-0000"
+                      placeholder="(11) 99999-9999"
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
                     />
                   </div>
@@ -338,7 +333,7 @@ function AssociadoDashboardPage() {
                       type="text"
                       value={regSpecialty}
                       onChange={(e) => setRegSpecialty(e.target.value)}
-                      placeholder="Nutrologia / Personal"
+                      placeholder="Sua especialidade"
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
                     />
                   </div>
@@ -348,7 +343,7 @@ function AssociadoDashboardPage() {
                       type="text"
                       value={regCity}
                       onChange={(e) => setRegCity(e.target.value)}
-                      placeholder="São Paulo - SP"
+                      placeholder="Cidade - UF"
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"
                     />
                   </div>
