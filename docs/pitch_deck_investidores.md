@@ -31,7 +31,7 @@ A **Netfits Fidelidade Ltda.** é a primeira plataforma de loyalty, commerce e l
 ### Slide 3: A Solução Netfits — Ecossistema 4 em 1 & As 3 Camadas de Evolução
 - **Ecossistema Unificado**:
   1. **Feed Editorial Curado**: Conteúdo transacional que recompensa leitura e compartilhamento com pontos `nfs`.
-  2. **Netfits Shop (Marketplace Esportivo)**: Compra em marcas parceiras com cashback em pontos e Take Rate padrão de **8,0%**.
+  2. **Netfits Shop (Marketplace Esportivo)**: Compra em marcas parceiras com cashback em pontos e Take Rate padrão de **6,0%** (parceria oficial Rock Encantech).
   3. **Carteira nfs & Interoperabilidade Bancária**: Acúmulo, resgate e declaração de programas parceiros (Itaú, Santander, C6, Livelo).
   4. **Rede de Associados Netfits**: Sistema de indicação B2B2C com remuneração vitalícia de **10,0%**.
 - **Jornada em 3 Camadas Cumulativas**:
@@ -40,7 +40,7 @@ A **Netfits Fidelidade Ltda.** é a primeira plataforma de loyalty, commerce e l
   - **Camada 3 (Longevidade Consciente)**: Serviços premium, diagnósticos de vitalidade e healthspan.
 
 ### Slide 4: Netfits Shop Marketplace & Integrações de Parcerias
-- **Take Rate Padrão**: **8,0%** sobre o GMV das vendas parceiras em vestuário, suplementos, acessórios e provas.
+- **Take Rate Padrão**: **6,0%** sobre o GMV das vendas parceiras em vestuário, suplementos, acessórios e provas (Rock Encantech).
 - **Checkout Externo Credenciado**: Operado com parceiro comercial externo com captura automatizada de cashback em pontos `nfs`.
 - **Bônus de 1ª Compra**: Concessão de 150 `nfs` para incentivar a conversão inicial no Shop.
 - **Integração com Bancos (Livelo, Itaú, Santander, C6)**: Transferências e campanhas bilaterais com emissão valorizada a R$ 0,02 / ponto.

@@ -1209,8 +1209,8 @@ function AdminDashboardPage() {
                 <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
                   <div className="space-y-1">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">NFS-e ABRASF v2.04</span>
-                    <h5 className="text-sm font-bold text-white pt-1">Take-Rate Marketplace (8%)</h5>
-                    <p className="text-xs text-zinc-400">XML de Nota Fiscal de Serviços de intermediação de vendas do Netfits Shop (CNAE 82.99-7-99).</p>
+                    <h5 className="text-sm font-bold text-white pt-1">Take-Rate Marketplace (6%)</h5>
+                    <p className="text-xs text-zinc-400">XML de Nota Fiscal de Serviços de intermediação de vendas do Netfits Shop junto à Rock Encantech (CNAE 82.99-7-99).</p>
                   </div>
                   <a
                     href="/docs/xml_contabilidade/xml_nfse_take_rate_marketplace.xml"
@@ -1218,7 +1218,7 @@ function AdminDashboardPage() {
                     className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
                   >
                     <Download className="size-4" />
-                    Baixar XML Take-Rate
+                    Baixar XML Take-Rate (6%)
                   </a>
                 </div>
 
@@ -5620,8 +5620,8 @@ function AdminDashboardPage() {
                         <span className="text-sm font-black text-emerald-300">R$ 200,00 /mês</span>
                       </div>
                       <div className="bg-gradient-to-r from-purple-950/60 to-zinc-900 p-3.5 rounded-xl border border-lime-400/50 flex justify-between items-center">
-                        <span className="text-xs font-bold text-white">Receita Bruta (8,0% Take-Rate):</span>
-                        <span className="text-sm font-black text-lime-300">R$ 16,0 Milhões /mês (R$ 192M /ano)</span>
+                        <span className="text-xs font-bold text-white">Receita Bruta (6,0% Take-Rate):</span>
+                        <span className="text-sm font-black text-lime-300">R$ 12,0 Milhões /mês (R$ 144M /ano)</span>
                       </div>
                     </div>
                   </div>

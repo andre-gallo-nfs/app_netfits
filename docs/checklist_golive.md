@@ -44,7 +44,7 @@ flowchart LR
 - [ ] **API de Webhooks & Postback de Transações**:
   - [ ] Criar endpoint seguro `/api/v1/webhooks/shop-partner` com validação de assinatura HMAC.
   - [ ] Processar eventos de transação: `sale_approved`, `sale_canceled`, `refund_requested`.
-  - [ ] Calcular a comissão Netfits (**8,0% Take-Rate padrão**) e a creditação do cashback para o usuário em pontos `nfs`.
+  - [ ] Calcular a comissão Netfits (**6,0% Take-Rate padrão - Rock Encantech**) e a creditação do cashback para o usuário em pontos `nfs`.
 - [ ] **Regras do Cashback em Pontos `nfs`**:
   - [ ] Configurar parâmetro `nfsEarnedPerBrlSpent = 0.50` (compras padrão) e `1.00` (compras no Netfits Club).
   - [ ] Adicionar bônus de primeira compra (`shopFirstPurchaseBonusNfs = 150 nfs`).
@@ -88,8 +88,8 @@ flowchart LR
   - [ ] Acompanhar métricas principais (DAU, MAU, Taxa de Leitura, GMV do Shop, Pontos Emitidos e Resgatados).
 - [ ] **Painel de Controle Admin (Realtime)**:
   - [ ] Garantir que o painel `/admin` reflita em tempo real os novos parâmetros padrão:
-    - Take Rate Shop: **8,0%**
-    - CPP Acúmulo: **R$ 0,02**
+    - Take Rate Shop: **6,0%** (parceria Rock Encantech)
+    - CPP Acúmulo: **R$ 0,015**
     - CPP Resgate: **R$ 0,01**
     - CPP Provisão: **R$ 0,01**
     - Mensalidade Club: **R$ 19,90/mês**
