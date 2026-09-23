@@ -35,7 +35,7 @@ function WalletPage() {
           <img
             src={netfitsMark}
             alt=""
-            className="absolute top-4 right-4 w-8 h-8 object-contain rounded-md bg-background/10 p-0.5 opacity-70"
+            className="absolute top-4 right-4 w-8 h-8 object-contain rounded-md bg-background/10 p-0.5 opacity-70 pointer-events-none"
           />
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
             Saldo netfits
@@ -47,16 +47,16 @@ function WalletPage() {
           <p className="text-xs text-zinc-400 mt-1">
             ≈ {balanceBRL} em resgates
           </p>
-          <div className="mt-5">
+          <div className="mt-5 relative z-10">
             <Link
               to="/market"
-              className="w-full bg-brand text-brand-foreground text-xs font-bold py-3 rounded-full hover:brightness-110 active:scale-95 transition shadow-md flex items-center justify-center gap-2"
+              className="w-full bg-brand text-brand-foreground text-xs font-bold py-3 rounded-full hover:brightness-110 active:scale-95 transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <ShoppingBag className="size-4" />
               <span>Resgatar Pontos Netfits no Shop</span>
             </Link>
           </div>
-          <div className="absolute right-[-10%] bottom-[-30%] w-64 h-64 bg-brand/10 blur-3xl rounded-full" />
+          <div className="absolute right-[-10%] bottom-[-30%] w-64 h-64 bg-brand/10 blur-3xl rounded-full pointer-events-none" />
         </div>
       </section>
 
