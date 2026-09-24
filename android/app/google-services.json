@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "797688953119",
+    "project_id": "netfits-production",
+    "storage_bucket": "netfits-production.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797688953119:android:b8ea2c0793aba87764582a",
+        "android_client_info": {
+          "package_name": "br.com.netfits.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnFuWz8T8gJHs4xXSBNR9ptC4z6j8vcdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
