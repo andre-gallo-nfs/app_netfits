@@ -296,6 +296,8 @@ export interface MkplacePhone {
 }
 
 export interface MkplaceCustomerProfile {
+  _id?: string;
+  storeId?: string;
   name: string;
   email: string;
   document: string;
@@ -317,6 +319,7 @@ export interface MkplaceUpdateProfileRequest {
  * Mapeia um usuário Netfits para o contrato oficial da Mkplace de Perfil do Cliente.
  */
 export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
+  const config = getMkplaceConfig();
   const rawPhone = user.phone || "11999998888";
   const digits = rawPhone.replace(/\D/g, "");
   const areaCode = digits.length >= 10 ? digits.slice(-11, -9) : "11";
@@ -325,6 +328,8 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
   const rawCpf = (user.cpf || "12345678900").replace(/\D/g, "");
 
   return {
+    _id: String(user.id || "usr_101"),
+    storeId: config.storeId,
     name: user.fullName || "Atleta Netfits",
     email: user.email || "atleta@netfits.com.br",
     document: rawCpf,
@@ -454,7 +459,10 @@ export interface MkplaceWebhookResult {
   success: boolean;
   statusCode: number;
   message: string;
+  orderId: string;
+  status: string;
   nfsEarned: number;
+  pointsUsed: number;
   cashbackRate: string;
   firstPurchaseBonusNfs: number;
   friendCommissionNfs: number;
@@ -472,7 +480,7 @@ export interface MkplaceWebhookResult {
  * - 6.0% de Take Rate Netfits sobre o valor faturado
  */
 export function processMkplaceOrderNotification(
-  event: MkplaceOrderWebhookEvent,
+  event: any,
   isClubMember: boolean = false,
   customParams?: {
     baseRate?: number;
@@ -481,21 +489,41 @@ export function processMkplaceOrderNotification(
     takeRatePct?: number;
   }
 ): MkplaceWebhookResult {
-  const { order } = event;
-  const totalPaid = order.totals.totalPaidBrl || 0;
+  // Suporta tanto o objeto Order direto da Mkplace quanto o payload envelopado em event.order
+  const rawOrder = event?.order ? event.order : event;
+  const orderId = rawOrder?._id || rawOrder?.orderId || rawOrder?.orderRef || `ORD-${Date.now()}`;
+  const status = rawOrder?.status || "PAID";
+
+  const totalPaid = Number(
+    rawOrder?.summary?.finalPrice ??
+    rawOrder?.summary?.total ??
+    rawOrder?.totals?.totalPaidBrl ??
+    0
+  );
+
+  const pointsUsed = Number(
+    rawOrder?.points?.[0]?.amount ??
+    rawOrder?.totals?.pointsUsed ??
+    0
+  );
 
   // Diretrizes Operacionais de 2026
   const baseRate = customParams?.baseRate ?? 4.0;
   const clubMultiplier = isClubMember ? (customParams?.clubMultiplier ?? 1.0) : 1.0;
   const effectiveRate = baseRate * clubMultiplier;
-  const baseCashback = Math.floor(totalPaid * effectiveRate);
+
+  // Se a Mkplace já informou os pontos ganhos no summary.points.amount, priorizamos
+  const reportedPointsEarned = rawOrder?.summary?.points?.amount;
+  const baseCashback = reportedPointsEarned !== undefined && reportedPointsEarned !== null
+    ? Number(reportedPointsEarned)
+    : Math.floor(totalPaid * effectiveRate);
 
   // Bônus de Primeira Compra (inicialmente 0 nfs)
-  const firstPurchaseBonus = order.isFirstPurchase ? (customParams?.firstPurchaseBonus ?? 0) : 0;
+  const firstPurchaseBonus = rawOrder?.isFirstPurchase ? (customParams?.firstPurchaseBonus ?? 0) : 0;
   const totalNfsEarned = baseCashback + firstPurchaseBonus;
 
   // Comissão de Indicação de Amigo (5% em nfs)
-  const friendCommissionNfs = order.referralCode ? Math.floor(baseCashback * 0.05) : 0;
+  const friendCommissionNfs = rawOrder?.referralCode ? Math.floor(baseCashback * 0.05) : 0;
 
   // Take Rate Netfits de 6.0%
   const takeRatePct = 6.0;
@@ -510,8 +538,11 @@ export function processMkplaceOrderNotification(
   return {
     success: true,
     statusCode: 200,
-    message: `Pedido Mkplace ${order.orderId} (Status: ${order.status}) processado com sucesso.`,
+    message: `Pedido Mkplace ${orderId} (Status: ${status}) processado com sucesso.`,
+    orderId,
+    status,
     nfsEarned: totalNfsEarned,
+    pointsUsed,
     cashbackRate: `${effectiveRate.toFixed(2)} nfs por R$ 1,00`,
     firstPurchaseBonusNfs: firstPurchaseBonus,
     friendCommissionNfs,

@@ -257,13 +257,25 @@ export default {
       return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
     }
 
-    // 3. Webhook de Pedidos & Pagamentos da Mkplace (/api/marketplace/mkplace/webhook)
-    if (url.pathname === "/api/marketplace/mkplace/webhook" || url.pathname === "/api/marketplace/mkplace/webhook/") {
+    // 3. Endpoint de Recebimento de Pedidos da Mkplace (/api/orders, /orders, /api/marketplace/mkplace/webhook)
+    const isOrdersEndpoint =
+      url.pathname === "/api/orders" || url.pathname === "/api/orders/" ||
+      url.pathname === "/orders" || url.pathname === "/orders/" ||
+      url.pathname === "/api/marketplace/mkplace/webhook" || url.pathname === "/api/marketplace/mkplace/webhook/";
+
+    if (isOrdersEndpoint) {
       if (req.method === "POST") {
         try {
           const body = await req.json();
-          const customerId = body?.order?.customerId;
-          const user = globalServerUsers.find((u) => u.id === customerId || u.email === body?.order?.customerEmail);
+          const rawOrder = body?.order ? body.order : body;
+          const customerEmail = rawOrder?.customer?.email || rawOrder?.customerEmail;
+          const customerRef = rawOrder?.customer?.ref || rawOrder?.customer?.document || rawOrder?.customerId;
+
+          const user = globalServerUsers.find(
+            (u) =>
+              (customerEmail && u.email?.toLowerCase() === String(customerEmail).toLowerCase()) ||
+              (customerRef && (u.id === customerRef || u.cpf === customerRef))
+          );
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
           const result = processMkplaceOrderNotification(body, isClubMember, {
@@ -273,16 +285,31 @@ export default {
             takeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6.0,
           });
 
-          // Credita cashback no usuário se for status aprovado/faturado
-          if (user && result.nfsEarned > 0) {
-            user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
+          // Atualiza a carteira do usuário para status aprovado/faturado
+          const status = (result.status || "").toUpperCase();
+          const isApproved =
+            status === "PAID" ||
+            status === "BILLED" ||
+            status === "DELIVERED" ||
+            status === "PAYMENT-APPROVED" ||
+            status === "COMPLETED";
+
+          if (user && isApproved) {
+            // Debita pontos usados no resgate
+            if (result.pointsUsed > 0) {
+              user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
+            }
+            // Credita cashback em pontos
+            if (result.nfsEarned > 0) {
+              user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
+            }
             lastSyncTimestamp = new Date().toISOString();
           }
 
           return new Response(JSON.stringify(result), { status: 200, headers: corsHeaders });
         } catch (err: any) {
           return new Response(
-            JSON.stringify({ success: false, error: err.message || "Erro no processamento do webhook" }),
+            JSON.stringify({ success: false, error: err.message || "Erro no processamento do pedido" }),
             { status: 400, headers: corsHeaders }
           );
         }
