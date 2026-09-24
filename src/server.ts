@@ -245,24 +245,29 @@ export default {
 
     if (isWalletEndpoint) {
       const authHeader = req.headers.get("Authorization");
-      const customerIdQuery = url.searchParams.get("customerId");
-
-      let user: any = null;
-      if (customerIdQuery) {
-        user = globalServerUsers.find(
-          (u) => u.id === customerIdQuery || u.cpf === customerIdQuery || u.email === customerIdQuery
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({
+            exceptionType: "ForbiddenError",
+            message: "Autenticação obrigatória para consulta de carteira",
+          }),
+          { status: 403, headers: corsHeaders }
         );
       }
-      if (!user && authHeader) {
-        user = resolveUserFromToken(authHeader);
-      }
+
+      const user = resolveUserFromToken(authHeader);
       if (!user) {
-        // Fallback para simulation da Mkplace
-        user = globalServerUsers[0];
+        return new Response(
+          JSON.stringify({
+            exceptionType: "ForbiddenError",
+            message: "Token inválido, expirado ou cliente não encontrado",
+          }),
+          { status: 403, headers: corsHeaders }
+        );
       }
 
-      const balance = user ? (user.nfsBalance ?? 1850) : 1850;
-      const walletResponse = buildMkplaceLoyaltyWallet(balance, user?.id || "usr_101");
+      const balance = user.nfsBalance ?? 1850;
+      const walletResponse = buildMkplaceLoyaltyWallet(balance, user.id || "usr_101");
       return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
     }
 
