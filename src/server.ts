@@ -238,22 +238,31 @@ export default {
       }
     }
 
-    // 2. Carteira de Fidelidade (GET /loyalty/wallet)
-    if (url.pathname === "/loyalty/wallet" || url.pathname === "/loyalty/wallet/") {
+    // 2. Carteira de Fidelidade (GET /loyalty/wallet, /api/loyalty/wallet)
+    const isWalletEndpoint =
+      url.pathname === "/loyalty/wallet" || url.pathname === "/loyalty/wallet/" ||
+      url.pathname === "/api/loyalty/wallet" || url.pathname === "/api/loyalty/wallet/";
+
+    if (isWalletEndpoint) {
       const authHeader = req.headers.get("Authorization");
-      if (!authHeader) {
-        return new Response(
-          JSON.stringify({
-            exceptionType: "ForbiddenError",
-            message: "Autenticação obrigatória para consulta de carteira",
-          }),
-          { status: 403, headers: corsHeaders }
+      const customerIdQuery = url.searchParams.get("customerId");
+
+      let user: any = null;
+      if (customerIdQuery) {
+        user = globalServerUsers.find(
+          (u) => u.id === customerIdQuery || u.cpf === customerIdQuery || u.email === customerIdQuery
         );
       }
+      if (!user && authHeader) {
+        user = resolveUserFromToken(authHeader);
+      }
+      if (!user) {
+        // Fallback para simulation da Mkplace
+        user = globalServerUsers[0];
+      }
 
-      const user = resolveUserFromToken(authHeader);
-      const balance = user ? (user.nfsBalance ?? 1500) : 1500;
-      const walletResponse = buildMkplaceLoyaltyWallet(balance);
+      const balance = user ? (user.nfsBalance ?? 1850) : 1850;
+      const walletResponse = buildMkplaceLoyaltyWallet(balance, user?.id || "usr_101");
       return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
     }
 

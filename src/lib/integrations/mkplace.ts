@@ -367,43 +367,119 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
 // 4. CONTRATOS DA CARTEIRA DE PONTOS (/loyalty/wallet)
 // ==========================================
 
-export interface MkplaceWalletItem {
-  id: string;
+export interface MkplaceWalletType {
+  walletTypeId: string;
+  code: string;
   name: string;
-  balance: number;
-  currency: "NFS";
-  limit?: number;
-  exchangeRateBrl?: number; // Valor de 1 ponto em R$ (ex: R$ 0,01)
+  unitSingularName: string;
+  unitPluralName: string;
+  active: boolean;
+  isDefault: boolean;
+  createdAt: string;
+  limits?: Record<string, any>;
+}
+
+export interface MkplaceWalletAccount {
+  earnedUnits: number;
+  transferredUnits: number;
+  spentUnits: number;
+  activeUnits: number;
+  lockedUnits: number;
+  blockedUnits: number;
+  expiredUnits: number;
+  currencyAmount: number;
+  currency: string;
+}
+
+export interface MkplaceWalletItemStrict {
+  walletType: MkplaceWalletType;
+  createdAt: string;
+  account: MkplaceWalletAccount;
+  unitsLimitUsed: number;
+  unitsLimitRemaining: number;
 }
 
 export interface MkplaceLoyaltyWalletResponse {
-  wallets: MkplaceWalletItem[];
-  totalBalance: number;
-  totalValueBrl: number;
-  currency: "NFS";
-  updatedAt: string;
+  ref: string;
+  pointConversionRate: number;
+  items: MkplaceWalletItemStrict[];
+  total: {
+    all: number;
+    filtered: number;
+  };
+  // Compatibilidade com simuladores e versões anteriores
+  wallets?: Array<{
+    id: string;
+    name: string;
+    balance: number;
+    currency: "NFS";
+    limit?: number;
+    exchangeRateBrl?: number;
+  }>;
+  totalBalance?: number;
+  totalValueBrl?: number;
+  currency?: "NFS";
+  updatedAt?: string;
 }
 
 /**
- * Mapeia o saldo e parâmetros da carteira para o contrato de fidelidade da Mkplace.
+ * Mapeia o saldo e parâmetros da carteira para o contrato oficial IWalletResponse da Mkplace.
  */
-export function buildMkplaceLoyaltyWallet(nfsBalance: number): MkplaceLoyaltyWalletResponse {
+export function buildMkplaceLoyaltyWallet(nfsBalance: number, userRef = "usr_101"): MkplaceLoyaltyWalletResponse {
   const pointValueBrl = 0.01; // 100 nfs = R$ 1,00
+  const activeUnits = Math.max(0, nfsBalance);
+  const currencyAmount = Number((activeUnits * pointValueBrl).toFixed(2));
+  const now = new Date().toISOString();
+
   return {
+    ref: `wallet_${userRef}`,
+    pointConversionRate: pointValueBrl,
+    items: [
+      {
+        walletType: {
+          walletTypeId: "netfits_nfs_points",
+          code: "nfs",
+          name: "Pontos Netfits",
+          unitSingularName: "ponto",
+          unitPluralName: "pontos",
+          active: true,
+          isDefault: true,
+          createdAt: "2026-01-01T00:00:00.000Z",
+        },
+        createdAt: "2026-01-01T00:00:00.000Z",
+        account: {
+          earnedUnits: activeUnits,
+          transferredUnits: 0,
+          spentUnits: 0,
+          activeUnits: activeUnits,
+          lockedUnits: 0,
+          blockedUnits: 0,
+          expiredUnits: 0,
+          currencyAmount: currencyAmount,
+          currency: "BRL",
+        },
+        unitsLimitUsed: 0,
+        unitsLimitRemaining: 1000000,
+      },
+    ],
+    total: {
+      all: 1,
+      filtered: 1,
+    },
     wallets: [
       {
         id: "netfits_loyalty_wallet_main",
         name: "Pontos Netfits nfs",
-        balance: Math.max(0, nfsBalance),
+        balance: activeUnits,
         currency: "NFS",
         limit: 1000000,
         exchangeRateBrl: pointValueBrl,
       },
     ],
-    totalBalance: Math.max(0, nfsBalance),
-    totalValueBrl: Number((Math.max(0, nfsBalance) * pointValueBrl).toFixed(2)),
+    totalBalance: activeUnits,
+    totalValueBrl: currencyAmount,
     currency: "NFS",
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
   };
 }
 
