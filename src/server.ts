@@ -248,10 +248,10 @@ export default {
       if (!authHeader) {
         return new Response(
           JSON.stringify({
-            exceptionType: "ForbiddenError",
-            message: "Autenticação obrigatória para consulta de carteira",
+            exceptionType: "UnauthorizedError",
+            message: "Autenticação por Bearer obrigatória",
           }),
-          { status: 403, headers: corsHeaders }
+          { status: 401, headers: corsHeaders }
         );
       }
 
@@ -259,10 +259,10 @@ export default {
       if (!user) {
         return new Response(
           JSON.stringify({
-            exceptionType: "ForbiddenError",
+            exceptionType: "UnauthorizedError",
             message: "Token inválido, expirado ou cliente não encontrado",
           }),
-          { status: 403, headers: corsHeaders }
+          { status: 401, headers: corsHeaders }
         );
       }
 

@@ -367,119 +367,39 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
 // 4. CONTRATOS DA CARTEIRA DE PONTOS (/loyalty/wallet)
 // ==========================================
 
-export interface MkplaceWalletType {
-  walletTypeId: string;
-  code: string;
-  name: string;
-  unitSingularName: string;
-  unitPluralName: string;
-  active: boolean;
-  isDefault: boolean;
-  createdAt: string;
-  limits?: Record<string, any>;
+/**
+ * Contrato oficial do endpoint de wallet consumido pelo checkoutSimulation da Mkplace (wallet-checkoutSimulation.pdf).
+ * Tipo de retorno: CustomerPointWallet (um único objeto JSON, NÃO um array/lista).
+ */
+export interface CustomerPointWallet {
+  activeUnits: number; // Saldo de pontos ativos do cliente (OBRIGATÓRIO)
+  pointConversionRate?: number; // Quanto vale 1 ponto na moeda (opcional, para Netfits: 0.01)
+  currency?: string; // Moeda dos pontos (opcional, default "BRL")
+  ref?: string; // Identificador do seu programa/provedor (opcional)
+  _id?: string; // Id da wallet do cliente (opcional)
 }
 
-export interface MkplaceWalletAccount {
-  earnedUnits: number;
-  transferredUnits: number;
-  spentUnits: number;
-  activeUnits: number;
-  lockedUnits: number;
-  blockedUnits: number;
-  expiredUnits: number;
-  currencyAmount: number;
-  currency: string;
-}
-
-export interface MkplaceWalletItemStrict {
-  walletType: MkplaceWalletType;
-  createdAt: string;
-  account: MkplaceWalletAccount;
-  unitsLimitUsed: number;
-  unitsLimitRemaining: number;
-}
-
-export interface MkplaceLoyaltyWalletResponse {
-  ref: string;
-  pointConversionRate: number;
-  items: MkplaceWalletItemStrict[];
-  total: {
-    all: number;
-    filtered: number;
-  };
-  // Compatibilidade com simuladores e versões anteriores
-  wallets?: Array<{
-    id: string;
-    name: string;
-    balance: number;
-    currency: "NFS";
-    limit?: number;
-    exchangeRateBrl?: number;
-  }>;
-  totalBalance?: number;
-  totalValueBrl?: number;
-  currency?: "NFS";
-  updatedAt?: string;
-}
+export type MkplaceLoyaltyWalletResponse = CustomerPointWallet;
 
 /**
- * Mapeia o saldo e parâmetros da carteira para o contrato oficial IWalletResponse da Mkplace.
+ * Mapeia o saldo e parâmetros da carteira para o contrato oficial da Mkplace (wallet-checkoutSimulation.pdf).
+ * Exemplo retornado:
+ * {
+ *   "activeUnits": 1850,
+ *   "pointConversionRate": 0.01,
+ *   "currency": "BRL",
+ *   "ref": "netfits",
+ *   "_id": "wallet_usr_101"
+ * }
  */
-export function buildMkplaceLoyaltyWallet(nfsBalance: number, userRef = "usr_101"): MkplaceLoyaltyWalletResponse {
-  const pointValueBrl = 0.01; // 100 nfs = R$ 1,00
+export function buildMkplaceLoyaltyWallet(nfsBalance: number, userRef = "usr_101"): CustomerPointWallet {
   const activeUnits = Math.max(0, nfsBalance);
-  const currencyAmount = Number((activeUnits * pointValueBrl).toFixed(2));
-  const now = new Date().toISOString();
-
   return {
-    ref: `wallet_${userRef}`,
-    pointConversionRate: pointValueBrl,
-    items: [
-      {
-        walletType: {
-          walletTypeId: "netfits_nfs_points",
-          code: "nfs",
-          name: "Pontos Netfits",
-          unitSingularName: "ponto",
-          unitPluralName: "pontos",
-          active: true,
-          isDefault: true,
-          createdAt: "2026-01-01T00:00:00.000Z",
-        },
-        createdAt: "2026-01-01T00:00:00.000Z",
-        account: {
-          earnedUnits: activeUnits,
-          transferredUnits: 0,
-          spentUnits: 0,
-          activeUnits: activeUnits,
-          lockedUnits: 0,
-          blockedUnits: 0,
-          expiredUnits: 0,
-          currencyAmount: currencyAmount,
-          currency: "BRL",
-        },
-        unitsLimitUsed: 0,
-        unitsLimitRemaining: 1000000,
-      },
-    ],
-    total: {
-      all: 1,
-      filtered: 1,
-    },
-    wallets: [
-      {
-        id: "netfits_loyalty_wallet_main",
-        name: "Pontos Netfits nfs",
-        balance: activeUnits,
-        currency: "NFS",
-        limit: 1000000,
-        exchangeRateBrl: pointValueBrl,
-      },
-    ],
-    totalBalance: activeUnits,
-    totalValueBrl: currencyAmount,
-    currency: "NFS",
-    updatedAt: now,
+    activeUnits,
+    pointConversionRate: 0.01,
+    currency: "BRL",
+    ref: "netfits",
+    _id: `wallet_${userRef}`,
   };
 }
 
