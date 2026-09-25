@@ -18,22 +18,17 @@ android {
     }
     signingConfigs {
         release {
-            def keystoreFile = file("netfits-upload-key.jks")
-            if (keystoreFile.exists()) {
-                storeFile keystoreFile
-                storePassword System.getenv("KEYSTORE_PASSWORD") ?: "Netfits@2026!App"
-                keyAlias System.getenv("KEY_ALIAS") ?: "netfits-upload"
-                keyPassword System.getenv("KEY_PASSWORD") ?: "Netfits@2026!App"
-            }
+            storeFile file("netfits-upload-key.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD") ?: "Netfits@2026!App"
+            keyAlias System.getenv("KEY_ALIAS") ?: "netfits-upload"
+            keyPassword System.getenv("KEY_PASSWORD") ?: "Netfits@2026!App"
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (file("netfits-upload-key.jks").exists()) {
-                signingConfig signingConfigs.release
-            }
+            signingConfig signingConfigs.release
         }
     }
 }
