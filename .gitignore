@@ -1,6 +1,8 @@
 node_modules
 .DS_Store
-dist
+# Web assets for Capacitor native shell
+dist/*
+!dist/index.html
 .cache
 
 # Environment variables & Private Keys
