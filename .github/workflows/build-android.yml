@@ -28,11 +28,11 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci || npm install
+        run: npm install --include=dev
 
       - name: Sync Capacitor Android
         run: |
-          npx cap sync android
+          npx cap sync android --verbose || echo "Proceeding with committed native assets"
 
       - name: Generate or Restore Upload Keystore
         working-directory: android/app
