@@ -60,6 +60,11 @@ jobs:
         working-directory: android
         run: chmod +x gradlew
 
+      - name: Accept Android SDK Licenses & Install Platform 36
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" || true
+
       - name: Build Android App Bundle (.aab)
         working-directory: android
         env:
