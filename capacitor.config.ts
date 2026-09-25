@@ -12,6 +12,8 @@ const config: CapacitorConfig = {
     iosScheme: "https",
     allowNavigation: [
       "netfits.com.br",
+      "*.netfits.com.br",
+      "*.mkplace.com.br",
       "*.vercel.app",
       "*.pages.dev",
       "*.supabase.co"
