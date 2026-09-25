@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build & Sign Android Bundle (.aab)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Code
@@ -97,3 +99,14 @@ jobs:
           name: netfits-upload-keystore
           path: android/app/netfits-upload-key.jks
           retention-days: 30
+
+      - name: Save Diagnostics to Branch (On Failure)
+        if: failure()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B build-diagnostics
+          cp /tmp/gradle.log ./gradle-build.log
+          git add ./gradle-build.log
+          git commit -m "diagnostics: gradle build failure log" || true
+          git push origin build-diagnostics --force || true
