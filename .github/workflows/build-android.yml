@@ -64,9 +64,26 @@ jobs:
           KEYSTORE_PASSWORD: "Netfits@2026!App"
           KEY_ALIAS: "netfits-upload"
           KEY_PASSWORD: "Netfits@2026!App"
-        run: ./gradlew bundleRelease --stacktrace
+        run: |
+          if ! ./gradlew bundleRelease --stacktrace > /tmp/gradle.log 2>&1; then
+            echo "## ❌ Gradle Build Error" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 80 /tmp/gradle.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat /tmp/gradle.log
+            exit 1
+          fi
+          echo "## ✅ Gradle Build Succeeded!" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Build Log (Always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-build-log
+          path: /tmp/gradle.log
 
       - name: Upload Android App Bundle (.aab) Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: netfits-release-aab
@@ -74,6 +91,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Keystore Artifact (Backup)
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: netfits-upload-keystore
