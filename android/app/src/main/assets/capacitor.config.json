@@ -1,0 +1,41 @@
+{
+	"appId": "br.com.netfits.app",
+	"appName": "Netfits",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"server": {
+		"androidScheme": "https",
+		"iosScheme": "https",
+		"allowNavigation": [
+			"netfits.com.br",
+			"*.netfits.com.br",
+			"*.mkplace.com.br",
+			"*.vercel.app",
+			"*.pages.dev",
+			"*.supabase.co"
+		]
+	},
+	"plugins": {
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"SplashScreen": {
+			"launchShowDuration": 1500,
+			"launchAutoHide": true,
+			"backgroundColor": "#ffffff",
+			"androidSplashResourceName": "splash",
+			"showSpinner": false
+		},
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#ffffff"
+		},
+		"Biometric": {
+			"reason": "Autentique-se com Face ID / Digital para acessar sua conta Netfits"
+		}
+	}
+}
