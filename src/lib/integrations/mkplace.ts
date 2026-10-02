@@ -55,6 +55,16 @@ dmKgewT+uNeTO3PZcGrQE9D3IJnrDmRuveao8oUTqL/qvu/mAOllYLhBjOcdzHOM
 lQIDAQAB
 -----END PUBLIC KEY-----`;
 
+const DEFAULT_PROD_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmwcVSdrZNby6NTk+L5By
+xEcOOcs2yANm/IkpwxbisPHdS6ezwl2eKULYQ5cECG8JZhk5R1JwCOjyJzndOYeT
+TjcVsVgPm12AQ9HISjn/hpaMqiwDHfL85Nwt9DZPee1cDbS73jelZOpwBomcMND3
+hfv2cZpjcWPy3Wh3jlDcNp1pRUl0dKFqd9oHn0n8bw1vgczCrt6Cn7kDslQeAYvR
+dblspNChtGYWvUxzT1fdy3sPw3sA+nQ42VQqS6A+yCttkUo4FNhifaHhLhYkGIUv
+HmAWesE/4ucr63KmJa/9IgNiQ8VrC7vZr42SEFm9Kw+UtcSq/B8TY2aF5sn4rLh8
+PwIDAQAB
+-----END PUBLIC KEY-----`;
+
 export interface MkplaceConfig {
   storeId: string;
   accountId: string;
@@ -75,10 +85,14 @@ export function getMkplaceConfig(): MkplaceConfig {
 
   // Auto-detecta o KID correto com base no par de chaves RSA utilizado
   let detectedKeyId = "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA"; // Default: Staging
+  let defaultPublicKey = DEFAULT_DEV_PUBLIC_KEY;
+
   if (privateKey.includes("MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCbBxVJ2tk1vLo1")) {
     detectedKeyId = "PUQ4cwt2n3Czt4aiW-DaXHttZIYebVUmhJVfZK1zgDw"; // Chave de Produção Oficial
+    defaultPublicKey = DEFAULT_PROD_PUBLIC_KEY;
   } else if (privateKey.includes("MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCbjuornMIroe1d")) {
     detectedKeyId = "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA"; // Chave de Homologação (Staging)
+    defaultPublicKey = DEFAULT_DEV_PUBLIC_KEY;
   }
 
   const finalKeyId = env.MKPLACE_KEY_ID && env.MKPLACE_KEY_ID !== "nfs-mkplace-rsa-v1"
@@ -92,7 +106,7 @@ export function getMkplaceConfig(): MkplaceConfig {
     privateKey,
     publicKey: env.MKPLACE_PUBLIC_KEY
       ? env.MKPLACE_PUBLIC_KEY.replace(/\\n/g, "\n")
-      : DEFAULT_DEV_PUBLIC_KEY,
+      : defaultPublicKey,
     webviewUrl: env.MKPLACE_WEBVIEW_URL || "https://netfits-ruddy.vercel.app",
     webhookSecret: env.MKPLACE_WEBHOOK_SECRET || "sec_nfs_mkplace_default_2026",
     isMock: !hasRealKey,
