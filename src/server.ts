@@ -333,6 +333,7 @@ export default {
     // 4. Emissor de Token SSO Mkplace (/api/marketplace/mkplace/token)
     if (url.pathname === "/api/marketplace/mkplace/token" || url.pathname === "/api/marketplace/mkplace/token/") {
       let targetUser = globalServerUsers[0]; // Kite Larsen padrão
+      let customExpires: number | undefined;
 
       if (req.method === "POST") {
         try {
@@ -340,6 +341,9 @@ export default {
           if (body?.userId) {
             const found = globalServerUsers.find((u) => u.id === body.userId || u.email === body.userId);
             if (found) targetUser = found;
+          }
+          if (body?.expiresInSeconds) {
+            customExpires = Number(body.expiresInSeconds);
           }
         } catch {
           // Body JSON inválido ou vazio, prossegue com targetUser padrão
@@ -350,9 +354,15 @@ export default {
           const found = globalServerUsers.find((u) => u.id === userId || u.email === userId);
           if (found) targetUser = found;
         }
+        const expParam = url.searchParams.get("expiresInSeconds") || url.searchParams.get("exp");
+        if (expParam) {
+          customExpires = Number(expParam);
+        }
       }
 
-      const token = generateMkplaceJwt(targetUser);
+      const expiresInSeconds = customExpires && customExpires > 0 ? customExpires : 86400;
+
+      const token = generateMkplaceJwt(targetUser, expiresInSeconds);
       const webviewUrl = getMkplaceWebviewUrl(targetUser);
       const config = getMkplaceConfig();
 
@@ -366,7 +376,7 @@ export default {
           },
           token,
           webviewUrl,
-          expiresInSeconds: 86400,
+          expiresInSeconds,
           keyId: config.keyId,
           storeId: config.storeId,
           accountId: config.accountId,
