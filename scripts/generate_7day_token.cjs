@@ -1,8 +1,14 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-const privateKey = fs.readFileSync('C:/Users/aacga/OneDrive/netfits/Rock/homolog/rsa-generated.private.pem', 'utf8');
-const publicKey = fs.readFileSync('C:/Users/aacga/OneDrive/netfits/Rock/homolog/rsa-generated.public.pem', 'utf8');
+const keyPath = 'C:/Users/aacga/OneDrive/netfits/Rock/homolog/rsa-generated.private.pem';
+const pubPath = 'C:/Users/aacga/OneDrive/netfits/Rock/homolog/rsa-generated.public.pem';
+if (!fs.existsSync(keyPath) || !fs.existsSync(pubPath)) {
+  console.log("Chaves locais não encontradas neste ambiente.");
+  process.exit(0);
+}
+const privateKey = fs.readFileSync(keyPath, 'utf8');
+const publicKey = fs.readFileSync(pubPath, 'utf8');
 
 function base64UrlEncode(str) {
   const buf = typeof str === 'string' ? Buffer.from(str, 'utf8') : str;
