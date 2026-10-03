@@ -22,7 +22,7 @@ async function runAudit() {
   // ---------------------------------------------------------
   console.log("▶ [1/5] Auditando Endpoints Web, SSL e APIs Públicas...");
   const endpoints = [
-    { name: "Home Vercel", url: `${BASE_URL}/` },
+    { name: "Home Netfits Oficial", url: `${BASE_URL}/` },
     { name: "Admin Dashboard", url: `${BASE_URL}/admin` },
     { name: "FAQ / Regulamento", url: `${BASE_URL}/faq` },
     { name: "Marketplace / Shop", url: `${BASE_URL}/market` },
