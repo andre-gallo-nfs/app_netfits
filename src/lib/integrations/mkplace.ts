@@ -508,12 +508,16 @@ export function processMkplaceOrderNotification(
     rawOrder?.summary?.finalPrice ??
     rawOrder?.summary?.total ??
     rawOrder?.totals?.totalPaidBrl ??
+    rawOrder?.totalAmount ??
+    rawOrder?.total ??
+    rawOrder?.amount ??
     0
   );
 
   const pointsUsed = Number(
     rawOrder?.points?.[0]?.amount ??
     rawOrder?.totals?.pointsUsed ??
+    rawOrder?.pointsUsed ??
     0
   );
 
