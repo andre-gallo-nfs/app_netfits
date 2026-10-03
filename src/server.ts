@@ -135,7 +135,7 @@ function getCorsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Netfits-Signature, X-Netfits-Merchant-Id, Idempotency-Key",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Netfits-Signature, X-Netfits-Merchant-Id, Idempotency-Key, x-api-key, X-API-KEY, x-webhook-secret",
     "Content-Type": "application/json",
   };
 }
@@ -278,6 +278,20 @@ export default {
       url.pathname === "/api/marketplace/mkplace/webhook" || url.pathname === "/api/marketplace/mkplace/webhook/";
 
     if (isOrdersEndpoint) {
+      if (req.method === "GET") {
+        return new Response(
+          JSON.stringify({
+            status: "ready",
+            message: "Netfits Orders Webhook Endpoint is online and ready to receive purchase events",
+            endpoint: url.pathname,
+            acceptedAuth: ["x-api-key", "Authorization: Bearer <token>", "Authorization: ApiKey <key>"],
+            storeId: "RhOFkbZJIN",
+            accountId: "RhOFkbZJIN",
+          }),
+          { status: 200, headers: corsHeaders }
+        );
+      }
+
       if (req.method === "POST") {
         try {
           const body = await req.json();
