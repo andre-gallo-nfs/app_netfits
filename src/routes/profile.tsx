@@ -345,13 +345,13 @@ function ProfilePage() {
                   <div className="min-w-0 flex-1">
                     <span className="text-[9px] font-bold uppercase text-muted-foreground block">Link Direto de Indicação:</span>
                     <span className="text-xs font-mono font-bold text-foreground truncate block">
-                      https://app-netfits.vercel.app/auth?ref={activeUser.referralCode}
+                      https://www.netfits.com.br/auth?ref={activeUser.referralCode}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      const directUrl = `https://app-netfits.vercel.app/auth?ref=${activeUser.referralCode}`;
+                      const directUrl = `https://www.netfits.com.br/auth?ref=${activeUser.referralCode}`;
                       navigator.clipboard.writeText(directUrl);
                       toast.success(`📋 Link direto de cadastro copiado! (${directUrl})`);
                     }}
@@ -365,7 +365,7 @@ function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => {
-                      const directUrl = `https://app-netfits.vercel.app/auth?ref=${activeUser.referralCode}`;
+                      const directUrl = `https://www.netfits.com.br/auth?ref=${activeUser.referralCode}`;
                       const msg = `Vem para o Netfits comigo! Cadastre-se pelo meu link de convite, receba +50 nfs bônus de boas-vindas e aproveite 4 nfs/R$ no Shop: ${directUrl}`;
                       window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
                     }}

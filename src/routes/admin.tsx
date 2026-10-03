@@ -779,8 +779,8 @@ function AdminDashboardPage() {
       ? (newAssocHandle.startsWith("@") ? newAssocHandle.trim() : `@${newAssocHandle.trim()}`)
       : `@${newAssocName.toLowerCase().replace(/\s+/g, ".")}`;
 
-    const appLink = `https://app-netfits.vercel.app/auth?ref=${assocCode}`;
-    const portalLink = `https://app-netfits.vercel.app/associado?code=${assocCode}`;
+    const appLink = `https://www.netfits.com.br/auth?ref=${assocCode}`;
+    const portalLink = `https://www.netfits.com.br/associado?code=${assocCode}`;
 
     const newAssociadoItem: AssociadoAdminItem = {
       id: `assoc_${Date.now()}`,

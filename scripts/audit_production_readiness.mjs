@@ -14,7 +14,7 @@ async function runAudit() {
     autonomousAndData: {}
   };
 
-  const BASE_URL = "https://app-netfits.vercel.app";
+  const BASE_URL = "https://www.netfits.com.br";
   const CANONICAL_URL = "https://www.netfits.com.br";
 
   // ---------------------------------------------------------

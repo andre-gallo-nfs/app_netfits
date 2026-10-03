@@ -18,7 +18,7 @@ const CHANNELS = [
 export function InviteFriendsCard() {
   const activeUser = sharedSandboxStore.useActiveUser();
   const inviteCode = activeUser.referralCode;
-  const inviteUrl = `https://app-netfits.vercel.app/auth?ref=${inviteCode}`;
+  const inviteUrl = `https://www.netfits.com.br/auth?ref=${inviteCode}`;
   const shareText = `Vem pro Netfits comigo! Cadastre-se pelo meu link de convite e ganhe +50 nfs bônus de boas-vindas: ${inviteUrl}`;
 
   const [open, setOpen] = useState(false);
