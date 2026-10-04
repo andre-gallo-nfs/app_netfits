@@ -3,5 +3,6 @@
   "name": "app-netfits",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
   "main": "src/server.ts",
 }
