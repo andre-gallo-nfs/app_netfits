@@ -76,11 +76,32 @@ export interface MkplaceConfig {
   isMock: boolean;
 }
 
+export function formatPemKey(rawKey: string, type: "PRIVATE KEY" | "PUBLIC KEY" = "PRIVATE KEY"): string {
+  if (!rawKey) return rawKey;
+  let key = rawKey.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+  key = key.replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\r\n/g, "\n");
+  const headerMatch = key.match(/(-----BEGIN[^-]+-----)/);
+  const footerMatch = key.match(/(-----END[^-]+-----)/);
+  if (headerMatch && footerMatch) {
+    const header = headerMatch[1];
+    const footer = footerMatch[1];
+    const body = key.replace(header, "").replace(footer, "").replace(/\s+/g, "");
+    const formattedBody = body.match(/.{1,64}/g)?.join("\n") || body;
+    return `${header}\n${formattedBody}\n${footer}`;
+  }
+  const body = key.replace(/\s+/g, "");
+  const formattedBody = body.match(/.{1,64}/g)?.join("\n") || body;
+  return `-----BEGIN ${type}-----\n${formattedBody}\n-----END ${type}-----`;
+}
+
 export function getMkplaceConfig(): MkplaceConfig {
   const env = typeof process !== "undefined" && process.env ? process.env : {};
   const hasRealKey = Boolean(env.MKPLACE_PRIVATE_KEY && env.MKPLACE_PRIVATE_KEY.length > 50);
   const privateKey = hasRealKey
-    ? env.MKPLACE_PRIVATE_KEY!.replace(/\\n/g, "\n")
+    ? formatPemKey(env.MKPLACE_PRIVATE_KEY!, "PRIVATE KEY")
     : DEFAULT_DEV_PRIVATE_KEY;
 
   // Auto-detecta o KID correto com base no par de chaves RSA utilizado
@@ -105,7 +126,7 @@ export function getMkplaceConfig(): MkplaceConfig {
     keyId: finalKeyId,
     privateKey,
     publicKey: env.MKPLACE_PUBLIC_KEY
-      ? env.MKPLACE_PUBLIC_KEY.replace(/\\n/g, "\n")
+      ? formatPemKey(env.MKPLACE_PUBLIC_KEY, "PUBLIC KEY")
       : defaultPublicKey,
     webviewUrl: env.MKPLACE_WEBVIEW_URL || "https://netfits-ruddy.vercel.app",
     webhookSecret: env.MKPLACE_WEBHOOK_SECRET || "sec_nfs_mkplace_default_2026",
