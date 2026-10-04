@@ -346,58 +346,69 @@ export default {
 
     // 4. Emissor de Token SSO Mkplace (/api/marketplace/mkplace/token)
     if (url.pathname === "/api/marketplace/mkplace/token" || url.pathname === "/api/marketplace/mkplace/token/") {
-      let targetUser = globalServerUsers[0]; // Kite Larsen padrão
-      let customExpires: number | undefined;
+      try {
+        let targetUser = globalServerUsers[0]; // Kite Larsen padrão
+        let customExpires: number | undefined;
 
-      if (req.method === "POST") {
-        try {
-          const body = await req.json();
-          if (body?.userId) {
-            const found = globalServerUsers.find((u) => u.id === body.userId || u.email === body.userId);
+        if (req.method === "POST") {
+          try {
+            const body = await req.json();
+            if (body?.userId) {
+              const found = globalServerUsers.find((u) => u.id === body.userId || u.email === body.userId);
+              if (found) targetUser = found;
+            }
+            if (body?.expiresInSeconds) {
+              customExpires = Number(body.expiresInSeconds);
+            }
+          } catch {
+            // Body JSON inválido ou vazio, prossegue com targetUser padrão
+          }
+        } else if (req.method === "GET") {
+          const userId = url.searchParams.get("userId") || url.searchParams.get("email");
+          if (userId) {
+            const found = globalServerUsers.find((u) => u.id === userId || u.email === userId);
             if (found) targetUser = found;
           }
-          if (body?.expiresInSeconds) {
-            customExpires = Number(body.expiresInSeconds);
+          const expParam = url.searchParams.get("expiresInSeconds") || url.searchParams.get("exp");
+          if (expParam) {
+            customExpires = Number(expParam);
           }
-        } catch {
-          // Body JSON inválido ou vazio, prossegue com targetUser padrão
         }
-      } else if (req.method === "GET") {
-        const userId = url.searchParams.get("userId") || url.searchParams.get("email");
-        if (userId) {
-          const found = globalServerUsers.find((u) => u.id === userId || u.email === userId);
-          if (found) targetUser = found;
-        }
-        const expParam = url.searchParams.get("expiresInSeconds") || url.searchParams.get("exp");
-        if (expParam) {
-          customExpires = Number(expParam);
-        }
+
+        const expiresInSeconds = customExpires && customExpires > 0 ? customExpires : 86400;
+
+        const token = generateMkplaceJwt(targetUser, expiresInSeconds);
+        const webviewUrl = getMkplaceWebviewUrl(targetUser);
+        const config = getMkplaceConfig();
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            user: {
+              id: targetUser.id,
+              fullName: targetUser.fullName,
+              email: targetUser.email,
+            },
+            token,
+            webviewUrl,
+            expiresInSeconds,
+            keyId: config.keyId,
+            storeId: config.storeId,
+            accountId: config.accountId,
+            isMock: config.isMock,
+          }),
+          { status: 200, headers: corsHeaders }
+        );
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Failed to generate Mkplace token",
+            details: err?.message || String(err),
+          }),
+          { status: 500, headers: corsHeaders }
+        );
       }
-
-      const expiresInSeconds = customExpires && customExpires > 0 ? customExpires : 86400;
-
-      const token = generateMkplaceJwt(targetUser, expiresInSeconds);
-      const webviewUrl = getMkplaceWebviewUrl(targetUser);
-      const config = getMkplaceConfig();
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          user: {
-            id: targetUser.id,
-            fullName: targetUser.fullName,
-            email: targetUser.email,
-          },
-          token,
-          webviewUrl,
-          expiresInSeconds,
-          keyId: config.keyId,
-          storeId: config.storeId,
-          accountId: config.accountId,
-          isMock: config.isMock,
-        }),
-        { status: 200, headers: corsHeaders }
-      );
     }
 
     // 5. Diagnóstico de Prontidão da Mkplace (/api/marketplace/mkplace/status)

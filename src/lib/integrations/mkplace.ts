@@ -211,11 +211,25 @@ export function generateMkplaceJwt(user: MkplaceTokenUser, expiresInSeconds = 86
   const payloadEncoded = base64UrlEncode(JSON.stringify(payload));
   const signingInput = `${headerEncoded}.${payloadEncoded}`;
 
-  const signer = crypto.createSign("RSA-SHA256");
-  signer.update(signingInput);
-  signer.end();
+  // Assinatura com suporte a Node.js e Cloudflare Workers (workerd / WebCrypto / nodejs_compat)
+  let signature: Buffer;
+  try {
+    const signer = crypto.createSign("SHA256");
+    signer.update(signingInput);
+    signer.end();
+    signature = signer.sign(config.privateKey);
+  } catch {
+    try {
+      const signer = crypto.createSign("RSA-SHA256");
+      signer.update(signingInput);
+      signer.end();
+      signature = signer.sign(config.privateKey);
+    } catch {
+      // Fallback via one-shot crypto.sign
+      signature = crypto.sign("SHA256", Buffer.from(signingInput), config.privateKey);
+    }
+  }
 
-  const signature = signer.sign(config.privateKey);
   const signatureEncoded = base64UrlEncode(signature);
 
   return `${signingInput}.${signatureEncoded}`;
@@ -233,13 +247,25 @@ export function verifyMkplaceJwt(token: string): { valid: boolean; payload?: Mkp
 
     const [headerB64, payloadB64, signatureB64] = parts;
     const config = getMkplaceConfig();
-
-    const verifier = crypto.createVerify("RSA-SHA256");
-    verifier.update(`${headerB64}.${payloadB64}`);
-    verifier.end();
-
+    const dataToVerify = `${headerB64}.${payloadB64}`;
     const signatureBuf = Buffer.from(signatureB64.replace(/-/g, "+").replace(/_/g, "/"), "base64");
-    const isSignatureValid = verifier.verify(config.publicKey, signatureBuf);
+
+    let isSignatureValid = false;
+    try {
+      const verifier = crypto.createVerify("SHA256");
+      verifier.update(dataToVerify);
+      verifier.end();
+      isSignatureValid = verifier.verify(config.publicKey, signatureBuf);
+    } catch {
+      try {
+        const verifier = crypto.createVerify("RSA-SHA256");
+        verifier.update(dataToVerify);
+        verifier.end();
+        isSignatureValid = verifier.verify(config.publicKey, signatureBuf);
+      } catch {
+        isSignatureValid = crypto.verify("SHA256", Buffer.from(dataToVerify), config.publicKey, signatureBuf);
+      }
+    }
 
     if (!isSignatureValid) {
       return { valid: false, error: "Assinatura RS256 inválida para a chave pública registrada." };

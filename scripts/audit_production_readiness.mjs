@@ -14,7 +14,7 @@ async function runAudit() {
     autonomousAndData: {}
   };
 
-  const BASE_URL = "https://www.netfits.com.br";
+  const BASE_URL = process.env.BASE_URL || "https://netfits.com.br";
   const CANONICAL_URL = "https://www.netfits.com.br";
 
   // ---------------------------------------------------------
@@ -176,11 +176,12 @@ async function runAudit() {
   // ---------------------------------------------------------
   console.log("\n▶ [4/5] Verificando Ecossistema Google (Search Console, Firebase & LGPD)...");
   try {
-    const scRes = await fetch(`${CANONICAL_URL}/google243c414fc4cf5d09.html`);
+    const targetUrl = BASE_URL;
+    const scRes = await fetch(`${targetUrl}/google243c414fc4cf5d09.html`, { signal: AbortSignal.timeout(5000) });
     const scOk = scRes.status === 200;
-    console.log(`  ${scOk ? "✅" : "❌"} Google Search Console Token     -> HTTP ${scRes.status} (www.netfits.com.br)`);
+    console.log(`  ${scOk ? "✅" : "❌"} Google Search Console Token     -> HTTP ${scRes.status} (${targetUrl})`);
 
-    const privRes = await fetch(`${CANONICAL_URL}/privacidade.html`);
+    const privRes = await fetch(`${targetUrl}/privacidade.html`, { signal: AbortSignal.timeout(5000) });
     const privText = await privRes.text();
     const hasExclusao = privText.includes('id="exclusao"') || privText.includes('Exclusão');
     console.log(`  ${hasExclusao ? "✅" : "❌"} Política de Privacidade & LGPD    -> HTTP ${privRes.status} (Cláusula de Exclusão: ${hasExclusao ? "OK" : "Ausente"})`);
