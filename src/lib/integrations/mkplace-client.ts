@@ -28,9 +28,15 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
 
     if (res.ok) {
       const data = await res.json();
-      token = data.token;
       if (data.webviewUrl) {
+        // Se a webviewUrl já veio montada do backend com o token, retorna diretamente
+        if (data.webviewUrl.includes("token=")) {
+          return data.webviewUrl;
+        }
         webviewUrl = data.webviewUrl;
+      }
+      if (data.token) {
+        token = data.token;
       }
     } else {
       token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im5ldGZpdHMtbWtwbGFjZS1rZXktMjAyNiJ9." +
