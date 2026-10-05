@@ -347,14 +347,20 @@ export default {
           globalReceivedOrders.unshift(orderRecord);
           if (globalReceivedOrders.length > 100) globalReceivedOrders.pop();
 
-          // Atualiza a carteira do usuário para status aprovado/faturado
-          const status = (result.status || "").toUpperCase();
+          // Atualiza a carteira do usuário de acordo com o ciclo de vida do pedido
+          const status = (result.status || "").toUpperCase().replace(/_/g, "-");
           const isApproved =
             status === "PAID" ||
             status === "BILLED" ||
             status === "DELIVERED" ||
             status === "PAYMENT-APPROVED" ||
             status === "COMPLETED";
+
+          const isCanceledOrRefunded =
+            status === "CANCELED" ||
+            status === "CANCELLED" ||
+            status === "REFUNDED" ||
+            status === "EXPIRED";
 
           if (user && isApproved) {
             // Debita pontos usados no resgate
@@ -364,6 +370,16 @@ export default {
             // Credita cashback em pontos
             if (result.nfsEarned > 0) {
               user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
+            }
+            lastSyncTimestamp = new Date().toISOString();
+          } else if (user && isCanceledOrRefunded) {
+            // Estorno de pontos gastos se o pedido foi cancelado ou reembolsado
+            if (result.pointsUsed > 0) {
+              user.nfsBalance = (user.nfsBalance || 0) + result.pointsUsed;
+            }
+            // Reverte cashback creditado
+            if (result.nfsEarned > 0) {
+              user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.nfsEarned);
             }
             lastSyncTimestamp = new Date().toISOString();
           }
