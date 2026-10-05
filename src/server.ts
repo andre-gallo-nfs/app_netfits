@@ -56,18 +56,12 @@ const DEFAULT_PRESEEDED_USERS = [
     id: "usr_andre",
     fullName: "André Gallo",
     email: "aacgallo@hotmail.com.br",
-    phone: "11987654321",
-    cpf: "98765432111",
+    phone: "",
+    cpf: "",
+    birthDate: "",
+    address: "",
     nfsBalance: 50,
     userCategory: "associado",
-    street: "Av. Brigadeiro Faria Lima",
-    number: "2000",
-    complement: "Conjunto 81",
-    neighborhood: "Itaim Bibi",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "01452-000",
     registeredAt: "2026-10-05T00:00:00Z",
   },
 ];
@@ -595,7 +589,15 @@ export default {
           for (const u of incomingUsers) {
             if (u && u.id) {
               const existing = userMap.get(u.id);
-              userMap.set(u.id, { ...existing, ...u });
+              const merged = { ...existing, ...u };
+              if (u.address) {
+                const parts = String(u.address).split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
+                if (parts[0]) merged.street = parts[0];
+                if (parts[1]) merged.number = parts[1];
+                if (parts[2]) merged.neighborhood = parts[2];
+                if (parts[3]) merged.city = parts[3];
+              }
+              userMap.set(u.id, merged);
             }
           }
           globalServerUsers = Array.from(userMap.values());

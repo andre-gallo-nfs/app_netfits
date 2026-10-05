@@ -20,6 +20,20 @@ export interface SandboxUser {
   professionalRegister?: string;
   specialty?: string;
   city?: string;
+  address?: string;
+  street?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  state?: string;
+  shortState?: string;
+  zipcode?: string;
+  sports?: string[];
+  otherSport?: string;
+  healthPlan?: string;
+  gym?: string;
+  coaching?: string;
+  wearable?: string;
 }
 
 export interface SandboxTransaction {
@@ -97,9 +111,6 @@ const INITIAL_USERS: SandboxUser[] = [
     id: "usr_andre",
     identifier: "aacgallo@hotmail.com.br",
     email: "aacgallo@hotmail.com.br",
-    phone: "(11) 98765-4321",
-    cpf: "987.654.321-11",
-    birthDate: "1980-05-15",
     fullName: "André Gallo",
     type: "admin",
     nfsBalance: 50, // Saldo inicial oficial de 50 nfs pelo cadastramento
@@ -615,6 +626,13 @@ class HomologationSandboxStore {
     const user = this.state.users.find((u) => u.id === userId);
     if (user) {
       Object.assign(user, updates);
+      if (updates.address) {
+        const parts = updates.address.split(/[,\-·]/).map((s) => s.trim()).filter(Boolean);
+        if (parts[0]) user.street = parts[0];
+        if (parts[1]) user.number = parts[1];
+        if (parts[2]) user.neighborhood = parts[2];
+        if (parts[3]) user.city = parts[3];
+      }
       this.saveToStorage();
       toast.success("Perfil atualizado com sucesso no banco de dados!");
     }

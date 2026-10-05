@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
@@ -129,45 +129,89 @@ function ProfilePage() {
   };
 
   const [form, setForm] = useState({
-    name: activeUser.fullName,
-    email: activeUser.identifier,
-    phone: "+55 11 98765-4321",
-    address: "São Paulo · SP",
-    birthDate: "1995-06-15",
-    sports: ["Corrida de rua", "Musculação"] as string[],
-    otherSport: "",
-    healthPlan: "SulAmérica",
-    gym: "Smart Fit",
-    coaching: "Assessoria Esportiva",
-    wearable: "Apple Watch",
+    name: activeUser.fullName || "",
+    email: activeUser.email || activeUser.identifier || "",
+    cpf: activeUser.cpf || "",
+    phone: activeUser.phone || "",
+    address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : ""),
+    birthDate: activeUser.birthDate || "",
+    sports: activeUser.sports || (["Corrida de rua", "Musculação"] as string[]),
+    otherSport: activeUser.otherSport || "",
+    healthPlan: activeUser.healthPlan || "SulAmérica",
+    gym: activeUser.gym || "Smart Fit",
+    coaching: activeUser.coaching || "",
+    wearable: activeUser.wearable || "Garmin",
   });
 
   useEffect(() => {
-    setForm((f) => ({
-      ...f,
-      name: activeUser.fullName,
-      email: activeUser.identifier,
+    setForm((prev) => ({
+      ...prev,
+      name: activeUser.fullName || "",
+      email: activeUser.email || activeUser.identifier || "",
+      cpf: activeUser.cpf !== undefined ? activeUser.cpf : prev.cpf,
+      phone: activeUser.phone !== undefined ? activeUser.phone : prev.phone,
+      address: activeUser.address !== undefined ? activeUser.address : (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : prev.address),
+      birthDate: activeUser.birthDate !== undefined ? activeUser.birthDate : prev.birthDate,
+      sports: activeUser.sports !== undefined ? activeUser.sports : prev.sports,
+      otherSport: activeUser.otherSport !== undefined ? activeUser.otherSport : prev.otherSport,
+      healthPlan: activeUser.healthPlan !== undefined ? activeUser.healthPlan : prev.healthPlan,
+      gym: activeUser.gym !== undefined ? activeUser.gym : prev.gym,
+      coaching: activeUser.coaching !== undefined ? activeUser.coaching : prev.coaching,
+      wearable: activeUser.wearable !== undefined ? activeUser.wearable : prev.wearable,
     }));
-  }, [activeUser.id, activeUser.fullName, activeUser.identifier]);
+  }, [
+    activeUser.id,
+    activeUser.fullName,
+    activeUser.email,
+    activeUser.identifier,
+    activeUser.cpf,
+    activeUser.phone,
+    activeUser.address,
+    activeUser.street,
+    activeUser.number,
+    activeUser.city,
+    activeUser.shortState,
+    activeUser.birthDate,
+    activeUser.sports,
+    activeUser.otherSport,
+    activeUser.healthPlan,
+    activeUser.gym,
+    activeUser.coaching,
+    activeUser.wearable,
+  ]);
 
-  // Tribo gerada por este netfiter
+  // Tribo gerada dinamicamente pelo banco de dados definitivo (zero mocks)
+  const allUsers = sharedSandboxStore.getUsers();
+  const triboMembers = allUsers.filter(
+    (u) =>
+      u.id !== activeUser.id &&
+      ((u.referredBy && u.referredBy === activeUser.referralCode) ||
+        (u.associatedWith && u.associatedWith === activeUser.referralCode))
+  );
+
+  const referralTxs = sharedSandboxStore.getUserTransactions(activeUser.id).filter(
+    (tx) => tx.category === "referral" || tx.category === "associado_bonus"
+  );
+  const nfsEarnedTribo = referralTxs.reduce((sum, tx) => sum + (tx.amount > 0 ? tx.amount : 0), 0);
+
   const myReferrals = {
-    total: 12,
-    active: 9,
-    pending: 3,
-    nfsEarned: activeUser.nfsBalance,
-    bySource: [
-      { label: "Compras no shop", value: Math.floor(activeUser.nfsBalance * 0.4) },
-      { label: "Atividades físicas", value: Math.floor(activeUser.nfsBalance * 0.3) },
-      { label: "Sono monitorado", value: Math.floor(activeUser.nfsBalance * 0.15) },
-      { label: "Consultas e saúde", value: Math.floor(activeUser.nfsBalance * 0.1) },
-      { label: "Vídeos e conteúdos", value: Math.floor(activeUser.nfsBalance * 0.05) },
-    ],
-    recent: [
-      { name: "Marina Duarte", initials: "MD", date: "02/08/2026", status: "ativo" },
-      { name: "Rafael Souza", initials: "RS", date: "24/07/2026", status: "ativo" },
-      { name: "Bruno Tavares", initials: "BT", date: "11/07/2026", status: "pendente" },
-    ],
+    total: triboMembers.length,
+    active: triboMembers.filter((m) => m.nfsBalance > 0).length,
+    pending: triboMembers.filter((m) => m.nfsBalance === 0).length,
+    nfsEarned: nfsEarnedTribo,
+    members: triboMembers.map((m) => {
+      const parts = (m.fullName || "Atleta").trim().split(" ");
+      const initials = (parts[0]?.[0] || "A") + (parts[parts.length - 1]?.[0] || "N");
+      const dateFormatted = m.registeredAt
+        ? new Date(m.registeredAt).toLocaleDateString("pt-BR")
+        : "Recente";
+      return {
+        name: m.fullName,
+        initials: initials.toUpperCase(),
+        date: dateFormatted,
+        status: m.nfsBalance > 0 ? "ativo" : "pendente",
+      };
+    }),
   };
 
   const [saved, setSaved] = useState(false);
@@ -184,11 +228,22 @@ function ProfilePage() {
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
     sharedSandboxStore.updateUser(activeUser.id, {
-      fullName: form.name,
-      identifier: form.email,
+      fullName: form.name.trim(),
+      identifier: form.email.trim(),
+      email: form.email.trim(),
+      cpf: form.cpf.trim(),
+      phone: form.phone.trim(),
+      address: form.address.trim(),
+      birthDate: form.birthDate.trim(),
+      sports: form.sports,
+      otherSport: form.otherSport.trim(),
+      healthPlan: form.healthPlan,
+      gym: form.gym,
+      coaching: form.coaching.trim(),
+      wearable: form.wearable,
     });
     setSaved(true);
-    toast.success("Dados do perfil atualizados com sucesso!");
+    toast.success("Dados do perfil atualizados e salvos com sucesso!");
     setTimeout(() => setSaved(false), 3000);
   }
 
@@ -389,50 +444,52 @@ function ProfilePage() {
             <Stat value={myReferrals.active} label="Ativos" />
             <Stat value={myReferrals.pending} label="Pendentes" />
           </div>
-          <div className="bg-muted rounded-xl px-3 py-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-muted-foreground">
-                Seus nfs gerados pelas atividades da tribo
-              </span>
-              <span className="text-sm font-bold">
-                {myReferrals.nfsEarned.toLocaleString("pt-BR")} nfs
-              </span>
+          {myReferrals.total === 0 ? (
+            <div className="bg-muted/40 border border-border/60 rounded-xl p-4 text-center space-y-1.5 mt-2">
+              <Users className="size-5 text-muted-foreground mx-auto" />
+              <p className="text-xs font-bold text-foreground">Sua tribo ainda não possui indicados</p>
+              <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">
+                Você é o único usuário registrado na base de Produção. Compartilhe seu link exclusivo no WhatsApp acima para convidar amigos e ganhar +50 nfs por indicação!
+              </p>
             </div>
-            <ul className="space-y-1.5 pt-1 border-t border-black/5">
-              {myReferrals.bySource.map((s) => (
-                <li key={s.label} className="flex items-center justify-between">
-                  <span className="text-[11px] text-foreground/70">{s.label}</span>
-                  <span className="text-[11px] font-semibold tabular-nums">
-                    +{s.value.toLocaleString("pt-BR")} nfs
+          ) : (
+            <>
+              <div className="bg-muted rounded-xl px-3 py-3 space-y-2 mt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground">
+                    Seus nfs gerados pelas atividades da tribo
                   </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <ul className="space-y-2">
-            {myReferrals.recent.map((r) => (
-              <li key={r.name} className="flex items-center gap-3">
-                <div className="size-8 rounded-full bg-foreground text-background grid place-items-center text-[10px] font-bold">
-                  {r.initials}
+                  <span className="text-sm font-bold">
+                    {myReferrals.nfsEarned.toLocaleString("pt-BR")} nfs
+                  </span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold truncate">{r.name}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Entrou em {r.date}
-                  </p>
-                </div>
-                <span
-                  className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                    r.status === "ativo"
-                      ? "bg-brand text-brand-foreground"
-                      : "bg-muted text-foreground/60"
-                  }`}
-                >
-                  {r.status}
-                </span>
-              </li>
-            ))}
-          </ul>
+              </div>
+              <ul className="space-y-2 mt-2">
+                {myReferrals.members.map((r) => (
+                  <li key={r.name} className="flex items-center gap-3">
+                    <div className="size-8 rounded-full bg-foreground text-background grid place-items-center text-[10px] font-bold">
+                      {r.initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold truncate">{r.name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Entrou em {r.date}
+                      </p>
+                    </div>
+                    <span
+                      className={`text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                        r.status === "ativo"
+                          ? "bg-brand text-brand-foreground"
+                          : "bg-muted text-foreground/60"
+                      }`}
+                    >
+                      {r.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </Card>
 
 
@@ -465,14 +522,25 @@ function ProfilePage() {
               />
             </Field>
           </div>
-          <Field label="E-mail" icon={Mail}>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className={inputClass}
-            />
-          </Field>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="E-mail" icon={Mail}>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="CPF" icon={CreditCard}>
+              <input
+                type="text"
+                value={form.cpf}
+                onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                placeholder="000.000.000-00"
+                className={inputClass}
+              />
+            </Field>
+          </div>
           <Field label="Endereço" icon={MapPin}>
             <input
               type="text"
