@@ -86,6 +86,18 @@ function getCorsHeaders() {
   };
 }
 
+function isAndreGallo(str?: string | null): boolean {
+  if (!str) return false;
+  const clean = str.trim().toLowerCase();
+  return (
+    clean === "usr_andre" ||
+    clean === "usr_102" ||
+    clean === "aacgallo@hotmail.com" ||
+    clean === "aacgallo@hotmail.com.br" ||
+    clean === "andre.gallo@netfits.com.br"
+  );
+}
+
 function resolveUserFromToken(token?: string | null): any | null {
   if (!token) return null;
   const cleanToken = token.replace(/^Bearer\s+/i, "").trim();
@@ -99,16 +111,16 @@ function resolveUserFromToken(token?: string | null): any | null {
       u.id === customerId ||
       u.email?.toLowerCase() === payload.email?.toLowerCase() ||
       u.cpf === customerId ||
-      (customerId === "usr_102" && (u.id === "usr_andre" || u.email === "aacgallo@hotmail.com.br")) ||
-      (payload.email?.toLowerCase() === "andre.gallo@netfits.com.br" && u.email === "aacgallo@hotmail.com.br")
+      (isAndreGallo(customerId) && u.id === "usr_andre") ||
+      (isAndreGallo(payload.email) && u.id === "usr_andre")
   );
   if (user) return user;
 
   // Fallback se não estiver no array de cache (usuário definitivo André Gallo)
   return {
-    id: customerId,
+    id: customerId || "usr_andre",
     fullName: payload.name || "André Gallo",
-    email: payload.email || "aacgallo@hotmail.com.br",
+    email: payload.email || "aacgallo@hotmail.com",
     phone: "11987654321",
     cpf: "98765432111",
     nfsBalance: 50,
@@ -284,12 +296,11 @@ export default {
             (u) =>
               (customerEmail &&
                 (u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
-                  (String(customerEmail).toLowerCase() === "andre.gallo@netfits.com.br" &&
-                    u.email === "aacgallo@hotmail.com.br"))) ||
+                  (isAndreGallo(String(customerEmail)) && u.id === "usr_andre"))) ||
               (customerRef &&
                 (u.id === customerRef ||
                   u.cpf === customerRef ||
-                  (customerRef === "usr_102" && u.id === "usr_andre")))
+                  (isAndreGallo(customerRef) && u.id === "usr_andre")))
           );
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
@@ -421,8 +432,7 @@ export default {
                 (u) =>
                   u.id === body.userId ||
                   u.email === body.userId ||
-                  (body.userId === "usr_102" && u.id === "usr_andre") ||
-                  (body.userId === "andre.gallo@netfits.com.br" && u.email === "aacgallo@hotmail.com.br")
+                  (isAndreGallo(body.userId) && u.id === "usr_andre")
               );
               if (found) targetUser = found;
             }
@@ -439,8 +449,7 @@ export default {
               (u) =>
                 u.id === userId ||
                 u.email === userId ||
-                (userId === "usr_102" && u.id === "usr_andre") ||
-                (userId === "andre.gallo@netfits.com.br" && u.email === "aacgallo@hotmail.com.br")
+                (isAndreGallo(userId) && u.id === "usr_andre")
             );
             if (found) targetUser = found;
           }

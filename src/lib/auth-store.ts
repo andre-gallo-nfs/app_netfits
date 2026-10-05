@@ -130,6 +130,16 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
+    // 0. Reconhecer instantaneamente variações do e-mail oficial do André Gallo
+    if (
+      raw === "aacgallo@hotmail.com" ||
+      raw === "aacgallo@hotmail.com.br" ||
+      raw === "andre.gallo@netfits.com.br"
+    ) {
+      const andreUser = storedUsers.find((u) => u.id === "usr_andre") || storedUsers[0];
+      return { exists: true, matchedField: "email", matchedUser: andreUser };
+    }
+
     // 1. Checar lista local de usuários salvos
     for (const u of storedUsers) {
       if (u.email.toLowerCase() === raw) {

@@ -664,6 +664,27 @@ class HomologationSandboxStore {
     const cleanPhoneDigits = data.phone.replace(/\D/g, "");
     const cleanCpfDigits = data.cpf.replace(/\D/g, "");
 
+    // Reconhecimento do André Gallo completando/atualizando seus dados cadastrais
+    const isAndre =
+      cleanEmail === "aacgallo@hotmail.com" ||
+      cleanEmail === "aacgallo@hotmail.com.br" ||
+      cleanEmail === "andre.gallo@netfits.com.br";
+
+    if (isAndre) {
+      const existingAndre = this.state.users.find((u) => u.id === "usr_andre");
+      if (existingAndre) {
+        if (data.fullName?.trim()) existingAndre.fullName = data.fullName.trim();
+        existingAndre.email = data.email.trim();
+        existingAndre.identifier = data.email.trim();
+        if (data.phone?.trim()) existingAndre.phone = data.phone.trim();
+        if (data.cpf?.trim()) existingAndre.cpf = data.cpf.trim();
+        if (data.birthDate?.trim()) existingAndre.birthDate = data.birthDate.trim();
+        this.saveToStorage();
+        this.setActiveUser("usr_andre");
+        return { success: true, user: existingAndre };
+      }
+    }
+
     // Checar duplicidade em E-mail, Celular e CPF
     for (const u of this.state.users) {
       if (u.email && u.email.trim().toLowerCase() === cleanEmail) {

@@ -217,13 +217,42 @@ function MarketEmbeddedPage() {
             </div>
           )}
 
+          {/* Barra Superior da Loja Oficial */}
+          <div className="w-full bg-zinc-900 border-b border-zinc-800 px-3.5 py-2 flex items-center justify-between text-xs sticky top-0 z-10">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-bold text-white text-[11px]">Loja Oficial Netfits</span>
+              <span className="text-[10px] text-zinc-400 hidden sm:inline">· Saldo:</span>
+              <span className="text-[11px] font-extrabold text-lime-400">{balance.toLocaleString()} nfs</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
+                title="Recarregar Loja"
+              >
+                <RefreshCw className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenExternal}
+                className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+                title="Abrir em Nova Aba"
+              >
+                <span>Nova Aba</span>
+                <ExternalLink className="size-3" />
+              </button>
+            </div>
+          </div>
+
           {/* Iframe Embutido da Loja Oficial */}
           {storeUrl && (
             <iframe
               ref={iframeRef}
               src={storeUrl}
               title="Loja Oficial Netfits — Rock Encantech"
-              className="w-full h-[calc(100dvh-116px)] border-0 bg-white"
+              className="w-full h-[calc(100dvh-156px)] border-0 bg-white"
               allow="clipboard-write; payment; geolocation; camera"
               onLoad={() => setIsLoading(false)}
               onError={() => {
