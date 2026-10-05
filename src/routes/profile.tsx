@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
 import { LoyaltyProgramsCard } from "../components/LoyaltyProgramsCard";
 import { sharedSandboxStore } from "../lib/shared-sandbox-store";
+import { appLockStore } from "../lib/app-lock-store";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -627,6 +628,25 @@ function ProfilePage() {
               className={`${inputClass} resize-none`}
             />
           </Field>
+        </Card>
+
+        {/* Segurança e Bloqueio do Aplicativo */}
+        <Card title="Segurança & Bloqueio do App" icon={Shield}>
+          <div className="space-y-3">
+            <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
+              O Netfits nunca abre automaticamente sem autorização. Ao abrir ou reabrir o app, você sempre precisará autenticar via biometria (Touch ID / Face ID) ou sua senha cadastrada.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => appLockStore.lock()}
+                className="w-full sm:flex-1 bg-zinc-900 text-white dark:bg-zinc-800 dark:hover:bg-zinc-700 font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-zinc-700 transition cursor-pointer active:scale-98"
+              >
+                <Lock className="size-3.5 text-lime-400" />
+                <span>Bloquear Aplicativo Agora</span>
+              </button>
+            </div>
+          </div>
         </Card>
 
         {/* Save */}

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, ShoppingBag, Activity, Wallet, Award, Building2 } from "lucide-react";
+import { Home, ShoppingBag, Activity, Wallet, Award, Building2, Lock } from "lucide-react";
 import type { ReactNode } from "react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import profileAvatar from "@/assets/profile-avatar.jpg";
@@ -17,11 +17,13 @@ const tabs = [
 
 import { useEffect } from "react";
 import { nativeBridge } from "@/lib/native-bridge";
-
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { SecurityLockOverlay } from "./SecurityLockOverlay";
+import { useAppLock, appLockStore } from "@/lib/app-lock-store";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const isUnlocked = useAppLock();
 
   useEffect(() => {
     // Registrar Service Worker com invalidação automática de cache em deploys novos
@@ -46,17 +48,27 @@ export function AppShell({ children }: { children: ReactNode }) {
     nativeBridge.checkForLiveUpdates();
   }, []);
 
-  if (
+  const isPublicRoute =
     path === "/" ||
     path === "/home" ||
     path === "/auth" ||
-    path === "/admin" || 
-    path.startsWith("/associado") || 
-    path === "/faq" || 
-    path === "/contato" || 
+    path === "/admin" ||
+    path.startsWith("/associado") ||
+    path === "/faq" ||
+    path === "/contato" ||
     path === "/parceiros" ||
-    path === "/download"
-  ) {
+    path === "/download";
+
+  // Se a rota for pública no navegador (ex: landing page), renderiza normalmente.
+  // Porém, se estiver no app nativo (Capacitor) OU em qualquer rota interna da aplicação
+  // e o app estiver bloqueado, EXIGE SENHA OU BIOMETRIA. Nunca abre automaticamente!
+  if (!isUnlocked) {
+    if (nativeBridge.isNativePlatform() || !isPublicRoute) {
+      return <SecurityLockOverlay />;
+    }
+  }
+
+  if (isPublicRoute) {
     return <>{children}</>;
   }
 
@@ -138,6 +150,15 @@ function TopBar() {
           <Award className="size-3 text-purple-600 shrink-0" />
           <span className="font-extrabold">{unlockedCount}/{totalCount} Badges</span>
         </Link>
+
+        <button
+          type="button"
+          onClick={() => appLockStore.lock()}
+          title="Bloquear aplicativo (Exigir Biometria/Senha)"
+          className="size-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 grid place-items-center transition cursor-pointer"
+        >
+          <Lock className="size-3.5" />
+        </button>
 
         <Link
           to="/profile"
