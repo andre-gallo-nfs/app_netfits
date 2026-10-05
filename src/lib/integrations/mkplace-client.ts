@@ -18,7 +18,7 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
 
   try {
     let token = "";
-    let webviewUrl = "https://docs.apps.mkplace.com.br/docs/api-reference/lojas-perfil/obter-perfil-do-cliente";
+    let webviewUrl = "https://loja.netfits.com.br";
 
     const res = await fetch("/api/marketplace/mkplace/token", {
       method: "POST",
@@ -58,7 +58,7 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
     return `${webviewUrl}${separator}token=${encodeURIComponent(token)}`;
   } catch (err) {
     console.warn("[Mkplace Client] Fallback de URL da loja:", err);
-    return "https://docs.apps.mkplace.com.br/docs/api-reference/lojas-perfil/obter-perfil-do-cliente";
+    return "https://loja.netfits.com.br";
   }
 }
 

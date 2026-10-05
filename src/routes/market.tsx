@@ -32,7 +32,7 @@ function MarketEmbeddedPage() {
   const [reloadKey, setReloadKey] = useState<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const isPlaceholderUrl = storeUrl.includes("shop.netfits.com.br");
+  const isPlaceholderUrl = false;
 
   // Carrega a URL com o token SSO assim que a tela abre
   useEffect(() => {
@@ -44,10 +44,6 @@ function MarketEmbeddedPage() {
       .then((url) => {
         if (isMounted) {
           setStoreUrl(url);
-          // Se for URL de placeholder aguardando a Rock, desativa o loading imediatamente
-          if (url.includes("shop.netfits.com.br")) {
-            setIsLoading(false);
-          }
         }
       })
       .catch(() => {
