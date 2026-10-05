@@ -165,6 +165,20 @@ function resolveUserFromToken(token?: string | null): any | null {
   };
 }
 
+interface ReceivedOrderRecord {
+  id: string;
+  receivedAt: string;
+  sourceIp?: string | null;
+  userAgent?: string | null;
+  authHeader?: string | null;
+  apiKey?: string | null;
+  rawPayload: any;
+  processedResult: any;
+  userMatched: string | null;
+}
+
+let globalReceivedOrders: ReceivedOrderRecord[] = [];
+
 export default {
   async fetch(req: Request) {
     const url = new URL(req.url);
@@ -271,11 +285,13 @@ export default {
       return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
     }
 
-    // 3. Endpoint de Recebimento de Pedidos da Mkplace (/api/orders, /orders, /api/marketplace/mkplace/webhook)
+
+    // 3. Endpoint de Recebimento de Pedidos da Mkplace (/api/orders, /orders, /api/marketplace/mkplace/webhook, /api/marketplace/mkplace/orders)
     const isOrdersEndpoint =
       url.pathname === "/api/orders" || url.pathname === "/api/orders/" ||
       url.pathname === "/orders" || url.pathname === "/orders/" ||
-      url.pathname === "/api/marketplace/mkplace/webhook" || url.pathname === "/api/marketplace/mkplace/webhook/";
+      url.pathname === "/api/marketplace/mkplace/webhook" || url.pathname === "/api/marketplace/mkplace/webhook/" ||
+      url.pathname === "/api/marketplace/mkplace/orders" || url.pathname === "/api/marketplace/mkplace/orders/";
 
     if (isOrdersEndpoint) {
       if (req.method === "GET") {
@@ -284,9 +300,12 @@ export default {
             status: "ready",
             message: "Netfits Orders Webhook Endpoint is online and ready to receive purchase events",
             endpoint: url.pathname,
+            totalOrdersReceived: globalReceivedOrders.length,
+            recentOrders: globalReceivedOrders.slice(0, 50),
             acceptedAuth: ["x-api-key", "Authorization: Bearer <token>", "Authorization: ApiKey <key>"],
             storeId: "RhOFkbZJIN",
             accountId: "RhOFkbZJIN",
+            serverTime: new Date().toISOString(),
           }),
           { status: 200, headers: corsHeaders }
         );
@@ -312,6 +331,21 @@ export default {
             firstPurchaseBonus: globalServerOperationalParams.shopFirstPurchaseBonusNfs ?? 0,
             takeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6.0,
           });
+
+          // Registra no buffer de auditoria em tempo real
+          const orderRecord: ReceivedOrderRecord = {
+            id: result.orderId,
+            receivedAt: new Date().toISOString(),
+            sourceIp: req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for"),
+            userAgent: req.headers.get("user-agent"),
+            authHeader: req.headers.get("authorization"),
+            apiKey: req.headers.get("x-api-key") || req.headers.get("x-webhook-secret"),
+            rawPayload: body,
+            processedResult: result,
+            userMatched: user?.id || null,
+          };
+          globalReceivedOrders.unshift(orderRecord);
+          if (globalReceivedOrders.length > 100) globalReceivedOrders.pop();
 
           // Atualiza a carteira do usuário para status aprovado/faturado
           const status = (result.status || "").toUpperCase();
