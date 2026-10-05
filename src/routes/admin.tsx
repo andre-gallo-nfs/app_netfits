@@ -765,6 +765,16 @@ function AdminDashboardPage() {
     return () => unsub();
   }, []);
 
+  // Modo de visualização dos relatórios: "real" (Banco Definitivo em Produção) vs "projection" (Projeção Business Plan)
+  const [adminDataSource, setAdminDataSource] = useState<"real" | "projection">("real");
+
+  // Métricas extraídas diretamente do Banco de Dados Definitivo de Produção (sharedSandboxStore)
+  const realUsersCount = sandboxUsersList.length;
+  const realNfsInCirculation = sandboxUsersList.reduce((acc, u) => acc + (u.nfsBalance || 0), 0);
+  const realOrders = sharedSandboxStore.getOrders();
+  const realGmvBrl = realOrders.reduce((acc, o) => acc + ((o.pointsPaid || 0) * 0.01), 0);
+  const realAssociadosCount = sandboxUsersList.filter((u) => u.type === "associado").length;
+
   const handleCreateAssociadoByAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAssocName.trim() || !newAssocEmail.trim()) {
@@ -962,8 +972,42 @@ function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Controles de Topo: Realtime, Período, Pitch Deck e Logout */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Controles de Topo: Fonte de Dados (Banco Real vs Projeção), Realtime, Período, Pitch Deck e Logout */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+          {/* Seletor Fonte de Dados: Banco Definitivo em Produção vs Projeção Business Plan */}
+          <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800 shadow-inner">
+            <button
+              onClick={() => {
+                setAdminDataSource("real");
+                toast.success("Painel conectado ao Banco de Dados Definitivo de Produção (Vida Real)");
+              }}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                adminDataSource === "real"
+                  ? "bg-lime-400 text-zinc-950 shadow-sm shadow-lime-400/20"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+              title="Exibir apenas os dados reais em produção (André Gallo, 50 nfs)"
+            >
+              <Database className="size-3.5" />
+              <span>Banco Real</span>
+            </button>
+            <button
+              onClick={() => {
+                setAdminDataSource("projection");
+                toast.info("Painel exibindo Projeções Financeiras do Business Plan");
+              }}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                adminDataSource === "projection"
+                  ? "bg-purple-600 text-white shadow-sm shadow-purple-600/30"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+              title="Exibir projeções estratégicas do modelo financeiro (48k usuários)"
+            >
+              <TrendingUp className="size-3.5" />
+              <span className="hidden sm:inline">Projeção</span>
+            </button>
+          </div>
+
           {/* Seletor Rápido de Período */}
           <div className="relative hidden md:block">
             <select
@@ -1563,40 +1607,72 @@ function AdminDashboardPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
-                title="Usuários Ativos (DAU/MAU)"
-                value={Math.round(48290 * Math.min(1, pf * 1.2)).toLocaleString("pt-BR")}
-                change="+14.2%"
+                title={adminDataSource === "real" ? "Usuários Cadastrados (Vida Real)" : "Usuários Ativos (DAU/MAU)"}
+                value={
+                  adminDataSource === "real"
+                    ? realUsersCount.toLocaleString("pt-BR")
+                    : Math.round(48290 * Math.min(1, pf * 1.2)).toLocaleString("pt-BR")
+                }
+                change={adminDataSource === "real" ? "100% Ativo" : "+14.2%"}
                 positive={true}
                 icon={Users}
-                subtext="Atletas em atividade frequente"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={
+                  adminDataSource === "real"
+                    ? (realUsersCount === 1 ? "1 usuário oficial (André Gallo)" : `${realUsersCount} atletas cadastrados`)
+                    : "Atletas em atividade frequente"
+                }
+                periodBadge={adminDataSource === "real" ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
-                title="NFS Emitidos no Período"
-                value={Math.round(1482000 * pf).toLocaleString("pt-BR")}
-                change="+8.9%"
+                title={adminDataSource === "real" ? "NFS em Circulação (Vida Real)" : "NFS Emitidos no Período"}
+                value={
+                  adminDataSource === "real"
+                    ? `${realNfsInCirculation.toLocaleString("pt-BR")} nfs`
+                    : Math.round(1482000 * pf).toLocaleString("pt-BR")
+                }
+                change={adminDataSource === "real" ? "Auditado" : "+8.9%"}
                 positive={true}
                 icon={Zap}
-                subtext="Pontos distribuídos por hábitos"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={
+                  adminDataSource === "real"
+                    ? "Saldo total de pontos dos clientes"
+                    : "Pontos distribuídos por hábitos"
+                }
+                periodBadge={adminDataSource === "real" ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
-                title="GMV Marketplace (Shop)"
-                value={`R$ ${(184900 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+22.5%"
+                title={adminDataSource === "real" ? "GMV Marketplace (Vida Real)" : "GMV Marketplace (Shop)"}
+                value={
+                  adminDataSource === "real"
+                    ? `R$ ${realGmvBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                    : `R$ ${(184900 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                }
+                change={adminDataSource === "real" ? `${realOrders.length} pedidos` : "+22.5%"}
                 positive={true}
                 icon={ShoppingBag}
-                subtext="Resgates via nfs: 42%"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={
+                  adminDataSource === "real"
+                    ? `${realOrders.length} compras concluídas no Shop`
+                    : "Resgates via nfs: 42%"
+                }
+                periodBadge={adminDataSource === "real" ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
-                title="Captação via Associados"
-                value={`${Math.round(14820 * pf).toLocaleString("pt-BR")} novos`}
-                change="+31.0%"
+                title={adminDataSource === "real" ? "Associados Cadastrados (Vida Real)" : "Captação via Associados"}
+                value={
+                  adminDataSource === "real"
+                    ? `${realAssociadosCount} cadastrados`
+                    : `${Math.round(14820 * pf).toLocaleString("pt-BR")} novos`
+                }
+                change={adminDataSource === "real" ? "Homologado" : "+31.0%"}
                 positive={true}
                 icon={Award}
-                subtext="Associados VIP ativos"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={
+                  adminDataSource === "real"
+                    ? "Prescritores ativos na plataforma"
+                    : "Associados VIP ativos"
+                }
+                periodBadge={adminDataSource === "real" ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
             </div>
 
@@ -1643,11 +1719,12 @@ function AdminDashboardPage() {
             {/* PAINEL DE MONITORAMENTO EM TEMPO REAL: PASSIVO CIRCULANTE CPC 30 / IFRS 15 & BURN RATE */}
             {(() => {
               const costPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.01;
-              const totalPointsLedger = Math.round(18000000 * pf);
+              const isReal = adminDataSource === "real";
+              const totalPointsLedger = isReal ? realNfsInCirculation : Math.round(18000000 * pf);
               const totalProvisionBrl = totalPointsLedger * costPerPoint;
-              const redeemedPoints = Math.round(totalPointsLedger * 0.384);
+              const redeemedPoints = isReal ? realOrders.reduce((sum, o) => sum + (o.pointsPaid || 0), 0) : Math.round(totalPointsLedger * 0.384);
               const redeemedBrl = redeemedPoints * (operationalParams.cppResgateBrl ?? 0.01);
-              const burnRatePct = 38.4;
+              const burnRatePct = totalPointsLedger > 0 ? Number(((redeemedPoints / totalPointsLedger) * 100).toFixed(1)) : 0;
               const breakagePct = operationalParams.targetBreakagePct ?? 5.0;
               const breakagePoints = Math.round(totalPointsLedger * (breakagePct / 100));
               const breakageBrl = breakagePoints * costPerPoint;

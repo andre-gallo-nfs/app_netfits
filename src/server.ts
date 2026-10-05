@@ -37,46 +37,28 @@ export interface ColdTierStatus {
 }
 
 let globalColdTierStatus: ColdTierStatus = {
-  hotLedgerRows: 14820,
-  coldArchivedRows: 184500,
+  hotLedgerRows: 1, // Apenas a transação inicial de 50 nfs de boas-vindas
+  coldArchivedRows: 0,
   cutoffMonths: 24,
-  hotStorageMb: 17.8,
-  coldStorageMb: 221.4,
-  ramSavedMb: 850.0,
-  queryLatencyMs: 6.2,
-  unoptimizedLatencyMs: 142.5,
-  costSavedMonthlyBrl: 1850.0,
-  lastRunAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-  runsCount: 14,
+  hotStorageMb: 0.05,
+  coldStorageMb: 0.0,
+  ramSavedMb: 0.0,
+  queryLatencyMs: 4.8,
+  unoptimizedLatencyMs: 12.0,
+  costSavedMonthlyBrl: 0.0,
+  lastRunAt: new Date().toISOString(),
+  runsCount: 0,
 };
 
-// Cache de Sincronização em Nuvem / Servidor para Testes Multi-Dispositivo
+// Base Definitiva de Usuários em Produção (Go-Live)
 const DEFAULT_PRESEEDED_USERS = [
   {
-    id: "usr_101",
-    fullName: "Kite Larsen",
-    email: "atleta@netfits.com.br",
-    phone: "11999998888",
-    cpf: "12345678900",
-    nfsBalance: 1850,
-    userCategory: "atleta",
-    street: "Rua Oscar Freire",
-    number: "500",
-    complement: "Apto 42",
-    neighborhood: "Cerqueira César",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "01426-001",
-    registeredAt: "2026-01-15T10:00:00Z",
-  },
-  {
-    id: "usr_102",
+    id: "usr_andre",
     fullName: "André Gallo",
-    email: "andre.gallo@netfits.com.br",
+    email: "aacgallo@hotmail.com.br",
     phone: "11987654321",
     cpf: "98765432111",
-    nfsBalance: 12500,
+    nfsBalance: 50,
     userCategory: "associado",
     street: "Av. Brigadeiro Faria Lima",
     number: "2000",
@@ -86,43 +68,7 @@ const DEFAULT_PRESEEDED_USERS = [
     state: "São Paulo",
     shortState: "SP",
     zipcode: "01452-000",
-    registeredAt: "2026-02-01T14:30:00Z",
-  },
-  {
-    id: "usr_104",
-    fullName: "Luísa Formigari",
-    email: "luisa.formigari@netfits.com.br",
-    phone: "11988887777",
-    cpf: "98765432122",
-    nfsBalance: 8400,
-    userCategory: "associado",
-    street: "Rua Bela Cintra",
-    number: "1200",
-    complement: "Apto 91",
-    neighborhood: "Consolação",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "01415-000",
-    registeredAt: "2026-02-01T14:30:00Z",
-  },
-  {
-    id: "usr_103",
-    fullName: "Dra. Isabella Santos",
-    email: "isabella@netfits.com.br",
-    phone: "11977776666",
-    cpf: "45678912344",
-    nfsBalance: 4200,
-    userCategory: "especialista",
-    street: "Alameda Santos",
-    number: "1800",
-    complement: "Consultório 12",
-    neighborhood: "Cerqueira César",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "01418-102",
-    registeredAt: "2026-03-10T09:15:00Z",
+    registeredAt: "2026-10-05T00:00:00Z",
   },
 ];
 
@@ -149,19 +95,24 @@ function resolveUserFromToken(token?: string | null): any | null {
 
   const customerId = payload.customerId || payload.sub;
   const user = globalServerUsers.find(
-    (u) => u.id === customerId || u.email === payload.email || u.cpf === customerId
+    (u) =>
+      u.id === customerId ||
+      u.email?.toLowerCase() === payload.email?.toLowerCase() ||
+      u.cpf === customerId ||
+      (customerId === "usr_102" && (u.id === "usr_andre" || u.email === "aacgallo@hotmail.com.br")) ||
+      (payload.email?.toLowerCase() === "andre.gallo@netfits.com.br" && u.email === "aacgallo@hotmail.com.br")
   );
   if (user) return user;
 
-  // Fallback se não estiver no array de cache
+  // Fallback se não estiver no array de cache (usuário definitivo André Gallo)
   return {
     id: customerId,
-    fullName: payload.name || "Atleta Netfits",
-    email: payload.email || `${customerId}@netfits.com.br`,
-    phone: "11999998888",
-    cpf: "12345678900",
-    nfsBalance: 1500,
-    userCategory: "atleta",
+    fullName: payload.name || "André Gallo",
+    email: payload.email || "aacgallo@hotmail.com.br",
+    phone: "11987654321",
+    cpf: "98765432111",
+    nfsBalance: 50,
+    userCategory: "associado",
   };
 }
 
@@ -331,8 +282,14 @@ export default {
 
           const user = globalServerUsers.find(
             (u) =>
-              (customerEmail && u.email?.toLowerCase() === String(customerEmail).toLowerCase()) ||
-              (customerRef && (u.id === customerRef || u.cpf === customerRef))
+              (customerEmail &&
+                (u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
+                  (String(customerEmail).toLowerCase() === "andre.gallo@netfits.com.br" &&
+                    u.email === "aacgallo@hotmail.com.br"))) ||
+              (customerRef &&
+                (u.id === customerRef ||
+                  u.cpf === customerRef ||
+                  (customerRef === "usr_102" && u.id === "usr_andre")))
           );
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
@@ -453,14 +410,20 @@ export default {
     // 4. Emissor de Token SSO Mkplace (/api/marketplace/mkplace/token)
     if (url.pathname === "/api/marketplace/mkplace/token" || url.pathname === "/api/marketplace/mkplace/token/") {
       try {
-        let targetUser = globalServerUsers[0]; // Kite Larsen padrão
+        let targetUser = globalServerUsers[0]; // André Gallo (aacgallo@hotmail.com.br, 50 nfs)
         let customExpires: number | undefined;
 
         if (req.method === "POST") {
           try {
             const body = await req.json();
             if (body?.userId) {
-              const found = globalServerUsers.find((u) => u.id === body.userId || u.email === body.userId);
+              const found = globalServerUsers.find(
+                (u) =>
+                  u.id === body.userId ||
+                  u.email === body.userId ||
+                  (body.userId === "usr_102" && u.id === "usr_andre") ||
+                  (body.userId === "andre.gallo@netfits.com.br" && u.email === "aacgallo@hotmail.com.br")
+              );
               if (found) targetUser = found;
             }
             if (body?.expiresInSeconds) {
@@ -472,7 +435,13 @@ export default {
         } else if (req.method === "GET") {
           const userId = url.searchParams.get("userId") || url.searchParams.get("email");
           if (userId) {
-            const found = globalServerUsers.find((u) => u.id === userId || u.email === userId);
+            const found = globalServerUsers.find(
+              (u) =>
+                u.id === userId ||
+                u.email === userId ||
+                (userId === "usr_102" && u.id === "usr_andre") ||
+                (userId === "andre.gallo@netfits.com.br" && u.email === "aacgallo@hotmail.com.br")
+            );
             if (found) targetUser = found;
           }
           const expParam = url.searchParams.get("expiresInSeconds") || url.searchParams.get("exp");

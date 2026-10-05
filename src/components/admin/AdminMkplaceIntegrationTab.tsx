@@ -33,44 +33,14 @@ interface DecodedJwt {
 
 const TEST_PERSONAS = [
   {
-    id: "usr_101",
-    name: "Kite Larsen",
-    email: "atleta@netfits.com.br",
-    cpf: "123.456.789-00",
-    phone: "(11) 99999-8888",
-    role: "Atleta Trail Runner",
-    tier: "Clube Pro",
-    balance: 1850,
-  },
-  {
-    id: "usr_102",
+    id: "usr_andre",
     name: "André Gallo",
-    email: "andre.gallo@netfits.com.br",
+    email: "aacgallo@hotmail.com.br",
     cpf: "987.654.321-11",
     phone: "(11) 98765-4321",
-    role: "Associado Fundador",
-    tier: "Elite Master",
-    balance: 12500,
-  },
-  {
-    id: "usr_104",
-    name: "Luísa Formigari",
-    email: "luisa.formigari@netfits.com.br",
-    cpf: "987.654.321-22",
-    phone: "(11) 98888-7777",
-    role: "Associada Médica",
-    tier: "Especialista",
-    balance: 8400,
-  },
-  {
-    id: "usr_103",
-    name: "Dra. Isabella Santos",
-    email: "isabella.santos@netfits.com.br",
-    cpf: "555.666.777-88",
-    phone: "(11) 97777-6666",
-    role: "Médica do Esporte",
-    tier: "Especialista Prescritora",
-    balance: 15200,
+    role: "Fundador Netfits",
+    tier: "Administrador Master",
+    balance: 50,
   },
 ];
 
@@ -78,7 +48,7 @@ export function AdminMkplaceIntegrationTab() {
   const params = useOperationalParams();
 
   // Active persona
-  const [selectedUserId, setSelectedUserId] = useState("usr_101");
+  const [selectedUserId, setSelectedUserId] = useState("usr_andre");
   const activeUser = TEST_PERSONAS.find((u) => u.id === selectedUserId) || TEST_PERSONAS[0];
 
   // Token simulator

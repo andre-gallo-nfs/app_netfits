@@ -15,47 +15,17 @@ export type StoredUser = {
   registeredAt: string;
 };
 
-// Banco de dados simulado de usuários já cadastrados
+// Banco de dados definitivo de usuários em Produção (Go-Live)
 const EXISTING_DATABASE_USERS: StoredUser[] = [
   {
-    id: "usr_101",
-    fullName: "Kite Larsen",
-    email: "atleta@netfits.com.br",
-    phone: "11999998888",
-    cpf: "12345678900",
-    passwordHash: "Pass@1234",
-    userCategory: "atleta",
-    registeredAt: "2026-01-15T10:00:00Z",
-  },
-  {
-    id: "usr_102",
+    id: "usr_andre",
     fullName: "André Gallo",
-    email: "andre.gallo@netfits.com.br",
+    email: "aacgallo@hotmail.com.br",
     phone: "11987654321",
     cpf: "98765432111",
     passwordHash: "Netfits#2026",
     userCategory: "associado",
-    registeredAt: "2026-02-01T14:30:00Z",
-  },
-  {
-    id: "usr_104",
-    fullName: "Luísa Formigari",
-    email: "luisa.formigari@netfits.com.br",
-    phone: "11988887777",
-    cpf: "98765432122",
-    passwordHash: "Netfits@2026",
-    userCategory: "associado",
-    registeredAt: "2026-02-01T14:30:00Z",
-  },
-  {
-    id: "usr_103",
-    fullName: "Dra. Isabella Santos",
-    email: "isabella@netfits.com.br",
-    phone: "11977776666",
-    cpf: "45678912344",
-    passwordHash: "Saude!2026",
-    userCategory: "especialista",
-    registeredAt: "2026-03-10T09:15:00Z",
+    registeredAt: "2026-10-05T00:00:00Z",
   },
 ];
 

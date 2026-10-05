@@ -6,6 +6,7 @@ import { useBadges } from "@/lib/badges-store";
 import { ProductDetailSheet } from "@/components/ProductDetailSheet";
 import { InviteFriendsCard } from "@/components/InviteFriendsCard";
 import { DrIsabellaCard } from "@/components/DrIsabellaCard";
+import { DrFrancoQuizCard } from "@/components/DrFrancoQuizCard";
 import { SmartFitCard } from "@/components/SmartFitCard";
 import { SponsorCard } from "@/components/SponsorCard";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
@@ -29,14 +30,53 @@ export const Route = createFileRoute("/feed")({
   component: FeedPage,
 });
 
+const FEED_CATEGORIES = [
+  "Para você",
+  "Em movimento",
+  "Nutrição",
+  "Saúde",
+  "Longevidade",
+] as const;
+
 export function FeedPage() {
+  const [activeCategory, setActiveCategory] = useState<string>("Para você");
+
   return (
     <div className="pb-8 space-y-4">
+      {/* Abas Superiores de Filtro do Feed (Conforme Design Oficial) */}
+      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border/40 py-2.5 px-4 overflow-x-auto scrollbar-none flex items-center gap-2">
+        {FEED_CATEGORIES.map((cat) => {
+          const isActive = activeCategory === cat;
+          return (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => {
+                setActiveCategory(cat);
+                if (cat !== "Para você") {
+                  toast.info(`Filtrando feed por: ${cat}`);
+                }
+              }}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                isActive
+                  ? "bg-foreground text-background shadow-xs font-bold ring-1 ring-foreground"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              {cat}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Pesquisa de Conexão Wearables (Visual Limpo & Monocromático) */}
       <WearableSurveyHero />
 
       {/* Lista Principal de Publicações do Feed */}
       <div className="space-y-6 pt-1">
+        {/* Desafio Diário Fibios (Quiz-to-Earn: Dr. Franco Merici) */}
+        <DrFrancoQuizCard />
+
         <SponsorCard />
         <InviteFriendsCard />
         <DrIsabellaCard />
