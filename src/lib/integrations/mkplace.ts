@@ -128,7 +128,10 @@ export function getMkplaceConfig(): MkplaceConfig {
     publicKey: env.MKPLACE_PUBLIC_KEY
       ? formatPemKey(env.MKPLACE_PUBLIC_KEY, "PUBLIC KEY")
       : defaultPublicKey,
-    webviewUrl: env.MKPLACE_WEBVIEW_URL || "https://loja.netfits.com.br",
+    webviewUrl:
+      env.MKPLACE_WEBVIEW_URL && !env.MKPLACE_WEBVIEW_URL.includes("vercel.app")
+        ? env.MKPLACE_WEBVIEW_URL
+        : "https://loja.netfits.com.br",
     webhookSecret: env.MKPLACE_WEBHOOK_SECRET || "sec_nfs_mkplace_default_2026",
     isMock: !hasRealKey,
   };
