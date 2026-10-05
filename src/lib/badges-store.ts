@@ -18,6 +18,7 @@ export type BadgeItem = {
   taskInstruction: string;
 };
 
+// Base Real e Definitiva de Conquistas (Todas iniciam bloqueadas com progresso zero)
 const INITIAL_BADGES: BadgeItem[] = [
   {
     id: "pioneiro",
@@ -25,10 +26,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     title: "Pioneiro Netfits",
     description: "Criou sua conta e ingressou na comunidade de longevidade ativa.",
     icon: "🌟",
-    unlocked: true,
-    unlockedAt: "10/08/2026",
+    unlocked: false,
     rewardNfs: 50,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Completar o cadastro inicial no Netfits",
   },
@@ -38,10 +38,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     title: "Perfil Verificado",
     description: "Preencheu todos os dados cadastrais e concordou com os termos LGPD.",
     icon: "🛡️",
-    unlocked: true,
-    unlockedAt: "10/08/2026",
+    unlocked: false,
     rewardNfs: 50,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Salvar dados de cadastro no perfil",
   },
@@ -51,10 +50,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     title: "Colecionador de Pontos",
     description: "Declarou seus programas de fidelidade de bancos parceiros no perfil.",
     icon: "💳",
-    unlocked: true,
-    unlockedAt: "10/08/2026",
+    unlocked: false,
     rewardNfs: 40,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Declarar programas de pontos no perfil",
   },
@@ -64,10 +62,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     title: "Leitor Assíduo",
     description: "Visualizou e consumiu 5 artigos e guias editoriais no Feed.",
     icon: "📖",
-    unlocked: true,
-    unlockedAt: "10/08/2026",
+    unlocked: false,
     rewardNfs: 20,
-    currentProgress: 5,
+    currentProgress: 0,
     maxProgress: 5,
     taskInstruction: "Ver 5 postagens editoriais no Feed",
   },
@@ -77,10 +74,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     title: "Super Curtidor",
     description: "Curtiu 10 publicações no feed de saúde e esportes.",
     icon: "❤️",
-    unlocked: true,
-    unlockedAt: "10/08/2026",
+    unlocked: false,
     rewardNfs: 30,
-    currentProgress: 10,
+    currentProgress: 0,
     maxProgress: 10,
     taskInstruction: "Dar 10 curtidas em conteúdos do feed",
   },
@@ -90,10 +86,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     title: "Explorador do Shop",
     description: "Navegou pelo marketplace e conheceu as ofertas parceiras.",
     icon: "🛍️",
-    unlocked: true,
-    unlockedAt: "10/08/2026",
+    unlocked: false,
     rewardNfs: 20,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Visitar a aba Shop do Netfits",
   },
@@ -105,9 +100,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     icon: "📢",
     unlocked: false,
     rewardNfs: 50,
-    currentProgress: 3,
+    currentProgress: 0,
     maxProgress: 5,
-    taskInstruction: "Compartilhar mais 2 publicações no WhatsApp ou redes",
+    taskInstruction: "Compartilhar publicações no WhatsApp ou redes",
   },
   {
     id: "embaixador_netfits",
@@ -117,9 +112,9 @@ const INITIAL_BADGES: BadgeItem[] = [
     icon: "🤝",
     unlocked: false,
     rewardNfs: 100,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 3,
-    taskInstruction: "Indicar mais 2 amigos com seu código exclusivo",
+    taskInstruction: "Indicar amigos com seu código exclusivo",
   },
   {
     id: "associado_vip",
@@ -129,7 +124,7 @@ const INITIAL_BADGES: BadgeItem[] = [
     icon: "👑",
     unlocked: false,
     rewardNfs: 500,
-    currentProgress: 12,
+    currentProgress: 0,
     maxProgress: 50,
     taskInstruction: "Captar novos usuários pelo seu link exclusivo de Associado",
   },
@@ -165,13 +160,30 @@ const INITIAL_BADGES: BadgeItem[] = [
     icon: "🏃",
     unlocked: false,
     rewardNfs: 80,
-    currentProgress: 2,
+    currentProgress: 0,
     maxProgress: 4,
-    taskInstruction: "Selecionar mais modalidades esportivas no seu perfil",
+    taskInstruction: "Selecionar modalidades esportivas no seu perfil",
   },
 ];
 
-let badgesList = [...INITIAL_BADGES];
+const BADGES_STORAGE_KEY = "netfits_user_badges_v2";
+
+function loadBadges(): BadgeItem[] {
+  if (typeof window !== "undefined") {
+    try {
+      const raw = localStorage.getItem(BADGES_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length === INITIAL_BADGES.length) {
+          return parsed;
+        }
+      }
+    } catch {}
+  }
+  return INITIAL_BADGES.map((b) => ({ ...b }));
+}
+
+let badgesList = loadBadges();
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
@@ -201,8 +213,44 @@ export const badgesStore = {
         : b
     );
 
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badgesList));
+      } catch {}
+    }
+
     wallet.earn(item.rewardNfs, `Selo Desbloqueado: ${item.title}`);
     toast.success(`🎉 Selo Desbloqueado: "${item.title}"! (+${item.rewardNfs} nfs creditados)`);
+    emit();
+  },
+  incrementProgress(id: string, amount: number = 1) {
+    const item = badgesList.find((b) => b.id === id);
+    if (!item || item.unlocked) return;
+
+    const newProgress = Math.min(item.maxProgress, item.currentProgress + amount);
+    const shouldUnlock = newProgress >= item.maxProgress;
+
+    badgesList = badgesList.map((b) =>
+      b.id === id
+        ? {
+            ...b,
+            currentProgress: newProgress,
+            unlocked: shouldUnlock,
+            unlockedAt: shouldUnlock ? new Date().toLocaleDateString("pt-BR") : b.unlockedAt,
+          }
+        : b
+    );
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badgesList));
+      } catch {}
+    }
+
+    if (shouldUnlock) {
+      wallet.earn(item.rewardNfs, `Selo Desbloqueado: ${item.title}`);
+      toast.success(`🎉 Selo Desbloqueado: "${item.title}"! (+${item.rewardNfs} nfs creditados)`);
+    }
     emit();
   },
 };

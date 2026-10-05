@@ -11,11 +11,26 @@ class AppLockStore {
   private listeners = new Set<() => void>();
 
   constructor() {
+    // Por diretriz de segurança, NUNCA abre automaticamente.
+    // Sempre inicia bloqueado exigindo biometria ou senha cadastrada.
+    this.unlocked = false;
+
     if (typeof window !== "undefined") {
-      // Por padrão, NUNCA abre automaticamente.
-      // O sessionStorage só mantém desbloqueado enquanto a aba/sessão atual estiver aberta.
-      // Ao fechar ou recarregar em nova sessão, volta a estar bloqueado.
-      this.unlocked = sessionStorage.getItem(SESSION_UNLOCKED_KEY) === "true";
+      try {
+        sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
+      } catch {}
+
+      // Ao suspender/minimizar o app ou aba por mais de 5s, volta a bloquear
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          (window as any).__netfits_bg_time = Date.now();
+        } else {
+          const bgTime = (window as any).__netfits_bg_time || 0;
+          if (Date.now() - bgTime > 5000) {
+            this.setUnlocked(false);
+          }
+        }
+      });
     }
   }
 
@@ -93,7 +108,10 @@ class AppLockStore {
 
     const activeUser = sharedSandboxStore.getActiveUser();
     const storedUsers = authStore.getStoredUsers();
-    const foundStored = storedUsers.find((u) => u.id === activeUser.id || u.email === activeUser.identifier);
+    const userEmail = (activeUser.email || activeUser.identifier || "").toLowerCase();
+    const foundStored = storedUsers.find(
+      (u) => u.id === activeUser.id || (u.email && u.email.toLowerCase() === userEmail)
+    );
 
     // Senhas válidas: senha salva do usuário, senha padrão da suíte ou "Netfits#2026"
     const validPasswords = [

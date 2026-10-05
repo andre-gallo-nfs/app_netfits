@@ -3816,18 +3816,18 @@ function AdminDashboardPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-lime-400 bg-purple-950/80 px-2.5 py-1 rounded-full border border-purple-500/30">
-                      Banco Provisório em Tempo Real (Live Sandbox)
+                      Banco de Dados Definitivo de Produção (Go-Live)
                     </span>
                     <span className="size-2 rounded-full bg-lime-400 animate-ping" />
                   </div>
                   <h3 className="text-lg font-black text-white mt-1.5 flex items-center gap-2">
-                    <span>Base Ativa de Usuários de Teste & Homologação</span>
+                    <span>Base Ativa de Usuários em Produção</span>
                     <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/40 px-2.5 py-0.5 rounded-full font-mono font-bold">
                       {sandboxUsersList.length} Usuários Cadastrados
                     </span>
                   </h3>
                   <p className="text-xs text-zinc-400">
-                    Gerencie, filtre, edite saldos de pontos nfs ou assuma a sessão de qualquer usuário de teste instantaneamente.
+                    Gerencie, filtre, edite saldos de pontos nfs ou visualize cadastros de usuários reais do banco de dados em produção.
                   </p>
                 </div>
 
@@ -3837,7 +3837,7 @@ function AdminDashboardPage() {
                     className="px-3.5 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs shadow-lg flex items-center gap-1.5 transition cursor-pointer"
                   >
                     <UserPlus className="size-4 text-zinc-950" />
-                    <span>+ Criar Usuário Teste</span>
+                    <span>+ Cadastrar Usuário</span>
                   </button>
                   <button
                     onClick={() => {

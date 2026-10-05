@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { CreditCard, CheckCircle, Sparkles, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,9 +21,26 @@ export const PARTNER_PROGRAMS = [
 ];
 
 export function LoyaltyProgramsCard() {
-  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(["livelo", "smiles", "iupp"]);
-  const [pointsEstimate, setPointsEstimate] = useState<string>("10.000 a 50.000 pts");
-  const [isSaved, setIsSaved] = useState(false);
+  const activeUser = sharedSandboxStore.useActiveUser();
+  const [selectedPrograms, setSelectedPrograms] = useState<string[]>(
+    activeUser.loyaltyPrograms || []
+  );
+  const [pointsEstimate, setPointsEstimate] = useState<string>(
+    activeUser.loyaltyPointsEstimate || "10.000 a 50.000 pts"
+  );
+  const [isSaved, setIsSaved] = useState(
+    Array.isArray(activeUser.loyaltyPrograms) && activeUser.loyaltyPrograms.length > 0
+  );
+
+  useEffect(() => {
+    if (activeUser.loyaltyPrograms) {
+      setSelectedPrograms(activeUser.loyaltyPrograms);
+      setIsSaved(activeUser.loyaltyPrograms.length > 0);
+    }
+    if (activeUser.loyaltyPointsEstimate) {
+      setPointsEstimate(activeUser.loyaltyPointsEstimate);
+    }
+  }, [activeUser.loyaltyPrograms, activeUser.loyaltyPointsEstimate]);
 
   const toggleProgram = (id: string) => {
     setSelectedPrograms((prev) =>
@@ -32,8 +50,12 @@ export function LoyaltyProgramsCard() {
   };
 
   const handleSave = () => {
+    sharedSandboxStore.updateUser(activeUser.id, {
+      loyaltyPrograms: selectedPrograms,
+      loyaltyPointsEstimate: pointsEstimate,
+    });
     setIsSaved(true);
-    toast.success("Programas de pontos declarados com sucesso! (+20 nfs bônus de perfil)");
+    toast.success("Programas de fidelidade e pontos salvos com sucesso no seu perfil!");
   };
 
   return (

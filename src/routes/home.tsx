@@ -22,7 +22,8 @@ import {
   TrendingUp,
   CheckCircle2,
   Briefcase,
-  Quote
+  Quote,
+  Download
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -75,11 +76,11 @@ export function InstitutionalHomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
-              to="/feed"
+              to="/download"
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-200 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl transition"
             >
-              <Activity className="size-4" />
-              Entrar no Aplicativo & Feed
+              <Download className="size-4" />
+              Baixar o App nas Lojas
             </Link>
             <Link
               to="/parceiros"

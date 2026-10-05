@@ -52,10 +52,8 @@ export function HomologationControlPanel() {
     );
   });
 
-  // Visão para Usuários Comuns (Não-Admin): O popup com roteiro de homologação foi removido para o Go-Live
-  if (!isAdmin) {
-    return null;
-  }
+  // Desativado definitivamente para o ambiente de produção
+  return null;
 
   // Visão Executiva Completa exclusiva para o Administrador
   return (

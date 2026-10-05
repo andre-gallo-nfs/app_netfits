@@ -34,6 +34,16 @@ export interface SandboxUser {
   gym?: string;
   coaching?: string;
   wearable?: string;
+  loyaltyPrograms?: string[];
+  loyaltyPointsEstimate?: string;
+  bankData?: {
+    bank: string;
+    agency: string;
+    account: string;
+    accountType?: string;
+    pixKeyType: string;
+    pixKey: string;
+  };
 }
 
 export interface SandboxTransaction {
@@ -385,7 +395,14 @@ class HomologationSandboxStore {
                 (u.identifier && su.identifier && u.identifier.trim().toLowerCase() === su.identifier.trim().toLowerCase())
             );
             if (idx >= 0) {
-              this.state.users[idx] = { ...this.state.users[idx], ...su };
+              const current = this.state.users[idx];
+              const merged: SandboxUser = { ...current };
+              for (const [key, val] of Object.entries(su)) {
+                if (val !== undefined && val !== null && val !== "") {
+                  (merged as any)[key] = val;
+                }
+              }
+              this.state.users[idx] = merged;
             } else {
               this.state.users.push(su);
               hasNew = true;
@@ -484,7 +501,16 @@ class HomologationSandboxStore {
             hasNewUsers = true;
           }
         }
-        stored.users = mergedUsers;
+        stored.users = mergedUsers.map((u) => {
+          try {
+            const bRaw = localStorage.getItem(`netfits_profile_saved_${u.id}`);
+            if (bRaw) {
+              const backup = JSON.parse(bRaw);
+              return { ...u, ...backup };
+            }
+          } catch {}
+          return u;
+        });
         if (!stored.interactions || stored.interactions.length === 0) {
           stored.interactions = INITIAL_INTERACTIONS;
           hasNewUsers = true;
@@ -514,13 +540,25 @@ class HomologationSandboxStore {
 
   private saveToStorageLocally() {
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      } catch (err) {
+        console.warn("[saveToStorageLocally] Quota warning:", err);
+      }
     }
   }
 
   private saveToStorage() {
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+        const active = this.getActiveUser();
+        if (active && active.id) {
+          localStorage.setItem(`netfits_profile_saved_${active.id}`, JSON.stringify(active));
+        }
+      } catch (err) {
+        console.warn("[saveToStorage] Quota warning:", err);
+      }
       this.broadcastChannel?.postMessage("sync");
       this.notify();
       // Transmite cadastro/atualização para a nuvem global assincronamente

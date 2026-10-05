@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield, Building2
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
@@ -100,19 +100,34 @@ function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Por favor, selecione uma imagem de até 5MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Por favor, selecione uma imagem de até 10MB.");
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const base64Url = event.target?.result as string;
-      if (base64Url) {
-        sharedSandboxStore.updateUser(activeUser.id, { avatarUrl: base64Url });
-        setShowAvatarModal(false);
-        toast.success("📸 Sua foto de perfil foi atualizada com sucesso!");
-      }
+      const rawData = event.target?.result as string;
+      if (!rawData) return;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const size = 256;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+          const compressed = canvas.toDataURL("image/jpeg", 0.85);
+          sharedSandboxStore.updateUser(activeUser.id, { avatarUrl: compressed });
+          setShowAvatarModal(false);
+          toast.success("📸 Sua foto de perfil foi salva e atualizada com sucesso!");
+        }
+      };
+      img.src = rawData;
     };
     reader.readAsDataURL(file);
   };
@@ -136,12 +151,17 @@ function ProfilePage() {
     phone: activeUser.phone || "",
     address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : ""),
     birthDate: activeUser.birthDate || "",
-    sports: activeUser.sports || (["Corrida de rua", "Musculação"] as string[]),
+    sports: activeUser.sports || [],
     otherSport: activeUser.otherSport || "",
-    healthPlan: activeUser.healthPlan || "SulAmérica",
-    gym: activeUser.gym || "Smart Fit",
+    healthPlan: activeUser.healthPlan || "Sem plano",
+    gym: activeUser.gym || "Não frequento",
     coaching: activeUser.coaching || "",
-    wearable: activeUser.wearable || "Garmin",
+    wearable: activeUser.wearable || "Não uso",
+    bankName: activeUser.bankData?.bank || "",
+    bankAgency: activeUser.bankData?.agency || "",
+    bankAccount: activeUser.bankData?.account || "",
+    bankPixKeyType: activeUser.bankData?.pixKeyType || "cpf",
+    bankPixKey: activeUser.bankData?.pixKey || "",
   });
 
   useEffect(() => {
@@ -159,6 +179,11 @@ function ProfilePage() {
       gym: activeUser.gym !== undefined ? activeUser.gym : prev.gym,
       coaching: activeUser.coaching !== undefined ? activeUser.coaching : prev.coaching,
       wearable: activeUser.wearable !== undefined ? activeUser.wearable : prev.wearable,
+      bankName: activeUser.bankData?.bank !== undefined ? activeUser.bankData.bank : prev.bankName,
+      bankAgency: activeUser.bankData?.agency !== undefined ? activeUser.bankData.agency : prev.bankAgency,
+      bankAccount: activeUser.bankData?.account !== undefined ? activeUser.bankData.account : prev.bankAccount,
+      bankPixKeyType: activeUser.bankData?.pixKeyType !== undefined ? activeUser.bankData.pixKeyType : prev.bankPixKeyType,
+      bankPixKey: activeUser.bankData?.pixKey !== undefined ? activeUser.bankData.pixKey : prev.bankPixKey,
     }));
   }, [
     activeUser.id,
@@ -179,6 +204,7 @@ function ProfilePage() {
     activeUser.gym,
     activeUser.coaching,
     activeUser.wearable,
+    activeUser.bankData,
   ]);
 
   // Tribo gerada dinamicamente pelo banco de dados definitivo (zero mocks)
@@ -242,6 +268,13 @@ function ProfilePage() {
       gym: form.gym,
       coaching: form.coaching.trim(),
       wearable: form.wearable,
+      bankData: {
+        bank: form.bankName.trim(),
+        agency: form.bankAgency.trim(),
+        account: form.bankAccount.trim(),
+        pixKeyType: form.bankPixKeyType,
+        pixKey: form.bankPixKey.trim(),
+      },
     });
     setSaved(true);
     toast.success("Dados do perfil atualizados e salvos com sucesso!");
@@ -551,6 +584,87 @@ function ProfilePage() {
               className={inputClass}
             />
           </Field>
+        </Card>
+
+        {/* Dados Bancários & Chave PIX */}
+        <Card title="Dados Bancários & Chave PIX" icon={CreditCard}>
+          <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
+            Cadastre seus dados bancários e chave PIX para transferências, resgates financeiros e recebimento de premiações em dinheiro do Netfits.
+          </p>
+          <div className="space-y-3 pt-2">
+            <Field label="Instituição Bancária" icon={Building2}>
+              <select
+                value={form.bankName}
+                onChange={(e) => setForm({ ...form, bankName: e.target.value })}
+                className={inputClass}
+              >
+                <option value="">Selecione o seu banco</option>
+                <option value="Banco do Brasil (001)">Banco do Brasil (001)</option>
+                <option value="Bradesco (237)">Bradesco (237)</option>
+                <option value="Itaú Unibanco (341)">Itaú Unibanco (341)</option>
+                <option value="Caixa Econômica Federal (104)">Caixa Econômica (104)</option>
+                <option value="Santander (033)">Santander (033)</option>
+                <option value="Nubank (260)">Nubank (260)</option>
+                <option value="Banco Inter (077)">Banco Inter (077)</option>
+                <option value="BTG Pactual (208)">BTG Pactual (208)</option>
+                <option value="C6 Bank (336)">C6 Bank (336)</option>
+                <option value="Sicoob (756)">Sicoob (756)</option>
+                <option value="Sicredi (748)">Sicredi (748)</option>
+                <option value="Outro Banco">Outro Banco</option>
+              </select>
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Agência (sem dígito)" icon={CreditCard}>
+                <input
+                  type="text"
+                  value={form.bankAgency}
+                  onChange={(e) => setForm({ ...form, bankAgency: e.target.value })}
+                  placeholder="Ex: 1234"
+                  className={inputClass}
+                />
+              </Field>
+
+              <Field label="Conta com dígito" icon={CreditCard}>
+                <input
+                  type="text"
+                  value={form.bankAccount}
+                  onChange={(e) => setForm({ ...form, bankAccount: e.target.value })}
+                  placeholder="Ex: 56789-0"
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-1">
+                <Field label="Tipo de Chave PIX" icon={Sparkles}>
+                  <select
+                    value={form.bankPixKeyType}
+                    onChange={(e) => setForm({ ...form, bankPixKeyType: e.target.value })}
+                    className={inputClass}
+                  >
+                    <option value="cpf">CPF</option>
+                    <option value="celular">Celular</option>
+                    <option value="email">E-mail</option>
+                    <option value="aleatoria">Chave Aleatória</option>
+                  </select>
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field label="Chave PIX Cadastrada" icon={Sparkles}>
+                  <input
+                    type="text"
+                    value={form.bankPixKey}
+                    onChange={(e) => setForm({ ...form, bankPixKey: e.target.value })}
+                    placeholder="Digite sua chave PIX"
+                    className={`${inputClass} font-mono`}
+                  />
+                </Field>
+              </div>
+            </div>
+          </div>
         </Card>
 
         {/* Sports */}

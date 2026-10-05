@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { activities } from "@/lib/feed-data";
+import { useState } from "react";
 import { useOperationalParams } from "@/lib/operational-params-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import {
   Activity, Flame, ShieldCheck, Award, Sparkles, Clock, HeartPulse,
-  CheckCircle2, Watch, Check, ChevronRight, Zap
+  CheckCircle2, Watch, Check, ChevronRight, Zap, Plus
 } from "lucide-react";
 
 export const Route = createFileRoute("/activities")({
@@ -22,13 +24,25 @@ export const Route = createFileRoute("/activities")({
 
 function ActivitiesPage() {
   const params = useOperationalParams();
-  
-  // Mock representativo de progresso semanal (3 de 5 treinos concluídos)
-  const currentWeekWorkouts = 3;
+  const activeUser = sharedSandboxStore.useActiveUser();
+  const [showSyncSheet, setShowSyncSheet] = useState(false);
+
+  // Obtém exclusivamente as atividades reais registradas para o usuário ativo (zero dados mockados)
+  const userWorkoutTxs = sharedSandboxStore
+    .getUserTransactions(activeUser.id)
+    .filter((tx) => tx.category === "workout");
+
+  const currentWeekWorkouts = userWorkoutTxs.length;
   const maxWeeklyWorkouts = params.weeklyMaxRewardedWorkouts || 5;
   const pointsPerWorkout = params.nfsPerWorkout || 20;
   const streakBonus = params.workoutStreakBonusNfs || 20;
   const progressPct = Math.min(100, Math.round((currentWeekWorkouts / maxWeeklyWorkouts) * 100));
+
+  const userWearable = (activeUser.wearable || "").toLowerCase();
+  const hasAppleWatch = userWearable.includes("apple");
+  const hasGarmin = userWearable.includes("garmin");
+  const hasStrava = userWearable.includes("strava");
+  const hasAnyWearable = hasAppleWatch || hasGarmin || hasStrava || (userWearable.length > 0 && userWearable !== "não uso");
 
   return (
     <div className="pb-10 space-y-5">
@@ -94,7 +108,7 @@ function ActivitiesPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-purple-200">
-                Faltam apenas {Math.max(0, maxWeeklyWorkouts - currentWeekWorkouts)} treinos para o Golden Streak!
+                Faltam {Math.max(0, maxWeeklyWorkouts - currentWeekWorkouts)} treinos para o Golden Streak!
               </p>
               <p className="text-[10px] text-purple-300/80 leading-tight">
                 Complete a meta de 5 treinos na semana e receba um bônus adicional de <b>+{streakBonus} nfs</b>.
@@ -119,11 +133,11 @@ function ActivitiesPage() {
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-950/60 border border-zinc-200/80 dark:border-zinc-800 space-y-0.5">
-              <span className="text-[10px] text-zinc-500 block font-medium">Recompensa Base</span>
+              <span className="text-[10px] text-zinc-500 block font-medium">Recompensa / Treino</span>
               <span className="font-black text-lime-600 dark:text-lime-400 font-mono text-sm">
-                +{pointsPerWorkout} nfs / treino
+                +{pointsPerWorkout} nfs
               </span>
-              <span className="text-[9px] text-zinc-400 block">Máx. 1 treino/dia (até 5/sem)</span>
+              <span className="text-[9px] text-zinc-400 block">Até {maxWeeklyWorkouts} treinos/semana</span>
             </div>
 
             <div className="p-2.5 rounded-xl bg-white dark:bg-zinc-950/60 border border-zinc-200/80 dark:border-zinc-800 space-y-0.5">
@@ -160,29 +174,59 @@ function ActivitiesPage() {
       {/* Card 3: Dispositivos & Wearables Conectados */}
       <section className="px-4">
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-3 shadow-xs">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
-            <span>Dispositivos Conectados</span>
-            <span className="text-[10px] text-lime-600 dark:text-lime-400 font-semibold flex items-center gap-1">
-              <Check className="size-3" /> Sincronizado
-            </span>
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+              Dispositivos & Sensores
+            </h2>
+            <button
+              type="button"
+              onClick={() => setShowSyncSheet(true)}
+              className="text-[11px] font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 cursor-pointer"
+            >
+              <Plus className="size-3" />
+              <span>Conectar Novo</span>
+            </button>
+          </div>
           <div className="grid grid-cols-3 gap-2 text-center text-xs">
-            <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex flex-col items-center gap-1">
+            <div className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 ${
+              hasAppleWatch
+                ? "bg-purple-600/10 border-purple-500/40 ring-1 ring-purple-500/20"
+                : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 opacity-70"
+            }`}>
               <span className="text-base">⌚</span>
               <span className="font-bold text-[11px] text-zinc-800 dark:text-zinc-200">Apple Watch</span>
-              <span className="text-[9px] text-zinc-400">HealthKit</span>
+              <span className={`text-[9px] font-medium ${hasAppleWatch ? "text-lime-500" : "text-zinc-400"}`}>
+                {hasAppleWatch ? "● Conectado" : "Disponível"}
+              </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex flex-col items-center gap-1">
+            <div className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 ${
+              hasGarmin
+                ? "bg-purple-600/10 border-purple-500/40 ring-1 ring-purple-500/20"
+                : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 opacity-70"
+            }`}>
               <span className="text-base">🧭</span>
               <span className="font-bold text-[11px] text-zinc-800 dark:text-zinc-200">Garmin</span>
-              <span className="text-[9px] text-zinc-400">Connect API</span>
+              <span className={`text-[9px] font-medium ${hasGarmin ? "text-lime-500" : "text-zinc-400"}`}>
+                {hasGarmin ? "● Conectado" : "Disponível"}
+              </span>
             </div>
-            <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex flex-col items-center gap-1">
+            <div className={`p-2.5 rounded-xl border flex flex-col items-center gap-1 ${
+              hasStrava
+                ? "bg-purple-600/10 border-purple-500/40 ring-1 ring-purple-500/20"
+                : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 opacity-70"
+            }`}>
               <span className="text-base">🏃</span>
               <span className="font-bold text-[11px] text-zinc-800 dark:text-zinc-200">Strava</span>
-              <span className="text-[9px] text-zinc-400">OAuth 2.0</span>
+              <span className={`text-[9px] font-medium ${hasStrava ? "text-lime-500" : "text-zinc-400"}`}>
+                {hasStrava ? "● Conectado" : "Disponível"}
+              </span>
             </div>
           </div>
+          {!hasAnyWearable && (
+            <p className="text-[10px] text-zinc-400 text-center pt-1">
+              Nenhum wearable vinculado ainda. Clique em "Conectar Novo" para parear seus dispositivos.
+            </p>
+          )}
         </div>
       </section>
 
@@ -196,31 +240,61 @@ function ActivitiesPage() {
             Últimos 7 dias
           </span>
         </div>
-        <ul className="space-y-2">
-          {activities.map((a) => (
-            <li
-              key={a.id}
-              className="bg-card rounded-2xl p-3.5 flex items-center gap-3 ring-1 ring-black/5 dark:ring-zinc-800 shadow-xs hover:border-lime-500/30 transition"
+
+        {userWorkoutTxs.length === 0 ? (
+          <div className="bg-card rounded-2xl p-6 text-center border border-border shadow-xs space-y-3">
+            <div className="size-12 rounded-2xl bg-purple-600/10 text-purple-600 mx-auto grid place-items-center">
+              <Activity className="size-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Nenhum treino auditado nos últimos 7 dias</h3>
+              <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
+                Suas atividades físicas monitoradas por GPS ou sensores cardíacos aparecerão aqui automaticamente gerando nfs reais.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowSyncSheet(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition cursor-pointer"
             >
-              <div className="size-11 rounded-2xl bg-zinc-100 dark:bg-zinc-800 grid place-items-center text-xl shrink-0">
-                {a.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{a.title}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">{a.date}</span>
-                  <span className="text-[9px] font-mono bg-lime-500/10 text-lime-600 dark:text-lime-400 px-1.5 py-0.2 rounded font-bold">
-                    GPS / FC OK
-                  </span>
+              <Watch className="size-3.5" />
+              <span>Conectar Dispositivo / Wearable</span>
+            </button>
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {userWorkoutTxs.map((tx) => (
+              <li
+                key={tx.id}
+                className="bg-card rounded-2xl p-3.5 flex items-center gap-3 ring-1 ring-black/5 dark:ring-zinc-800 shadow-xs hover:border-lime-500/30 transition"
+              >
+                <div className="size-11 rounded-2xl bg-zinc-100 dark:bg-zinc-800 grid place-items-center text-xl shrink-0">
+                  🏃
                 </div>
-              </div>
-              <span className="text-xs font-black font-mono text-white bg-purple-600 dark:bg-purple-600 px-2.5 py-1 rounded-xl shadow-xs">
-                {a.reward}
-              </span>
-            </li>
-          ))}
-        </ul>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{tx.description}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      {new Date(tx.timestamp).toLocaleDateString("pt-BR")}
+                    </span>
+                    <span className="text-[9px] font-mono bg-lime-500/10 text-lime-600 dark:text-lime-400 px-1.5 py-0.2 rounded font-bold">
+                      GPS / FC OK
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-black font-mono text-white bg-purple-600 dark:bg-purple-600 px-2.5 py-1 rounded-xl shadow-xs">
+                  +{tx.amount} nfs
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
+
+      {/* Sheet de Conexão de Wearables */}
+      {showSyncSheet && (
+        <WearableSyncSheet onClose={() => setShowSyncSheet(false)} />
+      )}
     </div>
   );
 }

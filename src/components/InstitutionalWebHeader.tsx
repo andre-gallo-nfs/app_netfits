@@ -64,14 +64,14 @@ export function InstitutionalWebHeader() {
           })}
         </nav>
 
-        {/* CTA Direct App Access */}
+        {/* CTA Baixar App nas Lojas Oficiais */}
         <div className="flex items-center gap-3 shrink-0">
           <Link
-            to="/feed"
+            to="/download"
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition-all duration-200 flex items-center gap-1.5"
           >
-            <Activity className="size-4" />
-            Abrir App Netfits →
+            <Download className="size-4" />
+            Baixar App nas Lojas →
           </Link>
         </div>
       </div>
