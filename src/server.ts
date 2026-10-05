@@ -179,6 +179,17 @@ interface ReceivedOrderRecord {
 
 let globalReceivedOrders: ReceivedOrderRecord[] = [];
 
+interface OrderReservationState {
+  orderId: string;
+  customerId: string;
+  pointsReserved: number;
+  cashbackCredited: number;
+  status: string;
+  updatedAt: string;
+}
+
+let globalOrderReservations = new Map<string, OrderReservationState>();
+
 export default {
   async fetch(req: Request) {
     const url = new URL(req.url);
@@ -347,8 +358,15 @@ export default {
           globalReceivedOrders.unshift(orderRecord);
           if (globalReceivedOrders.length > 100) globalReceivedOrders.pop();
 
-          // Atualiza a carteira do usuário de acordo com o ciclo de vida do pedido
+          // Atualiza a carteira do usuário de acordo com o ciclo de vida do pedido (2-Phase Commit / Anti Double-Spending)
           const status = (result.status || "").toUpperCase().replace(/_/g, "-");
+          
+          const isWaitingPayment =
+            status === "WAITING-PAYMENT" ||
+            status === "PAYMENT-PENDING" ||
+            status === "PRE-ORDER" ||
+            status === "CREATED";
+
           const isApproved =
             status === "PAID" ||
             status === "BILLED" ||
@@ -362,26 +380,64 @@ export default {
             status === "REFUNDED" ||
             status === "EXPIRED";
 
-          if (user && isApproved) {
-            // Debita pontos usados no resgate
-            if (result.pointsUsed > 0) {
-              user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
+          if (user) {
+            let reservation = globalOrderReservations.get(result.orderId);
+            if (!reservation) {
+              reservation = {
+                orderId: result.orderId,
+                customerId: user.id,
+                pointsReserved: 0,
+                cashbackCredited: 0,
+                status,
+                updatedAt: new Date().toISOString(),
+              };
+              globalOrderReservations.set(result.orderId, reservation);
             }
-            // Credita cashback em pontos
-            if (result.nfsEarned > 0) {
-              user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
+
+            // 1. FASE DE RESERVA (WAITING-PAYMENT / PRE-ORDER):
+            // Debita imediatamente os pontos da carteira para prevenir gasto duplo (Double Spending)
+            // enquanto o Pix aguarda pagamento ou o cartão passa pela análise antifraude (até 72h).
+            if (isWaitingPayment) {
+              if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
+                user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
+                reservation.pointsReserved = result.pointsUsed;
+                lastSyncTimestamp = new Date().toISOString();
+              }
             }
-            lastSyncTimestamp = new Date().toISOString();
-          } else if (user && isCanceledOrRefunded) {
-            // Estorno de pontos gastos se o pedido foi cancelado ou reembolsado
-            if (result.pointsUsed > 0) {
-              user.nfsBalance = (user.nfsBalance || 0) + result.pointsUsed;
+
+            // 2. FASE DE LIQUIDAÇÃO (PAID / BILLED / DELIVERED):
+            // Confirma a reserva e credita o cashback
+            else if (isApproved) {
+              // Se os pontos ainda não haviam sido reservados antes (ex: webhook chegou direto como PAID)
+              if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
+                user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
+                reservation.pointsReserved = result.pointsUsed;
+              }
+              // Credita o cashback de 4 nfs/R$ (se ainda não creditado)
+              if (result.nfsEarned > 0 && reservation.cashbackCredited === 0) {
+                user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
+                reservation.cashbackCredited = result.nfsEarned;
+              }
+              lastSyncTimestamp = new Date().toISOString();
             }
-            // Reverte cashback creditado
-            if (result.nfsEarned > 0) {
-              user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.nfsEarned);
+
+            // 3. FASE DE ESTORNO / ROLLBACK (CANCELED / EXPIRED / REFUNDED):
+            // Se o Pix expirou, o antifraude reprovou ou o pedido foi cancelado/estornado, devolve os pontos ao atleta
+            else if (isCanceledOrRefunded) {
+              if (reservation.pointsReserved > 0) {
+                user.nfsBalance = (user.nfsBalance || 0) + reservation.pointsReserved;
+                reservation.pointsReserved = 0;
+              }
+              // Se já havia cashback creditado, estorna o cashback
+              if (reservation.cashbackCredited > 0) {
+                user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - reservation.cashbackCredited);
+                reservation.cashbackCredited = 0;
+              }
+              lastSyncTimestamp = new Date().toISOString();
             }
-            lastSyncTimestamp = new Date().toISOString();
+
+            reservation.status = status;
+            reservation.updatedAt = new Date().toISOString();
           }
 
           return new Response(JSON.stringify(result), { status: 200, headers: corsHeaders });
