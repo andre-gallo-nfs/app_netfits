@@ -326,7 +326,7 @@ export function getMkplaceWebviewUrl(user: MkplaceTokenUser): string {
   const config = getMkplaceConfig();
   const token = generateMkplaceJwt(user);
   const baseUrl = config.webviewUrl.replace(/\/+$/, "");
-  return `${baseUrl}?token=${encodeURIComponent(token)}`;
+  return `${baseUrl}/?token=${encodeURIComponent(token)}`;
 }
 
 // ==========================================

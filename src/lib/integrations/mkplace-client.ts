@@ -52,7 +52,9 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
         ".NETFITS_FALLBACK_SIGNATURE";
     }
 
-    const separator = webviewUrl.includes("?") ? "&" : "?";
+    const separator = webviewUrl.includes("?")
+      ? "&"
+      : (webviewUrl.endsWith("/") ? "?" : "/?");
     return `${webviewUrl}${separator}token=${encodeURIComponent(token)}`;
   } catch (err) {
     console.warn("[Mkplace Client] Fallback de URL da loja:", err);
