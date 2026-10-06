@@ -36,14 +36,16 @@ jobs:
         run: |
           npx cap sync android --verbose || echo "Proceeding with committed native assets"
 
-      - name: Generate or Restore Upload Keystore
+      - name: Validate or Restore Upload Keystore
         working-directory: android/app
         run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+          if [ -f "netfits-upload-key.jks" ]; then
+            echo "✅ Official Netfits upload keystore found in repository."
+          elif [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > netfits-upload-key.jks
             echo "Keystore restored from GitHub Secret."
           else
-            echo "Generating new production upload keystore..."
+            echo "Generating fallback upload keystore..."
             keytool -genkeypair -v \
               -keystore netfits-upload-key.jks \
               -alias netfits-upload \
@@ -55,6 +57,8 @@ jobs:
               -dname "CN=Netfits Mobile, OU=Engenharia, O=Netfits Ltda, L=Santana de Parnaiba, ST=SP, C=BR"
             echo "Keystore generated successfully."
           fi
+          echo "### 🔑 Keystore Fingerprints:"
+          keytool -list -v -keystore netfits-upload-key.jks -storepass "Netfits@2026!App" | grep -A 3 "Certificate fingerprints:" || true
 
       - name: Grant Execute Permission to Gradlew
         working-directory: android

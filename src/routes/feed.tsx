@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges } from "@/lib/badges-store";
 import { ProductDetailSheet } from "@/components/ProductDetailSheet";
-import { InviteFriendsCard } from "@/components/InviteFriendsCard";
 import { DrIsabellaCard } from "@/components/DrIsabellaCard";
 import { DrFrancoQuizCard } from "@/components/DrFrancoQuizCard";
-import { SmartFitCard } from "@/components/SmartFitCard";
-import { SponsorCard } from "@/components/SponsorCard";
+import { DraIsabellaQuizCard } from "@/components/DraIsabellaQuizCard";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { wallet } from "@/lib/wallet-store";
@@ -22,7 +20,7 @@ export const Route = createFileRoute("/feed")({
       { title: "Feed — Netfits" },
       {
         name: "description",
-        content: "Feed infinito de saúde, esporte, marcas, assessorias e profissionais.",
+        content: "Feed oficial de saúde, medicina do esporte e longevidade curado pela Fibios.",
       },
       { property: "og:title", content: "Feed — Netfits" },
     ],
@@ -69,23 +67,24 @@ export function FeedPage() {
         })}
       </div>
 
-      {/* Pesquisa de Conexão Wearables (Visual Limpo & Monocromático) */}
-      <WearableSurveyHero />
-
-      {/* Lista Principal de Publicações do Feed */}
+      {/* Lista Principal de Publicações do Feed — Exclusivo FIBIOS */}
       <div className="space-y-6 pt-1">
-        {/* Desafio Diário Fibios (Quiz-to-Earn: Dr. Franco Merici) */}
+        {/* 1. Desafio Diário Fibios: Dr. Franco Merici (Força & Longevidade) */}
         <DrFrancoQuizCard />
 
-        <SponsorCard />
-        <InviteFriendsCard />
+        {/* 2. Desafio Diário Fibios: Dra. Isabella Formigari (Biomarcadores & Sono) */}
+        <DraIsabellaQuizCard />
+
+        {/* 3. Protocolo Fibios: Dra. Isabella Formigari (Vídeo 4:12 & Agendamento) */}
         <DrIsabellaCard />
-        <SmartFitCard />
+
+        {/* 4. Clínica & Especialistas Fibios */}
         {feedItems.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}
+
         <div className="px-4 py-8 text-center text-xs text-muted-foreground font-medium">
-          Você chegou ao fim do feed. Novas atualizações em breve.
+          Você viu todos os conteúdos curados pela Fibios por hoje. Novas atualizações em breve.
         </div>
       </div>
     </div>

@@ -26,5 +26,6 @@ backups/*.zip
 ios/DerivedData/
 dist-android/
 *.jks
+!android/app/netfits-upload-key.jks
 
 
