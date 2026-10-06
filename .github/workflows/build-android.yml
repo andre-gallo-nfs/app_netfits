@@ -105,6 +105,27 @@ jobs:
           path: android/app/netfits-upload-key.jks
           retention-days: 30
 
+      - name: Publish GitHub Release with Android App Bundle
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-google-play
+          name: "Netfits Android App Bundle v1.0.0 (Google Play Store)"
+          body: |
+            ### 🚀 Netfits Android Release (.aab) para Google Play Store
+            - **Versão:** 1.0.0 (versionCode 1)
+            - **Package ID:** `br.com.netfits.app`
+            - **Target SDK:** 35 (Android 15)
+            - **Min SDK:** 24 (Android 7.0+)
+            - **Chave de Assinatura:** Upload Key RSA 2048-bit (`netfits-upload-key.jks`)
+
+            Pronto para upload no Google Play Console (Trilha de Produção ou Teste Fechado).
+          files: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/netfits-upload-key.jks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Save Diagnostics to Branch (On Failure)
         if: failure()
         run: |
