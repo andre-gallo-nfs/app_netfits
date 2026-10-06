@@ -189,6 +189,9 @@ export interface MkplaceJwtPayload {
   preferred_username: string;
   storeId: string;
   email: string;
+  document?: string;
+  cpf?: string;
+  phone?: string;
 }
 
 /**
@@ -206,6 +209,8 @@ export function generateMkplaceJwt(user: MkplaceTokenUser, expiresInSeconds = 86
   };
 
   const customerId = user.id;
+  const rawCpf = (user.cpf || (user as any).document || "").replace(/\D/g, "");
+  const rawPhone = (user.phone || "").replace(/\D/g, "");
 
   const payload: MkplaceJwtPayload = {
     exp: now + expiresInSeconds,
@@ -229,6 +234,8 @@ export function generateMkplaceJwt(user: MkplaceTokenUser, expiresInSeconds = 86
     preferred_username: user.email,
     storeId: config.storeId,
     email: user.email,
+    ...(rawCpf ? { document: rawCpf, cpf: rawCpf } : {}),
+    ...(rawPhone ? { phone: rawPhone } : {}),
   };
 
   const headerEncoded = base64UrlEncode(JSON.stringify(header));

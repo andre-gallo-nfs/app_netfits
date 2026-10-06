@@ -36,6 +36,7 @@ export interface SandboxUser {
   wearable?: string;
   loyaltyPrograms?: string[];
   loyaltyPointsEstimate?: string;
+  gender?: string | null;
 }
 
 export interface SandboxTransaction {

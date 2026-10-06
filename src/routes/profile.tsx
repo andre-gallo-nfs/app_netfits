@@ -302,6 +302,24 @@ function ProfilePage() {
       coaching: form.coaching.trim(),
       wearable: form.wearable,
     });
+
+    // Sincroniza imediatamente com o servidor para disponibilizar CPF e endereço para a Loja Oficial
+    fetch("/api/users-sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user: {
+          id: activeUser.id,
+          fullName: form.name.trim(),
+          email: form.email.trim(),
+          cpf: cleanCpf,
+          phone: cleanPhone,
+          address: cleanAddress,
+          birthDate: cleanBirth,
+        },
+      }),
+    }).catch((err) => console.warn("[Profile] Server sync warning:", err));
+
     setSaved(true);
     toast.success("Dados do perfil atualizados e salvos com sucesso no banco de dados!");
     setTimeout(() => setSaved(false), 3000);

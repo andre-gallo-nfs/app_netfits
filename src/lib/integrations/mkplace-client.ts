@@ -23,6 +23,9 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
     const userEmail = activeUser?.email || activeUser?.identifier || "";
     const userName = activeUser?.fullName || "Atleta Netfits";
 
+    // Garante que qualquer atualização cadastral seja enviada à nuvem
+    sharedSandboxStore.syncToCloud().catch(() => {});
+
     const res = await fetch("/api/marketplace/mkplace/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,6 +33,20 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
         userId: targetUserId,
         email: userEmail,
         fullName: userName,
+        cpf: activeUser?.cpf || "",
+        document: activeUser?.cpf || "",
+        phone: activeUser?.phone || "",
+        address: activeUser?.address || "",
+        street: activeUser?.street || "",
+        number: activeUser?.number || "",
+        complement: activeUser?.complement || "",
+        neighborhood: activeUser?.neighborhood || "",
+        city: activeUser?.city || "",
+        state: activeUser?.state || "",
+        shortState: activeUser?.shortState || "",
+        zipcode: activeUser?.zipcode || "",
+        birthDate: activeUser?.birthDate || "",
+        gender: activeUser?.gender || null,
       }),
     });
 

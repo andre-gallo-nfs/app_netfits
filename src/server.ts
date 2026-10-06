@@ -317,6 +317,9 @@ export default {
         try {
           const body = await req.json();
           if (body.name) user.fullName = body.name;
+          if (body.document || body.cpf) {
+            user.cpf = String(body.document || body.cpf).replace(/\D/g, "");
+          }
           if (Array.isArray(body.phones) && body.phones[0]?.number) {
             user.phone = `${body.phones[0].areaCode || "11"}${body.phones[0].number}`;
           }
@@ -330,6 +333,7 @@ export default {
             if (addr.state) user.state = addr.state;
             if (addr.shortState) user.shortState = addr.shortState;
             if (addr.zipcode) user.zipcode = addr.zipcode;
+            user.address = `${user.street || ""}, ${user.number || ""}`.trim();
           }
           if (body.gender !== undefined) user.gender = body.gender;
 
@@ -623,6 +627,33 @@ export default {
                 }
               }
             }
+            // Atualização imediata dos dados cadastrais (CPF, telefone, endereço) no servidor
+            if (body?.cpf) targetUser.cpf = String(body.cpf).replace(/\D/g, "");
+            if (body?.document) targetUser.cpf = String(body.document).replace(/\D/g, "");
+            if (body?.phone) targetUser.phone = String(body.phone).trim();
+            if (body?.address) targetUser.address = String(body.address).trim();
+            if (body?.street) targetUser.street = String(body.street).trim();
+            if (body?.number) targetUser.number = String(body.number).trim();
+            if (body?.complement !== undefined) targetUser.complement = String(body.complement).trim();
+            if (body?.neighborhood) targetUser.neighborhood = String(body.neighborhood).trim();
+            if (body?.city) targetUser.city = String(body.city).trim();
+            if (body?.state) targetUser.state = String(body.state).trim();
+            if (body?.shortState) targetUser.shortState = String(body.shortState).trim();
+            if (body?.zipcode) targetUser.zipcode = String(body.zipcode).trim();
+            if (body?.birthDate) targetUser.birthDate = String(body.birthDate).trim();
+            if (body?.gender !== undefined) targetUser.gender = body.gender;
+            if (body?.fullName && (!targetUser.fullName || targetUser.fullName === "Atleta Netfits")) {
+              targetUser.fullName = String(body.fullName).trim();
+            }
+
+            if (targetUser.address && (!targetUser.street || !targetUser.number)) {
+              const parts = String(targetUser.address).split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
+              if (parts[0] && !targetUser.street) targetUser.street = parts[0];
+              if (parts[1] && !targetUser.number) targetUser.number = parts[1];
+              if (parts[2] && !targetUser.neighborhood) targetUser.neighborhood = parts[2];
+              if (parts[3] && !targetUser.city) targetUser.city = parts[3];
+            }
+
             if (body?.expiresInSeconds) {
               customExpires = Number(body.expiresInSeconds);
             }
@@ -658,6 +689,13 @@ export default {
                 globalServerUsers.push(targetUser);
               }
             }
+
+            const getCpf = url.searchParams.get("cpf") || url.searchParams.get("document");
+            if (getCpf) targetUser.cpf = getCpf.replace(/\D/g, "");
+            const getPhone = url.searchParams.get("phone");
+            if (getPhone) targetUser.phone = getPhone.trim();
+            const getAddress = url.searchParams.get("address");
+            if (getAddress) targetUser.address = getAddress.trim();
           }
           const expParam = url.searchParams.get("expiresInSeconds") || url.searchParams.get("exp");
           if (expParam) {
