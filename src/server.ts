@@ -435,21 +435,35 @@ export default {
           const customerRef = rawOrder?.customer?.ref || rawOrder?.customer?.document || rawOrder?.customerId;
           const customerName = rawOrder?.customer?.name || rawOrder?.customerName || rawOrder?.shipping?.receiverName;
 
-          const user = globalServerUsers.find(
-            (u) =>
-              (customerEmail &&
-                (u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
+          // 1. Prioridade absoluta para o e-mail real do comprador
+          let user = customerEmail
+            ? globalServerUsers.find(
+                (u) =>
+                  u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
                   (isCarlosFormigari(String(customerEmail)) && u.id === "usr_carlos_formigari") ||
-                  (isAndreGallo(String(customerEmail)) && u.id === "usr_andre"))) ||
-              (customerRef &&
-                (u.id === customerRef ||
-                  u.cpf === customerRef ||
-                  (isCarlosFormigari(customerRef) && u.id === "usr_carlos_formigari") ||
-                  (isAndreGallo(customerRef) && u.id === "usr_andre"))) ||
-              (customerName &&
-                ((isCarlosFormigari(String(customerName)) && u.id === "usr_carlos_formigari") ||
-                  (isAndreGallo(String(customerName)) && u.id === "usr_andre")))
-          );
+                  (isAndreGallo(String(customerEmail)) && u.id === "usr_andre")
+              )
+            : null;
+
+          // 2. Se não encontrou por e-mail, tenta pelo nome real do comprador / destinatário
+          if (!user && customerName) {
+            user = globalServerUsers.find(
+              (u) =>
+                (isCarlosFormigari(String(customerName)) && u.id === "usr_carlos_formigari") ||
+                (isAndreGallo(String(customerName)) && u.id === "usr_andre")
+            );
+          }
+
+          // 3. Somente se não houver e-mail ou nome correspondente, busca por customerRef
+          if (!user && customerRef) {
+            user = globalServerUsers.find(
+              (u) =>
+                u.id === customerRef ||
+                u.cpf === customerRef ||
+                (isCarlosFormigari(customerRef) && u.id === "usr_carlos_formigari") ||
+                (isAndreGallo(customerRef) && u.id === "usr_andre")
+            );
+          }
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
           const result = processMkplaceOrderNotification(body, isClubMember, {
