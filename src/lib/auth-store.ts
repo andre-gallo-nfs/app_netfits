@@ -150,14 +150,14 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
-    // 0. Reconhecer instantaneamente os 3 usuários oficiais da Netfits
+    // 0. Reconhecer instantaneamente os 3 usuários fundadores/oficiais da Netfits
     if (
       raw === "aacgallo@hotmail.com" ||
       raw === "aacgallo@hotmail.com.br" ||
       raw === "andre.gallo@netfits.com.br" ||
       raw === "usr_andre" ||
-      raw.includes("andre gallo") ||
-      raw.includes("andré gallo")
+      raw === "andre gallo" ||
+      raw === "andré gallo"
     ) {
       const andreUser = storedUsers.find((u) => u.id === "usr_andre") || storedUsers[0];
       return { exists: true, matchedField: "email", matchedUser: andreUser };
@@ -167,10 +167,9 @@ export const authStore = {
       raw === "crformigari72@gmail.com" ||
       raw === "carlos.formigari@netfits.com.br" ||
       raw === "carlos@netfits.com.br" ||
-      raw === "formigari@netfits.com.br" ||
-      raw.includes("crformigari") ||
-      raw.includes("formigari") ||
-      raw === "usr_carlos_formigari"
+      raw === "usr_carlos_formigari" ||
+      raw === "carlos rodrigo formigari" ||
+      raw === "carlos formigari"
     ) {
       const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari") || storedUsers[1];
       return { exists: true, matchedField: "email", matchedUser: carlosUser };
@@ -180,8 +179,9 @@ export const authStore = {
       raw === "cristiane.gallo@netfits.com.br" ||
       raw === "cristiane@netfits.com.br" ||
       raw === "cris.gallo@netfits.com.br" ||
-      raw.includes("cristiane") ||
-      raw === "usr_cristiane_gallo"
+      raw === "usr_cristiane_gallo" ||
+      raw === "cristiane queli da silva gallo" ||
+      raw === "cristiane gallo"
     ) {
       const crisUser = storedUsers.find((u) => u.id === "usr_cristiane_gallo") || storedUsers[2];
       return { exists: true, matchedField: "email", matchedUser: crisUser };

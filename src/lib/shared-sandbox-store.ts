@@ -430,9 +430,12 @@ class HomologationSandboxStore {
               (u.identifier && u.identifier.toLowerCase() === initUser.identifier.toLowerCase()) ||
               (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase()) ||
               (initUser.id === "usr_carlos_formigari" &&
-                (u.email?.toLowerCase().includes("formigari") ||
-                  u.identifier?.toLowerCase().includes("formigari") ||
-                  u.fullName?.toLowerCase().includes("formigari")))
+                (u.id === "usr_carlos_formigari" ||
+                  u.email?.toLowerCase() === "crformigari72@gmail.com" ||
+                  u.identifier?.toLowerCase() === "crformigari72@gmail.com" ||
+                  u.email?.toLowerCase() === "carlos.formigari@netfits.com.br" ||
+                  u.fullName?.toLowerCase() === "carlos rodrigo formigari" ||
+                  u.fullName?.toLowerCase() === "carlos formigari"))
           );
           if (existingIdx === -1) {
             mergedUsers.push(initUser);
@@ -697,12 +700,14 @@ class HomologationSandboxStore {
     const cleanPhoneDigits = data.phone.replace(/\D/g, "");
     const cleanCpfDigits = data.cpf.replace(/\D/g, "");
 
-    // 1. Reconhecimento do André Gallo completando/atualizando seus dados cadastrais
+    // 1. Reconhecimento estrito do André Gallo completando/atualizando seus dados cadastrais
+    const cleanName = (data.fullName || "").trim().toLowerCase();
     const isAndre =
       cleanEmail === "aacgallo@hotmail.com" ||
       cleanEmail === "aacgallo@hotmail.com.br" ||
       cleanEmail === "andre.gallo@netfits.com.br" ||
-      (data.fullName && data.fullName.toLowerCase().includes("andré gallo"));
+      cleanName === "andre gallo" ||
+      cleanName === "andré gallo";
 
     if (isAndre) {
       const existingAndre = this.state.users.find((u) => u.id === "usr_andre");
@@ -719,13 +724,12 @@ class HomologationSandboxStore {
       }
     }
 
-    // 2. Reconhecimento do Carlos Rodrigo Formigari completando/ativando seu cadastro
+    // 2. Reconhecimento estrito do Carlos Rodrigo Formigari completando/ativando seu cadastro
     const isCarlos =
       cleanEmail === "crformigari72@gmail.com" ||
       cleanEmail === "carlos.formigari@netfits.com.br" ||
-      cleanEmail.includes("formigari") ||
-      cleanEmail.includes("crformigari") ||
-      (data.fullName && data.fullName.toLowerCase().includes("formigari"));
+      cleanName === "carlos rodrigo formigari" ||
+      cleanName === "carlos formigari";
 
     if (isCarlos) {
       const existingCarlos = this.state.users.find((u) => u.id === "usr_carlos_formigari");
@@ -742,11 +746,12 @@ class HomologationSandboxStore {
       }
     }
 
-    // 3. Reconhecimento da Cristiane Queli da Silva Gallo completando/ativando seu cadastro
+    // 3. Reconhecimento estrito da Cristiane Queli da Silva Gallo completando/ativando seu cadastro
     const isCris =
       cleanEmail === "cristiane.gallo@netfits.com.br" ||
-      cleanEmail.includes("cristiane") ||
-      (data.fullName && data.fullName.toLowerCase().includes("cristiane"));
+      cleanEmail === "cristiane@netfits.com.br" ||
+      cleanName === "cristiane queli da silva gallo" ||
+      cleanName === "cristiane gallo";
 
     if (isCris) {
       const existingCris = this.state.users.find((u) => u.id === "usr_cristiane_gallo");

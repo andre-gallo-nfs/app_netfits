@@ -148,8 +148,8 @@ function isAndreGallo(str?: string | null): boolean {
     clean === "aacgallo@hotmail.com" ||
     clean === "aacgallo@hotmail.com.br" ||
     clean === "andre.gallo@netfits.com.br" ||
-    clean.includes("andre gallo") ||
-    clean.includes("andré gallo")
+    clean === "andre gallo" ||
+    clean === "andré gallo"
   );
 }
 
@@ -161,8 +161,8 @@ function isCarlosFormigari(str?: string | null): boolean {
     clean === "usr_103" ||
     clean === "crformigari72@gmail.com" ||
     clean === "carlos.formigari@netfits.com.br" ||
-    clean.includes("crformigari") ||
-    clean.includes("formigari")
+    clean === "carlos rodrigo formigari" ||
+    clean === "carlos formigari"
   );
 }
 
