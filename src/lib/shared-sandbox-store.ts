@@ -116,6 +116,21 @@ const INITIAL_USERS: SandboxUser[] = [
     email: "aacgallo@hotmail.com.br",
     fullName: "André Gallo",
     type: "admin",
+    phone: "(11) 99535-1513",
+    cpf: "256.647.308-03",
+    birthDate: "1983-12-05",
+    address: "Rua Carlos Steinen, 193 - Paraíso, São Paulo · SP",
+    street: "Rua Carlos Steinen",
+    number: "193 apto 121",
+    neighborhood: "Paraíso",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "04004-011",
+    sports: ["Triathlon", "Corrida de rua"],
+    healthPlan: "Bradesco Saúde",
+    gym: "Bio Ritmo",
+    wearable: "Garmin Fenix",
     nfsBalance: 50,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -283,18 +298,18 @@ class HomologationSandboxStore {
               const merged: SandboxUser = { ...current };
               for (const [key, val] of Object.entries(su)) {
                 if (val !== undefined && val !== null && val !== "") {
-                  (merged as any)[key] = val;
+                  const currVal = (current as any)[key];
+                  if (currVal === undefined || currVal === "" || (Array.isArray(currVal) && currVal.length === 0)) {
+                    (merged as any)[key] = val;
+                  }
                 }
               }
               this.state.users[idx] = merged;
             } else {
               this.state.users.push(su);
-              hasNew = true;
             }
           }
-          if (hasNew) {
-            this.saveToStorageLocally();
-          }
+          this.saveToStorageLocally();
         }
       }
       this.notify();
@@ -380,9 +395,30 @@ class HomologationSandboxStore {
         const mergedUsers = [...stored.users];
         let hasNewUsers = false;
         for (const initUser of INITIAL_USERS) {
-          if (!mergedUsers.some((u) => u.id === initUser.id || (u.identifier && u.identifier.toLowerCase() === initUser.identifier.toLowerCase()) || (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase()))) {
+          const existingIdx = mergedUsers.findIndex(
+            (u) =>
+              u.id === initUser.id ||
+              (u.identifier && u.identifier.toLowerCase() === initUser.identifier.toLowerCase()) ||
+              (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase())
+          );
+          if (existingIdx === -1) {
             mergedUsers.push(initUser);
             hasNewUsers = true;
+          } else {
+            // Garante que campos preenchidos nos dados definitivos preencham registros parciais
+            const current = mergedUsers[existingIdx];
+            for (const [k, v] of Object.entries(initUser)) {
+              if (
+                v !== undefined &&
+                v !== "" &&
+                (!(current as any)[k] ||
+                  (current as any)[k] === "" ||
+                  (Array.isArray((current as any)[k]) && (current as any)[k].length === 0))
+              ) {
+                (current as any)[k] = v;
+                hasNewUsers = true;
+              }
+            }
           }
         }
         stored.users = mergedUsers.map((u) => {
@@ -395,7 +431,10 @@ class HomologationSandboxStore {
           } catch {}
           return u;
         });
-        stored.interactions = (stored.interactions || []).filter(i => !i.id.startsWith("int-00"));
+        stored.interactions = (stored.interactions || []).filter((i) => !i.id.startsWith("int-00"));
+        if (!stored.activeUserId) {
+          stored.activeUserId = "usr_andre";
+        }
         if (hasNewUsers) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
         }
@@ -412,7 +451,7 @@ class HomologationSandboxStore {
       tickets: INITIAL_TICKETS,
       orders: INITIAL_ORDERS,
       interactions: INITIAL_INTERACTIONS,
-      activeUserId: "",
+      activeUserId: "usr_andre",
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState));
@@ -433,12 +472,16 @@ class HomologationSandboxStore {
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      } catch (err) {
+        console.warn("[saveToStorage] Quota warning on full state:", err);
+      }
+      try {
         const active = this.getActiveUser();
         if (active && active.id) {
           localStorage.setItem(`netfits_profile_saved_${active.id}`, JSON.stringify(active));
         }
       } catch (err) {
-        console.warn("[saveToStorage] Quota warning:", err);
+        console.warn("[saveToStorage] Profile backup warning:", err);
       }
       this.broadcastChannel?.postMessage("sync");
       this.notify();
@@ -491,7 +534,8 @@ class HomologationSandboxStore {
     }
     const fallback =
       this.state.users.find((u) => u.id === this.state.activeUserId) ||
-      this.state.users[this.state.users.length - 1] ||
+      this.state.users.find((u) => u.id === "usr_andre") ||
+      this.state.users[0] ||
       INITIAL_USERS[0];
     return fallback;
   }
@@ -569,6 +613,13 @@ class HomologationSandboxStore {
         if (parts[1]) user.number = parts[1];
         if (parts[2]) user.neighborhood = parts[2];
         if (parts[3]) user.city = parts[3];
+      }
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(`netfits_profile_saved_${user.id}`, JSON.stringify(user));
+        } catch (e) {
+          console.warn("[updateUser] Isolated profile backup warning:", e);
+        }
       }
       this.saveToStorage();
       toast.success("Perfil atualizado com sucesso no banco de dados!");

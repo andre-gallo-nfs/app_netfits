@@ -82,6 +82,51 @@ const WEARABLES = [
   "Outro",
 ];
 
+export const formatBirthDateForDisplay = (val?: string) => {
+  if (!val) return "";
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) return val;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+    const [y, m, d] = val.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  return val;
+};
+
+export const formatBirthDateMask = (val: string) => {
+  let v = val.replace(/\D/g, "");
+  if (v.length > 8) v = v.slice(0, 8);
+  if (v.length > 4) {
+    return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4)}`;
+  } else if (v.length > 2) {
+    return `${v.slice(0, 2)}/${v.slice(2)}`;
+  }
+  return v;
+};
+
+export const formatPhoneMask = (val: string) => {
+  let v = val.replace(/\D/g, "");
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 6) {
+    return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+  } else if (v.length > 2) {
+    return `(${v.slice(0, 2)}) ${v.slice(2)}`;
+  }
+  return v;
+};
+
+export const formatCpfMask = (val: string) => {
+  let v = val.replace(/\D/g, "");
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 9) {
+    return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6, 9)}-${v.slice(9)}`;
+  } else if (v.length > 6) {
+    return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6)}`;
+  } else if (v.length > 3) {
+    return `${v.slice(0, 3)}.${v.slice(3)}`;
+  }
+  return v;
+};
+
 function ProfilePage() {
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -147,10 +192,10 @@ function ProfilePage() {
   const [form, setForm] = useState({
     name: activeUser.fullName || "",
     email: activeUser.email || activeUser.identifier || "",
-    cpf: activeUser.cpf || "",
-    phone: activeUser.phone || "",
+    cpf: formatCpfMask(activeUser.cpf || ""),
+    phone: formatPhoneMask(activeUser.phone || ""),
     address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : ""),
-    birthDate: activeUser.birthDate || "",
+    birthDate: formatBirthDateForDisplay(activeUser.birthDate || ""),
     sports: activeUser.sports || [],
     otherSport: activeUser.otherSport || "",
     healthPlan: activeUser.healthPlan || "Sem plano",
@@ -162,39 +207,20 @@ function ProfilePage() {
   useEffect(() => {
     setForm((prev) => ({
       ...prev,
-      name: activeUser.fullName || "",
-      email: activeUser.email || activeUser.identifier || "",
-      cpf: activeUser.cpf !== undefined ? activeUser.cpf : prev.cpf,
-      phone: activeUser.phone !== undefined ? activeUser.phone : prev.phone,
-      address: activeUser.address !== undefined ? activeUser.address : (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : prev.address),
-      birthDate: activeUser.birthDate !== undefined ? activeUser.birthDate : prev.birthDate,
-      sports: activeUser.sports !== undefined ? activeUser.sports : prev.sports,
-      otherSport: activeUser.otherSport !== undefined ? activeUser.otherSport : prev.otherSport,
-      healthPlan: activeUser.healthPlan !== undefined ? activeUser.healthPlan : prev.healthPlan,
-      gym: activeUser.gym !== undefined ? activeUser.gym : prev.gym,
-      coaching: activeUser.coaching !== undefined ? activeUser.coaching : prev.coaching,
-      wearable: activeUser.wearable !== undefined ? activeUser.wearable : prev.wearable,
+      name: activeUser.fullName || prev.name,
+      email: activeUser.email || activeUser.identifier || prev.email,
+      cpf: activeUser.cpf ? formatCpfMask(activeUser.cpf) : prev.cpf,
+      phone: activeUser.phone ? formatPhoneMask(activeUser.phone) : prev.phone,
+      address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : prev.address),
+      birthDate: activeUser.birthDate ? formatBirthDateForDisplay(activeUser.birthDate) : prev.birthDate,
+      sports: Array.isArray(activeUser.sports) && activeUser.sports.length > 0 ? activeUser.sports : prev.sports,
+      otherSport: activeUser.otherSport || prev.otherSport,
+      healthPlan: activeUser.healthPlan || prev.healthPlan,
+      gym: activeUser.gym || prev.gym,
+      coaching: activeUser.coaching || prev.coaching,
+      wearable: activeUser.wearable || prev.wearable,
     }));
-  }, [
-    activeUser.id,
-    activeUser.fullName,
-    activeUser.email,
-    activeUser.identifier,
-    activeUser.cpf,
-    activeUser.phone,
-    activeUser.address,
-    activeUser.street,
-    activeUser.number,
-    activeUser.city,
-    activeUser.shortState,
-    activeUser.birthDate,
-    activeUser.sports,
-    activeUser.otherSport,
-    activeUser.healthPlan,
-    activeUser.gym,
-    activeUser.coaching,
-    activeUser.wearable,
-  ]);
+  }, [activeUser.id]);
 
   // Tribo gerada dinamicamente pelo banco de dados definitivo (zero mocks)
   const allUsers = sharedSandboxStore.getUsers();
@@ -241,16 +267,34 @@ function ProfilePage() {
     }));
   }
 
+  const checklistItems = [
+    { id: "name", label: "Nome", done: Boolean(form.name && form.name.trim().length >= 3) },
+    { id: "birthDate", label: "Nascimento", done: Boolean(form.birthDate && form.birthDate.trim().length >= 8) },
+    { id: "phone", label: "Celular", done: Boolean(form.phone && form.phone.replace(/\D/g, "").length >= 10) },
+    { id: "cpf", label: "CPF", done: Boolean(form.cpf && form.cpf.replace(/\D/g, "").length === 11) },
+    { id: "address", label: "Endereço", done: Boolean(form.address && form.address.trim().length >= 5) },
+    { id: "sports", label: "Modalidades", done: Boolean(Array.isArray(form.sports) && form.sports.length > 0) },
+    { id: "photo", label: "Foto / Avatar", done: Boolean(activeUser.avatarUrl) },
+  ];
+
+  const completedChecklistCount = checklistItems.filter((i) => i.done).length;
+  const profileCompletionPct = Math.round((completedChecklistCount / checklistItems.length) * 100);
+
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    const cleanPhone = form.phone.trim();
+    const cleanCpf = form.cpf.trim();
+    const cleanBirth = form.birthDate.trim();
+    const cleanAddress = form.address.trim();
+
     sharedSandboxStore.updateUser(activeUser.id, {
       fullName: form.name.trim(),
       identifier: form.email.trim(),
       email: form.email.trim(),
-      cpf: form.cpf.trim(),
-      phone: form.phone.trim(),
-      address: form.address.trim(),
-      birthDate: form.birthDate.trim(),
+      cpf: cleanCpf,
+      phone: cleanPhone,
+      address: cleanAddress,
+      birthDate: cleanBirth,
       sports: form.sports,
       otherSport: form.otherSport.trim(),
       healthPlan: form.healthPlan,
@@ -259,7 +303,7 @@ function ProfilePage() {
       wearable: form.wearable,
     });
     setSaved(true);
-    toast.success("Dados do perfil atualizados e salvos com sucesso!");
+    toast.success("Dados do perfil atualizados e salvos com sucesso no banco de dados!");
     setTimeout(() => setSaved(false), 3000);
   }
 
@@ -350,6 +394,57 @@ function ProfilePage() {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Badge / Checklist: Completar Cadastro (Feedback #7) */}
+      <section className="px-4 pt-4">
+        <div className="bg-gradient-to-br from-purple-900/40 via-purple-950/30 to-zinc-900/60 border border-purple-500/30 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2">
+              <div className={`size-7 rounded-lg grid place-items-center font-bold text-xs ${profileCompletionPct === 100 ? "bg-lime-500 text-black" : "bg-purple-600 text-white"}`}>
+                {profileCompletionPct === 100 ? "✓" : `${profileCompletionPct}%`}
+              </div>
+              <div>
+                <h3 className="text-xs font-bold text-foreground">
+                  {profileCompletionPct === 100 ? "Cadastro 100% Completo & Verificado" : "Completar Cadastro"}
+                </h3>
+                <p className="text-[10px] text-muted-foreground">
+                  {profileCompletionPct === 100
+                    ? "Todos os seus dados estão salvos e sincronizados com segurança."
+                    : `${completedChecklistCount} de ${checklistItems.length} etapas preenchidas.`}
+                </p>
+              </div>
+            </div>
+            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${profileCompletionPct === 100 ? "bg-lime-500/10 text-lime-600 dark:text-lime-400 border border-lime-500/20" : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"}`}>
+              {profileCompletionPct === 100 ? "Perfil Ativo" : "+50 nfs bônus"}
+            </span>
+          </div>
+
+          {/* Barra de Progresso */}
+          <div className="w-full bg-zinc-800 rounded-full h-1.5 overflow-hidden mb-3">
+            <div
+              className={`h-full transition-all duration-500 rounded-full ${profileCompletionPct === 100 ? "bg-lime-400" : "bg-purple-500"}`}
+              style={{ width: `${profileCompletionPct}%` }}
+            />
+          </div>
+
+          {/* Chips dos Itens do Checklist */}
+          <div className="flex flex-wrap gap-1.5">
+            {checklistItems.map((item) => (
+              <span
+                key={item.id}
+                className={`text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 border ${
+                  item.done
+                    ? "bg-lime-500/10 text-lime-600 dark:text-lime-400 border-lime-500/20"
+                    : "bg-zinc-800/60 text-zinc-400 border-zinc-700/50"
+                }`}
+              >
+                <span>{item.done ? "✓" : "○"}</span>
+                <span>{item.label}</span>
+              </span>
+            ))}
           </div>
         </div>
       </section>
@@ -523,17 +618,22 @@ function ProfilePage() {
           <div className="grid grid-cols-2 gap-2">
             <Field label="Data de nascimento" icon={Calendar}>
               <input
-                type="date"
+                type="text"
+                inputMode="numeric"
+                maxLength={10}
                 value={form.birthDate}
-                onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+                onChange={(e) => setForm({ ...form, birthDate: formatBirthDateMask(e.target.value) })}
+                placeholder="DD/MM/AAAA"
                 className={inputClass}
               />
             </Field>
             <Field label="Telefone" icon={Phone}>
               <input
                 type="tel"
+                maxLength={15}
                 value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                onChange={(e) => setForm({ ...form, phone: formatPhoneMask(e.target.value) })}
+                placeholder="(11) 99999-9999"
                 className={inputClass}
               />
             </Field>
@@ -550,8 +650,10 @@ function ProfilePage() {
             <Field label="CPF" icon={CreditCard}>
               <input
                 type="text"
+                inputMode="numeric"
+                maxLength={14}
                 value={form.cpf}
-                onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                onChange={(e) => setForm({ ...form, cpf: formatCpfMask(e.target.value) })}
                 placeholder="000.000.000-00"
                 className={inputClass}
               />

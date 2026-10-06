@@ -57,10 +57,21 @@ const DEFAULT_PRESEEDED_USERS = [
     id: "usr_andre",
     fullName: "André Gallo",
     email: "aacgallo@hotmail.com.br",
-    phone: "",
-    cpf: "",
-    birthDate: "",
-    address: "",
+    phone: "(11) 99535-1513",
+    cpf: "256.647.308-03",
+    birthDate: "1983-12-05",
+    address: "Rua Carlos Steinen, 193 - Paraíso, São Paulo · SP",
+    street: "Rua Carlos Steinen",
+    number: "193 apto 121",
+    neighborhood: "Paraíso",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "04004-011",
+    sports: ["Triathlon", "Corrida de rua"],
+    healthPlan: "Bradesco Saúde",
+    gym: "Bio Ritmo",
+    wearable: "Garmin Fenix",
     nfsBalance: 50,
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -672,7 +683,12 @@ export default {
           for (const u of incomingUsers) {
             if (u && u.id) {
               const existing = userMap.get(u.id);
-              const merged = { ...existing, ...u };
+              const merged = { ...existing };
+              for (const [key, val] of Object.entries(u)) {
+                if (val !== undefined && val !== null && val !== "") {
+                  (merged as any)[key] = val;
+                }
+              }
               if (u.address) {
                 const parts = String(u.address).split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
                 if (parts[0]) merged.street = parts[0];
