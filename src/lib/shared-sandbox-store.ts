@@ -119,6 +119,12 @@ export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T
   if (user.phone === "(11) 99535-1513" || user.phone === "11995351513") {
     user.phone = "";
   }
+  if (user.email && (user.email.endsWith("@netfits.com.br") || user.email.includes("netfits.com.br"))) {
+    user.email = "";
+  }
+  if (user.identifier && user.identifier.endsWith("@netfits.com.br")) {
+    user.identifier = user.fullName || user.id;
+  }
   if (typeof user.address === "string" && user.address.toLowerCase().includes("steinen")) {
     user.address = "";
     user.street = "";
@@ -175,8 +181,8 @@ const INITIAL_USERS: SandboxUser[] = [
   },
   {
     id: "usr_cristiane_gallo",
-    identifier: "cristiane.gallo@netfits.com.br",
-    email: "cristiane.gallo@netfits.com.br",
+    identifier: "Cristiane Queli da Silva Gallo",
+    email: "",
     fullName: "Cristiane Queli da Silva Gallo",
     type: "athlete",
     nfsBalance: 50,
@@ -705,7 +711,6 @@ class HomologationSandboxStore {
     const isAndre =
       cleanEmail === "aacgallo@hotmail.com" ||
       cleanEmail === "aacgallo@hotmail.com.br" ||
-      cleanEmail === "andre.gallo@netfits.com.br" ||
       cleanName === "andre gallo" ||
       cleanName === "andré gallo";
 
@@ -727,7 +732,6 @@ class HomologationSandboxStore {
     // 2. Reconhecimento estrito do Carlos Rodrigo Formigari completando/ativando seu cadastro
     const isCarlos =
       cleanEmail === "crformigari72@gmail.com" ||
-      cleanEmail === "carlos.formigari@netfits.com.br" ||
       cleanName === "carlos rodrigo formigari" ||
       cleanName === "carlos formigari";
 
@@ -748,10 +752,9 @@ class HomologationSandboxStore {
 
     // 3. Reconhecimento estrito da Cristiane Queli da Silva Gallo completando/ativando seu cadastro
     const isCris =
-      cleanEmail === "cristiane.gallo@netfits.com.br" ||
-      cleanEmail === "cristiane@netfits.com.br" ||
       cleanName === "cristiane queli da silva gallo" ||
-      cleanName === "cristiane gallo";
+      cleanName === "cristiane gallo" ||
+      cleanName === "cristiane";
 
     if (isCris) {
       const existingCris = this.state.users.find((u) => u.id === "usr_cristiane_gallo");

@@ -91,7 +91,7 @@ const DEFAULT_PRESEEDED_USERS = [
   {
     id: "usr_cristiane_gallo",
     fullName: "Cristiane Queli da Silva Gallo",
-    email: "cristiane.gallo@netfits.com.br",
+    email: "",
     phone: "",
     cpf: "",
     birthDate: "",
@@ -147,7 +147,6 @@ function isAndreGallo(str?: string | null): boolean {
     clean === "usr_101" ||
     clean === "aacgallo@hotmail.com" ||
     clean === "aacgallo@hotmail.com.br" ||
-    clean === "andre.gallo@netfits.com.br" ||
     clean === "andre gallo" ||
     clean === "andré gallo"
   );
@@ -160,7 +159,6 @@ function isCarlosFormigari(str?: string | null): boolean {
     clean === "usr_carlos_formigari" ||
     clean === "usr_103" ||
     clean === "crformigari72@gmail.com" ||
-    clean === "carlos.formigari@netfits.com.br" ||
     clean === "carlos rodrigo formigari" ||
     clean === "carlos formigari"
   );
@@ -211,7 +209,7 @@ function resolveUserFromToken(token?: string | null): any {
     return {
       id: customerId || `usr_${Date.now()}`,
       fullName: payload.name || "Atleta Netfits",
-      email: payload.email || `${customerId}@netfits.com.br`,
+      email: payload.email || "",
       phone: "",
       cpf: "",
       birthDate: "",
@@ -603,7 +601,7 @@ export default {
                   targetUser = {
                     id: lookupId || `usr_${Date.now()}`,
                     fullName: body?.fullName || "Atleta Netfits",
-                    email: lookupEmail || `${lookupId}@netfits.com.br`,
+                    email: lookupEmail || "",
                     nfsBalance: 50,
                     userCategory: "atleta",
                   };
@@ -639,7 +637,7 @@ export default {
                 targetUser = {
                   id: userId || `usr_${Date.now()}`,
                   fullName: url.searchParams.get("fullName") || "Atleta Netfits",
-                  email: email || `${userId}@netfits.com.br`,
+                  email: email || "",
                   nfsBalance: 50,
                   userCategory: "atleta",
                 };

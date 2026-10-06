@@ -784,6 +784,7 @@ function AdminDashboardPage() {
 
   // Métricas extraídas diretamente do Banco de Dados Definitivo de Produção (sharedSandboxStore)
   const realUsersCount = sandboxUsersList.length;
+  const realActiveUsersCount = sandboxUsersList.filter(u => (u.nfsBalance || 0) > 0).length || realUsersCount;
   const realNfsInCirculation = sandboxUsersList.reduce((acc, u) => acc + (u.nfsBalance || 0), 0);
   const realOrders = sharedSandboxStore.getOrders();
   const realGmvBrl = realOrders.reduce((acc, o) => acc + ((o.pointsPaid || 0) * 0.01), 0);
@@ -791,6 +792,11 @@ function AdminDashboardPage() {
   const realAssociadosCount = realAssociadosList.length;
   const realClubSubscribersCount = sandboxUsersList.filter((u: any) => u.plan === "club" || (u as any).isClubSubscriber).length;
   const realTotalPointsRedeemed = realOrders.reduce((acc, o) => acc + (o.pointsPaid || 0), 0);
+  const realTransactions = sharedSandboxStore.getTransactions();
+  const realPartners = sharedSandboxStore.getPartners();
+  const realWorkoutTransactions = realTransactions.filter((t) => t.category === "workout");
+  const realWorkoutCount = realWorkoutTransactions.length;
+  const realWorkoutPoints = realWorkoutTransactions.reduce((acc, t) => acc + (t.amount || 0), 0);
 
   const handleCreateAssociadoByAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -930,20 +936,34 @@ function AdminDashboardPage() {
     setOperationalParams(storedParams);
   }, [storedParams]);
 
-  // Métricas do Feed ajustadas pelo fator de período (pf)
-  const feedMetrics = {
-    totalAds: Math.max(1, Math.round(142 * Math.min(1, pf * 1.5))),
-    totalAdvertisers: 28,
-    adsPerAdvertiser: 5.07,
-    totalAdRevenueBrl: 384500.0 * pf,
-    revenuePerAdBrl: 2707.74,
-    totalClicks: Math.round(184200 * pf),
-    clicksPerPost: 14.34,
-    viewsPerPost: 1000.0,
-    totalFeedNfsIssued: Math.round(1284000 * pf),
-    nfsIssuedForClicks: Math.round(736800 * pf),
-    nfsIssuedForViews: Math.round(547200 * pf),
-  };
+  // Métricas do Feed ajustadas pelo fator de período (pf) e pelo regime Real vs Projeção
+  const feedMetrics = isReal
+    ? {
+        totalAds: 0,
+        totalAdvertisers: 0,
+        adsPerAdvertiser: 0,
+        totalAdRevenueBrl: 0,
+        revenuePerAdBrl: 0,
+        totalClicks: 0,
+        clicksPerPost: 0,
+        viewsPerPost: 0,
+        totalFeedNfsIssued: 0,
+        nfsIssuedForClicks: 0,
+        nfsIssuedForViews: 0,
+      }
+    : {
+        totalAds: Math.max(1, Math.round(142 * Math.min(1, pf * 1.5))),
+        totalAdvertisers: 28,
+        adsPerAdvertiser: 5.07,
+        totalAdRevenueBrl: 384500.0 * pf,
+        revenuePerAdBrl: 2707.74,
+        totalClicks: Math.round(184200 * pf),
+        clicksPerPost: 14.34,
+        viewsPerPost: 1000.0,
+        totalFeedNfsIssued: Math.round(1284000 * pf),
+        nfsIssuedForClicks: Math.round(736800 * pf),
+        nfsIssuedForViews: Math.round(547200 * pf),
+      };
 
   const handleSaveParams = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2296,7 +2316,7 @@ function AdminDashboardPage() {
 
         {/* TAB: INTELIGÊNCIA DE INTERAÇÕES & INSIGHTS */}
         {activeTab === "interactions" && (
-          <InteractionsIntelligenceTab selectedPeriod={selectedPeriod} />
+          <InteractionsIntelligenceTab selectedPeriod={selectedPeriod} isReal={isReal} />
         )}
 
         {/* Tab: Feed & Conteúdo */}
@@ -2445,63 +2465,77 @@ function AdminDashboardPage() {
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                  <h4 className="text-base font-bold text-white">Ranking de Conteúdos ({currentPeriodObj.shortLabel})</h4>
-                  <p className="text-xs text-zinc-400">Tabela com paginação adaptada para ajuste lateral perfeito</p>
+                  <h4 className="text-base font-bold text-white">Ranking de Conteúdos ({isReal ? "Banco Oficial" : currentPeriodObj.shortLabel})</h4>
+                  <p className="text-xs text-zinc-400">Postagens patrocinadas e métricas de Retail Media</p>
                 </div>
-                <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                  Página {feedPage} de {Math.ceil(TOP_FEED_CONTENTS.length / itemsPerPage)}
-                </span>
+                {!isReal && (
+                  <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
+                    Página {feedPage} de {Math.ceil(TOP_FEED_CONTENTS.length / itemsPerPage)}
+                  </span>
+                )}
               </div>
 
-              <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
-                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                    <tr>
-                      <th className="py-3 px-4">Título do Conteúdo</th>
-                      <th className="py-3 px-4">Autor / Anunciante</th>
-                      <th className="py-3 px-4 text-right">Views ({currentPeriodObj.shortLabel})</th>
-                      <th className="py-3 px-4 text-right">Clicks</th>
-                      <th className="py-3 px-4 text-right">Compartilhamentos</th>
-                      <th className="py-3 px-4 text-right">NFS Emitidos</th>
-                      <th className="py-3 px-4 text-right">Receita (R$)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800 font-medium">
-                    {TOP_FEED_CONTENTS.slice((feedPage - 1) * itemsPerPage, feedPage * itemsPerPage).map((c, idx) => (
-                      <tr key={c.id} className="hover:bg-zinc-800/40 transition">
-                        <td className="py-3 px-4">
-                          <p className="font-bold text-white">#{(feedPage - 1) * itemsPerPage + idx + 1} {c.title}</p>
-                          <p className="text-[10px] text-zinc-400">{c.category}</p>
-                        </td>
-                        <td className="py-3 px-4 font-bold text-zinc-300">{c.author}</td>
-                        <td className="py-3 px-4 text-right font-bold text-white">
-                          {Math.round(c.viewsCount * pf).toLocaleString("pt-BR")}
-                        </td>
-                        <td className="py-3 px-4 text-right font-bold text-lime-400">
-                          {Math.round(c.clicksCount * pf).toLocaleString("pt-BR")}
-                        </td>
-                        <td className="py-3 px-4 text-right text-purple-300 font-bold">
-                          {Math.round(c.sharesCount * pf).toLocaleString("pt-BR")}
-                        </td>
-                        <td className="py-3 px-4 text-right text-zinc-300 font-mono">
-                          {Math.round(c.nfsIssuedTotal * pf).toLocaleString("pt-BR")} nfs
-                        </td>
-                        <td className="py-3 px-4 text-right font-bold text-lime-400">
-                          R$ {(c.revenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              {isReal ? (
+                <div className="bg-zinc-950 p-8 rounded-2xl border border-zinc-800 text-center space-y-2">
+                  <Rss className="size-8 text-lime-400 mx-auto opacity-70" />
+                  <h5 className="text-sm font-bold text-white">Nenhum Post ou Anúncio Patrocinado no Banco Oficial</h5>
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                    Ainda não constam postagens patrocinadas ou campanhas de Retail Media ativas em produção. Alterne para o modo <b>Projeção</b> para visualizar os dados estimados de mídia.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto w-full max-w-full">
+                    <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
+                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                        <tr>
+                          <th className="py-3 px-4">Título do Conteúdo</th>
+                          <th className="py-3 px-4">Autor / Anunciante</th>
+                          <th className="py-3 px-4 text-right">Views ({currentPeriodObj.shortLabel})</th>
+                          <th className="py-3 px-4 text-right">Clicks</th>
+                          <th className="py-3 px-4 text-right">Compartilhamentos</th>
+                          <th className="py-3 px-4 text-right">NFS Emitidos</th>
+                          <th className="py-3 px-4 text-right">Receita (R$)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800 font-medium">
+                        {TOP_FEED_CONTENTS.slice((feedPage - 1) * itemsPerPage, feedPage * itemsPerPage).map((c, idx) => (
+                          <tr key={c.id} className="hover:bg-zinc-800/40 transition">
+                            <td className="py-3 px-4">
+                              <p className="font-bold text-white">#{(feedPage - 1) * itemsPerPage + idx + 1} {c.title}</p>
+                              <p className="text-[10px] text-zinc-400">{c.category}</p>
+                            </td>
+                            <td className="py-3 px-4 font-bold text-zinc-300">{c.author}</td>
+                            <td className="py-3 px-4 text-right font-bold text-white">
+                              {Math.round(c.viewsCount * pf).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="py-3 px-4 text-right font-bold text-lime-400">
+                              {Math.round(c.clicksCount * pf).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="py-3 px-4 text-right text-purple-300 font-bold">
+                              {Math.round(c.sharesCount * pf).toLocaleString("pt-BR")}
+                            </td>
+                            <td className="py-3 px-4 text-right text-zinc-300 font-mono">
+                              {Math.round(c.nfsIssuedTotal * pf).toLocaleString("pt-BR")} nfs
+                            </td>
+                            <td className="py-3 px-4 text-right font-bold text-lime-400">
+                              R$ {(c.revenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-              <PaginationControls
-                currentPage={feedPage}
-                totalPages={Math.ceil(TOP_FEED_CONTENTS.length / itemsPerPage)}
-                onPageChange={setFeedPage}
-                totalItems={TOP_FEED_CONTENTS.length}
-                itemsPerPage={itemsPerPage}
-              />
+                  <PaginationControls
+                    currentPage={feedPage}
+                    totalPages={Math.ceil(TOP_FEED_CONTENTS.length / itemsPerPage)}
+                    onPageChange={setFeedPage}
+                    totalItems={TOP_FEED_CONTENTS.length}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
@@ -2538,75 +2572,75 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="GMV Bruto das Vendas"
-                value={`R$ ${((selectedSeller?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+22.4%"
+                value={isReal ? `R$ ${realGmvBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedSeller?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? (realGmvBrl > 0 ? "+100%" : "0%") : "+22.4%"}
                 positive={true}
                 icon={ShoppingBag}
-                subtext="Volume negociado"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? "Volume transacionado real" : "Volume negociado"}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Receita Netfits (Take-Rate)"
-                value={`R$ ${((selectedSeller?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+22.4%"
+                value={isReal ? `R$ ${(realGmvBrl * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedSeller?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? `${operationalParams.netfitsTakeRatePctFromGmv ?? 6.0}% comissão` : "+22.4%"}
                 positive={true}
                 icon={Coins}
-                subtext={`Comissão: ${selectedSeller.takeRatePct}%`}
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? `Comissão ${operationalParams.netfitsTakeRatePctFromGmv ?? 6.0}% sobre GMV real` : `Comissão: ${selectedSeller.takeRatePct}%`}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Ticket Médio por Pedido"
-                value={`R$ ${(selectedSeller?.averageTicketBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+5.8%"
+                value={isReal ? `R$ ${realOrders.length > 0 ? (realGmvBrl / realOrders.length).toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00"}` : `R$ ${(selectedSeller?.averageTicketBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? "Média real" : "+5.8%"}
                 positive={true}
                 icon={Tag}
-                subtext="Média por carrinho"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? `${realOrders.length} pedidos realizados` : "Média por carrinho"}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Taxa de Resgate com NFS"
-                value={`${selectedSeller.nfsRedemptionRatePct}%`}
-                change="+4.2%"
+                value={isReal ? (realOrders.length > 0 ? "100.0%" : "0.0%") : `${selectedSeller.nfsRedemptionRatePct}%`}
+                change={isReal ? "Resgate real" : "+4.2%"}
                 positive={true}
                 icon={Gift}
-                subtext="Vendas com nfs"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? "Pedidos pagos com pontos" : "Vendas com nfs"}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Volume de NFS Queimados"
-                value={`${Math.round((selectedSeller?.nfsBurnedTotal ?? 0) * pf).toLocaleString("pt-BR")} nfs`}
-                change="+18.5%"
+                value={isReal ? `${realTotalPointsRedeemed.toLocaleString("pt-BR")} nfs` : `${Math.round((selectedSeller?.nfsBurnedTotal ?? 0) * pf).toLocaleString("pt-BR")} nfs`}
+                change={isReal ? (realTotalPointsRedeemed > 0 ? "+100%" : "0%") : "+18.5%"}
                 positive={true}
                 icon={Zap}
-                subtext="Pontos resgatados"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? "Pontos resgatados na loja" : "Pontos resgatados"}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Fulfillment SLA & Prazo"
-                value={`${selectedSeller.fulfillmentSlaDays} dias`}
-                change="98.4% no prazo"
+                value={isReal ? "N/A" : `${selectedSeller.fulfillmentSlaDays} dias`}
+                change={isReal ? "Sem sellers" : "98.4% no prazo"}
                 positive={true}
                 icon={Truck}
-                subtext={`Entrega no prazo: ${selectedSeller.fulfillmentOnTimePct}%`}
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? "Aguardando sellers credenciados" : `Entrega no prazo: ${selectedSeller.fulfillmentOnTimePct}%`}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="NPS / Satisfação Atleta"
-                value={`${selectedSeller.npsScore} / 100`}
-                change="Excelência"
+                value={isReal ? "N/A" : `${selectedSeller.npsScore} / 100`}
+                change={isReal ? "Sem avaliações" : "Excelência"}
                 positive={true}
                 icon={Star}
-                subtext="Avaliação pós-entrega"
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? "Avaliações dos usuários" : "Avaliação pós-entrega"}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Pedidos Concluídos"
-                value={Math.round((selectedSeller?.totalOrders ?? 0) * pf).toLocaleString("pt-BR")}
-                change="+14.2%"
+                value={isReal ? realOrders.length.toString() : Math.round((selectedSeller?.totalOrders ?? 0) * pf).toLocaleString("pt-BR")}
+                change={isReal ? "Pedidos reais" : "+14.2%"}
                 positive={true}
                 icon={ShoppingCart}
-                subtext={`Produto top: ${selectedSeller.topProduct.split("&")[0]}`}
-                periodBadge={currentPeriodObj.shortLabel}
+                subtext={isReal ? `${realOrders.length} compras no banco oficial` : `Produto top: ${selectedSeller.topProduct.split("&")[0]}`}
+                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
             </div>
 
@@ -2621,79 +2655,91 @@ function AdminDashboardPage() {
                 </span>
               </div>
 
-              <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
-                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                    <tr>
-                      <th className="py-3 px-4">Seller Credenciado</th>
-                      <th className="py-3 px-4 text-right">Pedidos</th>
-                      <th className="py-3 px-4 text-right">GMV Bruto (R$)</th>
-                      <th className="py-3 px-4 text-right">Take-Rate Netfits</th>
-                      <th className="py-3 px-4 text-right">Ticket Médio</th>
-                      <th className="py-3 px-4 text-right">Resgate NFS %</th>
-                      <th className="py-3 px-4 text-center">Fulfillment SLA</th>
-                      <th className="py-3 px-4 text-center">NPS</th>
-                      <th className="py-3 px-4 text-center">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800 font-medium">
-                    {SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all")
-                      .slice((marketPage - 1) * itemsPerPage, marketPage * itemsPerPage)
-                      .map((seller) => (
-                        <tr key={seller.id} className="hover:bg-zinc-800/40 transition">
-                          <td className="py-3 px-4">
-                            <div>
-                              <p className="font-bold text-white">{seller.name}</p>
-                              <p className="text-[10px] text-zinc-400">{seller.category}</p>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-white">
-                            {Math.round(seller.totalOrders * pf).toLocaleString("pt-BR")}
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-white">
-                            R$ {(seller.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-3 px-4 text-right text-purple-400 font-bold">
-                            R$ {(seller.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({seller.takeRatePct}%)
-                          </td>
-                          <td className="py-3 px-4 text-right text-zinc-300">
-                            R$ {seller.averageTicketBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-lime-400">
-                            {seller.nfsRedemptionRatePct}%
-                          </td>
-                          <td className="py-3 px-4 text-center text-zinc-300">
-                            <span className="font-mono">{seller.fulfillmentSlaDays}d</span> ({seller.fulfillmentOnTimePct}%)
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
-                              {seller.npsScore} / 100
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => {
-                                setSelectedSellerId(seller.id);
-                                toast.success(`Filtrado o seller ${seller.name}`);
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-zinc-200 border border-zinc-700"
-                            >
-                              Filtrar
-                            </button>
-                          </td>
+              {isReal && realOrders.length === 0 ? (
+                <div className="bg-zinc-950 p-8 rounded-2xl border border-zinc-800 text-center space-y-2">
+                  <ShoppingBag className="size-8 text-lime-400 mx-auto opacity-70" />
+                  <h5 className="text-sm font-bold text-white">Nenhum Pedido ou Seller Comercial no Banco Oficial</h5>
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                    Nenhum pedido de resgate de produtos foi registrado no banco oficial ainda pelos {realUsersCount} usuários reais. Alterne para o modo <b>Projeção</b> para visualizar a simulação dos sellers e lojas credenciadas.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto w-full max-w-full">
+                    <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
+                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                        <tr>
+                          <th className="py-3 px-4">Seller Credenciado</th>
+                          <th className="py-3 px-4 text-right">Pedidos</th>
+                          <th className="py-3 px-4 text-right">GMV Bruto (R$)</th>
+                          <th className="py-3 px-4 text-right">Take-Rate Netfits</th>
+                          <th className="py-3 px-4 text-right">Ticket Médio</th>
+                          <th className="py-3 px-4 text-right">Resgate NFS %</th>
+                          <th className="py-3 px-4 text-center">Fulfillment SLA</th>
+                          <th className="py-3 px-4 text-center">NPS</th>
+                          <th className="py-3 px-4 text-center">Ação</th>
                         </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800 font-medium">
+                        {SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all")
+                          .slice((marketPage - 1) * itemsPerPage, marketPage * itemsPerPage)
+                          .map((seller) => (
+                            <tr key={seller.id} className="hover:bg-zinc-800/40 transition">
+                              <td className="py-3 px-4">
+                                <div>
+                                  <p className="font-bold text-white">{seller.name}</p>
+                                  <p className="text-[10px] text-zinc-400">{seller.category}</p>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-white">
+                                {Math.round(seller.totalOrders * pf).toLocaleString("pt-BR")}
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-white">
+                                R$ {(seller.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-right text-purple-400 font-bold">
+                                R$ {(seller.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({seller.takeRatePct}%)
+                              </td>
+                              <td className="py-3 px-4 text-right text-zinc-300">
+                                R$ {seller.averageTicketBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-lime-400">
+                                {seller.nfsRedemptionRatePct}%
+                              </td>
+                              <td className="py-3 px-4 text-center text-zinc-300">
+                                <span className="font-mono">{seller.fulfillmentSlaDays}d</span> ({seller.fulfillmentOnTimePct}%)
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
+                                  {seller.npsScore} / 100
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  onClick={() => {
+                                    setSelectedSellerId(seller.id);
+                                    toast.success(`Filtrado o seller ${seller.name}`);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-zinc-200 border border-zinc-700"
+                                >
+                                  Filtrar
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-              <PaginationControls
-                currentPage={marketPage}
-                totalPages={Math.ceil(SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length / itemsPerPage)}
-                onPageChange={setMarketPage}
-                totalItems={SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length}
-                itemsPerPage={itemsPerPage}
-              />
+                  <PaginationControls
+                    currentPage={marketPage}
+                    totalPages={Math.ceil(SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length / itemsPerPage)}
+                    onPageChange={setMarketPage}
+                    totalItems={SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
@@ -2731,11 +2777,23 @@ function AdminDashboardPage() {
                     onChange={(e) => setSelectedAssociadoId(e.target.value)}
                     className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
                   >
-                    {associadosList.map((a) => (
-                      <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
-                        {a.name} ({a.handle}) {a.isVerifiedSpecialist ? "🟣 Especialista" : ""}
-                      </option>
-                    ))}
+                    {isReal ? (
+                      realAssociadosCount === 0 ? (
+                        <option value="none" className="bg-zinc-900 text-white">Nenhum associado no Banco Real</option>
+                      ) : (
+                        realAssociadosList.map((a) => (
+                          <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
+                            {a.fullName} ({a.email || a.id})
+                          </option>
+                        ))
+                      )
+                    ) : (
+                      associadosList.map((a) => (
+                        <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
+                          {a.name} ({a.handle}) {a.isVerifiedSpecialist ? "🟣 Especialista" : ""}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>
@@ -2744,38 +2802,38 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Tamanho da Carteira"
-                value={Math.round((selectedAssociado?.capturedUsers ?? 0) * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
-                change="+12.4%"
+                value={isReal ? realAssociadosCount.toLocaleString("pt-BR") : Math.round((selectedAssociado?.capturedUsers ?? 0) * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change={isReal ? `${realAssociadosCount} associados reais` : "+12.4%"}
                 positive={true}
                 icon={Users}
-                subtext={`Retenção ativa: ${selectedAssociado.retentionRatePct}%`}
+                subtext={isReal ? "Cadastrados no banco de dados" : `Retenção ativa: ${selectedAssociado.retentionRatePct}%`}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="GMV do Shopping (R$)"
-                value={`R$ ${((selectedAssociado?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+18.2%"
+                value={isReal ? "R$ 0,00" : `R$ ${((selectedAssociado?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? "R$ 0,00 real" : "+18.2%"}
                 positive={true}
                 icon={ShoppingBag}
-                subtext="Vendas na carteira"
+                subtext={isReal ? "0 vendas vinculadas" : "Vendas na carteira"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Receita Netfits (15% GMV)"
-                value={`R$ ${((selectedAssociado?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+18.2%"
+                value={isReal ? "R$ 0,00" : `R$ ${((selectedAssociado?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? "R$ 0,00 real" : "+18.2%"}
                 positive={true}
                 icon={Coins}
-                subtext="Comissão bruta"
+                subtext={isReal ? "Comissão bruta real" : "Comissão bruta"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Comissão do Associado (30%)"
-                value={`R$ ${((selectedAssociado?.commissionBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+18.2%"
+                value={isReal ? "R$ 0,00" : `R$ ${((selectedAssociado?.commissionBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? "R$ 0,00 real" : "+18.2%"}
                 positive={true}
                 icon={DollarSign}
-                subtext="30% da receita Netfits"
+                subtext={isReal ? "Repasse real acumulado" : "30% da receita Netfits"}
                 highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
                 periodBadge={currentPeriodObj.shortLabel}
               />
@@ -2785,134 +2843,177 @@ function AdminDashboardPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <h4 className="text-base font-bold text-white">Desempenho Comparativo dos Associados</h4>
-                  <p className="text-xs text-zinc-400">Gerencie a carteira e ative o Selo Roxo de Especialista Credenciado</p>
+                  <p className="text-xs text-zinc-400">
+                    {isReal ? "Visualização dos associados e influenciadores cadastrados no banco real" : "Gerencie a carteira e ative o Selo Roxo de Especialista Credenciado"}
+                  </p>
                 </div>
-                <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                  Página {associadosPage} de {Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
-                </span>
+                {!isReal && (
+                  <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
+                    Página {associadosPage} de {Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
+                  </span>
+                )}
               </div>
 
-              <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
-                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                    <tr>
-                      <th className="py-3 px-4">Associado / Influenciador</th>
-                      <th className="py-3 px-4">Código Unique</th>
-                      <th className="py-3 px-4 text-center">Selo Especialista</th>
-                      <th className="py-3 px-4 text-right">Carteira (Atletas)</th>
-                      <th className="py-3 px-4 text-right">GMV Gerado (R$)</th>
-                      <th className="py-3 px-4 text-right">Receita Netfits (15%)</th>
-                      <th className="py-3 px-4 text-right">Comissão R$ (30%)</th>
-                      <th className="py-3 px-4 text-center">Status</th>
-                      <th className="py-3 px-4 text-center">Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800 font-medium">
-                    {associadosList.filter((a) => a.id !== "assoc_all")
-                      .slice((associadosPage - 1) * itemsPerPage, associadosPage * itemsPerPage)
-                      .map((assoc) => (
-                        <tr key={assoc.id} className="hover:bg-zinc-800/40 transition">
-                          <td className="py-3 px-4">
-                            <div>
-                              <p className="font-bold text-white flex items-center gap-1.5">
-                                {assoc.name}
-                                {assoc.isVerifiedSpecialist && (
-                                  <span className="text-[9px] font-extrabold bg-purple-600/30 text-purple-300 border border-purple-500/50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                                    🟣 Especialista
-                                  </span>
-                                )}
-                              </p>
-                              <p className="text-[10px] text-purple-400">{assoc.handle}</p>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 font-mono text-zinc-400">{assoc.code}</td>
-                          <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => toggleSpecialistBadge(assoc.id)}
-                              className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center justify-center gap-1 transition mx-auto ${
-                                assoc.isVerifiedSpecialist
-                                  ? "bg-purple-600/30 text-purple-300 border border-purple-500/50 hover:bg-purple-600/50 shadow-xs"
-                                  : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-purple-950 hover:text-purple-300 opacity-60 hover:opacity-100"
-                              }`}
-                              title="Clique para alterar a concessão do Selo Roxo"
-                            >
-                              {assoc.isVerifiedSpecialist ? "🟣 Verificado" : "⚪ Ativar Selo"}
-                            </button>
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-white">
-                            {Math.round(assoc.capturedUsers * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-white">
-                            R$ {(assoc.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-purple-300">
-                            R$ {(assoc.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-3 px-4 text-right font-bold text-lime-400">
-                            R$ {(assoc.commissionBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                assoc.payoutStatus === "Pago"
-                                  ? "bg-lime-400/20 text-lime-400 border border-lime-400/30"
-                                  : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                              }`}
-                            >
-                              {assoc.payoutStatus}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => {
-                                setSelectedAssociadoId(assoc.id);
-                                toast.success(`Filtrada carteira de ${assoc.name}`);
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-zinc-200 border border-zinc-700"
-                            >
-                              Filtrar
-                            </button>
-                          </td>
+              {isReal && realAssociadosCount === 0 ? (
+                <div className="p-8 text-center bg-zinc-950/60 rounded-2xl border border-dashed border-zinc-800 space-y-3">
+                  <Users className="size-10 text-zinc-600 mx-auto" />
+                  <h5 className="text-sm font-bold text-white">Nenhum associado cadastrado no banco real</h5>
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                    Os 3 usuários cadastrados no banco de dados (André Gallo, Carlos Rodrigo Formigari e Cristiane Queli da Silva Gallo) são alunos/administradores. Para cadastrar um associado real, utilize o botão acima <b>➕ Cadastrar Novo Associado</b>.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto w-full max-w-full">
+                    <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
+                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                        <tr>
+                          <th className="py-3 px-4">Associado / Influenciador</th>
+                          <th className="py-3 px-4">Código Unique</th>
+                          <th className="py-3 px-4 text-center">Selo Especialista</th>
+                          <th className="py-3 px-4 text-right">Carteira (Atletas)</th>
+                          <th className="py-3 px-4 text-right">GMV Gerado (R$)</th>
+                          <th className="py-3 px-4 text-right">Receita Netfits (15%)</th>
+                          <th className="py-3 px-4 text-right">Comissão R$ (30%)</th>
+                          <th className="py-3 px-4 text-center">Status</th>
+                          <th className="py-3 px-4 text-center">Ação</th>
                         </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800 font-medium">
+                        {associadosList.filter((a) => a.id !== "assoc_all")
+                          .slice((associadosPage - 1) * itemsPerPage, associadosPage * itemsPerPage)
+                          .map((assoc) => (
+                            <tr key={assoc.id} className="hover:bg-zinc-800/40 transition">
+                              <td className="py-3 px-4">
+                                <div>
+                                  <p className="font-bold text-white flex items-center gap-1.5">
+                                    {assoc.name}
+                                    {assoc.isVerifiedSpecialist && (
+                                      <span className="text-[9px] font-extrabold bg-purple-600/30 text-purple-300 border border-purple-500/50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                                        🟣 Especialista
+                                      </span>
+                                    )}
+                                  </p>
+                                  <p className="text-[10px] text-purple-400">{assoc.handle}</p>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 font-mono text-zinc-400">{assoc.code}</td>
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  onClick={() => toggleSpecialistBadge(assoc.id)}
+                                  className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold flex items-center justify-center gap-1 transition mx-auto ${
+                                    assoc.isVerifiedSpecialist
+                                      ? "bg-purple-600/30 text-purple-300 border border-purple-500/50 hover:bg-purple-600/50 shadow-xs"
+                                      : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-purple-950 hover:text-purple-300 opacity-60 hover:opacity-100"
+                                  }`}
+                                  title="Clique para alterar a concessão do Selo Roxo"
+                                >
+                                  {assoc.isVerifiedSpecialist ? "🟣 Verificado" : "⚪ Ativar Selo"}
+                                </button>
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-white">
+                                {Math.round(assoc.capturedUsers * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-white">
+                                R$ {(assoc.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-purple-300">
+                                R$ {(assoc.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-lime-400">
+                                R$ {(assoc.commissionBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                    assoc.payoutStatus === "Pago"
+                                      ? "bg-lime-400/20 text-lime-400 border border-lime-400/30"
+                                      : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                  }`}
+                                >
+                                  {assoc.payoutStatus}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <button
+                                  onClick={() => {
+                                    setSelectedAssociadoId(assoc.id);
+                                    toast.success(`Filtrada carteira de ${assoc.name}`);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-zinc-200 border border-zinc-700"
+                                >
+                                  Filtrar
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-              <PaginationControls
-                currentPage={associadosPage}
-                totalPages={Math.ceil(ASSOCIADOS_DATABASE.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
-                onPageChange={setAssociadosPage}
-                totalItems={ASSOCIADOS_DATABASE.filter((a) => a.id !== "assoc_all").length}
-                itemsPerPage={itemsPerPage}
-              />
+                  <PaginationControls
+                    currentPage={associadosPage}
+                    totalPages={Math.ceil(ASSOCIADOS_DATABASE.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
+                    onPageChange={setAssociadosPage}
+                    totalItems={ASSOCIADOS_DATABASE.filter((a) => a.id !== "assoc_all").length}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
 
         {/* Tab: Programa de Pontos (Fidelidade, Emissão, Resgate & Provisão Passiva) */}
         {activeTab === "points" && (() => {
-          const totalEmitidos = Math.round(12840000 * pf);
-          const totalResgatados = Math.round(2415000 * pf);
-          const totalExpirados = Math.round(1540800 * pf);
+          const totalEmitidos = isReal
+            ? (realTransactions.filter((t) => t.amount > 0).reduce((acc, t) => acc + (t.amount || 0), 0) || realNfsInCirculation)
+            : Math.round(12840000 * pf);
+          const totalResgatados = isReal ? realTotalPointsRedeemed : Math.round(2415000 * pf);
+          const totalExpirados = isReal ? 0 : Math.round(1540800 * pf);
           const baldeValidos = totalEmitidos - totalResgatados - totalExpirados;
-          const provisaoBrl = baldeValidos * (operationalParams.costPerProvisionedPointBrl ?? 0.008);
+          const provisaoBrl = baldeValidos * (operationalParams.costPerProvisionedPointBrl ?? 0.01);
 
-          const emissaoBreakdown = [
-            { key: "shop", label: "Cashback por Compras no Shopping", count: Math.round(4120000 * pf), pct: 32.1, icon: "🛍️", color: "#84cc16" },
-            { key: "referral", label: "Indicação de Amigos (Member Get Member)", count: Math.round(2840000 * pf), pct: 22.1, icon: "👥", color: "#7c3aed" },
-            { key: "views", label: "Visualização de Anúncios no Feed", count: Math.round(2150000 * pf), pct: 16.7, icon: "👁️", color: "#3b82f6" },
-            { key: "clicks", label: "Cliques em Conteúdos Patrocinados", count: Math.round(1850000 * pf), pct: 14.4, icon: "🖱️", color: "#e11d48" },
-            { key: "workouts", label: "Treinos & Atividades Físicas (GPS/Smart Fit)", count: Math.round(1280000 * pf), pct: 10.0, icon: "🏃", color: "#f59e0b" },
-            { key: "loyalty", label: "Vínculo com Programa de Fidelidade", count: Math.round(600000 * pf), pct: 4.7, icon: "🤝", color: "#10b981" },
-          ];
+          const emissaoBreakdown = isReal
+            ? [
+                {
+                  key: "welcome",
+                  label: "Bônus de Boas-Vindas / Cadastro",
+                  count: Math.max(0, totalEmitidos - realWorkoutPoints),
+                  pct: totalEmitidos > 0 ? Number((((totalEmitidos - realWorkoutPoints) / totalEmitidos) * 100).toFixed(1)) : 100,
+                  icon: "🎁",
+                  color: "#84cc16"
+                },
+                ...(realWorkoutPoints > 0 ? [{
+                  key: "workouts",
+                  label: "Treinos & Atividades Físicas Validadas",
+                  count: realWorkoutPoints,
+                  pct: Number(((realWorkoutPoints / totalEmitidos) * 100).toFixed(1)),
+                  icon: "🏃",
+                  color: "#f59e0b"
+                }] : []),
+              ]
+            : [
+                { key: "shop", label: "Cashback por Compras no Shopping", count: Math.round(4120000 * pf), pct: 32.1, icon: "🛍️", color: "#84cc16" },
+                { key: "referral", label: "Indicação de Amigos (Member Get Member)", count: Math.round(2840000 * pf), pct: 22.1, icon: "👥", color: "#7c3aed" },
+                { key: "views", label: "Visualização de Anúncios no Feed", count: Math.round(2150000 * pf), pct: 16.7, icon: "👁️", color: "#3b82f6" },
+                { key: "clicks", label: "Cliques em Conteúdos Patrocinados", count: Math.round(1850000 * pf), pct: 14.4, icon: "🖱️", color: "#e11d48" },
+                { key: "workouts", label: "Treinos & Atividades Físicas (GPS/Smart Fit)", count: Math.round(1280000 * pf), pct: 10.0, icon: "🏃", color: "#f59e0b" },
+                { key: "loyalty", label: "Vínculo com Programa de Fidelidade", count: Math.round(600000 * pf), pct: 4.7, icon: "🤝", color: "#10b981" },
+              ];
 
-          const resgateBreakdown = [
-            { key: "shop", label: "Desconto em Compras no Marketplace Netfits", count: Math.round(1180000 * pf), pct: 48.9, icon: "🛒", color: "#84cc16" },
-            { key: "health", label: "Consultas Médicas & Especialistas (Fibios/Spot)", count: Math.round(540000 * pf), pct: 22.4, icon: "🩺", color: "#7c3aed" },
-            { key: "gym", label: "Mensalidades & Passes em Academias (Smart Fit)", count: Math.round(420000 * pf), pct: 17.4, icon: "🏋️", color: "#3b82f6" },
-            { key: "races", label: "Inscrições em Assessorias & Provas (MPR Run)", count: Math.round(275000 * pf), pct: 11.3, icon: "🏃‍♂️", color: "#f59e0b" },
-          ];
+          const resgateBreakdown = isReal
+            ? (totalResgatados === 0
+                ? [{ key: "none", label: "Nenhum resgate efetuado no Banco Real", count: 0, pct: 0, icon: "ℹ️", color: "#71717a" }]
+                : [
+                    { key: "shop", label: "Compras no Marketplace", count: totalResgatados, pct: 100, icon: "🛒", color: "#84cc16" }
+                  ])
+            : [
+                { key: "shop", label: "Desconto em Compras no Marketplace Netfits", count: Math.round(1180000 * pf), pct: 48.9, icon: "🛒", color: "#84cc16" },
+                { key: "health", label: "Consultas Médicas & Especialistas (Fibios/Spot)", count: Math.round(540000 * pf), pct: 22.4, icon: "🩺", color: "#7c3aed" },
+                { key: "gym", label: "Mensalidades & Passes em Academias (Smart Fit)", count: Math.round(420000 * pf), pct: 17.4, icon: "🏋️", color: "#3b82f6" },
+                { key: "races", label: "Inscrições em Assessorias & Provas (MPR Run)", count: Math.round(275000 * pf), pct: 11.3, icon: "🏃‍♂️", color: "#f59e0b" },
+              ];
 
           return (
             <div className="space-y-6">
@@ -2970,40 +3071,40 @@ function AdminDashboardPage() {
                 <KpiCard
                   title="Total Pontos Emitidos"
                   value={`${totalEmitidos.toLocaleString("pt-BR")} nfs`}
-                  change="+28.4%"
+                  change={isReal ? `${totalEmitidos} nfs reais` : "+28.4%"}
                   positive={true}
                   icon={Coins}
-                  subtext="Cashback, feed e treinos"
+                  subtext={isReal ? "Bônus dos 3 usuários cadastrados" : "Cashback, feed e treinos"}
                   periodBadge={currentPeriodObj.shortLabel}
                 />
 
                 <KpiCard
                   title="Total Pontos Resgatados"
                   value={`${totalResgatados.toLocaleString("pt-BR")} nfs`}
-                  change="18.8% de resgate"
+                  change={isReal ? `${totalResgatados} nfs resgatados` : "18.8% de resgate"}
                   positive={true}
                   icon={Gift}
-                  subtext="Shopping e parceiros"
+                  subtext={isReal ? "0 resgates no banco real" : "Shopping e parceiros"}
                   periodBadge={currentPeriodObj.shortLabel}
                 />
 
                 <KpiCard
                   title="Pontos Expirados"
                   value={`${totalExpirados.toLocaleString("pt-BR")} nfs`}
-                  change={`${operationalParams.targetBreakagePct}% breakage`}
+                  change={isReal ? "0% expirado" : `${operationalParams.targetBreakagePct}% breakage`}
                   positive={false}
                   icon={RotateCcw}
-                  subtext="Validade 24 meses"
+                  subtext={isReal ? "Validade ativa dos pontos" : "Validade 24 meses"}
                   periodBadge={currentPeriodObj.shortLabel}
                 />
 
                 <KpiCard
                   title="Balde Final (Válidos)"
                   value={`${baldeValidos.toLocaleString("pt-BR")} nfs`}
-                  change="Em circulação"
+                  change={isReal ? `${baldeValidos} nfs em circulação` : "Em circulação"}
                   positive={true}
                   icon={Sparkles}
-                  subtext="Saldo ativo acumulado"
+                  subtext={isReal ? "Saldo ativo dos 3 usuários" : "Saldo ativo acumulado"}
                   highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
                   periodBadge={currentPeriodObj.shortLabel}
                 />
@@ -3014,7 +3115,7 @@ function AdminDashboardPage() {
                   change={`CPP R$ ${operationalParams.costPerProvisionedPointBrl}`}
                   positive={true}
                   icon={ShieldAlert}
-                  subtext="Retido na DRE"
+                  subtext={isReal ? "Passivo real dos 3 usuários" : "Retido na DRE"}
                   highlightColor="border-purple-500/40 ring-1 ring-purple-500/20 bg-purple-950/20"
                   periodBadge={currentPeriodObj.shortLabel}
                 />
@@ -3708,41 +3809,51 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Treinos Validados Total"
-                value={Math.round(84500 * pf).toLocaleString("pt-BR")}
-                change="+24.8%"
+                value={isReal ? realWorkoutCount.toLocaleString("pt-BR") : Math.round(84500 * pf).toLocaleString("pt-BR")}
+                change={isReal ? `${realWorkoutCount} treinos reais` : "+24.8%"}
                 positive={true}
                 icon={Activity}
-                subtext="Presenças & registros"
+                subtext={isReal ? "Presenças & registros reais" : "Presenças & registros"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Check-ins Smart Fit"
-                value={Math.round(48200 * pf).toLocaleString("pt-BR")}
-                change="+18.5%"
+                value={isReal ? "0" : Math.round(48200 * pf).toLocaleString("pt-BR")}
+                change={isReal ? "0 check-ins integrados" : "+18.5%"}
                 positive={true}
                 icon={Zap}
-                subtext="Totens de validação"
+                subtext={isReal ? "Totens físicos em piloto" : "Totens de validação"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Pontos Emitidos via Treino"
-                value={`${Math.round(4225000 * pf).toLocaleString("pt-BR")} nfs`}
-                change="+24.8%"
+                value={isReal ? `${realWorkoutPoints.toLocaleString("pt-BR")} nfs` : `${Math.round(4225000 * pf).toLocaleString("pt-BR")} nfs`}
+                change={isReal ? `${realWorkoutPoints} nfs reais` : "+24.8%"}
                 positive={true}
                 icon={Coins}
-                subtext="4.2M nfs distribuídos"
+                subtext={isReal ? "Pontos creditados por treino" : "4.2M nfs distribuídos"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Média de Treinos / Atleta"
-                value={`${(3.8 * pf).toFixed(1)} treinos`}
-                change="+12.0%"
+                value={isReal ? (realUsersCount > 0 ? (realWorkoutCount / realUsersCount).toFixed(1) : "0.0") : `${(3.8 * pf).toFixed(1)} treinos`}
+                change={isReal ? `Base de ${realUsersCount} atletas` : "+12.0%"}
                 positive={true}
                 icon={TrendingUp}
-                subtext="Frequência semanal"
+                subtext={isReal ? "Frequência real" : "Frequência semanal"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
             </div>
+
+            {isReal && realWorkoutCount === 0 && (
+              <div className="p-6 text-center bg-zinc-950/60 rounded-2xl border border-dashed border-zinc-800 space-y-2">
+                <Activity className="size-8 text-zinc-600 mx-auto" />
+                <h5 className="text-sm font-bold text-white">Nenhum treino com validação esportiva no Banco Real</h5>
+                <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                  Os 3 usuários cadastrados (André Gallo, Carlos Rodrigo Formigari e Cristiane Queli da Silva Gallo) ainda não registraram sessões de treino validadas no aplicativo.
+                </p>
+              </div>
+            )}
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
               <h4 className="font-bold text-sm text-white">Transição Tecnológica para Etapa 2 (Roadmap Business Plan)</h4>
@@ -3777,73 +3888,83 @@ function AdminDashboardPage() {
                 </h3>
               </div>
               <span className="text-xs font-mono text-purple-300 bg-purple-900/30 px-3 py-1 rounded-full border border-purple-500/30 font-bold">
-                482k Declarações Coletadas
+                {isReal ? `${realUsersCount} Atletas Cadastrados (100% Reais)` : "482k Declarações Coletadas"}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Usuários Cadastrados"
-                value={Math.round(1245000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
-                change="+32.4%"
+                value={isReal ? realUsersCount.toLocaleString("pt-BR") : Math.round(1245000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change={isReal ? `${realUsersCount} usuários reais` : "+32.4%"}
                 positive={true}
                 icon={Users}
-                subtext="Superou meta Etapa 1 (1M)"
+                subtext={isReal ? "André, Carlos e Cristiane" : "Superou meta Etapa 1 (1M)"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Ativos Mensais (MAU)"
-                value={Math.round(620000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
-                change="50.0% engajamento"
+                value={isReal ? realActiveUsersCount.toLocaleString("pt-BR") : Math.round(620000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change={isReal ? "100.0% engajamento" : "50.0% engajamento"}
                 positive={true}
                 icon={UserCheck}
-                subtext="620k atletas ativos"
+                subtext={isReal ? `${realActiveUsersCount} atletas ativos no banco` : "620k atletas ativos"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Declaração Pontos Bancários"
-                value={Math.round(482000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
-                change="38.7% da base"
+                value={isReal ? "0" : Math.round(482000 * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                change={isReal ? "0 declarações" : "38.7% da base"}
                 positive={true}
                 icon={Award}
-                subtext="Intenção de resgate"
+                subtext={isReal ? "Aguardando vínculo bancário" : "Intenção de resgate"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Taxa de Retenção (90 dias)"
-                value="86.2%"
-                change="Meta 80%"
+                value={isReal ? "100.0%" : "86.2%"}
+                change={isReal ? "Retenção total" : "Meta 80%"}
                 positive={true}
                 icon={ShieldAlert}
-                subtext="Excelente retenção"
+                subtext={isReal ? "3 usuários ativos em produção" : "Excelente retenção"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
               <h4 className="font-bold text-sm text-white">Distribuição de Programas Bancários Declarados (Pesquisa Etapa 1)</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
-                  <p className="text-xs text-zinc-400 font-semibold">Livelo (BB & Bradesco)</p>
-                  <p className="text-xl font-bold text-white">184.000 declarações</p>
-                  <span className="text-[10px] text-lime-400">Média: 45.000 pts declarados</span>
+              {isReal ? (
+                <div className="bg-zinc-950 p-6 rounded-2xl border border-dashed border-zinc-800 text-center space-y-2">
+                  <Award className="size-8 text-zinc-600 mx-auto" />
+                  <h5 className="text-sm font-bold text-white">Nenhum Programa Bancário Vinculado no Banco Real</h5>
+                  <p className="text-xs text-zinc-400 max-w-lg mx-auto">
+                    Nenhum dos 3 usuários cadastrados (André Gallo, Carlos Rodrigo Formigari, Cristiane Queli da Silva Gallo) vinculou contas Livelo, Esfera, C6 Átomos ou Smiles até o momento. A pesquisa estatística de mercado (482k declarações projetadas) pode ser visualizada alternando para o modo "Projeção".
+                  </p>
                 </div>
-                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
-                  <p className="text-xs text-zinc-400 font-semibold">Esfera (Santander)</p>
-                  <p className="text-xl font-bold text-white">128.000 declarações</p>
-                  <span className="text-[10px] text-purple-400">Média: 38.000 pts declarados</span>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                    <p className="text-xs text-zinc-400 font-semibold">Livelo (BB & Bradesco)</p>
+                    <p className="text-xl font-bold text-white">184.000 declarações</p>
+                    <span className="text-[10px] text-lime-400">Média: 45.000 pts declarados</span>
+                  </div>
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                    <p className="text-xs text-zinc-400 font-semibold">Esfera (Santander)</p>
+                    <p className="text-xl font-bold text-white">128.000 declarações</p>
+                    <span className="text-[10px] text-purple-400">Média: 38.000 pts declarados</span>
+                  </div>
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                    <p className="text-xs text-zinc-400 font-semibold">C6 Átomos</p>
+                    <p className="text-xl font-bold text-white">74.000 declarações</p>
+                    <span className="text-[10px] text-amber-400">Média: 22.000 pts declarados</span>
+                  </div>
+                  <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
+                    <p className="text-xs text-zinc-400 font-semibold">Smiles & LATAM Pass</p>
+                    <p className="text-xl font-bold text-white">96.000 declarações</p>
+                    <span className="text-[10px] text-lime-400">Média: 55.000 pts declarados</span>
+                  </div>
                 </div>
-                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
-                  <p className="text-xs text-zinc-400 font-semibold">C6 Átomos</p>
-                  <p className="text-xl font-bold text-white">74.000 declarações</p>
-                  <span className="text-[10px] text-amber-400">Média: 22.000 pts declarados</span>
-                </div>
-                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 space-y-1">
-                  <p className="text-xs text-zinc-400 font-semibold">Smiles & LATAM Pass</p>
-                  <p className="text-xl font-bold text-white">96.000 declarações</p>
-                  <span className="text-[10px] text-lime-400">Média: 55.000 pts declarados</span>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* TABELA DE GESTÃO DO BANCO DE USUÁRIOS DE TESTE EM TEMPO REAL */}
@@ -4264,16 +4385,32 @@ function AdminDashboardPage() {
                   value={selectedPartnerId}
                   onChange={(e) => {
                     setSelectedPartnerId(e.target.value);
-                    const partner = PARTNERS_DATABASE.find((p) => p.id === e.target.value);
-                    toast.info(`Filtro alterado para: ${partner?.name}`);
+                    if (!isReal) {
+                      const partner = PARTNERS_DATABASE.find((p) => p.id === e.target.value);
+                      toast.info(`Filtro alterado para: ${partner?.name}`);
+                    }
                   }}
                   className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
                 >
-                  {PARTNERS_DATABASE.map((p) => (
-                    <option key={p.id} value={p.id} className="bg-zinc-900 text-white font-medium py-1">
-                      {p.iconEmoji} {p.name} [{p.contractTier}]
-                    </option>
-                  ))}
+                  {isReal ? (
+                    realPartners.length === 0 ? (
+                      <option value="none" className="bg-zinc-900 text-white font-medium py-1">
+                        Nenhum parceiro no Banco Real
+                      </option>
+                    ) : (
+                      realPartners.map((p) => (
+                        <option key={p.id} value={p.id} className="bg-zinc-900 text-white font-medium py-1">
+                          {p.tradeName || p.companyName}
+                        </option>
+                      ))
+                    )
+                  ) : (
+                    PARTNERS_DATABASE.map((p) => (
+                      <option key={p.id} value={p.id} className="bg-zinc-900 text-white font-medium py-1">
+                        {p.iconEmoji} {p.name} [{p.contractTier}]
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>
@@ -4282,38 +4419,38 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Filtro Selecionado"
-                value={selectedPartner.name.split(" ")[0] + (selectedPartner.name.split(" ")[1] ? " " + selectedPartner.name.split(" ")[1] : "")}
-                change={selectedPartner.contractTier}
+                value={isReal ? (realPartners.length > 0 ? "Parceiros Reais" : "Banco Real") : (selectedPartner.name.split(" ")[0] + (selectedPartner.name.split(" ")[1] ? " " + selectedPartner.name.split(" ")[1] : ""))}
+                change={isReal ? `${realPartners.length} parceiros` : selectedPartner.contractTier}
                 positive={true}
                 icon={Handshake}
-                subtext={selectedPartner.category}
+                subtext={isReal ? "Rede credenciada real" : selectedPartner.category}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="GMV Transacionado"
-                value={`R$ ${((selectedPartner?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+22.4%"
+                value={isReal ? "R$ 0,00" : `R$ ${((selectedPartner?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? "R$ 0,00 real" : "+22.4%"}
                 positive={true}
                 icon={ShoppingBag}
-                subtext="Vendas via plataforma"
+                subtext={isReal ? "0 vendas via parceiros" : "Vendas via plataforma"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Comissão Netfits (15%)"
-                value={`R$ ${((selectedPartner?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change="+24.5%"
+                value={isReal ? "R$ 0,00" : `R$ ${((selectedPartner?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                change={isReal ? "R$ 0,00 real" : "+24.5%"}
                 positive={true}
                 icon={DollarSign}
-                subtext="Receita direta gerada"
+                subtext={isReal ? "0 comissões apuradas" : "Receita direta gerada"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="NPS & Conversão"
-                value={`${selectedPartner.npsScore} / 100`}
-                change={`${selectedPartner.conversionRatePct}% conv.`}
+                value={isReal ? "N/A" : `${selectedPartner.npsScore} / 100`}
+                change={isReal ? "Sem avaliações" : `${selectedPartner.conversionRatePct}% conv.`}
                 positive={true}
                 icon={Star}
-                subtext={`Cupom: ${selectedPartner.exclusiveCoupon}`}
+                subtext={isReal ? "Aguardando transações" : `Cupom: ${selectedPartner.exclusiveCoupon}`}
                 periodBadge={currentPeriodObj.shortLabel}
               />
             </div>
@@ -4324,13 +4461,15 @@ function AdminDashboardPage() {
                 <div>
                   <h4 className="text-base font-bold text-white">Tabela de Parceiros & Assessorias Credenciadas</h4>
                   <p className="text-xs text-zinc-400">
-                    {selectedPartnerId === "partner_all"
+                    {isReal
+                      ? "Visualização dos parceiros e redes credenciadas no banco real"
+                      : selectedPartnerId === "partner_all"
                       ? "Exibindo visão consolidada de todas as 28 marcas credenciadas no ecossistema"
                       : `Exibindo desempenho individualizado de ${selectedPartner.name}`}
                   </p>
                 </div>
 
-                {selectedPartnerId !== "partner_all" && (
+                {!isReal && selectedPartnerId !== "partner_all" && (
                   <button
                     onClick={() => {
                       setSelectedPartnerId("partner_all");
@@ -4343,105 +4482,117 @@ function AdminDashboardPage() {
                 )}
               </div>
 
-              <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
-                  <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                    <tr>
-                      <th className="py-3 px-4">Parceiro / Assessoria</th>
-                      <th className="py-3 px-4">Categoria / Segmento</th>
-                      <th className="py-3 px-4 text-center">Nível do Contrato</th>
-                      <th className="py-3 px-4 text-right">GMV Transacionado (R$)</th>
-                      <th className="py-3 px-4 text-right">Comissão Netfits (R$)</th>
-                      <th className="py-3 px-4 text-center">Conversão</th>
-                      <th className="py-3 px-4 text-center">Cupom Exclusivo</th>
-                      <th className="py-3 px-4 text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800/80 font-medium">
-                    {PARTNERS_DATABASE.filter((p) => p.id !== "partner_all")
-                      .filter((p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId)
-                      .slice((partnersPage - 1) * itemsPerPage, partnersPage * itemsPerPage)
-                      .map((partner) => {
-                        const isSelected = selectedPartnerId === partner.id;
-                        return (
-                          <tr
-                            key={partner.id}
-                            className={`transition ${
-                              isSelected ? "bg-purple-950/40 border-l-4 border-l-lime-400" : "hover:bg-zinc-800/40"
-                            }`}
-                          >
-                            <td className="py-3 px-4 font-bold text-white flex items-center gap-2">
-                              <span className="text-base">{partner.iconEmoji}</span>
-                              <div>
-                                <p className="text-xs font-bold text-white">{partner.name}</p>
-                                <span className="text-[10px] text-lime-400 font-mono">NPS {partner.npsScore}/100</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 text-zinc-400 text-xs">{partner.category}</td>
-                            <td className="py-3 px-4 text-center">
-                              <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border font-mono ${
-                                  partner.contractTier === "Master Partner"
-                                    ? "bg-purple-900/40 text-purple-300 border-purple-500/40"
-                                    : partner.contractTier === "Clínica Especialista"
-                                    ? "bg-lime-900/40 text-lime-300 border-lime-500/40"
-                                    : "bg-zinc-800 text-zinc-300 border-zinc-700"
+              {isReal && realPartners.length === 0 ? (
+                <div className="p-8 text-center bg-zinc-950/60 rounded-2xl border border-dashed border-zinc-800 space-y-3">
+                  <Handshake className="size-10 text-zinc-600 mx-auto" />
+                  <h5 className="text-sm font-bold text-white">Nenhum parceiro ou assessoria cadastrada no banco real</h5>
+                  <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                    As 28 marcas credenciadas (Smart Fit, Bio Ritmo, Dux, Spot, etc.) pertencem ao ecossistema simulado da Etapa 1. No modo Banco Real, apenas parceiros efetivamente cadastrados e homologados serão listados aqui.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto w-full max-w-full">
+                    <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
+                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                        <tr>
+                          <th className="py-3 px-4">Parceiro / Assessoria</th>
+                          <th className="py-3 px-4">Categoria / Segmento</th>
+                          <th className="py-3 px-4 text-center">Nível do Contrato</th>
+                          <th className="py-3 px-4 text-right">GMV Transacionado (R$)</th>
+                          <th className="py-3 px-4 text-right">Comissão Netfits (R$)</th>
+                          <th className="py-3 px-4 text-center">Conversão</th>
+                          <th className="py-3 px-4 text-center">Cupom Exclusivo</th>
+                          <th className="py-3 px-4 text-center">Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/80 font-medium">
+                        {PARTNERS_DATABASE.filter((p) => p.id !== "partner_all")
+                          .filter((p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId)
+                          .slice((partnersPage - 1) * itemsPerPage, partnersPage * itemsPerPage)
+                          .map((partner) => {
+                            const isSelected = selectedPartnerId === partner.id;
+                            return (
+                              <tr
+                                key={partner.id}
+                                className={`transition ${
+                                  isSelected ? "bg-purple-950/40 border-l-4 border-l-lime-400" : "hover:bg-zinc-800/40"
                                 }`}
                               >
-                                {partner.contractTier}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right font-mono font-bold text-white">
-                              R$ {(partner.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-3 px-4 text-right font-mono font-bold text-lime-400">
-                              R$ {(partner.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-3 px-4 text-center font-mono font-bold text-purple-300">
-                              {partner.conversionRatePct}%
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <code className="text-[10px] bg-zinc-950 px-2 py-1 rounded text-lime-400 border border-zinc-800 font-mono font-bold">
-                                {partner.exclusiveCoupon}
-                              </code>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <button
-                                onClick={() => {
-                                  setSelectedPartnerId(partner.id);
-                                  toast.success(`Filtro individual ativado para: ${partner.name}`);
-                                }}
-                                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                                  isSelected
-                                    ? "bg-lime-400 text-zinc-950 shadow"
-                                    : "bg-zinc-800 hover:bg-purple-600 text-white"
-                                }`}
-                              >
-                                {isSelected ? "✓ Selecionado" : "Filtrar"}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
+                                <td className="py-3 px-4 font-bold text-white flex items-center gap-2">
+                                  <span className="text-base">{partner.iconEmoji}</span>
+                                  <div>
+                                    <p className="text-xs font-bold text-white">{partner.name}</p>
+                                    <span className="text-[10px] text-lime-400 font-mono">NPS {partner.npsScore}/100</span>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4 text-zinc-400 text-xs">{partner.category}</td>
+                                <td className="py-3 px-4 text-center">
+                                  <span
+                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full border font-mono ${
+                                      partner.contractTier === "Master Partner"
+                                        ? "bg-purple-900/40 text-purple-300 border-purple-500/40"
+                                        : partner.contractTier === "Clínica Especialista"
+                                        ? "bg-lime-900/40 text-lime-300 border-lime-500/40"
+                                        : "bg-zinc-800 text-zinc-300 border-zinc-700"
+                                    }`}
+                                  >
+                                    {partner.contractTier}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-right font-mono font-bold text-white">
+                                  R$ {(partner.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </td>
+                                <td className="py-3 px-4 text-right font-mono font-bold text-lime-400">
+                                  R$ {(partner.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </td>
+                                <td className="py-3 px-4 text-center font-mono font-bold text-purple-300">
+                                  {partner.conversionRatePct}%
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <code className="text-[10px] bg-zinc-950 px-2 py-1 rounded text-lime-400 border border-zinc-800 font-mono font-bold">
+                                    {partner.exclusiveCoupon}
+                                  </code>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedPartnerId(partner.id);
+                                      toast.success(`Filtro individual ativado para: ${partner.name}`);
+                                    }}
+                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                                      isSelected
+                                        ? "bg-lime-400 text-zinc-950 shadow"
+                                        : "bg-zinc-800 hover:bg-purple-600 text-white"
+                                    }`}
+                                  >
+                                    {isSelected ? "✓ Selecionado" : "Filtrar"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
 
-              <PaginationControls
-                currentPage={partnersPage}
-                totalPages={Math.ceil(
-                  PARTNERS_DATABASE.filter((p) => p.id !== "partner_all").filter(
-                    (p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId
-                  ).length / itemsPerPage
-                )}
-                onPageChange={setPartnersPage}
-                totalItems={
-                  PARTNERS_DATABASE.filter((p) => p.id !== "partner_all").filter(
-                    (p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId
-                  ).length
-                }
-                itemsPerPage={itemsPerPage}
-              />
+                  <PaginationControls
+                    currentPage={partnersPage}
+                    totalPages={Math.ceil(
+                      PARTNERS_DATABASE.filter((p) => p.id !== "partner_all").filter(
+                        (p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId
+                      ).length / itemsPerPage
+                    )}
+                    onPageChange={setPartnersPage}
+                    totalItems={
+                      PARTNERS_DATABASE.filter((p) => p.id !== "partner_all").filter(
+                        (p) => selectedPartnerId === "partner_all" || p.id === selectedPartnerId
+                      ).length
+                    }
+                    itemsPerPage={itemsPerPage}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
@@ -4452,58 +4603,70 @@ function AdminDashboardPage() {
             <div className="bg-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900">
               <div>
                 <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
-                  Demonstrativo Financeiro & Engenharia de Custos (1.000.000 de Usuários)
+                  {isReal
+                    ? "Infraestrutura Serverless em Produção (3 Usuários Reais)"
+                    : "Demonstrativo Financeiro & Engenharia de Custos (1.000.000 de Usuários)"}
                 </span>
                 <h3 className="text-sm font-bold text-white">
-                  OPEX de TI Otimizado (-61.5% Redução de Custos) & Unit Economics
+                  {isReal
+                    ? "Custo Efetivo de Nuvem (Free Tier & Desenvolvimento)"
+                    : "OPEX de TI Otimizado (-61.5% Redução de Custos) & Unit Economics"}
                 </h3>
               </div>
               <span className="text-xs font-mono text-lime-400 bg-lime-400/10 px-3.5 py-1.5 rounded-full border border-lime-400/30 font-extrabold">
-                Economia de -61,5% (US$ 1.320 / R$ 7.260 /mês)
+                {isReal ? "Custo Zero Efetivo (Free Tier Serverless)" : "Economia de -61,5% (US$ 1.320 / R$ 7.260 /mês)"}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
-                title="Custo TI Mensal (1M Usuários)"
-                value="R$ 7.260 /mês"
-                change="-61.5% economia"
+                title={isReal ? "Custo TI Mensal Real" : "Custo TI Mensal (1M Usuários)"}
+                value={isReal ? "R$ 0,00 /mês" : "R$ 7.260 /mês"}
+                change={isReal ? "Free Tier Ativo" : "-61.5% economia"}
                 positive={true}
                 icon={Cpu}
-                subtext="US$ 1.320,00 /mês"
+                subtext={isReal ? "Cloudflare Pages & Worker" : "US$ 1.320,00 /mês"}
                 highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Custo por Usuário Cadastrado"
-                value="R$ 0,007 /mês"
-                change="Ultra-eficiente"
+                value={isReal ? "R$ 0,00 /mês" : "R$ 0,007 /mês"}
+                change={isReal ? "Sem custo fixo" : "Ultra-eficiente"}
                 positive={true}
                 icon={DollarSign}
-                subtext="R$ 0,08 / ano"
+                subtext={isReal ? "3 usuários reais" : "R$ 0,08 / ano"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Custo por Usuário Ativo (MAU)"
-                value="R$ 0,012 /mês"
-                change="R$ 0,14 / ano"
+                value={isReal ? "R$ 0,00 /mês" : "R$ 0,012 /mês"}
+                change={isReal ? "Sem custo por MAU" : "R$ 0,14 / ano"}
                 positive={true}
                 icon={Users}
-                subtext="620k MAU ativos"
+                subtext={isReal ? "3 usuários ativos" : "620k MAU ativos"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Margem EBITDA da Operação"
-                value="84.2%"
-                change="Alta Lucratividade"
+                value={isReal ? "N/A" : "84.2%"}
+                change={isReal ? "Fase Piloto / Testes" : "Alta Lucratividade"}
                 positive={true}
                 icon={TrendingUp}
-                subtext="Operação escalável"
+                subtext={isReal ? "Sem cobrança recorrente" : "Operação escalável"}
                 periodBadge={currentPeriodObj.shortLabel}
               />
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
+              {isReal && (
+                <div className="p-3 bg-zinc-950/80 rounded-xl border border-zinc-800 text-xs text-zinc-400 flex items-center gap-2">
+                  <Cpu className="size-4 text-lime-400 shrink-0" />
+                  <span>
+                    <b>Status de Infraestrutura no Banco Real</b>: O ambiente opera na camada gratuita (Free Tier) para os 3 usuários reais cadastrados. A planilha detalhada abaixo apresenta a projeção de engenharia de custos otimizada para o escalonamento até 1.000.000 de usuários.
+                  </span>
+                </div>
+              )}
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
                 <div>
                   <h4 className="text-base font-bold text-white">Detalhamento da Arquitetura de Custos Otimizada (1M Usuários)</h4>
@@ -6860,7 +7023,7 @@ function KrHistoricalModal({
   );
 }
 
-function InteractionsIntelligenceTab({ selectedPeriod }: { selectedPeriod: PeriodType }) {
+function InteractionsIntelligenceTab({ selectedPeriod, isReal }: { selectedPeriod: PeriodType; isReal?: boolean }) {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [channelFilter, setChannelFilter] = useState<string>("all");
   const [sentimentFilter, setSentimentFilter] = useState<string>("all");
@@ -6870,7 +7033,7 @@ function InteractionsIntelligenceTab({ selectedPeriod }: { selectedPeriod: Perio
   const interactions = sharedSandboxStore.getInteractions();
 
   // Scale data factor based on selected period
-  const periodFactor = TIME_PERIODS.find((p) => p.id === selectedPeriod)?.factor || 1;
+  const periodFactor = isReal ? 1 : (TIME_PERIODS.find((p) => p.id === selectedPeriod)?.factor || 1);
 
   // Filtered interactions
   const filtered = interactions.filter((item) => {
@@ -6891,9 +7054,9 @@ function InteractionsIntelligenceTab({ selectedPeriod }: { selectedPeriod: Perio
   });
 
   // Calculate Metrics
-  const totalCount = Math.round(filtered.length * (selectedPeriod === "24h" ? 0.3 : selectedPeriod === "7d" ? 0.8 : periodFactor));
+  const totalCount = isReal ? filtered.length : Math.round(filtered.length * (selectedPeriod === "24h" ? 0.3 : selectedPeriod === "7d" ? 0.8 : periodFactor));
   const positiveCount = filtered.filter((i) => i.sentiment === "positivo").length;
-  const positivePercent = filtered.length ? ((positiveCount / filtered.length) * 100).toFixed(1) : "0.0";
+  const positivePercent = filtered.length ? ((positiveCount / filtered.length) * 100).toFixed(1) : (isReal ? "N/A" : "0.0");
   const totalInsights = filtered.filter((i) => i.businessInsight).length;
 
   // Chart data: Distribution by Channel
@@ -6952,11 +7115,11 @@ function InteractionsIntelligenceTab({ selectedPeriod }: { selectedPeriod: Perio
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
             <p className="text-[10px] font-bold text-zinc-400 uppercase">Interações Tabuladas</p>
             <p className="text-xl font-black text-white">{totalCount.toLocaleString("pt-BR")}</p>
-            <p className="text-[10px] text-purple-400 font-medium">100% estruturadas no BI</p>
+            <p className="text-[10px] text-purple-400 font-medium">{isReal ? "Banco Real" : "100% estruturadas no BI"}</p>
           </div>
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
             <p className="text-[10px] font-bold text-zinc-400 uppercase">Sentimento Positivo</p>
-            <p className="text-xl font-black text-lime-400">{positivePercent}%</p>
+            <p className="text-xl font-black text-lime-400">{positivePercent}{positivePercent !== "N/A" ? "%" : ""}</p>
             <p className="text-[10px] text-zinc-400 font-medium">Satisfação global apurada</p>
           </div>
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
@@ -7070,32 +7233,38 @@ function InteractionsIntelligenceTab({ selectedPeriod }: { selectedPeriod: Perio
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto max-h-52 pr-1">
-            {filtered.slice(0, 4).map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedInteraction(item)}
-                className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 hover:border-purple-500/50 transition cursor-pointer space-y-1.5 group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-800/40">
-                    {item.sourceRole} • {item.channel.toUpperCase()}
-                  </span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                    item.sentiment === "positivo" ? "bg-lime-950 text-lime-400 border border-lime-800/40" :
-                    item.sentiment === "critico" ? "bg-red-950 text-red-400 border border-red-800/40" :
-                    "bg-zinc-800 text-zinc-300"
-                  }`}>
-                    {item.sentiment}
-                  </span>
-                </div>
-                <p className="text-xs font-bold text-white group-hover:text-purple-300 transition line-clamp-1">
-                  {item.subject}
-                </p>
-                <p className="text-[11px] text-zinc-400 line-clamp-2 italic">
-                  "{item.businessInsight}"
-                </p>
+            {filtered.length === 0 ? (
+              <div className="col-span-2 p-6 text-center text-zinc-500 text-xs italic">
+                Nenhum insight estratégico registrado no banco de dados até o momento.
               </div>
-            ))}
+            ) : (
+              filtered.slice(0, 4).map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => setSelectedInteraction(item)}
+                  className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 hover:border-purple-500/50 transition cursor-pointer space-y-1.5 group"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-800/40">
+                      {item.sourceRole} • {item.channel.toUpperCase()}
+                    </span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      item.sentiment === "positivo" ? "bg-lime-950 text-lime-400 border border-lime-800/40" :
+                      item.sentiment === "critico" ? "bg-red-950 text-red-400 border border-red-800/40" :
+                      "bg-zinc-800 text-zinc-300"
+                    }`}>
+                      {item.sentiment}
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-white group-hover:text-purple-300 transition line-clamp-1">
+                    {item.subject}
+                  </p>
+                  <p className="text-[11px] text-zinc-400 line-clamp-2 italic">
+                    "{item.businessInsight}"
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

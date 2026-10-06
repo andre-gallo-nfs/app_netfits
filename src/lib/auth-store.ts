@@ -40,7 +40,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
   {
     id: "usr_cristiane_gallo",
     fullName: "Cristiane Queli da Silva Gallo",
-    email: "cristiane.gallo@netfits.com.br",
+    email: "",
     phone: "",
     cpf: "",
     passwordHash: "Netfits#2026",
@@ -154,7 +154,6 @@ export const authStore = {
     if (
       raw === "aacgallo@hotmail.com" ||
       raw === "aacgallo@hotmail.com.br" ||
-      raw === "andre.gallo@netfits.com.br" ||
       raw === "usr_andre" ||
       raw === "andre gallo" ||
       raw === "andré gallo"
@@ -165,8 +164,6 @@ export const authStore = {
 
     if (
       raw === "crformigari72@gmail.com" ||
-      raw === "carlos.formigari@netfits.com.br" ||
-      raw === "carlos@netfits.com.br" ||
       raw === "usr_carlos_formigari" ||
       raw === "carlos rodrigo formigari" ||
       raw === "carlos formigari"
@@ -176,12 +173,10 @@ export const authStore = {
     }
 
     if (
-      raw === "cristiane.gallo@netfits.com.br" ||
-      raw === "cristiane@netfits.com.br" ||
-      raw === "cris.gallo@netfits.com.br" ||
       raw === "usr_cristiane_gallo" ||
       raw === "cristiane queli da silva gallo" ||
-      raw === "cristiane gallo"
+      raw === "cristiane gallo" ||
+      raw === "cristiane"
     ) {
       const crisUser = storedUsers.find((u) => u.id === "usr_cristiane_gallo") || storedUsers[2];
       return { exists: true, matchedField: "email", matchedUser: crisUser };
