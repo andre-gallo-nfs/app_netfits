@@ -30,7 +30,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
   {
     id: "usr_carlos_formigari",
     fullName: "Carlos Rodrigo Formigari",
-    email: "carlos.formigari@netfits.com.br",
+    email: "crformigari72@gmail.com",
     phone: "",
     cpf: "",
     passwordHash: "Netfits#2026",
@@ -164,9 +164,11 @@ export const authStore = {
     }
 
     if (
+      raw === "crformigari72@gmail.com" ||
       raw === "carlos.formigari@netfits.com.br" ||
       raw === "carlos@netfits.com.br" ||
       raw === "formigari@netfits.com.br" ||
+      raw.includes("crformigari") ||
       raw.includes("formigari") ||
       raw === "usr_carlos_formigari"
     ) {

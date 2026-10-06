@@ -165,8 +165,8 @@ const INITIAL_USERS: SandboxUser[] = [
   },
   {
     id: "usr_carlos_formigari",
-    identifier: "carlos.formigari@netfits.com.br",
-    email: "carlos.formigari@netfits.com.br",
+    identifier: "crformigari72@gmail.com",
+    email: "crformigari72@gmail.com",
     fullName: "Carlos Rodrigo Formigari",
     type: "athlete",
     nfsBalance: 50,
@@ -428,10 +428,20 @@ class HomologationSandboxStore {
             (u) =>
               u.id === initUser.id ||
               (u.identifier && u.identifier.toLowerCase() === initUser.identifier.toLowerCase()) ||
-              (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase())
+              (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase()) ||
+              (initUser.id === "usr_carlos_formigari" &&
+                (u.email?.toLowerCase().includes("formigari") ||
+                  u.identifier?.toLowerCase().includes("formigari") ||
+                  u.fullName?.toLowerCase().includes("formigari")))
           );
           if (existingIdx === -1) {
             mergedUsers.push(initUser);
+            hasNewUsers = true;
+          } else if (initUser.id === "usr_carlos_formigari") {
+            mergedUsers[existingIdx].id = "usr_carlos_formigari";
+            mergedUsers[existingIdx].email = "crformigari72@gmail.com";
+            mergedUsers[existingIdx].identifier = "crformigari72@gmail.com";
+            mergedUsers[existingIdx].fullName = "Carlos Rodrigo Formigari";
             hasNewUsers = true;
           }
         }
@@ -711,8 +721,10 @@ class HomologationSandboxStore {
 
     // 2. Reconhecimento do Carlos Rodrigo Formigari completando/ativando seu cadastro
     const isCarlos =
+      cleanEmail === "crformigari72@gmail.com" ||
       cleanEmail === "carlos.formigari@netfits.com.br" ||
       cleanEmail.includes("formigari") ||
+      cleanEmail.includes("crformigari") ||
       (data.fullName && data.fullName.toLowerCase().includes("formigari"));
 
     if (isCarlos) {

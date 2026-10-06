@@ -79,7 +79,7 @@ const DEFAULT_PRESEEDED_USERS = [
   {
     id: "usr_carlos_formigari",
     fullName: "Carlos Rodrigo Formigari",
-    email: "carlos.formigari@netfits.com.br",
+    email: "crformigari72@gmail.com",
     phone: "",
     cpf: "",
     birthDate: "",
@@ -144,9 +144,25 @@ function isAndreGallo(str?: string | null): boolean {
   return (
     clean === "usr_andre" ||
     clean === "usr_102" ||
+    clean === "usr_101" ||
     clean === "aacgallo@hotmail.com" ||
     clean === "aacgallo@hotmail.com.br" ||
-    clean === "andre.gallo@netfits.com.br"
+    clean === "andre.gallo@netfits.com.br" ||
+    clean.includes("andre gallo") ||
+    clean.includes("andré gallo")
+  );
+}
+
+function isCarlosFormigari(str?: string | null): boolean {
+  if (!str) return false;
+  const clean = str.trim().toLowerCase();
+  return (
+    clean === "usr_carlos_formigari" ||
+    clean === "usr_103" ||
+    clean === "crformigari72@gmail.com" ||
+    clean === "carlos.formigari@netfits.com.br" ||
+    clean.includes("crformigari") ||
+    clean.includes("formigari")
   );
 }
 
@@ -175,28 +191,40 @@ function resolveUserFromToken(token?: string | null): any {
         u.id === customerId ||
         u.email?.toLowerCase() === payload.email?.toLowerCase() ||
         u.cpf === customerId ||
+        (isCarlosFormigari(customerId) && u.id === "usr_carlos_formigari") ||
+        (isCarlosFormigari(payload.email) && u.id === "usr_carlos_formigari") ||
         (isAndreGallo(customerId) && u.id === "usr_andre") ||
         (isAndreGallo(payload.email) && u.id === "usr_andre")
     );
     if (user) return user;
 
+    if (isCarlosFormigari(customerId) || isCarlosFormigari(payload.email)) {
+      const carlos = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
+      if (carlos) return carlos;
+    }
+
+    if (isAndreGallo(customerId) || isAndreGallo(payload.email)) {
+      const andre = globalServerUsers.find((u) => u.id === "usr_andre");
+      if (andre) return andre;
+    }
+
     return {
-      id: customerId || "usr_andre",
-      fullName: payload.name || "André Gallo",
-      email: payload.email || "aacgallo@hotmail.com.br",
-      phone: globalServerUsers[0]?.phone || "",
-      cpf: globalServerUsers[0]?.cpf || "",
-      birthDate: globalServerUsers[0]?.birthDate || "",
-      address: globalServerUsers[0]?.address || "",
-      street: globalServerUsers[0]?.street || "",
-      number: globalServerUsers[0]?.number || "",
-      neighborhood: globalServerUsers[0]?.neighborhood || "",
-      city: globalServerUsers[0]?.city || "",
-      state: globalServerUsers[0]?.state || "",
-      shortState: globalServerUsers[0]?.shortState || "",
-      zipcode: globalServerUsers[0]?.zipcode || "",
+      id: customerId || `usr_${Date.now()}`,
+      fullName: payload.name || "Atleta Netfits",
+      email: payload.email || `${customerId}@netfits.com.br`,
+      phone: "",
+      cpf: "",
+      birthDate: "",
+      address: "",
+      street: "",
+      number: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+      shortState: "",
+      zipcode: "",
       nfsBalance: 50,
-      userCategory: "associado",
+      userCategory: "atleta",
     };
   }
 
@@ -205,11 +233,17 @@ function resolveUserFromToken(token?: string | null): any {
     (u) =>
       u.id === cleanToken ||
       u.email?.toLowerCase() === cleanToken.toLowerCase() ||
+      (isCarlosFormigari(cleanToken) && u.id === "usr_carlos_formigari") ||
       (isAndreGallo(cleanToken) && u.id === "usr_andre")
   );
   if (found) return found;
 
-  // Fallback definitivo: André Gallo
+  if (isCarlosFormigari(cleanToken)) {
+    const carlos = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
+    if (carlos) return carlos;
+  }
+
+  // Fallback definitivo
   return globalServerUsers[0];
 }
 
@@ -401,16 +435,22 @@ export default {
           const rawOrder = body?.order ? body.order : body;
           const customerEmail = rawOrder?.customer?.email || rawOrder?.customerEmail;
           const customerRef = rawOrder?.customer?.ref || rawOrder?.customer?.document || rawOrder?.customerId;
+          const customerName = rawOrder?.customer?.name || rawOrder?.customerName || rawOrder?.shipping?.receiverName;
 
           const user = globalServerUsers.find(
             (u) =>
               (customerEmail &&
                 (u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
+                  (isCarlosFormigari(String(customerEmail)) && u.id === "usr_carlos_formigari") ||
                   (isAndreGallo(String(customerEmail)) && u.id === "usr_andre"))) ||
               (customerRef &&
                 (u.id === customerRef ||
                   u.cpf === customerRef ||
-                  (isAndreGallo(customerRef) && u.id === "usr_andre")))
+                  (isCarlosFormigari(customerRef) && u.id === "usr_carlos_formigari") ||
+                  (isAndreGallo(customerRef) && u.id === "usr_andre"))) ||
+              (customerName &&
+                ((isCarlosFormigari(String(customerName)) && u.id === "usr_carlos_formigari") ||
+                  (isAndreGallo(String(customerName)) && u.id === "usr_andre")))
           );
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
@@ -531,37 +571,81 @@ export default {
     // 4. Emissor de Token SSO Mkplace (/api/marketplace/mkplace/token)
     if (url.pathname === "/api/marketplace/mkplace/token" || url.pathname === "/api/marketplace/mkplace/token/") {
       try {
-        let targetUser = globalServerUsers[0]; // André Gallo (aacgallo@hotmail.com.br, 50 nfs)
+        let targetUser = globalServerUsers[0]; // André Gallo padrão apenas se nenhum identificador for enviado
         let customExpires: number | undefined;
 
         if (req.method === "POST") {
           try {
             const body = await req.json();
-            if (body?.userId) {
-              const found = globalServerUsers.find(
-                (u) =>
-                  u.id === body.userId ||
-                  u.email === body.userId ||
-                  (isAndreGallo(body.userId) && u.id === "usr_andre")
-              );
-              if (found) targetUser = found;
+            const lookupId = body?.userId || body?.id;
+            const lookupEmail = body?.email || body?.identifier;
+
+            if (lookupId || lookupEmail) {
+              if (isCarlosFormigari(lookupId) || isCarlosFormigari(lookupEmail)) {
+                targetUser = globalServerUsers.find((u) => u.id === "usr_carlos_formigari") || {
+                  id: "usr_carlos_formigari",
+                  fullName: body?.fullName || "Carlos Rodrigo Formigari",
+                  email: "crformigari72@gmail.com",
+                  nfsBalance: 50,
+                  userCategory: "atleta",
+                };
+              } else if (isAndreGallo(lookupId) || isAndreGallo(lookupEmail)) {
+                targetUser = globalServerUsers.find((u) => u.id === "usr_andre") || globalServerUsers[0];
+              } else {
+                const found = globalServerUsers.find(
+                  (u) =>
+                    u.id === lookupId ||
+                    u.email?.toLowerCase() === String(lookupEmail || lookupId).toLowerCase()
+                );
+                if (found) {
+                  targetUser = found;
+                } else {
+                  targetUser = {
+                    id: lookupId || `usr_${Date.now()}`,
+                    fullName: body?.fullName || "Atleta Netfits",
+                    email: lookupEmail || `${lookupId}@netfits.com.br`,
+                    nfsBalance: 50,
+                    userCategory: "atleta",
+                  };
+                  globalServerUsers.push(targetUser);
+                }
+              }
             }
             if (body?.expiresInSeconds) {
               customExpires = Number(body.expiresInSeconds);
             }
           } catch {
-            // Body JSON inválido ou vazio, prossegue com targetUser padrão
+            // Body JSON inválido ou vazio
           }
         } else if (req.method === "GET") {
-          const userId = url.searchParams.get("userId") || url.searchParams.get("email");
-          if (userId) {
-            const found = globalServerUsers.find(
-              (u) =>
-                u.id === userId ||
-                u.email === userId ||
-                (isAndreGallo(userId) && u.id === "usr_andre")
-            );
-            if (found) targetUser = found;
+          const userId = url.searchParams.get("userId") || url.searchParams.get("id");
+          const email = url.searchParams.get("email");
+          const lookup = userId || email;
+
+          if (lookup) {
+            if (isCarlosFormigari(lookup)) {
+              targetUser = globalServerUsers.find((u) => u.id === "usr_carlos_formigari") || globalServerUsers[1];
+            } else if (isAndreGallo(lookup)) {
+              targetUser = globalServerUsers.find((u) => u.id === "usr_andre") || globalServerUsers[0];
+            } else {
+              const found = globalServerUsers.find(
+                (u) =>
+                  u.id === lookup ||
+                  u.email?.toLowerCase() === lookup.toLowerCase()
+              );
+              if (found) {
+                targetUser = found;
+              } else {
+                targetUser = {
+                  id: userId || `usr_${Date.now()}`,
+                  fullName: url.searchParams.get("fullName") || "Atleta Netfits",
+                  email: email || `${userId}@netfits.com.br`,
+                  nfsBalance: 50,
+                  userCategory: "atleta",
+                };
+                globalServerUsers.push(targetUser);
+              }
+            }
           }
           const expParam = url.searchParams.get("expiresInSeconds") || url.searchParams.get("exp");
           if (expParam) {
@@ -703,9 +787,19 @@ export default {
             if (u && u.id) userMap.set(u.id, u);
           }
           for (const rawUser of incomingUsers) {
-            if (rawUser && rawUser.id) {
+            if (rawUser && (rawUser.id || rawUser.email)) {
               const u = purgeFabricatedMockData(rawUser);
-              const existing = userMap.get(u.id);
+              const targetId = isCarlosFormigari(u.id) || isCarlosFormigari(u.email)
+                ? "usr_carlos_formigari"
+                : isAndreGallo(u.id) || isAndreGallo(u.email)
+                ? "usr_andre"
+                : u.id;
+              u.id = targetId;
+              if (targetId === "usr_carlos_formigari") {
+                u.email = "crformigari72@gmail.com";
+                if (!u.fullName) u.fullName = "Carlos Rodrigo Formigari";
+              }
+              const existing = userMap.get(targetId);
               const merged = { ...existing };
               for (const [key, val] of Object.entries(u)) {
                 if (val !== undefined && val !== null && val !== "") {
@@ -719,7 +813,7 @@ export default {
                 if (parts[2]) merged.neighborhood = parts[2];
                 if (parts[3]) merged.city = parts[3];
               }
-              userMap.set(u.id, purgeFabricatedMockData(merged));
+              userMap.set(targetId, purgeFabricatedMockData(merged));
             }
           }
           globalServerUsers = Array.from(userMap.values());

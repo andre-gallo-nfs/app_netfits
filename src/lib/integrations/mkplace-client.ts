@@ -20,10 +20,17 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
     let token = "";
     let webviewUrl = "https://loja.netfits.com.br";
 
+    const userEmail = activeUser?.email || activeUser?.identifier || "";
+    const userName = activeUser?.fullName || "Atleta Netfits";
+
     const res = await fetch("/api/marketplace/mkplace/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: targetUserId }),
+      body: JSON.stringify({
+        userId: targetUserId,
+        email: userEmail,
+        fullName: userName,
+      }),
     });
 
     if (res.ok) {
@@ -43,6 +50,8 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
         btoa(JSON.stringify({
           sub: targetUserId,
           customerId: targetUserId,
+          name: userName,
+          email: userEmail,
           storeId: "RhOFkbZJIN",
           accountId: "RhOFkbZJIN",
           realm_access: { roles: ["profile:roles=STORE", "profile:roles=CUSTOMER"] },
