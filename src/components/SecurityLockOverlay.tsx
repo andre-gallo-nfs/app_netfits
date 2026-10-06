@@ -25,12 +25,24 @@ export function SecurityLockOverlay() {
   const handleBiometricUnlock = async () => {
     setErrorMessage(null);
     setIsAuthenticatingBio(true);
+
+    // Timeout de segurança na camada de UI: desativa o estado de carregamento caso a ponte congele
+    const safetyTimer = setTimeout(() => {
+      setIsAuthenticatingBio(false);
+      setErrorMessage("Sensor biométrico não respondeu a tempo. Por favor, desbloqueie com sua senha.");
+    }, 6000);
+
     try {
       const res = await appLockStore.unlockWithBiometrics();
+      clearTimeout(safetyTimer);
       if (!res.success && res.error) {
         setErrorMessage(res.error);
       }
+    } catch (err: any) {
+      clearTimeout(safetyTimer);
+      setErrorMessage("Não foi possível acessar a biometria. Desbloqueie com sua senha.");
     } finally {
+      clearTimeout(safetyTimer);
       setIsAuthenticatingBio(false);
     }
   };
@@ -38,6 +50,7 @@ export function SecurityLockOverlay() {
   const handlePasswordUnlock = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setIsAuthenticatingBio(false);
     const res = appLockStore.unlockWithPassword(password);
     if (!res.success && res.error) {
       setErrorMessage(res.error);

@@ -4,6 +4,7 @@ import { passkeyService } from "./webauthn-passkeys";
 import { sharedSandboxStore } from "./shared-sandbox-store";
 import { authStore } from "./auth-store";
 import { nativeBridge } from "./native-bridge";
+import { Capacitor } from "@capacitor/core";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
 const SESSION_UNLOCKED_KEY = "netfits_session_unlocked_v1";
@@ -13,7 +14,6 @@ class AppLockStore {
   private listeners = new Set<() => void>();
 
   constructor() {
-    // Inicia bloqueado exigindo biometria ou senha para usuários já logados
     this.unlocked = false;
 
     if (typeof window !== "undefined") {
@@ -21,13 +21,13 @@ class AppLockStore {
         sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
       } catch {}
 
-      // Ao suspender/minimizar o app por mais de 10s, volta a bloquear
+      // Ao suspender/minimizar o app por mais de 15s, volta a bloquear
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           (window as any).__netfits_bg_time = Date.now();
         } else {
           const bgTime = (window as any).__netfits_bg_time || 0;
-          if (Date.now() - bgTime > 10000) {
+          if (Date.now() - bgTime > 15000) {
             this.setUnlocked(false);
           }
         }
@@ -53,7 +53,7 @@ class AppLockStore {
   };
 
   public getServerSnapshot = (): boolean => {
-    return false; // No SSR, sempre considerado bloqueado
+    return false;
   };
 
   /**
@@ -80,35 +80,64 @@ class AppLockStore {
   }
 
   /**
-   * Desbloqueia com biometria REAL (Hardware BiometricPrompt no Android / Touch ID / Face ID)
+   * Desbloqueia com biometria (Hardware BiometricPrompt no Android / Touch ID / Face ID)
+   * Possui proteção rigorosa de Timeout e detecção de versão instalada para NUNCA travar a tela.
    */
   public async unlockWithBiometrics(): Promise<{ success: boolean; error?: string }> {
     const activeUser = sharedSandboxStore.getActiveUser();
 
+    // Guardião de Timeout: se qualquer chamada de hardware demorar mais de 6s, aborta
+    const withTimeout = <T>(promise: Promise<T>, timeoutMs = 6000): Promise<T> => {
+      return Promise.race([
+        promise,
+        new Promise<T>((_, reject) =>
+          setTimeout(() => reject(new Error("TIMEOUT_SENSOR")), timeoutMs)
+        ),
+      ]);
+    };
+
     try {
-      // 1. No aplicativo nativo móvel (Android / iOS): aciona o sensor biométrico do aparelho
+      // 1. No aplicativo móvel (Android / iOS)
       if (nativeBridge.isNativePlatform()) {
-        const check = await BiometricAuth.checkBiometry();
-        if (!check.isAvailable) {
+        // Checar se o APK instalado no celular já possui o plugin nativo compilado (v1.0.4+)
+        const hasNativePlugin =
+          typeof Capacitor !== "undefined" &&
+          (Capacitor.isPluginAvailable("BiometricAuthNative") ||
+            Capacitor.isPluginAvailable("BiometricAuth"));
+
+        if (!hasNativePlugin) {
           return {
             success: false,
-            error: "Sensor biométrico não disponível ou não configurado neste celular. Digite sua senha cadastrada.",
+            error:
+              "O leitor de biometria nativo exige a versão 1.0.4 da Google Play Store. Por favor, digite sua senha para entrar agora.",
           };
         }
 
-        // Exibe o diálogo nativo do Android / iOS (BiometricPrompt)
-        await BiometricAuth.authenticate({
-          reason: `Confirme sua impressão digital ou Face Unlock para acessar a Netfits (${activeUser.fullName})`,
-          cancelTitle: "Cancelar",
-        });
+        const check = await withTimeout(BiometricAuth.checkBiometry(), 3000);
+        if (!check || !check.isAvailable) {
+          return {
+            success: false,
+            error:
+              "Sensor biométrico não cadastrado nas configurações do seu celular. Desbloqueie com sua senha.",
+          };
+        }
+
+        // Abre o diálogo nativo do Android / iOS (BiometricPrompt)
+        await withTimeout(
+          BiometricAuth.authenticate({
+            reason: `Confirme sua digital ou Face ID para acessar sua conta Netfits (${activeUser.fullName})`,
+            cancelTitle: "Cancelar",
+          }),
+          8000
+        );
 
         this.setUnlocked(true);
         toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
         return { success: true };
       }
 
-      // 2. No navegador web: utiliza WebAuthn / Passkeys
-      const result = await passkeyService.authenticate(activeUser.id);
+      // 2. No navegador web desktop
+      const result = await withTimeout(passkeyService.authenticate(activeUser.id), 5000);
       if (result.success) {
         this.setUnlocked(true);
         toast.success(`👋 Olá, ${activeUser.fullName}! Acesso liberado.`);
@@ -116,14 +145,21 @@ class AppLockStore {
       }
       return { success: false, error: result.error || "Biometria não reconhecida." };
     } catch (err: any) {
-      console.warn("[AppLock] Biometria falhou ou foi cancelada:", err);
+      console.warn("[AppLock] Biometria falhou ou expirou:", err);
       const msg = String(err?.message || "").toLowerCase();
+      if (msg.includes("timeout")) {
+        return {
+          success: false,
+          error:
+            "O sensor biométrico demorou para responder. Por favor, desbloqueie com sua senha cadastrada.",
+        };
+      }
       if (msg.includes("cancel") || err?.code === "userCancel" || msg.includes("canceled")) {
-        return { success: false, error: "Validação biométrica cancelada." };
+        return { success: false, error: "Validação biométrica cancelada pelo usuário." };
       }
       return {
         success: false,
-        error: "Biometria não reconhecida. Tente novamente ou desbloqueie com a senha.",
+        error: "Biometria não reconhecida. Tente novamente ou digite sua senha cadastrada.",
       };
     }
   }
