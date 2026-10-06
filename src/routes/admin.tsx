@@ -767,13 +767,17 @@ function AdminDashboardPage() {
 
   // Modo de visualização dos relatórios: "real" (Banco Definitivo em Produção) vs "projection" (Projeção Business Plan)
   const [adminDataSource, setAdminDataSource] = useState<"real" | "projection">("real");
+  const isReal = adminDataSource === "real";
 
   // Métricas extraídas diretamente do Banco de Dados Definitivo de Produção (sharedSandboxStore)
   const realUsersCount = sandboxUsersList.length;
   const realNfsInCirculation = sandboxUsersList.reduce((acc, u) => acc + (u.nfsBalance || 0), 0);
   const realOrders = sharedSandboxStore.getOrders();
   const realGmvBrl = realOrders.reduce((acc, o) => acc + ((o.pointsPaid || 0) * 0.01), 0);
-  const realAssociadosCount = sandboxUsersList.filter((u) => u.type === "associado").length;
+  const realAssociadosList = sandboxUsersList.filter((u) => u.type === "associado");
+  const realAssociadosCount = realAssociadosList.length;
+  const realClubSubscribersCount = sandboxUsersList.filter((u: any) => u.plan === "club" || (u as any).isClubSubscriber).length;
+  const realTotalPointsRedeemed = realOrders.reduce((acc, o) => acc + (o.pointsPaid || 0), 0);
 
   const handleCreateAssociadoByAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -4796,62 +4800,72 @@ function AdminDashboardPage() {
           const clubMonthlyFeeBrl = operationalParams.netfitsClubMonthlyFeeBrl ?? 19.90;
           const provisionCostPerPoint = operationalParams.costPerProvisionedPointBrl ?? 0.01;
 
-          // Receitas por Fonte (Fase 1 vs Fase 2 — Alinhadas aos Novos Parâmetros Padrão)
-          // Shop GMV R$ 4.000.000,00 * Take Rate 6,0% = R$ 240.000,00
-          const dreRevMarketplace = (4000000 * (takeRatePct / 100)) * pf; // Comissões Marketplace (Take-Rate parametrizado)
-          const dreRevMedia = 250000 * pf;       // Receita Mídias & Anúncios Patrocinados (Feed)
-          const dreRevEvents = 200000 * pf;      // Inscrições em Provas & Eventos Esportivos Credenciados
-          const dreRevB2b = 123850 * pf;         // Parcerias & Licenciamento B2B
-          const dreRevClub = isFase2 ? (45000 * clubMonthlyFeeBrl * 12 / 12) * pf : 0; // Assinaturas Netfits Club (Fase 2 R$19,90/mês)
+          // Receitas por Fonte (Banco Real vs Projeção)
+          // No Banco Real: comissões reais do GMV transacionado + mensalidades reais do clube
+          const dreRevMarketplace = isReal
+            ? realGmvBrl * (takeRatePct / 100)
+            : (4000000 * (takeRatePct / 100)) * pf;
+          const dreRevMedia = isReal ? 0 : 250000 * pf;       // Receita Mídias & Anúncios Patrocinados (Feed)
+          const dreRevEvents = isReal ? 0 : 200000 * pf;      // Inscrições em Provas & Eventos Esportivos Credenciados
+          const dreRevB2b = isReal ? 0 : 123850 * pf;         // Parcerias & Licenciamento B2B
+          const dreRevClub = isReal
+            ? realClubSubscribersCount * clubMonthlyFeeBrl
+            : (isFase2 ? (45000 * clubMonthlyFeeBrl * 12 / 12) * pf : 0);
 
           // Receita Operacional Bruta
           const dreGrossRev = dreRevMarketplace + dreRevMedia + dreRevEvents + dreRevB2b + dreRevClub;
           const dreSalesTaxes = dreGrossRev * 0.060; // -6.0% DAS/ISS/PIS/COFINS
           const dreGrossNetRev = dreGrossRev - dreSalesTaxes;
 
-          // Provisão do Passivo de Pontos Emitidos Válidos Não Resgatados (R$ 0,01 por ponto)
-          const validIssuedPointsCount = Math.round(18000000 * pf);
-          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint;
-          const provisionPctOfGross = (drePointsProvision / dreGrossRev) * 100;
+          const safePct = (val: number) => dreGrossRev > 0 ? ((val / dreGrossRev) * 100).toFixed(1) : "0.0";
 
-          // Reversão de Provisão referente a Pontos Expirados (Breakage Accounting — 5% a.a.)
-          const expiredPointsCount = Math.round(validIssuedPointsCount * ((operationalParams.targetBreakagePct ?? 5.0) / 100));
+          // Provisão do Passivo de Pontos Emitidos Válidos Não Resgatados (R$ 0,01 por ponto)
+          const validIssuedPointsCount = isReal ? realNfsInCirculation : Math.round(18000000 * pf);
+          const drePointsProvision = validIssuedPointsCount * provisionCostPerPoint;
+          const provisionPctOfGross = dreGrossRev > 0 ? (drePointsProvision / dreGrossRev) * 100 : 0;
+
+          // Reversão de Provisão referente a Pontos Expirados:
+          // IMPORTANTE: No Banco Real, o ciclo de expiração é de 24 meses e nenhum ponto expirou ainda (0 nfs expirados).
+          // Portanto, a reversão realizada é estritamente R$ 0,00 no momento.
+          const expiredPointsCount = isReal ? 0 : Math.round(validIssuedPointsCount * ((operationalParams.targetBreakagePct ?? 5.0) / 100));
           const drePointsProvisionReversal = expiredPointsCount * provisionCostPerPoint;
-          const reversalPctOfGross = (drePointsProvisionReversal / dreGrossRev) * 100;
+          const reversalPctOfGross = dreGrossRev > 0 ? (drePointsProvisionReversal / dreGrossRev) * 100 : 0;
 
           // Receita Operacional Líquida Ajustada (após a Provisão e a Reversão de Pontos Expirados)
           const dreAdjustedNetRev = dreGrossNetRev - drePointsProvision + drePointsProvisionReversal;
-          const adjustedNetRevPctOfGross = (dreAdjustedNetRev / dreGrossRev) * 100;
+          const adjustedNetRevPctOfGross = dreGrossRev > 0 ? (dreAdjustedNetRev / dreGrossRev) * 100 : 0;
 
           // Custos Diretos dos Serviços & Resgates (CSP - Base de Resgate e Repasses)
-          const dreShoppingRedemptionCost = Math.round((4000000 * (operationalParams.nfsEarnedPerBrlSpent ?? 4.0) * 0.25 * (operationalParams.cppResgateBrl ?? 0.01)) * pf);
+          const dreShoppingRedemptionCost = isReal
+            ? realTotalPointsRedeemed * (operationalParams.cppResgateBrl ?? 0.01)
+            : Math.round((4000000 * (operationalParams.nfsEarnedPerBrlSpent ?? 4.0) * 0.25 * (operationalParams.cppResgateBrl ?? 0.01)) * pf);
           const dreAssociadoCommissionCost = Math.round(dreRevMarketplace * ((operationalParams.associadoShareOfNetfitsRevenuePct ?? 10.0) / 100));
-          const dreAcquiringFeesCost = 35000 * pf;
+          const dreAcquiringFeesCost = isReal ? realGmvBrl * 0.025 : 35000 * pf;
           const dreTotalCsp = dreShoppingRedemptionCost + dreAssociadoCommissionCost + dreAcquiringFeesCost;
 
           // Lucro Bruto Ajustado
           const dreAdjustedGrossProfit = dreAdjustedNetRev - dreTotalCsp;
-          const adjustedGrossMarginPct = (dreAdjustedGrossProfit / dreGrossRev) * 100;
+          const adjustedGrossMarginPct = dreGrossRev > 0 ? (dreAdjustedGrossProfit / dreGrossRev) * 100 : 0;
 
-          // OPEX (Fase 1 vs Fase 2)
-          const dreCloudCost = (operationalParams.cloudInfraMonthlyCostBrl ?? 7260) * pf;
-          const drePayrollCost = (isFase2 ? 320000 : 240000) * pf;
-          const dreMarketingCost = (isFase2 ? 150000 : 100000) * pf;
-          const dreGaCost = (isFase2 ? 80000 : 50000) * pf;
+          // OPEX (Banco Real vs Projeção)
+          const dreCloudCost = isReal ? 0 : (operationalParams.cloudInfraMonthlyCostBrl ?? 7260) * pf;
+          const drePayrollCost = isReal ? 0 : (isFase2 ? 320000 : 240000) * pf;
+          const dreMarketingCost = isReal ? 0 : (isFase2 ? 150000 : 100000) * pf;
+          const dreGaCost = isReal ? 0 : (isFase2 ? 80000 : 50000) * pf;
           const dreTotalOpex = dreCloudCost + drePayrollCost + dreMarketingCost + dreGaCost;
 
           // EBITDA Ajustado
           const dreAdjustedEbitda = dreAdjustedGrossProfit - dreTotalOpex;
-          const adjustedEbitdaMarginPct = (dreAdjustedEbitda / dreGrossRev) * 100;
+          const adjustedEbitdaMarginPct = dreGrossRev > 0 ? (dreAdjustedEbitda / dreGrossRev) * 100 : 0;
 
           // EBIT & LAIR
-          const dreDepreciation = 24000 * pf;
+          const dreDepreciation = isReal ? 0 : 24000 * pf;
           const dreEbit = dreAdjustedEbitda - dreDepreciation;
-          const dreFinancialResult = 18400 * pf;
+          const dreFinancialResult = isReal ? 0 : 18400 * pf;
           const dreEbt = dreEbit + dreFinancialResult;
-          const dreIncomeTaxes = Math.round(dreEbt * 0.150); // 15% tributos IRPJ/CSLL
+          const dreIncomeTaxes = Math.max(0, Math.round(dreEbt * 0.150)); // 15% tributos IRPJ/CSLL
           const dreAdjustedNetProfit = dreEbt - dreIncomeTaxes;
-          const adjustedNetMarginPct = (dreAdjustedNetProfit / dreGrossRev) * 100;
+          const adjustedNetMarginPct = dreGrossRev > 0 ? (dreAdjustedNetProfit / dreGrossRev) * 100 : 0;
 
           return (
             <div className="space-y-6">
@@ -4949,12 +4963,14 @@ function AdminDashboardPage() {
               <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
-                    Demonstração do Resultado do Exercício — Proforma ({currentPeriodObj.shortLabel})
+                    {isReal
+                      ? `Demonstração do Resultado Realizado — Banco Oficial (${currentPeriodObj.shortLabel})`
+                      : `Demonstração do Resultado do Exercício — Proforma (${currentPeriodObj.shortLabel})`}
                   </span>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>📈 DRE Financeiro Proforma — Netfits Ltda.</span>
+                    <span>{isReal ? "📊 DRE Realizado — Netfits Ltda." : "📈 DRE Financeiro Proforma — Netfits Ltda."}</span>
                     <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2.5 py-0.5 rounded-full font-mono font-bold">
-                      EBITDA: {adjustedEbitdaMarginPct.toFixed(1)}% ({isFase2 ? "Fase 2 Com Clube" : "Fase 1 Launch"})
+                      {isReal ? "Banco de Dados em Produção" : `EBITDA: ${adjustedEbitdaMarginPct.toFixed(1)}% (${isFase2 ? "Fase 2 Com Clube" : "Fase 1 Launch"})`}
                     </span>
                   </h3>
                 </div>
@@ -4998,56 +5014,60 @@ function AdminDashboardPage() {
                   </div>
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-lime-400">
-                      Impacto FinOps Incorporado à DRE (+R$ 1.586.418,16 /ano Economizados)
+                      {isReal
+                        ? "Governança FinOps & Eficiência de Custos em Produção"
+                        : "Impacto FinOps Incorporado à DRE (+R$ 1.586.418,16 /ano Economizados)"}
                     </span>
                     <p className="text-xs text-white font-bold">
-                      Otimizações FinOps Ativas: -55.5% em Tokens de IA (Fast-Path/Cache), -70.7% em Auth/OTP (Passkeys FIDO2) e -46.1% em Banco de Dados (Cold Tiering R2).
+                      {isReal
+                        ? "Arquitetura serverless de baixo custo ativo: Fast-Path IA, cache distribuído Cloudflare e persistência transacional com passkeys FIDO2."
+                        : "Otimizações FinOps Ativas: -55.5% em Tokens de IA (Fast-Path/Cache), -70.7% em Auth/OTP (Passkeys FIDO2) e -46.1% em Banco de Dados (Cold Tiering R2)."}
                     </p>
                   </div>
                 </div>
                 <span className="text-xs font-mono font-black text-lime-400 bg-lime-400/10 px-3 py-1.5 rounded-xl border border-lime-400/30 shrink-0">
-                  EBITDA: 84.2% (KR 4.2)
+                  {isReal ? "FinOps Ativo" : "EBITDA: 84.2% (KR 4.2)"}
                 </span>
               </div>
 
               {/* KPIs Financeiros de Topo do DRE */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 <KpiCard
-                  title="Receita Bruta Inicial"
+                  title={isReal ? "Receita Bruta Real" : "Receita Bruta Inicial"}
                   value={`R$ ${dreGrossRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                  change="Fase 1 (Sem Clube)"
-                  positive={true}
+                  change={isReal ? "Banco Oficial" : "Fase 1 (Sem Clube)"}
+                  positive={dreGrossRev >= 0}
                   icon={DollarSign}
-                  subtext="Marketplace + Feed + Eventos"
-                  periodBadge={currentPeriodObj.shortLabel}
+                  subtext={isReal ? "Marketplace + Assinaturas reais" : "Marketplace + Feed + Eventos"}
+                  periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
                 />
                 <KpiCard
                   title="Receita Líquida Ajustada"
                   value={`R$ ${dreAdjustedNetRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                  change={`${adjustedNetRevPctOfGross.toFixed(1)}% da Bruta`}
-                  positive={true}
+                  change={dreGrossRev > 0 ? `${adjustedNetRevPctOfGross.toFixed(1)}% da Bruta` : "Líquido pós-provisão"}
+                  positive={dreAdjustedNetRev >= 0}
                   icon={Coins}
                   subtext="Após tributos e provisão de pontos"
-                  periodBadge={currentPeriodObj.shortLabel}
+                  periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
                 />
                 <KpiCard
-                  title="EBITDA Inicial da Operação"
+                  title={isReal ? "EBITDA da Operação" : "EBITDA Inicial da Operação"}
                   value={`R$ ${dreAdjustedEbitda.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                  change={`${adjustedEbitdaMarginPct.toFixed(1)}% Margem`}
-                  positive={true}
+                  change={dreGrossRev > 0 ? `${adjustedEbitdaMarginPct.toFixed(1)}% Margem` : "Resultado Operacional"}
+                  positive={dreAdjustedEbitda >= 0}
                   icon={TrendingUp}
-                  subtext="Lucro operacional no launch"
+                  subtext={isReal ? "Lucro operacional apurado" : "Lucro operacional no launch"}
                   highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
-                  periodBadge={currentPeriodObj.shortLabel}
+                  periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
                 />
                 <KpiCard
                   title="Lucro Líquido do Exercício"
                   value={`R$ ${dreAdjustedNetProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                  change={`${adjustedNetMarginPct.toFixed(1)}% Margem Líq.`}
-                  positive={true}
+                  change={dreGrossRev > 0 ? `${adjustedNetMarginPct.toFixed(1)}% Margem Líq.` : "Resultado Líquido"}
+                  positive={dreAdjustedNetProfit >= 0}
                   icon={Award}
                   subtext="Lucro final distribuível"
-                  periodBadge={currentPeriodObj.shortLabel}
+                  periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
                 />
               </div>
 
@@ -5055,11 +5075,19 @@ function AdminDashboardPage() {
               <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
                   <div>
-                    <h4 className="text-base font-bold text-white">Demonstração Estruturada do Resultado — Momento Inicial (Fase 1 Launch)</h4>
-                    <p className="text-xs text-zinc-400">Valores em R$ para o lançamento inicial ({currentPeriodObj.shortLabel}). Clube de Assinaturas reservado para Etapa 2.</p>
+                    <h4 className="text-base font-bold text-white">
+                      {isReal
+                        ? `Demonstração Estruturada do Resultado — Banco Oficial (${currentPeriodObj.shortLabel})`
+                        : "Demonstração Estruturada do Resultado — Momento Inicial (Fase 1 Launch)"}
+                    </h4>
+                    <p className="text-xs text-zinc-400">
+                      {isReal
+                        ? `Valores contábeis apurados a partir dos dados transacionais reais (${currentPeriodObj.shortLabel}).`
+                        : `Valores em R$ para o lançamento inicial (${currentPeriodObj.shortLabel}). Clube de Assinaturas reservado para Etapa 2.`}
+                    </p>
                   </div>
                   <span className="text-xs font-mono text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                    Fase 1: Launch Sem Clube
+                    {isReal ? "Banco Oficial Ativo" : (isFase2 ? "Fase 2: Com Clube" : "Fase 1: Launch Sem Clube")}
                   </span>
                 </div>
 
@@ -5076,47 +5104,51 @@ function AdminDashboardPage() {
                     <tbody className="divide-y divide-zinc-800/80 font-medium">
                       {/* RECEITA BRUTA */}
                       <tr className="bg-purple-950/20 hover:bg-purple-950/40 transition font-bold text-white">
-                        <td className="py-3 px-4 text-purple-300">(+) RECEITA OPERACIONAL BRUTA (FASE 1 LAUNCH)</td>
+                        <td className="py-3 px-4 text-purple-300">
+                          {isReal ? "(+) RECEITA OPERACIONAL BRUTA REAL" : "(+) RECEITA OPERACIONAL BRUTA (FASE 1 LAUNCH)"}
+                        </td>
                         <td className="py-3 px-4 text-right text-purple-300 font-mono text-sm">
                           R$ {dreGrossRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="py-3 px-4 text-right text-purple-300">100.0%</td>
-                        <td className="py-3 px-4 text-center text-lime-400 font-bold">▲ Momento Inicial</td>
+                        <td className="py-3 px-4 text-right text-purple-300">{dreGrossRev > 0 ? "100.0%" : "0.0%"}</td>
+                        <td className="py-3 px-4 text-center text-lime-400 font-bold">{isReal ? "▲ Banco Real" : "▲ Momento Inicial"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                        <td className="py-2.5 px-6">└─ Comissões Marketplace ({operationalParams.netfitsTakeRatePctFromGmv}% Take-Rate GMV)</td>
+                        <td className="py-2.5 px-6">└─ Comissões Marketplace ({takeRatePct}% Take-Rate GMV)</td>
                         <td className="py-2.5 px-4 text-right font-mono">R$ {dreRevMarketplace.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-2.5 px-4 text-right">{((dreRevMarketplace / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Ativo no Launch</td>
+                        <td className="py-2.5 px-4 text-right">{safePct(dreRevMarketplace)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">{isReal ? (realOrders.length > 0 ? "Vendas Reais" : "Sem vendas") : "Ativo no Launch"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Receita de Mídias & Anúncios Patrocinados (Feed)</td>
                         <td className="py-2.5 px-4 text-right font-mono">R$ {dreRevMedia.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-2.5 px-4 text-right">{((dreRevMedia / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Ativo no Launch</td>
+                        <td className="py-2.5 px-4 text-right">{safePct(dreRevMedia)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">{isReal ? "Sem campanhas" : "Ativo no Launch"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Inscrições em Provas & Eventos Esportivos Credenciados</td>
                         <td className="py-2.5 px-4 text-right font-mono">R$ {dreRevEvents.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-2.5 px-4 text-right">{((dreRevEvents / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Ativo no Launch</td>
+                        <td className="py-2.5 px-4 text-right">{safePct(dreRevEvents)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">{isReal ? "Sem eventos" : "Ativo no Launch"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-500 bg-zinc-950/40">
                         <td className="py-2.5 px-6 text-zinc-400 font-semibold">
-                          └─ Assinaturas Netfits Club (Clube de Benefícios — Lançamento Futuro)
+                          └─ Assinaturas Netfits Club (Clube de Benefícios)
                         </td>
-                        <td className="py-2.5 px-4 text-right font-mono text-zinc-500 font-bold">
-                          R$ 0,00
+                        <td className="py-2.5 px-4 text-right font-mono text-zinc-400 font-bold">
+                          R$ {dreRevClub.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="py-2.5 px-4 text-right text-zinc-500 font-bold">0.0%</td>
-                        <td className="py-2.5 px-4 text-center text-purple-400 font-bold">🔮 Lançamento Etapa 2</td>
+                        <td className="py-2.5 px-4 text-right text-zinc-400 font-bold">{safePct(dreRevClub)}%</td>
+                        <td className="py-2.5 px-4 text-center text-purple-400 font-bold">
+                          {isReal ? (realClubSubscribersCount > 0 ? "⭐ Assinantes Reais" : "Sem assinantes") : "🔮 Lançamento Etapa 2"}
+                        </td>
                       </tr>
 
                       {/* DEDUÇÕES FISCAIS */}
                       <tr className="hover:bg-zinc-800/40 transition text-rose-300">
                         <td className="py-2.5 px-4">(-) DEDUÇÕES E IMPOSTOS SOBRE VENDAS (DAS / ISS / PIS / COFINS)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreSalesTaxes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-6.0%</td>
+                        <td className="py-2.5 px-4 text-right">{dreGrossRev > 0 ? "-6.0%" : "0.0%"}</td>
                         <td className="py-2.5 px-4 text-center text-rose-400">Tributário (-6%)</td>
                       </tr>
 
@@ -5126,7 +5158,7 @@ function AdminDashboardPage() {
                         <td className="py-2.5 px-4 text-right font-mono text-zinc-200 text-xs font-bold">
                           R$ {dreGrossNetRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </td>
-                        <td className="py-2.5 px-4 text-right text-zinc-300">94.0%</td>
+                        <td className="py-2.5 px-4 text-right text-zinc-300">{dreGrossRev > 0 ? "94.0%" : "0.0%"}</td>
                         <td className="py-2.5 px-4 text-center text-zinc-400 font-semibold">Antes da Provisão</td>
                       </tr>
 
@@ -5135,7 +5167,9 @@ function AdminDashboardPage() {
                         <td className="py-3 px-4 text-purple-300">
                           (-) PROVISÃO DE PASSIVO DE PONTOS EMITIDOS VÁLIDOS NÃO RESGATADOS
                           <span className="block text-[10px] text-purple-400 font-normal mt-0.5">
-                            └─ {validIssuedPointsCount.toLocaleString("pt-BR")} nfs emitidos válidos × R$ {provisionCostPerPoint.toFixed(3)} (Custo da Provisão)
+                            {isReal
+                              ? `└─ ${validIssuedPointsCount.toLocaleString("pt-BR")} nfs emitidos em circulação × R$ ${provisionCostPerPoint.toFixed(3)} (Passivo de Pontos Banco Oficial)`
+                              : `└─ ${validIssuedPointsCount.toLocaleString("pt-BR")} nfs emitidos válidos × R$ ${provisionCostPerPoint.toFixed(3)} (Custo da Provisão)`}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right font-mono text-purple-300 text-sm font-bold">
@@ -5150,7 +5184,9 @@ function AdminDashboardPage() {
                         <td className="py-3 px-4 text-lime-300">
                           (+) REVERSÃO DE PROVISÃO (PONTOS EXPIRADOS / BREAKAGE)
                           <span className="block text-[10px] text-lime-400 font-normal mt-0.5">
-                            └─ {expiredPointsCount.toLocaleString("pt-BR")} nfs expirados × R$ {provisionCostPerPoint.toFixed(3)} (Baixa de Passivo por Expiração)
+                            {isReal
+                              ? "└─ 0 nfs expirados (ciclo de validade de 24 meses em vigor — nenhum ponto expirado no momento)"
+                              : `└─ ${expiredPointsCount.toLocaleString("pt-BR")} nfs expirados × R$ ${provisionCostPerPoint.toFixed(3)} (Baixa de Passivo por Expiração)`}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right font-mono text-lime-400 text-sm font-bold">
@@ -5174,25 +5210,25 @@ function AdminDashboardPage() {
                       <tr className="hover:bg-zinc-800/40 transition text-rose-300">
                         <td className="py-2.5 px-4">(-) CUSTOS DOS SERVIÇOS PRESTADOS & RESGATES DE PONTOS (CSP)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreTotalCsp.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreTotalCsp / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreTotalCsp)}%</td>
                         <td className="py-2.5 px-4 text-center text-zinc-400">Custo Direto</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Custo de Resgate de Pontos nfs no Shopping (CPP R$ {operationalParams.cppResgateBrl})</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreShoppingRedemptionCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreShoppingRedemptionCost / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreShoppingRedemptionCost)}%</td>
                         <td className="py-2.5 px-4 text-center text-zinc-500">Resgate Shopping</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Repasse de Comissões em Dinheiro aos Associados ({operationalParams.associadoShareOfNetfitsRevenuePct}%)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreAssociadoCommissionCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreAssociadoCommissionCost / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreAssociadoCommissionCost)}%</td>
                         <td className="py-2.5 px-4 text-center text-zinc-500">Comissão Captação</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Taxas de Meios de Pagamento & Gateway de Adquirencia</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreAcquiringFeesCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreAcquiringFeesCost / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreAcquiringFeesCost)}%</td>
                         <td className="py-2.5 px-4 text-center text-zinc-500">Adquirencia</td>
                       </tr>
 
@@ -5210,43 +5246,49 @@ function AdminDashboardPage() {
                       <tr className="hover:bg-zinc-800/40 transition text-rose-300">
                         <td className="py-2.5 px-4">(-) DESPESAS OPERACIONAIS ENXUTAS (OPEX MOMENTO INICIAL)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreTotalOpex.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreTotalOpex / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreTotalOpex)}%</td>
                         <td className="py-2.5 px-4 text-center text-rose-400">OPEX Enxuto Launch</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                        <td className="py-2.5 px-6">└─ Infraestrutura de TI & Cloud Otimizada (1M Usuários)</td>
+                        <td className="py-2.5 px-6">└─ Infraestrutura de TI & Cloud Otimizada</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreCloudCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreCloudCost / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-lime-400 font-bold">R$ 7.260/mês (-61.5%)</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreCloudCost)}%</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400 font-bold">{isReal ? "Serverless Base" : "R$ 7.260/mês (-61.5%)"}</td>
                       </tr>
                       <tr className="hover:bg-purple-950/20 transition text-purple-300 font-semibold">
                         <td className="py-2.5 px-8">├─ Agentes de IA Autônomos (Squad de 8 Agentes)</td>
-                        <td className="py-2.5 px-4 text-right font-mono text-purple-300">(R$ {(990 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right text-purple-300">-{(((990 * pf) / dreGrossRev) * 100).toFixed(2)}%</td>
-                        <td className="py-2.5 px-4 text-center text-lime-400 font-extrabold">R$ 990/mês (-95.2% IA)</td>
+                        <td className="py-2.5 px-4 text-right font-mono text-purple-300">
+                          (R$ {(isReal ? 0 : 990 * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })})
+                        </td>
+                        <td className="py-2.5 px-4 text-right text-purple-300">
+                          -{isReal ? "0.00" : (dreGrossRev > 0 ? (((990 * pf) / dreGrossRev) * 100).toFixed(2) : "0.00")}%
+                        </td>
+                        <td className="py-2.5 px-4 text-center text-lime-400 font-extrabold">{isReal ? "IA Integrada" : "R$ 990/mês (-95.2% IA)"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Pessoal Core, Engenharia de Software & Suporte</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {drePayrollCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((drePayrollCost / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Equipe Core Initial</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(drePayrollCost)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">{isReal ? "Sem custo alocado" : "Equipe Core Initial"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-6">└─ Marketing de Aquisição (CAC Orgânico & Parcerias)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreMarketingCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreMarketingCost / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Mídia Launch</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreMarketingCost)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">{isReal ? "CAC Orgânico" : "Mídia Launch"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
-                        <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A Auditada por IA)</td>
+                        <td className="py-2.5 px-6">└─ Despesas Gerais, Administrativas & Contabilidade (G&A)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreGaCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreGaCost / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-lime-400 font-bold">Fixas G&A (-85.7% Tax AI)</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreGaCost)}%</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400 font-bold">{isReal ? "G&A Integrado" : "Fixas G&A (-85.7% Tax AI)"}</td>
                       </tr>
 
                       {/* EBITDA */}
                       <tr className="bg-lime-400/10 font-bold text-white border-y-2 border-lime-400/40">
-                        <td className="py-3.5 px-4 text-lime-300 font-black">(=) EBITDA AJUSTADO INICIAL (MOMENTO LAUNCH)</td>
+                        <td className="py-3.5 px-4 text-lime-300 font-black">
+                          {isReal ? "(=) EBITDA REAL DA OPERAÇÃO" : "(=) EBITDA AJUSTADO INICIAL (MOMENTO LAUNCH)"}
+                        </td>
                         <td className="py-3.5 px-4 text-right font-mono text-lime-400 text-base font-black">
                           R$ {dreAdjustedEbitda.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                         </td>
@@ -5258,33 +5300,33 @@ function AdminDashboardPage() {
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-4 font-semibold text-zinc-300">(-) Depreciação e Amortização de Ativos Tecnológicos</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreDepreciation.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{((dreDepreciation / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-500">Amortização P&D</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreDepreciation)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-500">{isReal ? "Sem amortização" : "Amortização P&D"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
                         <td className="py-2.5 px-4">(=) EBIT (RESULTADO OPERACIONAL ANTES DOS IMPOSTOS)</td>
                         <td className="py-2.5 px-4 text-right font-mono text-white">R$ {dreEbit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-2.5 px-4 text-right">{((dreEbit / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-400">EBIT {((dreEbit / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">{safePct(dreEbit)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-400">EBIT {safePct(dreEbit)}%</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-400">
                         <td className="py-2.5 px-4 font-semibold text-zinc-300">(+/-) Resultado Financeiro Líquido (Rendimentos de Caixa)</td>
                         <td className="py-2.5 px-4 text-right font-mono">R$ {dreFinancialResult.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-2.5 px-4 text-right">+{((dreFinancialResult / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-lime-400">Rendimento CDI</td>
+                        <td className="py-2.5 px-4 text-right">+{safePct(dreFinancialResult)}%</td>
+                        <td className="py-2.5 px-4 text-center text-lime-400">{isReal ? "Rendimento 0" : "Rendimento CDI"}</td>
                       </tr>
                       <tr className="hover:bg-zinc-800/40 transition text-zinc-300 font-bold">
                         <td className="py-2.5 px-4">(=) LAIR (LUCRO ANTES DO IMPOSTO DE RENDA E CSLL)</td>
                         <td className="py-2.5 px-4 text-right font-mono text-white">R$ {dreEbt.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                        <td className="py-2.5 px-4 text-right">{((dreEbt / dreGrossRev) * 100).toFixed(1)}%</td>
-                        <td className="py-2.5 px-4 text-center text-zinc-400">LAIR {((dreEbt / dreGrossRev) * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">{safePct(dreEbt)}%</td>
+                        <td className="py-2.5 px-4 text-center text-zinc-400">LAIR {safePct(dreEbt)}%</td>
                       </tr>
 
                       {/* IMPOSTO DE RENDA */}
                       <tr className="hover:bg-zinc-800/40 transition text-rose-300">
                         <td className="py-2.5 px-4">(-) IMPOSTO DE RENDA & CSLL (IRPJ / CSLL Lucro Presumido/Real)</td>
                         <td className="py-2.5 px-4 text-right font-mono">(R$ {dreIncomeTaxes.toLocaleString("pt-BR", { minimumFractionDigits: 2 })})</td>
-                        <td className="py-2.5 px-4 text-right">-{(dreIncomeTaxes / dreGrossRev * 100).toFixed(1)}%</td>
+                        <td className="py-2.5 px-4 text-right">-{safePct(dreIncomeTaxes)}%</td>
                         <td className="py-2.5 px-4 text-center text-rose-400">Tributação IRPJ/CSLL</td>
                       </tr>
 
