@@ -57,21 +57,21 @@ const DEFAULT_PRESEEDED_USERS = [
     id: "usr_andre",
     fullName: "André Gallo",
     email: "aacgallo@hotmail.com.br",
-    phone: "(11) 99535-1513",
-    cpf: "256.647.308-03",
-    birthDate: "1983-12-05",
-    address: "Rua Carlos Steinen, 193 - Paraíso, São Paulo · SP",
-    street: "Rua Carlos Steinen",
-    number: "193 apto 121",
-    neighborhood: "Paraíso",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "04004-011",
-    sports: ["Triathlon", "Corrida de rua"],
-    healthPlan: "Bradesco Saúde",
-    gym: "Bio Ritmo",
-    wearable: "Garmin Fenix",
+    phone: "",
+    cpf: "",
+    birthDate: "",
+    address: "",
+    street: "",
+    number: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    shortState: "",
+    zipcode: "",
+    sports: [],
+    healthPlan: "",
+    gym: "",
+    wearable: "",
     nfsBalance: 50,
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -102,7 +102,29 @@ const DEFAULT_PRESEEDED_USERS = [
   },
 ];
 
-let globalServerUsers: any[] = [...DEFAULT_PRESEEDED_USERS];
+function purgeFabricatedMockData(u: any): any {
+  if (!u) return u;
+  const user = { ...u };
+  if (user.birthDate === "1983-12-05" || user.birthDate === "05/12/1983") user.birthDate = "";
+  if (user.cpf === "256.647.308-03" || user.cpf === "25664730803") user.cpf = "";
+  if (user.phone === "(11) 99535-1513" || user.phone === "11995351513") user.phone = "";
+  if (typeof user.address === "string" && user.address.toLowerCase().includes("steinen")) {
+    user.address = "";
+    user.street = "";
+    user.number = "";
+    user.neighborhood = "";
+    user.city = "";
+    user.state = "";
+    user.shortState = "";
+    user.zipcode = "";
+  }
+  if (user.gym === "Bio Ritmo") user.gym = "";
+  if (user.healthPlan === "Bradesco Saúde") user.healthPlan = "";
+  if (user.wearable === "Garmin Fenix") user.wearable = "";
+  return user;
+}
+
+let globalServerUsers: any[] = DEFAULT_PRESEEDED_USERS.map(purgeFabricatedMockData);
 let lastSyncTimestamp = new Date().toISOString();
 
 const handler = createStartHandler(defaultStreamHandler);
@@ -162,17 +184,17 @@ function resolveUserFromToken(token?: string | null): any {
       id: customerId || "usr_andre",
       fullName: payload.name || "André Gallo",
       email: payload.email || "aacgallo@hotmail.com.br",
-      phone: globalServerUsers[0]?.phone || "11995351513",
-      cpf: globalServerUsers[0]?.cpf || "25664730803",
-      birthDate: globalServerUsers[0]?.birthDate || "1983-12-05",
-      address: globalServerUsers[0]?.address || "Rua Carlos Steinen, 193",
-      street: globalServerUsers[0]?.street || "Rua Carlos Steinen",
-      number: globalServerUsers[0]?.number || "193 apto 121 Paraíso",
-      neighborhood: globalServerUsers[0]?.neighborhood || "São Paulo",
-      city: globalServerUsers[0]?.city || "SP",
-      state: globalServerUsers[0]?.state || "São Paulo",
-      shortState: globalServerUsers[0]?.shortState || "SP",
-      zipcode: globalServerUsers[0]?.zipcode || "01452-000",
+      phone: globalServerUsers[0]?.phone || "",
+      cpf: globalServerUsers[0]?.cpf || "",
+      birthDate: globalServerUsers[0]?.birthDate || "",
+      address: globalServerUsers[0]?.address || "",
+      street: globalServerUsers[0]?.street || "",
+      number: globalServerUsers[0]?.number || "",
+      neighborhood: globalServerUsers[0]?.neighborhood || "",
+      city: globalServerUsers[0]?.city || "",
+      state: globalServerUsers[0]?.state || "",
+      shortState: globalServerUsers[0]?.shortState || "",
+      zipcode: globalServerUsers[0]?.zipcode || "",
       nfsBalance: 50,
       userCategory: "associado",
     };
@@ -680,8 +702,9 @@ export default {
           for (const u of globalServerUsers) {
             if (u && u.id) userMap.set(u.id, u);
           }
-          for (const u of incomingUsers) {
-            if (u && u.id) {
+          for (const rawUser of incomingUsers) {
+            if (rawUser && rawUser.id) {
+              const u = purgeFabricatedMockData(rawUser);
               const existing = userMap.get(u.id);
               const merged = { ...existing };
               for (const [key, val] of Object.entries(u)) {
@@ -696,7 +719,7 @@ export default {
                 if (parts[2]) merged.neighborhood = parts[2];
                 if (parts[3]) merged.city = parts[3];
               }
-              userMap.set(u.id, merged);
+              userMap.set(u.id, purgeFabricatedMockData(merged));
             }
           }
           globalServerUsers = Array.from(userMap.values());

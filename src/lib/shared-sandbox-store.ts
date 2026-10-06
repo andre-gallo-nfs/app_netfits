@@ -107,6 +107,34 @@ const STORAGE_KEY = "netfits_production_db_v2";
 const DEVICE_SESSION_KEY = "netfits_production_active_user_v1";
 const SYNC_CHANNEL = "netfits_production_sync_channel";
 
+export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T {
+  if (!u) return u;
+  const user = { ...u } as any;
+  if (user.birthDate === "1983-12-05" || user.birthDate === "05/12/1983") {
+    user.birthDate = "";
+  }
+  if (user.cpf === "256.647.308-03" || user.cpf === "25664730803") {
+    user.cpf = "";
+  }
+  if (user.phone === "(11) 99535-1513" || user.phone === "11995351513") {
+    user.phone = "";
+  }
+  if (typeof user.address === "string" && user.address.toLowerCase().includes("steinen")) {
+    user.address = "";
+    user.street = "";
+    user.number = "";
+    user.neighborhood = "";
+    user.city = "";
+    user.state = "";
+    user.shortState = "";
+    user.zipcode = "";
+  }
+  if (user.gym === "Bio Ritmo") user.gym = "";
+  if (user.healthPlan === "Bradesco Saúde") user.healthPlan = "";
+  if (user.wearable === "Garmin Fenix") user.wearable = "";
+  return user as T;
+}
+
 // Base Definitiva e Oficial de Usuários em Produção (Go-Live)
 // Contém estritamente os 3 usuários oficiais da liderança Netfits
 const INITIAL_USERS: SandboxUser[] = [
@@ -116,21 +144,21 @@ const INITIAL_USERS: SandboxUser[] = [
     email: "aacgallo@hotmail.com.br",
     fullName: "André Gallo",
     type: "admin",
-    phone: "(11) 99535-1513",
-    cpf: "256.647.308-03",
-    birthDate: "1983-12-05",
-    address: "Rua Carlos Steinen, 193 - Paraíso, São Paulo · SP",
-    street: "Rua Carlos Steinen",
-    number: "193 apto 121",
-    neighborhood: "Paraíso",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "04004-011",
-    sports: ["Triathlon", "Corrida de rua"],
-    healthPlan: "Bradesco Saúde",
-    gym: "Bio Ritmo",
-    wearable: "Garmin Fenix",
+    phone: "",
+    cpf: "",
+    birthDate: "",
+    address: "",
+    street: "",
+    number: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    shortState: "",
+    zipcode: "",
+    sports: [],
+    healthPlan: "",
+    gym: "",
+    wearable: "",
     nfsBalance: 50,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -285,8 +313,9 @@ class HomologationSandboxStore {
         const serverUsers: SandboxUser[] = json?.users || [];
         if (Array.isArray(serverUsers) && serverUsers.length > 0) {
           let hasNew = false;
-          for (const su of serverUsers) {
-            if (!su || !su.id) continue;
+          for (const rawSu of serverUsers) {
+            if (!rawSu || !rawSu.id) continue;
+            const su = purgeFabricatedMockData(rawSu);
             const idx = this.state.users.findIndex(
               (u) =>
                 u.id === su.id ||
@@ -304,7 +333,7 @@ class HomologationSandboxStore {
                   }
                 }
               }
-              this.state.users[idx] = merged;
+              this.state.users[idx] = purgeFabricatedMockData(merged);
             } else {
               this.state.users.push(su);
             }
@@ -404,40 +433,28 @@ class HomologationSandboxStore {
           if (existingIdx === -1) {
             mergedUsers.push(initUser);
             hasNewUsers = true;
-          } else {
-            // Garante que campos preenchidos nos dados definitivos preencham registros parciais
-            const current = mergedUsers[existingIdx];
-            for (const [k, v] of Object.entries(initUser)) {
-              if (
-                v !== undefined &&
-                v !== "" &&
-                (!(current as any)[k] ||
-                  (current as any)[k] === "" ||
-                  (Array.isArray((current as any)[k]) && (current as any)[k].length === 0))
-              ) {
-                (current as any)[k] = v;
-                hasNewUsers = true;
-              }
-            }
           }
         }
         stored.users = mergedUsers.map((u) => {
+          let userWithBackup = { ...u };
           try {
             const bRaw = localStorage.getItem(`netfits_profile_saved_${u.id}`);
             if (bRaw) {
               const backup = JSON.parse(bRaw);
-              return { ...u, ...backup };
+              userWithBackup = { ...userWithBackup, ...backup };
             }
           } catch {}
-          return u;
+          const cleaned = purgeFabricatedMockData(userWithBackup);
+          try {
+            localStorage.setItem(`netfits_profile_saved_${u.id}`, JSON.stringify(cleaned));
+          } catch {}
+          return cleaned;
         });
         stored.interactions = (stored.interactions || []).filter((i) => !i.id.startsWith("int-00"));
         if (!stored.activeUserId) {
           stored.activeUserId = "usr_andre";
         }
-        if (hasNewUsers) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
         return stored;
       }
     } catch (e) {
