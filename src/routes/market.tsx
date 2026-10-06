@@ -141,11 +141,11 @@ function MarketEmbeddedPage() {
             <div className="space-y-1.5 pt-2 border-t border-zinc-800/60 text-[11px] text-zinc-300">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-3.5 text-lime-400 shrink-0" />
-                <span>Cashback padrão de <strong>4,00 nfs por R$ 1,00</strong> em todo o catálogo</span>
+                <span>Ganhe Netfits: <strong>4,00 nfs por R$ 1,00</strong> em todo o catálogo</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-3.5 text-lime-400 shrink-0" />
-                <span>Split payment: use seus pontos como abatimento no carrinho</span>
+                <span>Use seus Netfits como abatimento direto no carrinho</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-3.5 text-lime-400 shrink-0" />

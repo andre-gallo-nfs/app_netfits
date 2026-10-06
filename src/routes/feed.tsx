@@ -282,7 +282,7 @@ function FeedCard({ item }: { item: FeedItem }) {
           </div>
           <div className="text-right">
             <span className="text-xs font-semibold text-brand">{item.tier}</span>
-            <span className="block text-[10px] text-muted-foreground">Cashback em consultas</span>
+            <span className="block text-[10px] text-muted-foreground">Ganhe Netfits em consultas</span>
           </div>
         </div>
         <SocialActions id={item.id} title={item.title} />

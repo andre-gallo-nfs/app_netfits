@@ -53,7 +53,7 @@ function WalletPage() {
               className="w-full bg-brand text-brand-foreground text-xs font-bold py-3 rounded-full hover:brightness-110 active:scale-95 transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <ShoppingBag className="size-4" />
-              <span>Resgatar Pontos Netfits no Shop</span>
+              <span>Use seus Netfits no Shop</span>
             </Link>
           </div>
           <div className="absolute right-[-10%] bottom-[-30%] w-64 h-64 bg-brand/10 blur-3xl rounded-full pointer-events-none" />

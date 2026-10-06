@@ -21,13 +21,21 @@ class AppLockStore {
         sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
       } catch {}
 
-      // Ao suspender/minimizar o app por mais de 15s, volta a bloquear
+      // Ao suspender/minimizar o app por mais de 5 minutos (300s), volta a bloquear.
+      // Se o usuário estiver na jornada de checkout (/market ou flag ativa), tolera até 10 minutos para copiar dados do cartão no banco sem re-bloqueio.
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           (window as any).__netfits_bg_time = Date.now();
         } else {
           const bgTime = (window as any).__netfits_bg_time || 0;
-          if (Date.now() - bgTime > 15000) {
+          const elapsed = Date.now() - bgTime;
+          const isCheckout =
+            typeof window !== "undefined" &&
+            (window.location.pathname.includes("/market") ||
+              (window as any).__netfits_in_checkout === true);
+          const maxAllowedTime = isCheckout ? 600000 : 300000; // 10 min em checkout, 5 min geral
+
+          if (elapsed > maxAllowedTime) {
             this.setUnlocked(false);
           }
         }
@@ -77,6 +85,21 @@ class AppLockStore {
   public lock() {
     this.setUnlocked(false);
     toast.info("🔒 Aplicativo bloqueado com segurança.");
+  }
+
+  /**
+   * Ativa modo de tolerância estendida durante o checkout (ex: copiar cartão virtual no banco)
+   */
+  public enterCheckoutMode() {
+    if (typeof window !== "undefined") {
+      (window as any).__netfits_in_checkout = true;
+    }
+  }
+
+  public exitCheckoutMode() {
+    if (typeof window !== "undefined") {
+      (window as any).__netfits_in_checkout = false;
+    }
   }
 
   /**

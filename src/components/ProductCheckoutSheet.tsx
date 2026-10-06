@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   X,
   Check,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useWallet, wallet, parseNfs } from "@/lib/wallet-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { appLockStore } from "@/lib/app-lock-store";
 
 export type CheckoutProduct = {
   id: string;
@@ -53,6 +54,13 @@ export function ProductCheckoutSheet({
   const [confirmed, setConfirmed] = useState(false);
   const { balance: NFS_BALANCE } = useWallet();
 
+  useEffect(() => {
+    appLockStore.enterCheckoutMode();
+    return () => {
+      appLockStore.exitCheckoutMode();
+    };
+  }, []);
+
   const priceNum = useMemo(() => parseBRL(product.price), [product.price]);
 
   // Máximo de nfs aplicáveis: o que cobre o produto inteiro, limitado ao saldo
@@ -74,7 +82,7 @@ export function ProductCheckoutSheet({
       sharedSandboxStore.buyShopProduct(product.title, Math.ceil(priceNum / NFS_RATE));
     }
     if (cashbackNfs > 0) {
-      wallet.earn(cashbackNfs, `Cashback compra ${product.title}`);
+      wallet.earn(cashbackNfs, `Ganhe Netfits na compra ${product.title}`);
     }
     setConfirmed(true);
   }
@@ -145,7 +153,7 @@ export function ProductCheckoutSheet({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold leading-tight">
-                    Usar netfits no pagamento
+                    Use seus Netfits no pagamento
                   </p>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     Saldo: <b>{NFS_BALANCE.toLocaleString("pt-BR")} nfs</b>

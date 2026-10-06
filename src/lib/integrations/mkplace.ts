@@ -389,7 +389,26 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
   const areaCode = digits.length >= 10 ? digits.slice(-11, -9) : "11";
   const number = digits.length >= 10 ? digits.slice(-9) : digits;
 
-  const rawCpf = (user.cpf || "12345678900").replace(/\D/g, "");
+  const rawCpf = (user.cpf || "").replace(/\D/g, "");
+  const hasValidAddress = Boolean(user.street || user.address);
+  const addresses: MkplaceAddress[] = hasValidAddress
+    ? [
+        {
+          isPrimary: true,
+          receiverName: user.fullName || "Atleta Netfits",
+          street: user.street || user.address || "",
+          number: user.number || "S/N",
+          complement: user.complement || "",
+          neighborhood: user.neighborhood || "",
+          city: user.city || "",
+          state: user.state || "",
+          shortState: user.shortState || "SP",
+          zipcode: user.zipcode || "",
+          countryCode: "BR",
+          type: "residential",
+        },
+      ]
+    : [];
 
   return {
     _id: String(user.id || "usr_101"),
@@ -398,22 +417,7 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
     email: user.email || "atleta@netfits.com.br",
     document: rawCpf,
     type: "individual",
-    addresses: [
-      {
-        isPrimary: true,
-        receiverName: user.fullName || "Atleta Netfits",
-        street: user.street || user.address || "",
-        number: user.number || "S/N",
-        complement: user.complement || "",
-        neighborhood: user.neighborhood || "",
-        city: user.city || "São Paulo",
-        state: user.state || "São Paulo",
-        shortState: user.shortState || "SP",
-        zipcode: user.zipcode || "",
-        countryCode: "BR",
-        type: "residential",
-      },
-    ],
+    addresses,
     phones: [
       {
         countryCode: "55",

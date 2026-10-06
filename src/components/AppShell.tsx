@@ -10,7 +10,6 @@ import { NetfitAiAssistant } from "./NetfitAiAssistant";
 const tabs = [
   { to: "/feed", label: "Feed", icon: Home },
   { to: "/market", label: "Shop", icon: ShoppingBag },
-  { to: "/activities", label: "Atividades", icon: Activity },
   { to: "/levels", label: "Badges", icon: Award },
   { to: "/wallet", label: "Carteira", icon: Wallet },
 ] as const;

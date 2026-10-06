@@ -34,6 +34,26 @@ function formatPhone(value: string): string {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
 
+function formatBirthDateMask(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function isValidBirthDate(str: string): boolean {
+  const digits = str.replace(/\D/g, "");
+  if (digits.length !== 8) return false;
+  const day = parseInt(digits.slice(0, 2), 10);
+  const month = parseInt(digits.slice(2, 4), 10);
+  const year = parseInt(digits.slice(4, 8), 10);
+  const currentYear = new Date().getFullYear();
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+  if (year < 1920 || year > currentYear - 5) return false;
+  return true;
+}
+
 const EMAIL_DOMAINS = [
   "@gmail.com",
   "@hotmail.com",
@@ -158,8 +178,8 @@ function AuthPage() {
     }
 
     // 5. Data de Nascimento Obrigatória
-    if (!birthDate.trim()) {
-      setFormError("Por favor, selecione sua Data de Nascimento.");
+    if (!birthDate.trim() || !isValidBirthDate(birthDate)) {
+      setFormError("Por favor, informe sua Data de Nascimento no formato DD/MM/AAAA (ex: 15/08/1988).");
       return;
     }
 
@@ -497,10 +517,13 @@ function AuthPage() {
                 <Calendar className="size-4 text-purple-600" />
               </div>
               <input
-                type="date"
+                type="text"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="DD/MM/AAAA (ex: 15/08/1988)"
                 value={birthDate}
                 onChange={(e) => {
-                  setBirthDate(e.target.value);
+                  setBirthDate(formatBirthDateMask(e.target.value));
                   setFormError(null);
                 }}
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
@@ -1035,9 +1058,12 @@ function ForgotPasswordCard({ onClose }: { onClose: () => void }) {
             <div className="space-y-1">
               <label className="text-xs font-bold text-zinc-900">Data de Nascimento *</label>
               <input
-                type="date"
+                type="text"
+                inputMode="numeric"
+                maxLength={10}
+                placeholder="DD/MM/AAAA (ex: 15/08/1988)"
                 value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
+                onChange={(e) => setBirthDate(formatBirthDateMask(e.target.value))}
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:bg-white"
                 required
               />
