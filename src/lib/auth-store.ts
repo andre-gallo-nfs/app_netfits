@@ -150,14 +150,39 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
-    // 0. Reconhecer instantaneamente variações do e-mail oficial do André Gallo
+    // 0. Reconhecer instantaneamente os 3 usuários oficiais da Netfits
     if (
       raw === "aacgallo@hotmail.com" ||
       raw === "aacgallo@hotmail.com.br" ||
-      raw === "andre.gallo@netfits.com.br"
+      raw === "andre.gallo@netfits.com.br" ||
+      raw === "usr_andre" ||
+      raw.includes("andre gallo") ||
+      raw.includes("andré gallo")
     ) {
       const andreUser = storedUsers.find((u) => u.id === "usr_andre") || storedUsers[0];
       return { exists: true, matchedField: "email", matchedUser: andreUser };
+    }
+
+    if (
+      raw === "carlos.formigari@netfits.com.br" ||
+      raw === "carlos@netfits.com.br" ||
+      raw === "formigari@netfits.com.br" ||
+      raw.includes("formigari") ||
+      raw === "usr_carlos_formigari"
+    ) {
+      const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari") || storedUsers[1];
+      return { exists: true, matchedField: "email", matchedUser: carlosUser };
+    }
+
+    if (
+      raw === "cristiane.gallo@netfits.com.br" ||
+      raw === "cristiane@netfits.com.br" ||
+      raw === "cris.gallo@netfits.com.br" ||
+      raw.includes("cristiane") ||
+      raw === "usr_cristiane_gallo"
+    ) {
+      const crisUser = storedUsers.find((u) => u.id === "usr_cristiane_gallo") || storedUsers[2];
+      return { exists: true, matchedField: "email", matchedUser: crisUser };
     }
 
     // 1. Checar lista local de usuários salvos

@@ -687,11 +687,12 @@ class HomologationSandboxStore {
     const cleanPhoneDigits = data.phone.replace(/\D/g, "");
     const cleanCpfDigits = data.cpf.replace(/\D/g, "");
 
-    // Reconhecimento do André Gallo completando/atualizando seus dados cadastrais
+    // 1. Reconhecimento do André Gallo completando/atualizando seus dados cadastrais
     const isAndre =
       cleanEmail === "aacgallo@hotmail.com" ||
       cleanEmail === "aacgallo@hotmail.com.br" ||
-      cleanEmail === "andre.gallo@netfits.com.br";
+      cleanEmail === "andre.gallo@netfits.com.br" ||
+      (data.fullName && data.fullName.toLowerCase().includes("andré gallo"));
 
     if (isAndre) {
       const existingAndre = this.state.users.find((u) => u.id === "usr_andre");
@@ -705,6 +706,48 @@ class HomologationSandboxStore {
         this.saveToStorage();
         this.setActiveUser("usr_andre");
         return { success: true, user: existingAndre };
+      }
+    }
+
+    // 2. Reconhecimento do Carlos Rodrigo Formigari completando/ativando seu cadastro
+    const isCarlos =
+      cleanEmail === "carlos.formigari@netfits.com.br" ||
+      cleanEmail.includes("formigari") ||
+      (data.fullName && data.fullName.toLowerCase().includes("formigari"));
+
+    if (isCarlos) {
+      const existingCarlos = this.state.users.find((u) => u.id === "usr_carlos_formigari");
+      if (existingCarlos) {
+        if (data.fullName?.trim()) existingCarlos.fullName = data.fullName.trim();
+        existingCarlos.email = data.email.trim();
+        existingCarlos.identifier = data.email.trim();
+        if (data.phone?.trim()) existingCarlos.phone = data.phone.trim();
+        if (data.cpf?.trim()) existingCarlos.cpf = data.cpf.trim();
+        if (data.birthDate?.trim()) existingCarlos.birthDate = data.birthDate.trim();
+        this.saveToStorage();
+        this.setActiveUser("usr_carlos_formigari");
+        return { success: true, user: existingCarlos };
+      }
+    }
+
+    // 3. Reconhecimento da Cristiane Queli da Silva Gallo completando/ativando seu cadastro
+    const isCris =
+      cleanEmail === "cristiane.gallo@netfits.com.br" ||
+      cleanEmail.includes("cristiane") ||
+      (data.fullName && data.fullName.toLowerCase().includes("cristiane"));
+
+    if (isCris) {
+      const existingCris = this.state.users.find((u) => u.id === "usr_cristiane_gallo");
+      if (existingCris) {
+        if (data.fullName?.trim()) existingCris.fullName = data.fullName.trim();
+        existingCris.email = data.email.trim();
+        existingCris.identifier = data.email.trim();
+        if (data.phone?.trim()) existingCris.phone = data.phone.trim();
+        if (data.cpf?.trim()) existingCris.cpf = data.cpf.trim();
+        if (data.birthDate?.trim()) existingCris.birthDate = data.birthDate.trim();
+        this.saveToStorage();
+        this.setActiveUser("usr_cristiane_gallo");
+        return { success: true, user: existingCris };
       }
     }
 

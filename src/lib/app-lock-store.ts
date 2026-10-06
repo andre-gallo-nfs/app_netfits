@@ -207,6 +207,7 @@ class AppLockStore {
     const validPasswords = [
       foundStored?.passwordHash,
       "Netfits#2026",
+      "Netfits@2026",
       "Pass@1234",
       "123456",
       "netfits2026",
