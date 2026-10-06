@@ -36,15 +36,28 @@ export const Route = createFileRoute("/admin")({
 // Tipos e opções de períodos de tempo acumulados
 type PeriodType = "1h" | "today" | "24h" | "week" | "7d" | "month" | "year";
 
-const TIME_PERIODS: { id: PeriodType; label: string; shortLabel: string; factor: number; desc: string }[] = [
-  { id: "1h", label: "⏱️ Última Hora", shortLabel: "1 hora", factor: 0.035, desc: "Acumulado nos últimos 60 minutos" },
-  { id: "today", label: "📅 No Dia (Hoje)", shortLabel: "Hoje", factor: 0.12, desc: "Acumulado no dia de hoje" },
-  { id: "24h", label: "⏳ Últimas 24 Horas", shortLabel: "24h", factor: 0.15, desc: "Acumulado nas últimas 24 horas" },
-  { id: "week", label: "🗓️ Esta Semana", shortLabel: "Semana", factor: 0.28, desc: "Acumulado na semana corrente" },
-  { id: "7d", label: "📆 Últimos 7 Dias", shortLabel: "7 dias", factor: 0.30, desc: "Acumulado nos últimos 7 dias" },
-  { id: "month", label: "📊 No Mês (Agosto)", shortLabel: "Mês", factor: 1.00, desc: "Acumulado no mês de referência" },
-  { id: "year", label: "🚀 No Ano (2026)", shortLabel: "Ano", factor: 11.40, desc: "Acumulado no ano de 2026" },
+const MONTH_NAMES_PT = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
+
+export const getDynamicTimePeriods = (): { id: PeriodType; label: string; shortLabel: string; factor: number; desc: string }[] => {
+  const now = new Date();
+  const currentMonth = MONTH_NAMES_PT[now.getMonth()] || "Mês Corrente";
+  const currentYear = now.getFullYear();
+
+  return [
+    { id: "1h", label: "⏱️ Última Hora", shortLabel: "1 hora", factor: 0.035, desc: "Acumulado nos últimos 60 minutos" },
+    { id: "today", label: "📅 No Dia (Hoje)", shortLabel: "Hoje", factor: 0.12, desc: "Acumulado no dia de hoje" },
+    { id: "24h", label: "⏳ Últimas 24 Horas", shortLabel: "24h", factor: 0.15, desc: "Acumulado nas últimas 24 horas" },
+    { id: "week", label: "🗓️ Esta Semana", shortLabel: "Semana", factor: 0.28, desc: "Acumulado na semana corrente" },
+    { id: "7d", label: "📆 Últimos 7 Dias", shortLabel: "7 dias", factor: 0.30, desc: "Acumulado nos últimos 7 dias" },
+    { id: "month", label: `📊 No Mês (${currentMonth})`, shortLabel: "Mês", factor: 1.00, desc: `Acumulado no mês de referência (${currentMonth})` },
+    { id: "year", label: `🚀 No Ano (${currentYear})`, shortLabel: "Ano", factor: 11.40, desc: `Acumulado no ano de ${currentYear}` },
+  ];
+};
+
+const TIME_PERIODS = getDynamicTimePeriods();
 
 type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "mkplace" | "interactions";
 
