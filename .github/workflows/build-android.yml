@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: read
 
     steps:
       - name: Checkout Code
@@ -38,9 +39,33 @@ jobs:
 
       - name: Validate or Restore Upload Keystore
         working-directory: android/app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -f "netfits-upload-key.jks" ]; then
-            echo "✅ Official Netfits upload keystore found in repository."
+          TARGET_SHA1="D7:AB:16:0F:03:08:80:7B:3C:9E:60:51:2E:D5:BC:44:45:A7:AA:F6"
+          echo "Scanning previous workflow run artifacts for SHA1: $TARGET_SHA1..."
+          FOUND="false"
+
+          for run_id in $(gh run list --workflow=build-android.yml --limit 30 --json databaseId -q '.[].databaseId'); do
+            mkdir -p /tmp/check_$run_id
+            if gh run download $run_id -n netfits-upload-keystore -D /tmp/check_$run_id 2>/dev/null; then
+              if [ -f /tmp/check_$run_id/netfits-upload-key.jks ]; then
+                fp=$(keytool -list -v -keystore /tmp/check_$run_id/netfits-upload-key.jks -storepass "Netfits@2026!App" | grep "SHA1:" || true)
+                echo "Run $run_id: $fp"
+                if echo "$fp" | grep -qi "D7:AB:16:0F"; then
+                  echo "🎯 MATCH FOUND IN RUN $run_id! Restoring this exact keystore..."
+                  cp /tmp/check_$run_id/netfits-upload-key.jks netfits-upload-key.jks
+                  FOUND="true"
+                  break
+                fi
+              fi
+            fi
+          done
+
+          if [ "$FOUND" = "true" ]; then
+            echo "✅ Target Keystore with SHA1 $TARGET_SHA1 restored!"
+          elif [ -f "netfits-upload-key.jks" ]; then
+            echo "Using committed netfits-upload-key.jks."
           elif [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > netfits-upload-key.jks
             echo "Keystore restored from GitHub Secret."
@@ -55,10 +80,13 @@ jobs:
               -storepass "Netfits@2026!App" \
               -keypass "Netfits@2026!App" \
               -dname "CN=Netfits Mobile, OU=Engenharia, O=Netfits Ltda, L=Santana de Parnaiba, ST=SP, C=BR"
-            echo "Keystore generated successfully."
           fi
-          echo "### 🔑 Keystore Fingerprints:"
+
+          echo "### 🔑 Active Keystore Fingerprints:"
           keytool -list -v -keystore netfits-upload-key.jks -storepass "Netfits@2026!App" | grep -A 3 "Certificate fingerprints:" || true
+
+          echo "Exporting public PEM certificate..."
+          keytool -export -rfc -keystore netfits-upload-key.jks -alias netfits-upload -storepass "Netfits@2026!App" -file upload_certificate.pem
 
       - name: Grant Execute Permission to Gradlew
         working-directory: android
@@ -127,6 +155,7 @@ jobs:
           files: |
             android/app/build/outputs/bundle/release/*.aab
             android/app/netfits-upload-key.jks
+            android/app/upload_certificate.pem
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
