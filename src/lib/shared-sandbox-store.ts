@@ -103,11 +103,12 @@ export interface SandboxInteraction {
   tags: string[];
 }
 
-const STORAGE_KEY = "netfits_production_db_v1";
+const STORAGE_KEY = "netfits_production_db_v2";
 const DEVICE_SESSION_KEY = "netfits_production_active_user_v1";
 const SYNC_CHANNEL = "netfits_production_sync_channel";
 
-// Base Definitiva de Usuários em Produção (Go-Live)
+// Base Definitiva e Oficial de Usuários em Produção (Go-Live)
+// Contém estritamente os 3 usuários oficiais da liderança Netfits
 const INITIAL_USERS: SandboxUser[] = [
   {
     id: "usr_andre",
@@ -115,40 +116,33 @@ const INITIAL_USERS: SandboxUser[] = [
     email: "aacgallo@hotmail.com.br",
     fullName: "André Gallo",
     type: "admin",
-    nfsBalance: 50, // Saldo inicial oficial de 50 nfs pelo cadastramento
+    nfsBalance: 50,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
   },
+  {
+    id: "usr_carlos_formigari",
+    identifier: "carlos.formigari@netfits.com.br",
+    email: "carlos.formigari@netfits.com.br",
+    fullName: "Carlos Rodrigo Formigari",
+    type: "athlete",
+    nfsBalance: 50,
+    referralCode: "FORMIGARI-NFS",
+    registeredAt: "2026-10-06T00:00:00Z",
+  },
+  {
+    id: "usr_cristiane_gallo",
+    identifier: "cristiane.gallo@netfits.com.br",
+    email: "cristiane.gallo@netfits.com.br",
+    fullName: "Cristiane Queli da Silva Gallo",
+    type: "athlete",
+    nfsBalance: 50,
+    referralCode: "CRIS-NETFITS",
+    registeredAt: "2026-10-06T00:00:00Z",
+  },
 ];
 
-const INITIAL_PARTNERS: SandboxPartner[] = [
-  {
-    id: "part-1",
-    tradeName: "Smart Fit Paulista",
-    companyName: "Smartfit Escola de Ginástica e Dança S.A.",
-    cnpj: "07.594.978/0001-78",
-    category: "Academia",
-    city: "São Paulo",
-    state: "SP",
-    email: "parceiro@smartfit.com.br",
-    phone: "(11) 98888-1000",
-    status: "ativo",
-    registeredAt: "2026-08-20T09:00:00Z",
-  },
-  {
-    id: "part-2",
-    tradeName: "Clínica Fibios Nutrologia",
-    companyName: "Fibios Medicina Esportiva Ltda.",
-    cnpj: "34.123.456/0001-99",
-    category: "Clínica",
-    city: "São Paulo",
-    state: "SP",
-    email: "contato@fibios.com.br",
-    phone: "(11) 97777-2200",
-    status: "ativo",
-    registeredAt: "2026-08-20T09:30:00Z",
-  },
-];
+const INITIAL_PARTNERS: SandboxPartner[] = [];
 
 const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
   {
@@ -160,134 +154,32 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     category: "welcome",
     timestamp: "2026-10-05T00:00:00Z",
   },
+  {
+    id: "tx-welcome-carlos",
+    userId: "usr_carlos_formigari",
+    userName: "Carlos Rodrigo Formigari",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+    category: "welcome",
+    timestamp: "2026-10-06T00:00:00Z",
+  },
+  {
+    id: "tx-welcome-cristiane",
+    userId: "usr_cristiane_gallo",
+    userName: "Cristiane Queli da Silva Gallo",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+    category: "welcome",
+    timestamp: "2026-10-06T00:00:00Z",
+  },
 ];
 
 const INITIAL_TICKETS: SandboxTicket[] = [];
 
 const INITIAL_ORDERS: SandboxOrder[] = [];
 
-const INITIAL_INTERACTIONS: SandboxInteraction[] = [
-  {
-    id: "int-001",
-    timestamp: "2026-08-27T13:10:00Z",
-    sourceRole: "atleta",
-    sourceName: "André Gallo",
-    sourceContact: "gallo@netfits.com.br",
-    channel: "chat",
-    subject: "Dúvida sobre sincronização de wearable Garmin e Strava",
-    intent: "duvida",
-    content: "Como faço para garantir que meus treinos de corrida do Garmin Connect enviem os pontos nfs automaticamente sem precisar abrir o app toda vez?",
-    sentiment: "positivo",
-    businessInsight: "Demanda por webhook background automático de sync de wearables em segundo plano para atrito zero na conversão de pontos.",
-    status: "incorporado_ao_roadmap",
-    tags: ["Wearables", "Garmin", "Automação", "UX"],
-  },
-  {
-    id: "int-002",
-    timestamp: "2026-08-27T11:45:00Z",
-    sourceRole: "parceiro",
-    sourceName: "Academia Velocity Club",
-    sourceContact: "contato@velocityclub.com.br",
-    channel: "whatsapp",
-    subject: "Aumento de fluxo de alunos credenciados Netfits na unidade Jardins",
-    intent: "elogio",
-    content: "Registramos um aumento de 34% no fluxo de novos alunos esta semana apresentando o QR Code da Netfits. Queremos ampliar para as unidades Moema e Barra da Tijuca.",
-    sentiment: "positivo",
-    businessInsight: "Alta eficiência da rede credenciada parceira B2B; oportunidade imediata de expansão de unidades físicas.",
-    status: "incorporado_ao_roadmap",
-    tags: ["Parceiros", "Academias", "Expansão B2B", "Credenciamento"],
-  },
-  {
-    id: "int-003",
-    timestamp: "2026-08-27T10:20:00Z",
-    sourceRole: "associado",
-    sourceName: "Dra. Isabella Silva",
-    sourceContact: "dr.isabella@netfits.com.br",
-    channel: "form",
-    subject: "Solicitação de material impresso com QR Code para consultório",
-    intent: "sugestao",
-    content: "Meus pacientes de nutrologia adoraram o aplicativo, mas pediram um totem de balcão com QR Code físico para baixarem o app com meu cupom de indicação durante a consulta.",
-    sentiment: "positivo",
-    businessInsight: "Kit físico de Onboarding (Totens & QR Codes) para consultórios de médicos e nutricionistas Associados VIP acelera conversão presencial.",
-    status: "incorporado_ao_roadmap",
-    tags: ["Associados VIP", "Kit Presencial", "Growth Orgânico", "CAC Zero"],
-  },
-  {
-    id: "int-004",
-    timestamp: "2026-08-27T09:15:00Z",
-    sourceRole: "colaborador",
-    sourceName: "Lucas Mendes (Suporte Operacional)",
-    sourceContact: "suporte.lucas@netfits.com.br",
-    channel: "email",
-    subject: "Relatório de atrito no resgate de suplementos com nfs + Pix",
-    intent: "reclamacao",
-    content: "Notei que 12% das chamadas de suporte são de usuários que tentam combinar pontos nfs com Pix e não encontram o botão claro no carrinho mobile.",
-    sentiment: "critico",
-    businessInsight: "Necessidade de destacar visualmente o badge 'Pagamento Híbrido (nfs + Pix)' no resumo do checkout no Shop.",
-    status: "processado",
-    tags: ["Checkout", "UX", "Suporte Interno", "Conversão Shop"],
-  },
-  {
-    id: "int-005",
-    timestamp: "2026-08-26T18:30:00Z",
-    sourceRole: "atleta",
-    sourceName: "Marina Run",
-    sourceContact: "marina@netfits.com.br",
-    channel: "survey",
-    subject: "Pesquisa NPS Trimestral — Nota 10",
-    intent: "pesquisa_nps",
-    content: "Nota: 10/10. O Netfits é o único app que me paga por correr e me motivou a treinar 5 dias por semana. Adorei os cupons de desconto no tênis Nike!",
-    sentiment: "positivo",
-    businessInsight: "Forte alinhamento da proposta de valor 'Treine e Ganhe' como impulsionadora de mudança comportamental em atletas amadores.",
-    status: "processado",
-    tags: ["NPS 10", "Feedback Atleta", "Motivação", "Shop Nike"],
-  },
-  {
-    id: "int-006",
-    timestamp: "2026-08-26T16:10:00Z",
-    sourceRole: "parceiro",
-    sourceName: "Bio Ritmo / Smart Fit Partner Group",
-    sourceContact: "parcerias@bioritmo.com.br",
-    channel: "email",
-    subject: "Proposta de integração API de catracas eletrônicas",
-    intent: "negociacao",
-    content: "Queremos validar se o webhook do Netfits pode disparar nfs no momento em que o aluno passa a catraca com RFID na academia.",
-    sentiment: "positivo",
-    businessInsight: "Automação de check-in em academias via API de catracas nativas eleva a retenção diária e reduz fraude.",
-    status: "em_analise",
-    tags: ["Integração B2B", "Catracas", "Checkin", "Anti-Fraude"],
-  },
-  {
-    id: "int-007",
-    timestamp: "2026-08-26T14:00:00Z",
-    sourceRole: "associado",
-    sourceName: "Dr. Marcelo Prado",
-    sourceContact: "dr.marcelo@netfits.com.br",
-    channel: "whatsapp",
-    subject: "Sugestão de aba exclusiva para artigos científicos de longevidade",
-    intent: "sugestao",
-    content: "Gostaria de publicar artigos semanais sobre hipertrofia e longevidade no feed da Netfits com link direto para agendamento de consultas.",
-    sentiment: "positivo",
-    businessInsight: "Conteúdo técnico assinado por médicos Associados aumenta a autoridade científica da marca Netfits e gera leads qualificados.",
-    status: "incorporado_ao_roadmap",
-    tags: ["Feed de Conteúdo", "Artigos Médicos", "Autoridade", "Leads"],
-  },
-  {
-    id: "int-008",
-    timestamp: "2026-08-26T11:20:00Z",
-    sourceRole: "colaborador",
-    sourceName: "Camila Rocha (Engenharia de Dados)",
-    sourceContact: "dados.camila@netfits.com.br",
-    channel: "email",
-    subject: "Análise de latência do motor de busca do Marketplace",
-    intent: "sugestao",
-    content: "Recomendo aplicar indexação de busca por sinônimos (ex: 'creatina', 'whey', 'tênis de corrida') para reduzir a taxa de busca sem resultado no Shop.",
-    sentiment: "neutro",
-    businessInsight: "Otimização de busca interna no Shop eleva o GMV em aproximadamente 8% com menor taxa de abandono.",
-    status: "processado",
-    tags: ["Infraestrutura", "Engenharia", "Search UX", "GMV"],
-  },
-];
+// Histórico de interações: estritamente vazio para refletir apenas interações reais
+const INITIAL_INTERACTIONS: SandboxInteraction[] = [];
 
 interface SandboxSchema {
   users: SandboxUser[];
@@ -503,10 +395,7 @@ class HomologationSandboxStore {
           } catch {}
           return u;
         });
-        if (!stored.interactions || stored.interactions.length === 0) {
-          stored.interactions = INITIAL_INTERACTIONS;
-          hasNewUsers = true;
-        }
+        stored.interactions = (stored.interactions || []).filter(i => !i.id.startsWith("int-00"));
         if (hasNewUsers) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
         }
@@ -701,7 +590,7 @@ class HomologationSandboxStore {
     userName: string;
     amount: number;
     description: string;
-    category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus";
+    category: SandboxTransaction["category"];
   }) {
     const newTx: SandboxTransaction = {
       id: `tx-${Date.now()}`,

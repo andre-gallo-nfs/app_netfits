@@ -20,7 +20,8 @@ export type OperationalParams = {
   // Travas de Segurança Antifraude & Moderação
   blockSelfEngagementRewards: boolean; // Antifraude: Bloqueia acúmulo de nfs por agir sobre o próprio post
   minDwellTimeSecondsForView: number;   // Tempo mínimo de retenção para posts estáticos (3s)
-  requireFullVideoCompletionForReward: boolean; // Antifraude Vídeos: Exige 100% de retenção (dwell time total) para atribuição de nfs
+  minVideoCompletionPct: number;       // Antifraude Vídeos: Percentual mínimo de retenção (90%) para atribuição de nfs
+  requireFullVideoCompletionForReward?: boolean; // Legado mantido para compatibilidade
   maxInteractionsPerMinute: number;     // Rate limit contra robôs/scripts (ex: máx 10 interações/min)
   duplicateMediaFilterActive: boolean;  // Filtro de hash de mídia duplicada ou spam
 
@@ -132,7 +133,8 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
 
   blockSelfEngagementRewards: true, // Auto-engajamento sempre bloqueado
   minDwellTimeSecondsForView: 3,
-  requireFullVideoCompletionForReward: true, // Vídeos do feed precisam ser vistos 100% por completo (dwell time = 100% da duração)
+  minVideoCompletionPct: 90, // Antifraude Vídeos: 90% de retenção mínima do vídeo
+  requireFullVideoCompletionForReward: true, // Legado mantido para compatibilidade
   maxInteractionsPerMinute: 10,
   duplicateMediaFilterActive: true,
 

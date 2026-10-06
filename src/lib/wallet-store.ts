@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { sharedSandboxStore, type SandboxTransaction } from "@/lib/shared-sandbox-store";
 import { levelStore } from "@/lib/level-store";
 
 export type WalletTx = {
@@ -47,7 +47,7 @@ export const wallet = {
   },
 
   /** Credita nfs (cashback) e registra a movimentação. Aplica multiplicador do nível. */
-  earn(amount: number, title: string) {
+  earn(amount: number, title: string, category: SandboxTransaction["category"] = "workout") {
     if (amount <= 0) return;
     const active = sharedSandboxStore.getActiveUser();
     const multiplier = levelStore.getMultiplier();
@@ -58,7 +58,7 @@ export const wallet = {
       userName: active.fullName,
       amount: credited,
       description: title,
-      category: "workout",
+      category,
     });
   },
 };

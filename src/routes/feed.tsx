@@ -13,6 +13,7 @@ import { wallet } from "@/lib/wallet-store";
 import { toast } from "sonner";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { useOperationalParams } from "@/lib/operational-params-store";
+import { feedAntifraud } from "@/lib/feed-antifraud";
 
 export const Route = createFileRoute("/feed")({
   head: () => ({
@@ -333,13 +334,26 @@ function ProductFeedCard({
   const [linkRewarded, setLinkRewarded] = useState(false);
   const params = useOperationalParams();
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (feedAntifraud.hasClaimed("link_click", item.id)) {
+        setLinkRewarded(true);
+      }
+    }
+  }, [item.id]);
+
   const handleOpenProduct = () => {
     if (!linkRewarded) {
-      setLinkRewarded(true);
-      const points = params.nfsPerLinkClick || 10;
-      wallet.earn(points, `Clique em link de parceiro: ${item.title}`);
-      sharedSandboxStore.rewardEngagement("click", item.title, points);
-      toast.success(`🎉 +${points} nfs acumulados por acessar o link do produto!`);
+      const validation = feedAntifraud.validateAction("link_click", item.id);
+      if (validation.allowed) {
+        setLinkRewarded(true);
+        const points = params.nfsPerLinkClick || 10;
+        sharedSandboxStore.rewardEngagement("click", item.title, points);
+        feedAntifraud.recordAction("link_click", item.id, points);
+        toast.success(`🎉 +${points} nfs acumulados por acessar o link do produto! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+      } else if (validation.reason) {
+        toast.warning(validation.reason);
+      }
     }
     setOpen(true);
   };
@@ -416,11 +430,21 @@ function VideoFeedCard({
   const [rewarded, setRewarded] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (feedAntifraud.hasClaimed("video_view", item.id)) {
+        setRewarded(true);
+        setIsCompleted(true);
+        setProgress(100);
+      }
+    }
+  }, [item.id]);
+
+  useEffect(() => {
     let timer: any = null;
     if (isPlayingModalOpen && !isCompleted) {
       timer = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 100) {
+          if (prev >= 90) {
             clearInterval(timer);
             setIsCompleted(true);
             return 100;
@@ -436,18 +460,26 @@ function VideoFeedCard({
 
   useEffect(() => {
     if (isCompleted && !rewarded) {
-      setRewarded(true);
-      const points = params.nfsPerPostView || 10;
-      wallet.earn(points, `Visualização 100% Completa de Vídeo: ${item.title}`);
-      sharedSandboxStore.rewardEngagement("view", item.title, points);
-      toast.success(`🎉 Retenção de 100% atingida! +${points} nfs creditados na sua carteira!`);
+      const validation = feedAntifraud.validateAction("video_view", item.id, {
+        videoProgressPct: 100,
+      });
+
+      if (validation.allowed) {
+        setRewarded(true);
+        const points = feedAntifraud.getRules().pointsPerVideo;
+        sharedSandboxStore.rewardEngagement("view", item.title, points);
+        feedAntifraud.recordAction("video_view", item.id, points);
+        toast.success(`🎉 Retenção mínima de 90% atingida! +${points} nfs creditados na sua carteira! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+      } else if (validation.reason) {
+        toast.warning(validation.reason);
+      }
     }
-  }, [isCompleted, rewarded, item.title, params.nfsPerPostView]);
+  }, [isCompleted, rewarded, item.id, item.title]);
 
   const handleCloseModal = () => {
-    if (!isCompleted) {
+    if (!isCompleted && progress < 90) {
       toast.error(
-        "🚫 Antifraude Netfits: Premiação cancelada. O vídeo precisa ser visto 100% até o final para pontuar."
+        "🚫 Antifraude Netfits: Premiação cancelada. O vídeo precisa ser assistido em ao menos 90% para pontuar."
       );
     }
     setIsPlayingModalOpen(false);
@@ -478,7 +510,7 @@ function VideoFeedCard({
             {item.duration}
           </span>
           <span className="absolute top-2 left-2 bg-purple-950/90 text-purple-200 border border-purple-500/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md backdrop-blur-sm flex items-center gap-1">
-            <span>🛡️ Antifraude: 100% Dwell Time</span>
+            <span>🛡️ Antifraude: 90% Dwell Time</span>
           </span>
         </div>
 
@@ -488,19 +520,19 @@ function VideoFeedCard({
         {rewarded ? (
           <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center gap-2">
             <Check className="size-4 shrink-0" />
-            <span>Vídeo assistido por completo (100% de retenção) — +{params.nfsPerPostView || 10} nfs creditados</span>
+            <span>Vídeo assistido (90%+ de retenção) — +{params.nfsPerPostView || 10} nfs creditados</span>
           </div>
         ) : (
           <div className="mb-3 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-medium flex items-center gap-2">
             <ShieldCheck className="size-4 text-lime-400 shrink-0" />
-            <span>Regra Antifraude: Assista 100% do vídeo ({item.duration}) para receber +{params.nfsPerPostView || 10} nfs</span>
+            <span>Regra Antifraude: Assista ao menos 90% do vídeo ({item.duration}) para receber +{params.nfsPerPostView || 10} nfs</span>
           </div>
         )}
 
         <SocialActions id={item.id} title={item.title} />
       </article>
 
-      {/* MODAL PLAYER DE VÍDEO COM ANTIFRAUDE 100% RETENÇÃO */}
+      {/* MODAL PLAYER DE VÍDEO COM ANTIFRAUDE 90% RETENÇÃO */}
       {isPlayingModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-zinc-900 border border-purple-500/30 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95">
@@ -509,7 +541,7 @@ function VideoFeedCard({
                 <ShieldCheck className="size-5 text-lime-400" />
                 <div>
                   <h3 className="text-sm font-extrabold text-white">Player Antifraude Netfits</h3>
-                  <p className="text-[10px] text-zinc-400">Dwell time total obrigatório (100% da duração)</p>
+                  <p className="text-[10px] text-zinc-400">Dwell time auditado (mínimo 90% de retenção)</p>
                 </div>
               </div>
               <button
@@ -535,7 +567,7 @@ function VideoFeedCard({
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
                 <span className="font-bold text-zinc-300">Progresso de Assistência:</span>
-                <span className="font-mono font-bold text-lime-400">{progress}% {isCompleted ? "✔ (100%)" : ""}</span>
+                <span className="font-mono font-bold text-lime-400">{progress}% {isCompleted ? "✔ (90%+)" : ""}</span>
               </div>
               <div className="h-3 w-full bg-zinc-800 rounded-full overflow-hidden border border-zinc-700 p-0.5">
                 <div
@@ -545,11 +577,11 @@ function VideoFeedCard({
               </div>
               {!isCompleted ? (
                 <p className="text-[11px] text-amber-400 bg-amber-950/40 border border-amber-500/30 rounded-xl p-2.5 leading-snug">
-                  ⚠️ <b>Antifraude Ativo:</b> Não feche o player antes do fim. Sair com menos de 100% do vídeo assistido cancela a premiação.
+                  ⚠️ <b>Antifraude Ativo:</b> Não feche o player antes do fim. Sair com menos de 90% do vídeo assistido cancela a premiação.
                 </p>
               ) : (
                 <p className="text-[11px] text-lime-400 bg-lime-950/40 border border-lime-500/30 rounded-xl p-2.5 leading-snug font-bold">
-                  🎉 Vídeo 100% concluído! +{params.nfsPerPostView || 15} nfs creditados com sucesso na sua carteira!
+                  🎉 Vídeo assistido (90%+ concluído)! +{params.nfsPerPostView || 10} nfs creditados com sucesso na sua carteira!
                 </p>
               )}
             </div>
@@ -648,7 +680,17 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
   const [sent, setSent] = useState<string[]>([]);
   const [posted, setPosted] = useState(false);
   const [composeText, setComposeText] = useState("");
+  const [viewed, setViewed] = useState(false);
+  const [linkClicked, setLinkClicked] = useState(false);
   const params = useOperationalParams();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (feedAntifraud.hasClaimed("like", id)) setLiked(true);
+      if (feedAntifraud.hasClaimed("read", id)) setViewed(true);
+      if (feedAntifraud.hasClaimed("link_click", `link-${id}`)) setLinkClicked(true);
+    }
+  }, [id]);
 
   const closeShare = () => {
     setShareOpen(false);
@@ -690,20 +732,23 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
   };
 
   const handleLike = () => {
-    setLiked((v) => {
-      const next = !v;
-      if (next) {
-        if (isOwnPost || params.blockSelfEngagementRewards) {
-          toast.warning("🔒 Antifraude: Curtir seu próprio post não acumula pontos nfs.");
-        } else {
-          const points = params.nfsPerLike || 10;
-          wallet.earn(points, `Curtida em post de terceiro: ${title}`);
-          sharedSandboxStore.rewardEngagement("like", title, points);
-          toast.success(`+${points} nfs acumulados por curtir post de terceiro!`);
-        }
-      }
-      return next;
-    });
+    if (liked) {
+      setLiked(false);
+      toast.info("Curtida removida.");
+      return;
+    }
+
+    const validation = feedAntifraud.validateAction("like", id, { isOwnPost });
+    if (!validation.allowed) {
+      toast.warning(validation.reason || "Ação não pontuada pelas regras antifraude.");
+      return;
+    }
+
+    setLiked(true);
+    const points = params.nfsPerLike || 10;
+    sharedSandboxStore.rewardEngagement("like", title, points);
+    feedAntifraud.recordAction("like", id, points);
+    toast.success(`+${points} nfs acumulados por curtir post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
   };
 
   const handleSave = () => {
@@ -722,35 +767,45 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
     });
   };
 
-  const [viewed, setViewed] = useState(false);
-  const [linkClicked, setLinkClicked] = useState(false);
-
   const handleCompleteView = () => {
-    if (!viewed) {
-      setViewed(true);
-      if (isOwnPost) {
-        toast.warning("🔒 Antifraude: Visualizar seu próprio post não acumula pontos nfs.");
-      } else {
-        const points = params.nfsPerPostView || 10;
-        wallet.earn(points, `Visualização completa: ${title}`);
-        sharedSandboxStore.rewardEngagement("view", title, points);
-        toast.success(`+${points} nfs por visualizar post de terceiro!`);
-      }
+    if (viewed) {
+      toast.info("Você já confirmou a leitura desta publicação.");
+      return;
     }
+
+    const validation = feedAntifraud.validateAction("read", id, {
+      dwellTimeSeconds: 3,
+      isOwnPost,
+    });
+    if (!validation.allowed) {
+      toast.warning(validation.reason || "Ação não permitida pelas regras antifraude.");
+      return;
+    }
+
+    setViewed(true);
+    const points = params.nfsPerPostView || 10;
+    sharedSandboxStore.rewardEngagement("view", title, points);
+    feedAntifraud.recordAction("read", id, points);
+    toast.success(`+${points} nfs por leitura de post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
   };
 
   const handleLinkClick = () => {
-    if (!linkClicked) {
-      setLinkClicked(true);
-      if (isOwnPost) {
-        toast.info("Link acessado. (Ações próprias não geram pontos)");
-      } else {
-        const points = params.nfsPerLinkClick || 10;
-        wallet.earn(points, `Clique em link do post: ${title}`);
-        sharedSandboxStore.rewardEngagement("click", title, points);
-        toast.success(`+${points} nfs por clicar no link do post!`);
-      }
+    if (linkClicked) {
+      toast.info("Você já recebeu a bonificação deste link.");
+      return;
     }
+
+    const validation = feedAntifraud.validateAction("link_click", `link-${id}`, { isOwnPost });
+    if (!validation.allowed) {
+      toast.warning(validation.reason || "Ação não permitida pelas regras antifraude.");
+      return;
+    }
+
+    setLinkClicked(true);
+    const points = params.nfsPerLinkClick || 10;
+    sharedSandboxStore.rewardEngagement("click", title, points);
+    feedAntifraud.recordAction("link_click", `link-${id}`, points);
+    toast.success(`+${points} nfs por clicar no link! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
   };
 
   return (
@@ -956,13 +1011,15 @@ function ContactSendList({
                 <button
                   onClick={() => {
                     if (!isSent) {
-                      if (isOwnPost) {
-                        toast.warning("🔒 Antifraude: Compartilhar seu próprio post não gera acúmulo de nfs.");
+                      const shareKey = `share-${step}-${c.name}-${title}`;
+                      const validation = feedAntifraud.validateAction("share", shareKey, { isOwnPost });
+                      if (!validation.allowed) {
+                        toast.warning(validation.reason || "Compartilhamento não pontuado.");
                       } else {
                         const points = params.nfsPerShare || 10;
-                        wallet.earn(points, `Compartilhamento pós-visualização: ${title}`);
                         sharedSandboxStore.rewardEngagement("share", title, points);
-                        toast.success(`+${points} nfs acumulados por compartilhar post de terceiro!`);
+                        feedAntifraud.recordAction("share", shareKey, points);
+                        toast.success(`+${points} nfs acumulados por compartilhar post de terceiro! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
                       }
                     }
                     setSent((prev) => (prev.includes(c.name) ? prev : [...prev, c.name]));

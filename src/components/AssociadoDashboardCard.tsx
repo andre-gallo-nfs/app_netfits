@@ -2,18 +2,29 @@ import { useState } from "react";
 import { Link2, Copy, Check, Share2, Users, TrendingUp, Award, Sparkles, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
+import { sharedSandboxStore, type SandboxUser, type SandboxTransaction } from "@/lib/shared-sandbox-store";
 
 export function AssociadoDashboardCard() {
   const [isAssociado, setIsAssociado] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Dados mockados do perfil de Associado
-  const exclusiveLink = "https://netfits.app/r/gallo-associado-01";
-  const [stats, setStats] = useState({
-    capturedUsers: 142,
-    activeUsers: 118,
-    totalCommissionNfs: 14200,
-  });
+  const activeUser = sharedSandboxStore.useActiveUser();
+  const allUsers = sharedSandboxStore.getUsers();
+  const triboMembers = allUsers.filter(
+    (u: SandboxUser) =>
+      u.id !== activeUser.id &&
+      ((u.referredBy && u.referredBy === activeUser.referralCode) ||
+        (u.associatedWith && u.associatedWith === activeUser.referralCode))
+  );
+  const exclusiveLink = `https://www.netfits.com.br/auth?ref=${activeUser.referralCode || "NETFITS"}`;
+  const stats = {
+    capturedUsers: triboMembers.length,
+    activeUsers: triboMembers.filter((m: SandboxUser) => m.nfsBalance > 0).length,
+    totalCommissionNfs: sharedSandboxStore
+      .getUserTransactions(activeUser.id)
+      .filter((tx: SandboxTransaction) => tx.category === "referral" || tx.category === "associado_bonus")
+      .reduce((sum: number, tx: SandboxTransaction) => sum + (tx.amount > 0 ? tx.amount : 0), 0),
+  };
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(exclusiveLink);
@@ -23,13 +34,7 @@ export function AssociadoDashboardCard() {
   };
 
   const handleSimulateNewCapture = () => {
-    setStats((prev) => ({
-      capturedUsers: prev.capturedUsers + 1,
-      activeUsers: prev.activeUsers + 1,
-      totalCommissionNfs: prev.totalCommissionNfs + 100,
-    }));
-    wallet.earn(100, "Comissão de captação de usuário via link exclusivo");
-    toast.success("🎉 Novo usuário cadastrado pelo seu link! +100 nfs creditados!");
+    toast.info("Compartilhe seu link exclusivo com amigos para receber comissões reais!");
   };
 
   if (!isAssociado) {

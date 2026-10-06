@@ -77,7 +77,7 @@ export const ADMIN_PILLARS: AdminPillarDef[] = [
   {
     id: "community",
     title: "3. Ecossistema & Usuários",
-    subtitle: "Base 24 Personas, Associados 10% & Sellers",
+    subtitle: "Base Oficial de Usuários & Sócios",
     emoji: "👥",
     color: "text-amber-400 border-amber-500/30 bg-amber-950/40",
     tabIds: ["users", "associados", "partners"],
@@ -101,7 +101,7 @@ const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: an
   { id: "controls", label: "Controles & FinOps TI", iconEmoji: "🛡️", icon: Cpu, category: "Governança TI", pillarId: "ai_tech" },
   { id: "activities", label: "Atividades & Wearables", iconEmoji: "⚡", icon: Activity, category: "Engajamento", pillarId: "ai_tech" },
 
-  { id: "users", label: "Base de Usuários (24 Personas)", iconEmoji: "👥", icon: Users, category: "Comunidade", pillarId: "community" },
+  { id: "users", label: "Base de Usuários Oficiais", iconEmoji: "👥", icon: Users, category: "Comunidade", pillarId: "community" },
   { id: "associados", label: "Gestão de Associados (10%)", iconEmoji: "👑", icon: Award, category: "Prescritores", pillarId: "community" },
   { id: "partners", label: "Parceiros & Assessorias B2B", iconEmoji: "🤝", icon: Handshake, category: "Ecossistema", pillarId: "community" },
 
@@ -1726,8 +1726,11 @@ function AdminDashboardPage() {
               const redeemedBrl = redeemedPoints * (operationalParams.cppResgateBrl ?? 0.01);
               const burnRatePct = totalPointsLedger > 0 ? Number(((redeemedPoints / totalPointsLedger) * 100).toFixed(1)) : 0;
               const breakagePct = operationalParams.targetBreakagePct ?? 5.0;
-              const breakagePoints = Math.round(totalPointsLedger * (breakagePct / 100));
-              const breakageBrl = breakagePoints * costPerPoint;
+              // Reversão de Breakage Efetivada (baixa contábil de passivo decorrente de expiração real após 24 meses):
+              // Na vida real e no início da operação, nenhum lote atingiu a validade de 24 meses (730 dias), portanto zero pontos expiraram.
+              const actualExpiredPoints = 0; // Pontos efetivamente expirados por decurso de prazo
+              const breakageRealizadoBrl = actualExpiredPoints * costPerPoint;
+              const projectedBreakageBrl = Math.round(totalPointsLedger * (breakagePct / 100)) * costPerPoint;
               const coverageRatio = 1.42;
               const reserveCashBrl = totalProvisionBrl * coverageRatio;
 
@@ -1801,21 +1804,25 @@ function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Card 3: Reversão de Passivo (Breakage) */}
+                    {/* Card 3: Reversão de Passivo (Breakage Efetivado) */}
                     <div className="bg-zinc-950/90 border border-zinc-800 hover:border-amber-500/50 p-4 rounded-2xl space-y-2 transition shadow-lg">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">Reversão (Breakage CPC 47)</span>
+                        <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">Reversão Efetivada (Breakage CPC 47)</span>
                         <RotateCcw className="size-4 text-amber-400" />
                       </div>
                       <p className="text-2xl font-black text-amber-300 font-mono">
-                        R$ {breakageBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        R$ {breakageRealizadoBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                       <div className="flex items-center justify-between text-[11px] text-zinc-400 border-t border-zinc-800/80 pt-2">
-                        <span>Taxa Est. de Expiração:</span>
-                        <span className="font-bold text-amber-400 font-mono">{breakagePct}% a.a.</span>
+                        <span>Pontos Expirados:</span>
+                        <span className="font-bold text-white font-mono">{actualExpiredPoints.toLocaleString("pt-BR")} nfs</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-0.5">
+                        <span>Taxa Alvo Projetada:</span>
+                        <span className="font-mono text-amber-400 font-bold">{breakagePct}% a.a.</span>
                       </div>
                       <span className="inline-block text-[9px] font-bold text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">
-                        Reversão Positiva na DRE
+                        Ciclo de 24 meses em curso (0 expirações no momento)
                       </span>
                     </div>
 
@@ -3274,7 +3281,7 @@ function AdminDashboardPage() {
                   <h5 className="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center gap-2">
                     <span>👥 Interação em Conteúdo de Terceiros (Posts de Outros Usuários)</span>
                   </h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     <ParamInput
                       label="nfs por view de posts"
                       unit="nfs / view"
@@ -3288,10 +3295,22 @@ function AdminDashboardPage() {
                       onChange={(v) => setOperationalParams((p) => ({ ...p, nfsPerLinkClick: Number(v) }))}
                     />
                     <ParamInput
-                      label="Limite máximo de interações com posts de terceiros"
+                      label="Limite diário de interações"
                       unit="interações / dia"
                       value={operationalParams.dailyThirdPartyInteractionsLimit}
                       onChange={(v) => setOperationalParams((p) => ({ ...p, dailyThirdPartyInteractionsLimit: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Retenção mínima de vídeo"
+                      unit="% do vídeo"
+                      value={operationalParams.minVideoCompletionPct ?? 90}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, minVideoCompletionPct: Number(v) }))}
+                    />
+                    <ParamInput
+                      label="Dwell time leitura de artigos"
+                      unit="segundos"
+                      value={operationalParams.minDwellTimeSecondsForView ?? 3}
+                      onChange={(v) => setOperationalParams((p) => ({ ...p, minDwellTimeSecondsForView: Number(v) }))}
                     />
                   </div>
                 </div>
@@ -3313,10 +3332,10 @@ function AdminDashboardPage() {
                     <div className="bg-zinc-900/90 p-3 rounded-xl border border-purple-500/40 space-y-1">
                       <span className="font-extrabold text-amber-400 block flex items-center gap-1">
                         <span>🎬</span>
-                        <span>Retenção 100% em Vídeos</span>
+                        <span>Retenção {operationalParams.minVideoCompletionPct ?? 90}% em Vídeos</span>
                       </span>
                       <p className="text-[11px] text-zinc-400 leading-snug">
-                        Vídeos precisam ser assistidos <b>100% por completo</b>. Qualquer dwell time menor que a duração total do vídeo é <b>zerado pelo antifraude (0 nfs)</b>.
+                        Vídeos precisam ser assistidos em <b>ao menos {operationalParams.minVideoCompletionPct ?? 90}% da duração</b>. Saída antecipada é <b>cancelada pelo antifraude (0 nfs)</b>.
                       </p>
                     </div>
 

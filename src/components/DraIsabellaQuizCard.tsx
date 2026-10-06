@@ -20,6 +20,7 @@ import {
 import draIsabellaAvatar from "@/assets/dra-isabella-avatar.jpg";
 import draIsabellaImg from "@/assets/dra-isabella.jpeg";
 import { wallet } from "@/lib/wallet-store";
+import { feedAntifraud } from "@/lib/feed-antifraud";
 import { toast } from "sonner";
 
 interface QuizOption {
@@ -50,8 +51,8 @@ const QUIZ_OPTIONS: QuizOption[] = [
   },
 ];
 
-const QUIZ_STORAGE_KEY = "netfits_quiz_isabella_sono_answered";
-const READ_STORAGE_KEY = "netfits_read_isabella_sono_claimed";
+const QUIZ_POST_ID = "isabella-sono-quiz";
+const ARTICLE_POST_ID = "isabella-sono-artigo";
 
 export function DraIsabellaQuizCard() {
   const [selectedOption, setSelectedOption] = useState<string>("opt-1");
@@ -59,17 +60,31 @@ export function DraIsabellaQuizCard() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
+  const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (localStorage.getItem(QUIZ_STORAGE_KEY) === "true") {
+      if (feedAntifraud.hasClaimed("quiz", QUIZ_POST_ID)) {
         setHasSubmitted(true);
       }
-      if (localStorage.getItem(READ_STORAGE_KEY) === "true") {
+      if (feedAntifraud.hasClaimed("read", ARTICLE_POST_ID)) {
         setReadClaimed(true);
       }
     }
   }, []);
+
+  // Monitoramento contínuo de tempo de retenção ativa (Dwell Time Antifraude)
+  useEffect(() => {
+    let timer: any = null;
+    if (articleOpen && !readClaimed) {
+      timer = setInterval(() => {
+        setDwellTimeSeconds((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [articleOpen, readClaimed]);
 
   const handleSubmit = () => {
     if (hasSubmitted) {
@@ -81,12 +96,16 @@ export function DraIsabellaQuizCard() {
     if (!option) return;
 
     if (option.isCorrect) {
+      const validation = feedAntifraud.validateAction("quiz", QUIZ_POST_ID);
+      if (!validation.allowed) {
+        toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
+        return;
+      }
+
       setErrorMsg(null);
       setHasSubmitted(true);
-      if (typeof window !== "undefined") {
-        localStorage.setItem(QUIZ_STORAGE_KEY, "true");
-      }
-      wallet.earn(10, "Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari - Fibios)");
+      wallet.earn(10, "Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari — Fibios)");
+      feedAntifraud.recordAction("quiz", QUIZ_POST_ID, 10);
       toast.success("🎉 Parabéns! Resposta correta (+10 nfs creditados na sua carteira)");
     } else {
       setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus 10 NFs!");
@@ -99,13 +118,26 @@ export function DraIsabellaQuizCard() {
       toast.info("Você já coletou a recompensa de leitura deste artigo.");
       return;
     }
-    setReadClaimed(true);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(READ_STORAGE_KEY, "true");
+
+    const minDwell = feedAntifraud.getRules().minDwellTimeSeconds;
+    const validation = feedAntifraud.validateAction("read", ARTICLE_POST_ID, {
+      dwellTimeSeconds,
+    });
+
+    if (!validation.allowed) {
+      toast.warning(validation.reason || "Tempo mínimo de retenção não atingido.");
+      return;
     }
-    wallet.earn(5, "Leitura Concluída: Biomarcadores & Sono (Dra. Isabella Formigari)");
-    toast.success("👏 Leitura concluída! (+5 nfs creditados na sua carteira)");
+
+    setReadClaimed(true);
+    const points = feedAntifraud.getRules().pointsPerView; // 10 nfs oficiais
+    wallet.earn(points, "Leitura Completa de Artigo: Biomarcadores & Sono (Dra. Isabella Formigari)");
+    feedAntifraud.recordAction("read", ARTICLE_POST_ID, points);
+    toast.success(`👏 Leitura validada por Dwell Time! (+${points} nfs creditados na sua carteira)`);
   };
+
+  const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
+  const isDwellQualified = dwellTimeSeconds >= minDwellRequired;
 
   return (
     <>
@@ -157,7 +189,7 @@ export function DraIsabellaQuizCard() {
           {/* Badge Indicador de Artigo Clicável */}
           <div className="absolute top-3 right-3 bg-zinc-950/85 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-purple-600 group-hover:border-purple-500 transition-colors">
             <BookOpen className="size-3.5 text-lime-400 group-hover:text-white" />
-            <span className="text-[11px] font-bold">Ler conteúdo completo</span>
+            <span className="text-[11px] font-bold">Ler artigo (+10 nfs)</span>
           </div>
 
           {/* Textos e Tags Sobrepostos */}
@@ -347,7 +379,7 @@ export function DraIsabellaQuizCard() {
               <button
                 type="button"
                 onClick={() => setArticleOpen(false)}
-                className="absolute top-3 right-3 size-9 rounded-full bg-black/60 text-white backdrop-blur-md grid place-items-center hover:bg-black/80 transition"
+                className="absolute top-3 right-3 size-9 rounded-full bg-black/60 text-white backdrop-blur-md grid place-items-center hover:bg-black/80 transition cursor-pointer"
                 aria-label="Fechar"
               >
                 <X className="size-5" />
@@ -363,10 +395,21 @@ export function DraIsabellaQuizCard() {
               </div>
             </div>
 
+            {/* Trava Antifraude de Dwell Time no Header do Modal */}
+            <div className="px-5 py-2.5 bg-zinc-100 dark:bg-zinc-800/80 border-b border-zinc-200 dark:border-zinc-700/60 flex items-center justify-between text-xs">
+              <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300 font-medium">
+                <ShieldCheck className="size-4 text-lime-500" />
+                <span>Auditoria Antifraude de Leitura (Dwell Time):</span>
+              </span>
+              <span className="font-mono font-bold text-purple-600 dark:text-lime-400">
+                {dwellTimeSeconds}s / {minDwellRequired}s {isDwellQualified ? "✔" : ""}
+              </span>
+            </div>
+
             {/* Corpo do Artigo */}
             <div className="p-5 sm:p-6 space-y-4 text-xs sm:text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
               {/* Metadados */}
-              <div className="flex items-center justify-between py-2.5 border-y border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500">
+              <div className="flex items-center justify-between py-2 border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500">
                 <div className="flex items-center gap-2">
                   <img src={draIsabellaAvatar} alt="" className="size-7 rounded-full object-cover" />
                   <div>
@@ -379,7 +422,7 @@ export function DraIsabellaQuizCard() {
                     <Clock className="size-3.5" /> 3 min
                   </span>
                   <span className="text-purple-600 dark:text-purple-400 font-bold font-mono">
-                    +5 nfs leitura
+                    +10 nfs leitura
                   </span>
                 </div>
               </div>
@@ -418,21 +461,30 @@ export function DraIsabellaQuizCard() {
                 </ul>
               </div>
 
-              {/* Botão de Bonificação por Leitura Concluída */}
+              {/* Botão de Bonificação por Leitura Concluída com Trava Antifraude */}
               <div className="pt-2">
                 {!readClaimed ? (
                   <button
                     type="button"
                     onClick={handleClaimRead}
-                    className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
+                    disabled={!isDwellQualified}
+                    className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer ${
+                      isDwellQualified
+                        ? "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-600/20 active:scale-[0.99]"
+                        : "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                    }`}
                   >
                     <BookOpen className="size-4" />
-                    <span>Concluir Leitura (+5 nfs de recompensa)</span>
+                    <span>
+                      {isDwellQualified
+                        ? "Concluir Leitura (+10 nfs de recompensa)"
+                        : `Aguarde ${minDwellRequired - dwellTimeSeconds}s para validar leitura`}
+                    </span>
                   </button>
                 ) : (
                   <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 dark:text-white flex items-center justify-center gap-2 text-xs font-bold">
                     <CheckCircle2 className="size-4 text-lime-500" />
-                    <span>Leitura confirmada (+5 nfs acumulados)</span>
+                    <span>Leitura auditada e confirmada (+10 nfs acumulados)</span>
                   </div>
                 )}
               </div>

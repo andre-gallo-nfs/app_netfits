@@ -27,6 +27,26 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
   },
+  {
+    id: "usr_carlos_formigari",
+    fullName: "Carlos Rodrigo Formigari",
+    email: "carlos.formigari@netfits.com.br",
+    phone: "",
+    cpf: "",
+    passwordHash: "Netfits#2026",
+    userCategory: "atleta",
+    registeredAt: "2026-10-06T00:00:00Z",
+  },
+  {
+    id: "usr_cristiane_gallo",
+    fullName: "Cristiane Queli da Silva Gallo",
+    email: "cristiane.gallo@netfits.com.br",
+    phone: "",
+    cpf: "",
+    passwordHash: "Netfits#2026",
+    userCategory: "atleta",
+    registeredAt: "2026-10-06T00:00:00Z",
+  },
 ];
 
 export function cleanDigits(val: string): string {
