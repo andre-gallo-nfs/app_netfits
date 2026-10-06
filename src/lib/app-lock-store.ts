@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { passkeyService } from "./webauthn-passkeys";
 import { sharedSandboxStore } from "./shared-sandbox-store";
 import { authStore } from "./auth-store";
+import { nativeBridge } from "./native-bridge";
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
 const SESSION_UNLOCKED_KEY = "netfits_session_unlocked_v1";
 
@@ -11,8 +13,7 @@ class AppLockStore {
   private listeners = new Set<() => void>();
 
   constructor() {
-    // Por diretriz de segurança, NUNCA abre automaticamente.
-    // Sempre inicia bloqueado exigindo biometria ou senha cadastrada.
+    // Inicia bloqueado exigindo biometria ou senha para usuários já logados
     this.unlocked = false;
 
     if (typeof window !== "undefined") {
@@ -20,13 +21,13 @@ class AppLockStore {
         sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
       } catch {}
 
-      // Ao suspender/minimizar o app ou aba por mais de 5s, volta a bloquear
+      // Ao suspender/minimizar o app por mais de 10s, volta a bloquear
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           (window as any).__netfits_bg_time = Date.now();
         } else {
           const bgTime = (window as any).__netfits_bg_time || 0;
-          if (Date.now() - bgTime > 5000) {
+          if (Date.now() - bgTime > 10000) {
             this.setUnlocked(false);
           }
         }
@@ -52,7 +53,7 @@ class AppLockStore {
   };
 
   public getServerSnapshot = (): boolean => {
-    return false; // No SSR, sempre considerado bloqueado por segurança
+    return false; // No SSR, sempre considerado bloqueado
   };
 
   /**
@@ -79,21 +80,51 @@ class AppLockStore {
   }
 
   /**
-   * Desbloqueia com biometria (Touch ID / Face ID / Windows Hello / Android Biometrics)
+   * Desbloqueia com biometria REAL (Hardware BiometricPrompt no Android / Touch ID / Face ID)
    */
   public async unlockWithBiometrics(): Promise<{ success: boolean; error?: string }> {
     const activeUser = sharedSandboxStore.getActiveUser();
+
     try {
+      // 1. No aplicativo nativo móvel (Android / iOS): aciona o sensor biométrico do aparelho
+      if (nativeBridge.isNativePlatform()) {
+        const check = await BiometricAuth.checkBiometry();
+        if (!check.isAvailable) {
+          return {
+            success: false,
+            error: "Sensor biométrico não disponível ou não configurado neste celular. Digite sua senha cadastrada.",
+          };
+        }
+
+        // Exibe o diálogo nativo do Android / iOS (BiometricPrompt)
+        await BiometricAuth.authenticate({
+          reason: `Confirme sua impressão digital ou Face Unlock para acessar a Netfits (${activeUser.fullName})`,
+          cancelTitle: "Cancelar",
+        });
+
+        this.setUnlocked(true);
+        toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
+        return { success: true };
+      }
+
+      // 2. No navegador web: utiliza WebAuthn / Passkeys
       const result = await passkeyService.authenticate(activeUser.id);
       if (result.success) {
         this.setUnlocked(true);
-        toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico liberado.`);
+        toast.success(`👋 Olá, ${activeUser.fullName}! Acesso liberado.`);
         return { success: true };
       }
       return { success: false, error: result.error || "Biometria não reconhecida." };
     } catch (err: any) {
-      console.warn("[AppLock] Erro ao autenticar biometria:", err);
-      return { success: false, error: err.message || "Erro no sensor biométrico." };
+      console.warn("[AppLock] Biometria falhou ou foi cancelada:", err);
+      const msg = String(err?.message || "").toLowerCase();
+      if (msg.includes("cancel") || err?.code === "userCancel" || msg.includes("canceled")) {
+        return { success: false, error: "Validação biométrica cancelada." };
+      }
+      return {
+        success: false,
+        error: "Biometria não reconhecida. Tente novamente ou desbloqueie com a senha.",
+      };
     }
   }
 
@@ -122,7 +153,6 @@ class AppLockStore {
       "netfits2026",
     ].filter(Boolean);
 
-    // Se o usuário digitou uma senha válida
     const isCorrect = validPasswords.some(
       (vp) => vp === cleanPwd || (typeof vp === "string" && vp.toLowerCase() === cleanPwd.toLowerCase())
     );

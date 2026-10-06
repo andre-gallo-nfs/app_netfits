@@ -59,15 +59,32 @@ export function AppShell({ children }: { children: ReactNode }) {
     path === "/parceiros" ||
     path === "/download";
 
-  // Se a rota for pública no navegador (ex: landing page), renderiza normalmente.
-  // Porém, se estiver no app nativo (Capacitor) OU em qualquer rota interna da aplicação
-  // e o app estiver bloqueado, EXIGE SENHA OU BIOMETRIA. Nunca abre automaticamente!
+  // 1. A tela de Cadastro / Login (/auth) é SEMPRE acessível e NUNCA bloqueada
+  if (path === "/auth") {
+    return <>{children}</>;
+  }
+
+  // 2. Se o dispositivo NÃO possui conta autenticada (primeiro acesso de novos usuários):
+  // no app nativo ou em rotas privadas, redireciona diretamente para a tela de boas-vindas/cadastro (/auth)
+  const hasSession = sharedSandboxStore.hasActiveSession();
+  if (!hasSession) {
+    if (nativeBridge.isNativePlatform() || !isPublicRoute) {
+      if (typeof window !== "undefined" && path !== "/auth") {
+        window.location.replace("/auth");
+        return null;
+      }
+    }
+  }
+
+  // 3. Se o dispositivo JÁ possui conta autenticada e o app estiver bloqueado:
+  // EXIGE BIOMETRIA REAL OU SENHA DO PRÓPRIO USUÁRIO LOGADO
   if (!isUnlocked) {
     if (nativeBridge.isNativePlatform() || !isPublicRoute) {
       return <SecurityLockOverlay />;
     }
   }
 
+  // 4. Rotas públicas no navegador web (landing page, FAQ, parceiros, etc.)
   if (isPublicRoute) {
     return <>{children}</>;
   }

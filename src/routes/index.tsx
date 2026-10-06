@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { InstitutionalHomePage } from "./home";
 import { nativeBridge } from "@/lib/native-bridge";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,10 +23,13 @@ function RootIndexRoute() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Se estiver rodando dentro do empacotamento nativo móvel (Capacitor iOS ou Android),
-    // direciona automaticamente para o Feed da aplicação
+    // Se estiver rodando no app nativo móvel (Capacitor iOS ou Android):
     if (nativeBridge.isNativePlatform() || window.location.search.includes("app=true")) {
-      navigate({ to: "/feed", replace: true });
+      if (sharedSandboxStore.hasActiveSession()) {
+        navigate({ to: "/feed", replace: true });
+      } else {
+        navigate({ to: "/auth", replace: true });
+      }
     }
   }, [navigate]);
 

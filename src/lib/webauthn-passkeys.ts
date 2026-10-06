@@ -222,11 +222,8 @@ class PasskeyService {
       targetCred = this.inMemoryCredentials[this.inMemoryCredentials.length - 1];
     }
 
-    // Se não há suporte a WebAuthn ou ambiente local sem HTTPS, simular verificação biométrica
     if (!isSupported || !navigator.credentials?.get) {
-      this.recordSuccessfulAuth();
-      toast.success("✅ Biometria confirmada! Login efetuado sem custo de SMS OTP.");
-      return { success: true, credential: targetCred };
+      return { success: false, error: "Autenticação biométrica WebAuthn não disponível neste navegador. Digite sua senha." };
     }
 
     try {
@@ -270,10 +267,7 @@ class PasskeyService {
       if (err.name === "NotAllowedError" || err.message?.includes("cancel")) {
         return { success: false, error: "Verificação biométrica cancelada." };
       }
-      // Em caso de falha de hardware ou domínio, usar validação rápida
-      this.recordSuccessfulAuth();
-      toast.success("✅ Biometria confirmada com sucesso!");
-      return { success: true, credential: targetCred };
+      return { success: false, error: "Falha na validação biométrica. Utilize sua senha cadastrada." };
     }
   }
 

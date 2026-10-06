@@ -15,6 +15,7 @@ import {
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { nativeBridge } from "@/lib/native-bridge";
 import { passkeyService } from "@/lib/webauthn-passkeys";
+import { appLockStore } from "@/lib/app-lock-store";
 import { toast } from "sonner";
 
 function formatCPF(value: string): string {
@@ -207,7 +208,8 @@ function AuthPage() {
       passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
     }
     toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
-    navigate({ to: "/" });
+    appLockStore.setUnlocked(true);
+    navigate({ to: "/feed" });
   };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
@@ -225,7 +227,8 @@ function AuthPage() {
       return;
     }
 
-    navigate({ to: "/" });
+    appLockStore.setUnlocked(true);
+    navigate({ to: "/feed" });
   };
 
   return (
@@ -834,7 +837,8 @@ function AuthPage() {
                 if (res.success) {
                   const finops = passkeyService.getFinOpsMetrics();
                   toast.success(`⚡ FinOps: Login biométrico realizado sem custo de SMS OTP (Economia: ${finops.costSavedFormatted})`);
-                  navigate({ to: "/" });
+                  appLockStore.setUnlocked(true);
+                  navigate({ to: "/feed" });
                 } else if (res.error) {
                   toast.error(res.error);
                 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import {
   Lock,
   Fingerprint,
@@ -14,6 +13,7 @@ import {
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { appLockStore } from "@/lib/app-lock-store";
+import { authStore } from "@/lib/auth-store";
 
 export function SecurityLockOverlay() {
   const activeUser = sharedSandboxStore.useActiveUser();
@@ -53,6 +53,13 @@ export function SecurityLockOverlay() {
         .toUpperCase()
     : "NF";
 
+  const handleLogout = () => {
+    sharedSandboxStore.clearActiveSession();
+    authStore.logoutUser();
+    appLockStore.setUnlocked(false);
+    window.location.href = "/auth";
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-zinc-950 text-white flex flex-col items-center justify-between p-6 select-none overflow-y-auto">
       {/* Top Header */}
@@ -86,7 +93,7 @@ export function SecurityLockOverlay() {
             Olá, {activeUser.fullName || "Atleta Netfits"}
           </h1>
           <p className="text-xs text-zinc-400 font-mono">
-            {activeUser.identifier || activeUser.email || "aacgallo@hotmail.com.br"}
+            {activeUser.identifier || activeUser.email || ""}
           </p>
         </div>
 
@@ -107,12 +114,12 @@ export function SecurityLockOverlay() {
           >
             <Fingerprint className={`size-6 ${isAuthenticatingBio ? "animate-pulse" : ""}`} />
             <span>
-              {isAuthenticatingBio ? "Verificando biometria..." : "Desbloquear com Biometria"}
+              {isAuthenticatingBio ? "Aguardando sensor biométrico..." : "Desbloquear com Biometria"}
             </span>
             <Sparkles className="size-4 text-lime-300 ml-auto" />
           </button>
           <p className="text-[11px] text-zinc-500">
-            Compatível com Touch ID, Face ID, Impressão Digital ou Windows Hello
+            Validação oficial via Impressão Digital ou Reconhecimento Facial do celular
           </p>
         </div>
 
@@ -161,13 +168,14 @@ export function SecurityLockOverlay() {
 
       {/* Bottom Footer Options */}
       <div className="w-full max-w-sm pt-4 pb-2 border-t border-zinc-900 flex items-center justify-between text-xs text-zinc-500">
-        <Link
-          to="/auth"
-          className="hover:text-zinc-300 flex items-center gap-1.5 transition"
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="hover:text-zinc-300 flex items-center gap-1.5 transition cursor-pointer"
         >
           <LogOut className="size-3.5" />
-          <span>Trocar de Conta</span>
-        </Link>
+          <span>Trocar de Conta / Sair</span>
+        </button>
 
         <span className="text-[10px] text-zinc-600">
           Netfits Guard v1.0

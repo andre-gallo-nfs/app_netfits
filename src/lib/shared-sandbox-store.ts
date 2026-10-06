@@ -36,14 +36,6 @@ export interface SandboxUser {
   wearable?: string;
   loyaltyPrograms?: string[];
   loyaltyPointsEstimate?: string;
-  bankData?: {
-    bank: string;
-    agency: string;
-    account: string;
-    accountType?: string;
-    pixKeyType: string;
-    pixKey: string;
-  };
 }
 
 export interface SandboxTransaction {
@@ -485,7 +477,7 @@ class HomologationSandboxStore {
         tickets: INITIAL_TICKETS,
         orders: INITIAL_ORDERS,
         interactions: INITIAL_INTERACTIONS,
-        activeUserId: "usr_andre",
+        activeUserId: "",
       };
     }
 
@@ -531,7 +523,7 @@ class HomologationSandboxStore {
       tickets: INITIAL_TICKETS,
       orders: INITIAL_ORDERS,
       interactions: INITIAL_INTERACTIONS,
-      activeUserId: "usr_andre",
+      activeUserId: "",
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState));
@@ -575,6 +567,24 @@ class HomologationSandboxStore {
 
   private notify() {
     this.listeners.forEach((fn) => fn());
+  }
+
+  public hasActiveSession(): boolean {
+    if (typeof window !== "undefined") {
+      const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
+      if (deviceUserId) {
+        return this.state.users.some((u) => u.id === deviceUserId);
+      }
+    }
+    return false;
+  }
+
+  public clearActiveSession() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DEVICE_SESSION_KEY);
+    }
+    this.state.activeUserId = "";
+    this.notify();
   }
 
   // --- GETTERS ---
@@ -970,7 +980,7 @@ class HomologationSandboxStore {
       tickets: JSON.parse(JSON.stringify(INITIAL_TICKETS)),
       orders: JSON.parse(JSON.stringify(INITIAL_ORDERS)),
       interactions: JSON.parse(JSON.stringify(INITIAL_INTERACTIONS)),
-      activeUserId: "usr_andre",
+      activeUserId: "",
     };
 
     if (typeof window !== "undefined") {
