@@ -3,7 +3,9 @@
   "appName": "Netfits",
   "webDir": "dist",
   "bundledWebRuntime": false,
+  "appendUserAgent": "NetfitsMobileApp",
   "server": {
+    "url": "https://www.netfits.com.br/feed",
     "androidScheme": "https",
     "iosScheme": "https",
     "allowNavigation": [

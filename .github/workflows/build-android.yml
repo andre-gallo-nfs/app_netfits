@@ -141,12 +141,13 @@ jobs:
         if: success()
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2-google-play
-          name: "Netfits Android App Bundle v1.0.2 (Google Play Store - Target SDK 36)"
+          tag_name: v1.0.3-google-play
+          name: "Netfits Android App Bundle v1.0.3 (App Real - Feed, Shop & Carteira)"
           body: |
-            ### 🚀 Netfits Android Release (.aab) para Google Play Store
-            - **Versão:** 1.0.2 (versionCode 3)
+            ### 🚀 Netfits Android Release (.aab) v1.0.3 para Google Play Store
+            - **Versão:** 1.0.3 (versionCode 4)
             - **Package ID:** `br.com.netfits.app`
+            - **Entrypoint:** Feed oficial do aplicativo com abas nativas (Feed, Shop, Atividades, Badges, Carteira)
             - **Target SDK:** 36 (Conforme exigido pelo Google Play Console)
             - **Min SDK:** 24 (Android 7.0+)
             - **Chave de Assinatura Oficial:** SHA1 D7:AB:16:0F:03:08:80:7B:3C:9E:60:51:2E:D5:BC:44:45:A7:AA:F6 (`netfits-upload-key.jks`)

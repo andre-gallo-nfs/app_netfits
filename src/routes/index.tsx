@@ -24,7 +24,7 @@ function RootIndexRoute() {
   useEffect(() => {
     // Se estiver rodando dentro do empacotamento nativo móvel (Capacitor iOS ou Android),
     // direciona automaticamente para o Feed da aplicação
-    if (nativeBridge.isNativePlatform()) {
+    if (nativeBridge.isNativePlatform() || window.location.search.includes("app=true")) {
       navigate({ to: "/feed", replace: true });
     }
   }, [navigate]);

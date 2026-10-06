@@ -122,7 +122,7 @@ function TopBar() {
   return (
     /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
     <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3 py-2.5 flex items-center justify-between shadow-xs">
-      <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Netfits Homepage Institucional">
+      <Link to="/feed" className="flex items-center gap-2 shrink-0" aria-label="Netfits Feed Principal">
         <img
           src={netfitsDarkLogo}
           alt="Netfits"

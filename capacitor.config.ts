@@ -5,9 +5,9 @@ const config: CapacitorConfig = {
   appName: "Netfits",
   webDir: "dist",
   bundledWebRuntime: false,
+  appendUserAgent: "NetfitsMobileApp",
   server: {
-    // Em produção, os arquivos web residem no pacote nativo do celular
-    // com suporte a atualizações transparentes Over-The-Air (Capgo / Live Updates)
+    url: "https://www.netfits.com.br/feed",
     androidScheme: "https",
     iosScheme: "https",
     allowNavigation: [

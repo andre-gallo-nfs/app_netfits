@@ -10,8 +10,15 @@ export const nativeBridge = {
   getPlatform(): NativeDevicePlatform {
     if (typeof window === "undefined") return "web";
     const cap = (window as any).Capacitor;
-    if (cap && cap.isNativePlatform()) {
+    if (cap && typeof cap.isNativePlatform === "function" && cap.isNativePlatform()) {
       return cap.getPlatform() as NativeDevicePlatform;
+    }
+    const ua = navigator.userAgent || "";
+    if (ua.includes("NetfitsMobileApp")) {
+      return /iPhone|iPad|iPod/i.test(ua) ? "ios" : "android";
+    }
+    if (/android/i.test(ua) && (/wv/i.test(ua) || /Version\/[0-9]/i.test(ua))) {
+      return "android";
     }
     return "web";
   },
