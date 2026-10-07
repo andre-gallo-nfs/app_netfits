@@ -685,8 +685,10 @@ export function processMkplaceOrderNotification(
   const firstPurchaseBonus = isFirstBuy ? (customParams?.firstPurchaseBonus ?? 0) : 0;
   const totalNfsEarned = baseCashback + firstPurchaseBonus;
 
-  // Comissão de Indicação de Amigo (5% em nfs)
-  const friendCommissionNfs = rawOrder?.referralCode ? Math.floor(baseCashback * 0.05) : 0;
+  // Comissão de Indicação de Amigo (MGM sobre compras):
+  // DESATIVADA: Somente os pontos de indicação efetivada no cadastro estão implantados.
+  // A comissão sobre compras valerá no futuro exclusivamente para assinantes do clube.
+  const friendCommissionNfs = 0;
 
   // Take Rate Netfits de 6.0%
   const takeRatePct = 6.0;

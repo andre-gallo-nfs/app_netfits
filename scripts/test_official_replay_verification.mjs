@@ -54,13 +54,13 @@ async function runVerification() {
   const crisInitial = findUser("user-1791370530242");
 
   console.log(`- André Gallo: ${andreInitial?.nfsBalance} nfs (Esperado: 50 nfs - apenas boas-vindas)`);
-  console.log(`- Carlos Formigari: ${carlosInitial?.nfsBalance} nfs (Esperado: 135 nfs - sem os 780 nfs indevidos)`);
+  console.log(`- Carlos Formigari: ${carlosInitial?.nfsBalance} nfs (Esperado: 110 nfs - sem compras e sem comissão de compras MGM)`);
   console.log(`- Cristiane Formigari: ${crisInitial?.nfsBalance} nfs (Esperado: 564 nfs - pedido SOP confere)`);
 
   if (andreInitial?.nfsBalance !== 50) throw new Error(`Saldo de André incorreto: ${andreInitial?.nfsBalance}`);
-  if (carlosInitial?.nfsBalance !== 135) throw new Error(`Saldo de Carlos incorreto: ${carlosInitial?.nfsBalance}`);
+  if (carlosInitial?.nfsBalance !== 110) throw new Error(`Saldo de Carlos incorreto: ${carlosInitial?.nfsBalance}`);
   if (crisInitial?.nfsBalance !== 564) throw new Error(`Saldo de Cristiane incorreto: ${crisInitial?.nfsBalance}`);
-  console.log("✅ APROVADO: Estorno dos cashbacks estimados validado com 100% de precisão contábil.");
+  console.log("✅ APROVADO: Estorno dos cashbacks estimados e remoção de comissão MGM validados com precisão contábil.");
 
   // --------------------------------------------------------------------------------
   // TESTE 3: Simulação do Replay Oficial com os Payloads Reais da Rock Mkplace
@@ -171,11 +171,11 @@ async function runVerification() {
   const crisFinal = findAfter("user-1791370530242");
 
   console.log(`- André Gallo: ${andreFinal?.nfsBalance} nfs (Esperado: 1.091 nfs -> 50 boas-vindas + 227 PFM + 814 GTJ)`);
-  console.log(`- Carlos Formigari: ${carlosFinal?.nfsBalance} nfs (Esperado: 135 nfs -> intacto)`);
+  console.log(`- Carlos Formigari: ${carlosFinal?.nfsBalance} nfs (Esperado: 110 nfs -> intacto sem comissão MGM)`);
   console.log(`- Cristiane Formigari: ${crisFinal?.nfsBalance} nfs (Esperado: 564 nfs -> intacto)`);
 
   if (andreFinal?.nfsBalance !== 1091) throw new Error(`Saldo pós-replay de André divergente: ${andreFinal?.nfsBalance}`);
-  if (carlosFinal?.nfsBalance !== 135) throw new Error(`Saldo pós-replay de Carlos divergente: ${carlosFinal?.nfsBalance}`);
+  if (carlosFinal?.nfsBalance !== 110) throw new Error(`Saldo pós-replay de Carlos divergente: ${carlosFinal?.nfsBalance}`);
   if (crisFinal?.nfsBalance !== 564) throw new Error(`Saldo pós-replay de Cristiane divergente: ${crisFinal?.nfsBalance}`);
 
   console.log("\n🎉 TODAS AS 3 EXIGÊNCIAS FORAM 100% CUMPRIDAS E VALIDADAS COM SUCESSO!");

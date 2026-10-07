@@ -98,7 +98,7 @@ const DEFAULT_PRESEEDED_USERS = [
     cpf: "",
     birthDate: "",
     address: "",
-    nfsBalance: 135,
+    nfsBalance: 110,
     userCategory: "atleta",
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -197,15 +197,6 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
     description: "✨ Cashback compra Mkplace Pedido #SOP0711045469",
     category: "shop",
     timestamp: "2026-10-07T11:05:34Z",
-  },
-  {
-    id: "tx-mkp-ref-comm-SOP0711045469",
-    userId: "usr_carlos_formigari",
-    userName: "Carlos Rodrigo Formigari",
-    amount: 25,
-    description: "🤝 Comissão de Indicação (5%): Compra Shop de Cristiane Formigari #SOP0711045469",
-    category: "referral",
-    timestamp: "2026-10-07T11:05:35Z",
   },
   {
     id: "tx-welcome-carlos",
@@ -930,10 +921,6 @@ export default {
             globalServerTransactions.some((t) => t.id === `tx-mkp-spend-${orderId}`)
           );
 
-          const alreadyCreditedReferral = Boolean(
-            globalServerTransactions.some((t) => t.id === `tx-mkp-ref-comm-${orderId}`)
-          );
-
           let pointsDebited = alreadyDebitedPoints;
           let cashbackCredited = alreadyCreditedCashback;
           let isReplay = false;
@@ -991,25 +978,10 @@ export default {
                   timestamp: requestTimestamp,
                 });
 
-                // Se o usuário foi indicado por outro atleta, credita a comissão de indicação (5%)
-                if (user.referredBy && !alreadyCreditedReferral) {
-                  const referrer = globalServerUsers.find(
-                    (u) => u.referralCode === user.referredBy || u.id === user.referredBy
-                  );
-                  const commissionNfs = Math.floor(result.nfsEarned * 0.05);
-                  if (referrer && commissionNfs > 0) {
-                    referrer.nfsBalance = (referrer.nfsBalance || 0) + commissionNfs;
-                    globalServerTransactions.unshift({
-                      id: `tx-mkp-ref-comm-${orderId}`,
-                      userId: referrer.id,
-                      userName: referrer.fullName || "Atleta Netfits",
-                      amount: commissionNfs,
-                      description: `🤝 Comissão de Indicação (5%): Compra Shop de ${user.fullName || "Amigo Indicado"} #${orderId}`,
-                      category: "referral",
-                      timestamp: requestTimestamp,
-                    });
-                  }
-                }
+                // DIRETRIZ MGM NETFITS (Member Get Member):
+                // No momento, o programa de indicação pontua EXCLUSIVAMENTE a indicação efetivada no cadastro (onboarding).
+                // Comissão percentual sobre compras de indicados está desativada no momento e entrará em vigor futuramente
+                // apenas para usuários assinantes do Clube Netfits.
                 lastSyncTimestamp = requestTimestamp;
               } else if (alreadyCreditedCashback) {
                 // SINALIZA REPLAY DE EVENTO JÁ PROCESSADO
