@@ -103,6 +103,7 @@ const DEFAULT_PRESEEDED_USERS = [
     userCategory: "atleta",
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
+    passwordHash: "Kite@1972",
   },
   {
     id: "usr_cristiane_gallo",

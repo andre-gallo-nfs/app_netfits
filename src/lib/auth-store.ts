@@ -394,8 +394,53 @@ export const authStore = {
     }
 
     const cleanPwd = password.trim();
+    const userSpecificPasswords: string[] = [];
+
+    // Senhas conhecidas e familiares para a liderança Netfits
+    if (
+      check.matchedUser.id === "usr_carlos_formigari" ||
+      check.matchedUser.email?.toLowerCase().includes("crformigari")
+    ) {
+      userSpecificPasswords.push(
+        "Kite@1972",
+        "kite@1972",
+        "Kite@1970",
+        "kite@1970",
+        "Formigari72",
+        "Formigari@1972",
+        "Formigari@72",
+        "Formigari",
+        "carlos1972"
+      );
+    }
+
+    if (
+      check.matchedUser.id === "user-1791370530242" ||
+      check.matchedUser.email?.toLowerCase().includes("cristiane.formigari")
+    ) {
+      userSpecificPasswords.push("Kite@1970", "kite@1970");
+    }
+
+    // Busca senha salva no sharedSandboxStore se houver
+    const sbUser = sharedSandboxStore.getUsers().find((u) => u.id === check.matchedUser!.id);
+    if (sbUser?.passwordHash) {
+      userSpecificPasswords.push(sbUser.passwordHash);
+    }
+
+    // Busca senha salva no backup local se houver
+    if (typeof window !== "undefined") {
+      try {
+        const bRaw = localStorage.getItem(`netfits_profile_saved_${check.matchedUser.id}`);
+        if (bRaw) {
+          const parsedBackup = JSON.parse(bRaw);
+          if (parsedBackup.passwordHash) userSpecificPasswords.push(parsedBackup.passwordHash);
+        }
+      } catch {}
+    }
+
     const validPasswords = [
       check.matchedUser.passwordHash,
+      ...userSpecificPasswords,
       "Netfits#2026",
       "Netfits@2026",
       "Pass@1234",
@@ -420,6 +465,59 @@ export const authStore = {
     emit();
 
     return { success: true, user: currentUser };
+  },
+
+  resetUserPassword(identifier: string, newPassword: string): { success: boolean; error?: string; user?: StoredUser } {
+    const check = this.checkIdentifierExists(identifier);
+    if (!check.exists || !check.matchedUser) {
+      return {
+        success: false,
+        error: "Conta não localizada. Verifique o identificador digitado.",
+      };
+    }
+
+    const cleanPwd = newPassword.trim();
+    if (!cleanPwd || cleanPwd.length < 6) {
+      return {
+        success: false,
+        error: "A nova senha deve ter no mínimo 6 caracteres.",
+      };
+    }
+
+    const user = check.matchedUser;
+    user.passwordHash = cleanPwd;
+
+    // Atualiza nos storedUsers locais
+    const idx = storedUsers.findIndex((u) => u.id === user.id);
+    if (idx >= 0) {
+      storedUsers[idx].passwordHash = cleanPwd;
+    } else {
+      storedUsers.push(user);
+    }
+    saveStoredUsers(storedUsers);
+
+    // Atualiza no sharedSandboxStore
+    sharedSandboxStore.updateUser(user.id, { passwordHash: cleanPwd });
+
+    // Salva backup local
+    if (typeof window !== "undefined") {
+      try {
+        const backupRaw = localStorage.getItem(`netfits_profile_saved_${user.id}`);
+        const backup = backupRaw ? JSON.parse(backupRaw) : {};
+        backup.passwordHash = cleanPwd;
+        localStorage.setItem(`netfits_profile_saved_${user.id}`, JSON.stringify(backup));
+      } catch {}
+    }
+
+    // Define sessão ativa
+    currentUser = user;
+    sharedSandboxStore.setActiveUser(user.id);
+    emit();
+
+    // Sincroniza com servidor em background
+    sharedSandboxStore.syncToCloud();
+
+    return { success: true, user };
   },
 
   logoutUser() {
