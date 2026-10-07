@@ -35,7 +35,7 @@ const TEST_PERSONAS = [
   {
     id: "usr_andre",
     name: "André Gallo",
-    email: "aacgallo@hotmail.com.br",
+    email: "aacgallo@hotmail.com",
     cpf: "",
     phone: "",
     role: "Fundador Netfits",

@@ -149,8 +149,8 @@ export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T
 const INITIAL_USERS: SandboxUser[] = [
   {
     id: "usr_andre",
-    identifier: "aacgallo@hotmail.com.br",
-    email: "aacgallo@hotmail.com.br",
+    identifier: "aacgallo@hotmail.com",
+    email: "aacgallo@hotmail.com",
     fullName: "André Gallo",
     type: "admin",
     phone: "",

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pontos Creditados na Netfits!</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none;">
+    <div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #09090b; opacity: 0;">
+        Você acabou de ganhar +{{PONTOS_CREDITADOS}} nfs na Netfits! Veja seu extrato e saldo atualizado.
+        &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
+    </div>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #09090b;">
+        <tr>
+            <td align="center" style="padding: 40px 15px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #18181b; border: 1px solid #27272a; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding: 32px 30px 20px 30px; background: linear-gradient(135deg, #18181b 0%, #1e1b4b 100%); border-bottom: 1px solid #3f3f46;">
+                            <a href="https://app-netfits.vercel.app" target="_blank" style="text-decoration: none;">
+                                <img src="cid:netfits_logo" alt="NETFITS" width="160" style="display: block; max-width: 160px; height: auto; border: 0; outline: none; margin: 0 auto;" />
+                            </a>
+                            <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: #a1a1aa; text-transform: uppercase; margin-top: 8px;">
+                                Extrato de Recompensas &bull; Carteira Digital
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Bloco de Crédito de Pontos -->
+                    <tr>
+                        <td align="center" style="padding: 32px 30px 10px 30px;">
+                            <div style="display: inline-block; background-color: rgba(163, 230, 53, 0.1); border: 1px solid #a3e635; border-radius: 50px; padding: 6px 18px; margin-bottom: 16px;">
+                                <span style="color: #a3e635; font-size: 12px; font-weight: 800; text-transform: uppercase;">
+                                    ⚡ PONTOS CREDITADOS
+                                </span>
+                            </div>
+
+                            <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; line-height: 1.3; margin: 0 0 8px 0;">
+                                Parabéns, {{NOME_USUARIO}}!
+                            </h1>
+                            <p style="color: #a1a1aa; font-size: 14px; line-height: 1.5; margin: 0;">
+                                Sua atividade foi validada e os pontos já estão disponíveis para resgate na sua carteira:
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Card Destaque: Valor dos Pontos -->
+                    <tr>
+                        <td align="center" style="padding: 20px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #27272a; border: 1px solid #3f3f46; border-radius: 16px; text-align: center;">
+                                <tr>
+                                    <td style="padding: 26px 20px;">
+                                        <div style="font-size: 12px; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px;">
+                                            Crédito na Carteira
+                                        </div>
+                                        <div style="font-size: 46px; font-weight: 900; color: #a3e635; margin: 6px 0 2px 0; font-family: 'SF Pro Display', -apple-system, sans-serif;">
+                                            +{{PONTOS_CREDITADOS}} <span style="font-size: 24px; color: #ffffff;">nfs</span>
+                                        </div>
+                                        <div style="font-size: 13px; font-weight: 600; color: #d4d4d8; margin-top: 4px;">
+                                            Origem: <b style="color: #ffffff;">{{ORIGEM_EVENTO}}</b>
+                                        </div>
+                                        
+                                        <!-- Divisória Interna -->
+                                        <div style="border-top: 1px solid #3f3f46; margin: 18px 20px 14px 20px;"></div>
+
+                                        <!-- Saldo Consolidado -->
+                                        <div style="font-size: 13px; color: #a1a1aa;">
+                                            Seu novo saldo consolidado: <b style="color: #c084fc; font-size: 15px;">{{SALDO_TOTAL_NFS}} nfs</b>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- O que fazer com seus pontos -->
+                    <tr>
+                        <td style="padding: 10px 30px 25px 30px;">
+                            <div style="background-color: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 18px 20px;">
+                                <div style="color: #c084fc; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
+                                    💡 Como aproveitar seus pontos no Netfits Shop:
+                                </div>
+                                <div style="color: #d4d4d8; font-size: 12px; line-height: 1.6;">
+                                    Use seus pontos <b>nfs</b> para abater compras em marcas de suplementação, vestuário esportivo e consultas com médicos e nutricionistas credenciados na nossa rede.
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Botão CTA -->
+                    <tr>
+                        <td align="center" style="padding: 10px 30px 35px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 12px; background-color: #7c3aed;">
+                                        <a href="https://app-netfits.vercel.app/profile" target="_blank" style="display: inline-block; padding: 16px 36px; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; border-radius: 12px; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">
+                                            VER EXTRATO E RESGATAR &rarr;
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Rodapé -->
+                    <tr>
+                        <td style="padding: 20px 30px; background-color: #09090b; border-top: 1px solid #27272a; text-align: center;">
+                            <p style="color: #71717a; font-size: 11px; line-height: 1.5; margin: 0 0 8px 0;">
+                                Validade dos pontos: 24 meses após a data de emissão (regra FEFO).<br>
+                                Data e hora do processamento: {{DATA_HORA}}
+                            </p>
+                            <p style="color: #52525b; font-size: 10px; line-height: 1.5; margin: 0;">
+                                <b>NETFITS LTDA</b> &bull; CNPJ 68.930.455/0001-40 &bull; Santana de Parnaíba - SP
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

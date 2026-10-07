@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperação de Acesso - Netfits</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none;">
+    <div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #09090b; opacity: 0;">
+        Instruções seguras para cadastramento de nova senha na sua conta Netfits.
+        &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
+    </div>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #09090b;">
+        <tr>
+            <td align="center" style="padding: 40px 15px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #18181b; border: 1px solid #27272a; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding: 32px 30px 20px 30px; background: linear-gradient(135deg, #18181b 0%, #2e1065 100%); border-bottom: 1px solid #3f3f46;">
+                            <a href="https://app-netfits.vercel.app" target="_blank" style="text-decoration: none;">
+                                <img src="cid:netfits_logo" alt="NETFITS" width="160" style="display: block; max-width: 160px; height: auto; border: 0; outline: none; margin: 0 auto;" />
+                            </a>
+                            <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: #a1a1aa; text-transform: uppercase; margin-top: 8px;">
+                                Central de Segurança &bull; Controle de Acesso
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Corpo Principal -->
+                    <tr>
+                        <td style="padding: 32px 30px 20px 30px;">
+                            <div style="display: inline-block; background-color: rgba(192, 132, 252, 0.1); border: 1px solid #c084fc; border-radius: 50px; padding: 6px 16px; margin-bottom: 16px;">
+                                <span style="color: #c084fc; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                    🔒 Redefinição de Senha
+                                </span>
+                            </div>
+
+                            <h1 style="color: #ffffff; font-size: 22px; font-weight: 800; line-height: 1.4; margin: 0 0 14px 0;">
+                                Olá, {{NOME_USUARIO}}
+                            </h1>
+                            <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
+                                Recebemos uma solicitação de redefinição de senha para a conta Netfits associada ao identificador <b style="color: #ffffff;">{{EMAIL_MASCARADO}}</b>.
+                            </p>
+                            <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
+                                Para cadastrar sua nova senha de acesso com segurança, clique no botão abaixo:
+                            </p>
+
+                            <!-- Botão CTA -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center" style="padding: 10px 0 24px 0;">
+                                        <table border="0" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td align="center" style="border-radius: 12px; background-color: #7c3aed;">
+                                                    <a href="{{LINK_RESET_SENHA}}" target="_blank" style="display: inline-block; padding: 15px 36px; font-size: 14px; font-weight: 800; color: #ffffff; text-decoration: none; border-radius: 12px; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">
+                                                        CADASTRAR NOVA SENHA &rarr;
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Alerta de Segurança e Expiração -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #27272a; border-left: 4px solid #f59e0b; border-radius: 8px; margin-bottom: 20px;">
+                                <tr>
+                                    <td style="padding: 14px 16px;">
+                                        <div style="color: #fbbf24; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                                            ⚠️ Importante
+                                        </div>
+                                        <div style="color: #d4d4d8; font-size: 12px; line-height: 1.5; margin-top: 4px;">
+                                            Este link expira em <b>30 minutos</b> e só pode ser utilizado uma única vez. Se você não solicitou esta redefinição, sua conta permanece protegida e você pode ignorar esta mensagem com total segurança.
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="color: #71717a; font-size: 12px; line-height: 1.5; margin: 0;">
+                                Se o botão acima não funcionar, copie e cole o link a seguir no seu navegador:<br>
+                                <span style="color: #9333ea; word-break: break-all; font-family: monospace;">{{LINK_RESET_SENHA}}</span>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Rodapé -->
+                    <tr>
+                        <td style="padding: 20px 30px; background-color: #09090b; border-top: 1px solid #27272a; text-align: center;">
+                            <p style="color: #52525b; font-size: 10px; line-height: 1.5; margin: 0;">
+                                <b>NETFITS LTDA</b> &bull; CNPJ 68.930.455/0001-40 &bull; Santana de Parnaíba - SP<br>
+                                Dúvidas sobre segurança: <a href="mailto:seguranca@netfits.com.br" style="color: #a1a1aa; text-decoration: underline;">seguranca@netfits.com.br</a>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

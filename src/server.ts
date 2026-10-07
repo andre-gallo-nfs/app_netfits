@@ -16,6 +16,11 @@ import {
   DEFAULT_OPERATIONAL_PARAMS,
   type OperationalParams,
 } from "./lib/operational-params-store";
+import {
+  sendWelcomeEmail,
+  sendPasswordResetEmail,
+  sendShopOrderConfirmedEmail,
+} from "./lib/emails/email-service";
 
 let globalServerOperationalParams: OperationalParams = { ...DEFAULT_OPERATIONAL_PARAMS };
 let lastParamsSyncTimestamp = new Date().toISOString();
@@ -56,7 +61,7 @@ const DEFAULT_PRESEEDED_USERS = [
   {
     id: "usr_andre",
     fullName: "André Gallo",
-    email: "aacgallo@hotmail.com.br",
+    email: "aacgallo@hotmail.com",
     phone: "",
     cpf: "",
     birthDate: "",
@@ -147,6 +152,7 @@ function isAndreGallo(str?: string | null): boolean {
     clean === "usr_101" ||
     clean === "aacgallo@hotmail.com" ||
     clean === "aacgallo@hotmail.com.br" ||
+    clean === "andre.gallo@netfits.com.br" ||
     clean === "andre gallo" ||
     clean === "andré gallo"
   );
@@ -585,6 +591,28 @@ export default {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
                 reservation.pointsReserved = result.pointsUsed;
                 lastSyncTimestamp = new Date().toISOString();
+
+                // Disparo de E-mail Transacional de Pedido Confirmado (Resend)
+                if (user?.email) {
+                  const rawTotal = Number(rawOrder?.total || rawOrder?.amount || body?.total || 0);
+                  const rawPointsUsed = result.pointsUsed || 0;
+                  const pointsDiscount = Number((rawPointsUsed * 0.01).toFixed(2));
+                  const cashPaid = Math.max(0, rawTotal - pointsDiscount);
+
+                  sendShopOrderConfirmedEmail({
+                    to: user.email,
+                    nomeUsuario: user.fullName || "Atleta Netfits",
+                    numeroPedido: result.orderId || `#NFS-${Date.now().toString().slice(-5)}`,
+                    produto: (body?.items && body.items[0]?.name) || "Produtos Netfits Shop",
+                    parceiro: "Netfits Shop",
+                    quantidade: (body?.items && body.items[0]?.quantity) || 1,
+                    valorSubtotal: rawTotal > 0 ? rawTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00",
+                    pontosUtilizados: rawPointsUsed,
+                    valorDescontoPontos: pointsDiscount > 0 ? pointsDiscount.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00",
+                    valorTotalPago: cashPaid > 0 ? cashPaid.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00",
+                    saldoRestante: user.nfsBalance || 0,
+                  }).catch((err) => console.warn("[webhook/orders] Falha ao enviar e-mail de pedido:", err));
+                }
               }
             }
 
@@ -950,6 +978,47 @@ export default {
         }),
         { status: 200, headers: corsHeaders }
       );
+    }
+
+    // ==========================================
+    // ENDPOINTS DE E-MAILS TRANSACIONAIS (RESEND)
+    // ==========================================
+    if (url.pathname === "/api/email/welcome" || url.pathname === "/api/email/welcome/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const to = body.to || body.email;
+          const nomeUsuario = body.nomeUsuario || body.fullName || "Atleta";
+          if (!to) {
+            return new Response(JSON.stringify({ error: "Campo 'to' é obrigatório" }), { status: 400, headers: corsHeaders });
+          }
+          const result = await sendWelcomeEmail({ to, nomeUsuario });
+          return new Response(JSON.stringify({ success: true, result }), { status: 200, headers: corsHeaders });
+        } catch (err: any) {
+          console.error("[api/email/welcome] Erro:", err);
+          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers: corsHeaders });
+        }
+      }
+    }
+
+    if (url.pathname === "/api/email/reset-password" || url.pathname === "/api/email/reset-password/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const to = body.to || body.email;
+          const nomeUsuario = body.nomeUsuario || body.fullName || "Atleta";
+          const maskedEmail = body.maskedEmail || to;
+          const resetLink = body.resetLink || "https://www.netfits.com.br/auth?action=reset";
+          if (!to) {
+            return new Response(JSON.stringify({ error: "Campo 'to' é obrigatório" }), { status: 400, headers: corsHeaders });
+          }
+          const result = await sendPasswordResetEmail({ to, nomeUsuario, maskedEmail, resetLink });
+          return new Response(JSON.stringify({ success: true, result }), { status: 200, headers: corsHeaders });
+        } catch (err: any) {
+          console.error("[api/email/reset-password] Erro:", err);
+          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers: corsHeaders });
+        }
+      }
     }
 
     // ==========================================

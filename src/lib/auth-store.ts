@@ -20,7 +20,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
   {
     id: "usr_andre",
     fullName: "André Gallo",
-    email: "aacgallo@hotmail.com.br",
+    email: "aacgallo@hotmail.com",
     phone: "",
     cpf: "",
     passwordHash: "Netfits#2026",

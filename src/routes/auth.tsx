@@ -16,6 +16,7 @@ import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { nativeBridge } from "@/lib/native-bridge";
 import { passkeyService } from "@/lib/webauthn-passkeys";
 import { appLockStore } from "@/lib/app-lock-store";
+import { dispatchWelcomeEmailSafe, dispatchPasswordResetEmailSafe } from "@/lib/emails/email-service";
 import { toast } from "sonner";
 
 function formatCPF(value: string): string {
@@ -261,6 +262,12 @@ function AuthPage() {
       });
       passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
     }
+
+    // Disparo imediato do E-mail Oficial de Boas-Vindas (+50 nfs) via Resend
+    const recipientEmail = (res.user?.email || email).trim();
+    const recipientName = (res.user?.fullName || fullName).trim();
+    dispatchWelcomeEmailSafe(recipientEmail, recipientName);
+
     toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
     appLockStore.setUnlocked(true);
     navigate({ to: "/feed" });
@@ -999,6 +1006,18 @@ function ForgotPasswordCard({ onClose }: { onClose: () => void }) {
     }
     setError(null);
     setStep(3);
+
+    // Disparar e-mail de redefinição oficial via Resend
+    const check = authStore.checkIdentifierExists(identifier);
+    const targetEmail = check.matchedUser?.email || (identifier.includes("@") ? identifier : "");
+    const targetName = check.matchedUser?.fullName || "Atleta";
+    const resetToken = Math.random().toString(36).substring(2, 12);
+    const resetLink = `https://www.netfits.com.br/auth?action=reset&token=${resetToken}`;
+
+    if (targetEmail) {
+      dispatchPasswordResetEmailSafe(targetEmail, targetName, maskedEmail, resetLink);
+    }
+
     toast.success("Dados cadastrais confirmados! E-mail de redefinição enviado.");
   };
 
