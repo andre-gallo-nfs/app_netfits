@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
@@ -140,6 +140,7 @@ export const formatCepMask = (val: string) => {
 };
 
 function ProfilePage() {
+  const navigate = useNavigate();
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1012,6 +1013,30 @@ function ProfilePage() {
               >
                 <Lock className="size-3.5 text-lime-400" />
                 <span>Bloquear Aplicativo Agora</span>
+              </button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Sessão & Desconexão / Alternar Usuário */}
+        <Card title="Sessão & Alternar Usuário" icon={LogOut}>
+          <div className="space-y-3">
+            <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
+              Você está conectado como <strong className="text-foreground">{activeUser.fullName}</strong> ({activeUser.email || activeUser.identifier}).
+              Se este aparelho for compartilhado com outros membros da família ou equipe (como Carlos e Cristiane Formigari), use a opção abaixo para encerrar a sessão com segurança. Todos os dados, saldos, badges e transações permanecem 100% isolados por conta.
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  authStore.logoutUser();
+                  appLockStore.setUnlocked(false);
+                  navigate({ to: "/auth" });
+                }}
+                className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 dark:text-red-400 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-red-500/30 transition cursor-pointer active:scale-98"
+              >
+                <LogOut className="size-4" />
+                <span>Sair desta Conta / Alternar Usuário</span>
               </button>
             </div>
           </div>

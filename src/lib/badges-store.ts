@@ -168,12 +168,22 @@ export const INITIAL_BADGES: BadgeItem[] = [
   },
 ];
 
-const BADGES_STORAGE_KEY = "netfits_user_badges_v3";
+const BADGES_STORAGE_KEY_PREFIX = "netfits_user_badges_v4_";
 
-function loadBadges(): BadgeItem[] {
+function getBadgesStorageKey(userId?: string): string {
+  const uid =
+    userId ||
+    (typeof window !== "undefined"
+      ? localStorage.getItem("netfits_production_active_user_v1") || "anon"
+      : "anon");
+  return `${BADGES_STORAGE_KEY_PREFIX}${uid}`;
+}
+
+function loadBadges(userId?: string): BadgeItem[] {
   if (typeof window !== "undefined") {
     try {
-      const raw = localStorage.getItem(BADGES_STORAGE_KEY);
+      const key = getBadgesStorageKey(userId);
+      const raw = localStorage.getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -220,6 +230,9 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
     return badgesList;
   }
 
+  // Carrega e avalia a lista de conquistas estritamente isolada deste usuário
+  badgesList = loadBadges(activeUser.id);
+
   let hasChanged = false;
   const nowStr = new Date().toLocaleDateString("pt-BR");
 
@@ -261,15 +274,31 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   const isPrimeiraCompra = purchasesCount >= 1;
   const isMestreCashback = purchasesCount >= 3;
 
-  // 6. Engajamento e Compartilhamento
+  // 6. Engajamento e Compartilhamento (isolado por ID de usuário)
   let shareCount = 0;
   let feedLikeCount = 0;
   let feedReadCount = 0;
   if (typeof window !== "undefined") {
     try {
-      shareCount = parseInt(localStorage.getItem("netfits_shares_count") || "0", 10);
-      feedLikeCount = parseInt(localStorage.getItem("netfits_likes_count") || "0", 10);
-      feedReadCount = parseInt(localStorage.getItem("netfits_reads_count") || "0", 10);
+      const uid = activeUser.id;
+      shareCount = parseInt(
+        localStorage.getItem(`netfits_shares_count_${uid}`) ||
+          localStorage.getItem("netfits_shares_count") ||
+          "0",
+        10
+      );
+      feedLikeCount = parseInt(
+        localStorage.getItem(`netfits_likes_count_${uid}`) ||
+          localStorage.getItem("netfits_likes_count") ||
+          "0",
+        10
+      );
+      feedReadCount = parseInt(
+        localStorage.getItem(`netfits_reads_count_${uid}`) ||
+          localStorage.getItem("netfits_reads_count") ||
+          "0",
+        10
+      );
     } catch {}
   }
   const isVozDaTribo = shareCount >= 1;
@@ -323,7 +352,11 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
         if (isMestreCashback) shouldUnlock = true;
         break;
       case "explorador_shop":
-        if (typeof window !== "undefined" && localStorage.getItem("netfits_shop_visited") === "true") {
+        if (
+          typeof window !== "undefined" &&
+          (localStorage.getItem(`netfits_shop_visited_${activeUser.id}`) === "true" ||
+            localStorage.getItem("netfits_shop_visited") === "true")
+        ) {
           shouldUnlock = true;
           newProgress = 1;
         } else if (isPrimeiraCompra) {
@@ -368,7 +401,7 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   if (hasChanged) {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badgesList));
+        localStorage.setItem(getBadgesStorageKey(activeUser.id), JSON.stringify(badgesList));
       } catch {}
     }
     emit();
@@ -399,7 +432,8 @@ export const badgesStore = {
 
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badgesList));
+        const activeUser = sharedSandboxStore.getActiveUser();
+        localStorage.setItem(getBadgesStorageKey(activeUser?.id), JSON.stringify(badgesList));
       } catch {}
     }
 
@@ -410,8 +444,11 @@ export const badgesStore = {
   recordShare() {
     if (typeof window !== "undefined") {
       try {
-        const count = parseInt(localStorage.getItem("netfits_shares_count") || "0", 10) + 1;
-        localStorage.setItem("netfits_shares_count", String(count));
+        const activeUser = sharedSandboxStore.getActiveUser();
+        const uid = activeUser?.id || "anon";
+        const key = `netfits_shares_count_${uid}`;
+        const count = parseInt(localStorage.getItem(key) || "0", 10) + 1;
+        localStorage.setItem(key, String(count));
       } catch {}
     }
     evaluateRealtimeBadges();
@@ -419,7 +456,9 @@ export const badgesStore = {
   recordShopVisit() {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("netfits_shop_visited", "true");
+        const activeUser = sharedSandboxStore.getActiveUser();
+        const uid = activeUser?.id || "anon";
+        localStorage.setItem(`netfits_shop_visited_${uid}`, "true");
       } catch {}
     }
     evaluateRealtimeBadges();
@@ -444,7 +483,8 @@ export const badgesStore = {
 
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(BADGES_STORAGE_KEY, JSON.stringify(badgesList));
+        const activeUser = sharedSandboxStore.getActiveUser();
+        localStorage.setItem(getBadgesStorageKey(activeUser?.id), JSON.stringify(badgesList));
       } catch {}
     }
 

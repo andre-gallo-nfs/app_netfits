@@ -522,6 +522,14 @@ export const authStore = {
 
   logoutUser() {
     currentUser = null;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("netfits_production_active_user_v1");
+        localStorage.removeItem("netfits_last_authenticated_user_id");
+        sessionStorage.removeItem("netfits_session_unlocked_v1");
+      } catch {}
+    }
+    sharedSandboxStore.clearActiveSession();
     toast.info("Você saiu da sua conta Netfits.");
     emit();
   },
