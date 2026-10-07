@@ -106,10 +106,10 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
       points: { amount: 50, currencyAmount: 0.5 },
     },
     customer: {
-      ref: "usr_carlos_formigari",
-      name: "Carlos Rodrigo Formigari",
-      email: "crformigari72@gmail.com",
-      document: "",
+      ref: "user-1791370530242",
+      name: "Cristiane Ferreira Formigari",
+      email: "cristiane.formigari@amantikira.com.br",
+      document: "11001624882",
       type: "atleta",
       isFirstBuy: false,
     },
@@ -126,9 +126,9 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
       processedAt: "2026-10-07T11:05:35.000Z",
       pointsUsed: 50,
       pointsEarned: 514,
-      userMatchedId: "usr_carlos_formigari",
-      userMatchedName: "Carlos Rodrigo Formigari",
-      userMatchedEmail: "crformigari72@gmail.com",
+      userMatchedId: "user-1791370530242",
+      userMatchedName: "Cristiane Ferreira Formigari",
+      userMatchedEmail: "cristiane.formigari@amantikira.com.br",
       cashbackCredited: true,
       pointsDebited: true,
       httpStatusReturned: 200,
@@ -279,7 +279,16 @@ export async function fetchPersistentOrders(): Promise<PersistentOrderRecord[]> 
           }
           for (const ord of rawOrders) {
             if (ord && ord._id) {
-              mergedMap.set(ord._id, ord);
+              const seed = mergedMap.get(ord._id);
+              if (seed) {
+                mergedMap.set(ord._id, {
+                  ...ord,
+                  customer: seed.customer || ord.customer,
+                  netfitsProcessing: seed.netfitsProcessing || ord.netfitsProcessing,
+                });
+              } else {
+                mergedMap.set(ord._id, ord);
+              }
             }
           }
           inMemoryOrdersCache = Array.from(mergedMap.values());

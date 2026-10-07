@@ -94,9 +94,9 @@ def create_extrato_document():
     kpi_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     kpis = [
         ("TOTAL CONTAS", "4", "100% Ativas na Nuvem", "F1F5F9"),
-        ("SALDO CIRCULANTE", "310 nfs", "Equiv. R$ 3,10 (Shop)", "ECFDF5"),
-        ("AÇÕES AUDITADAS", "11", "Ganhos Orgânicos", "F3E8FF"),
-        ("RESGATES / DÉBITOS", "0 nfs", "Zero Queima até o Momento", "F8FAFC"),
+        ("SALDO CIRCULANTE", "2.659 nfs", "R$ 26,59 (Poder de Compra)", "ECFDF5"),
+        ("AÇÕES AUDITADAS", "16", "Compras, Feed e Boas-Vindas", "F3E8FF"),
+        ("RESGATES EFETUADOS", "-50 nfs", "Resgate Pedido #SOP0711045469", "FFF1F2"),
     ]
     for idx, (label, val, sub, bg) in enumerate(kpis):
         cell = kpi_table.rows[0].cells[idx]
@@ -117,9 +117,11 @@ def create_extrato_document():
         r_val = p.add_run(val + "\n")
         r_val.font.name = "Arial Black"
         r_val.font.size = Pt(13)
-        if "310" in val:
+        if "2.659" in val:
             r_val.font.color.rgb = RGBColor(16, 185, 129)
-        elif "11" in val:
+        elif "-50" in val:
+            r_val.font.color.rgb = RGBColor(225, 29, 72)
+        elif "16" in val:
             r_val.font.color.rgb = RGBColor(124, 58, 237)
         else:
             r_val.font.color.rgb = RGBColor(15, 23, 42)
@@ -157,10 +159,10 @@ def create_extrato_document():
         run.font.color.rgb = RGBColor(255, 255, 255)
 
     users_data = [
-        ("André Gallo", "Associado", "GALLO-NETFITS", "—", "1", "50 nfs"),
-        ("Carlos Rodrigo Formigari", "Atleta", "FORMIGARI-NFS", "—", "3", "110 nfs"),
+        ("André Gallo", "Associado", "GALLO-NETFITS", "—", "2", "1.130 nfs"),
+        ("Carlos Rodrigo Formigari", "Atleta", "FORMIGARI-NFS", "—", "5", "915 nfs"),
         ("Cristiane Queli da Silva Gallo", "Atleta", "CRIS-NETFITS", "—", "1", "50 nfs"),
-        ("Cristiane Ferreira Formigari", "Atleta", "NET-1243", "FORMIGARI-NFS", "6", "100 nfs"),
+        ("Cristiane Ferreira Formigari", "Atleta", "NET-1243", "FORMIGARI-NFS", "8", "564 nfs"),
     ]
 
     for row_idx, data in enumerate(users_data, start=1):
@@ -203,19 +205,22 @@ def create_extrato_document():
         {
             "name": "André Gallo (Associado)",
             "sub": "ID: usr_andre | Código: GALLO-NETFITS | Cadastrado em: 05/10/2026",
-            "balance": "50 nfs",
+            "balance": "1.130 nfs",
             "txs": [
-                ("05/10/2026 00:00", "welcome", "Bônus de Boas-Vindas no Cadastramento Netfits", "+50 nfs", "50 nfs")
+                ("05/10/2026 00:00", "welcome", "Bônus de Boas-Vindas no Cadastramento Netfits", "+50 nfs", "50 nfs"),
+                ("05/10/2026 19:38", "shop", "Cashback Compra Netfits Shop (Pedido #GTJ0522372096 — Calçado Esportivo)", "+1.080 nfs", "1.130 nfs")
             ]
         },
         {
             "name": "Carlos Rodrigo Formigari (Atleta)",
             "sub": "ID: usr_carlos_formigari | Código: FORMIGARI-NFS | Cadastrado em: 06/10/2026",
-            "balance": "110 nfs",
+            "balance": "915 nfs",
             "txs": [
                 ("06/10/2026 00:00", "welcome", "Bônus de Boas-Vindas no Cadastramento Netfits", "+50 nfs", "50 nfs"),
-                ("06/10/2026 18:00", "view", "Engajamento no Feed de Conteúdo", "+10 nfs", "60 nfs"),
-                ("07/10/2026 07:55", "referral", "Bônus por Indicar Novo Usuário (Cristiane Ferreira Formigari)", "+50 nfs", "110 nfs")
+                ("06/10/2026 07:45", "shop", "Cashback Compra Netfits Shop (Pedido #PFM0610443019 — Vestuário Esportivo)", "+780 nfs", "830 nfs"),
+                ("06/10/2026 18:00", "view", "Engajamento no Feed de Conteúdo", "+10 nfs", "840 nfs"),
+                ("07/10/2026 07:55", "referral", "Bônus por Indicar Novo Usuário (Cristiane Ferreira Formigari)", "+50 nfs", "890 nfs"),
+                ("07/10/2026 08:05", "referral", "Comissão de Indicação de Amigo (5% s/ Cashback Pedido #SOP0711045469)", "+25 nfs", "915 nfs")
             ]
         },
         {
@@ -229,14 +234,16 @@ def create_extrato_document():
         {
             "name": "Cristiane Ferreira Formigari (Atleta)",
             "sub": "ID: user-1791370530242 | Código: NET-1243 | Indicada por: FORMIGARI-NFS | Cadastrada em: 07/10/2026 às 07:55:30",
-            "balance": "100 nfs",
+            "balance": "564 nfs",
             "txs": [
                 ("07/10/2026 07:55", "welcome", "Bônus de Boas-Vindas — Novo Cadastro no App Netfits (E-mail Resend)", "+50 nfs", "50 nfs"),
-                ("07/10/2026 08:05", "view", "Leitura Completa de Artigo no Feed (Dwell time ≥ 3s)", "+10 nfs", "60 nfs"),
-                ("07/10/2026 08:15", "view", "Desafio Netfits: Longevidade & Especialistas Fibios (Dr. Franco / Dra. Isabella)", "+10 nfs", "70 nfs"),
-                ("07/10/2026 08:22", "click", "Acesso a Conteúdo e Link Oficial Integrado no Feed", "+10 nfs", "80 nfs"),
-                ("07/10/2026 08:30", "like", "Interação em Conteúdo da Comunidade (Curtida Auditada)", "+10 nfs", "90 nfs"),
-                ("07/10/2026 08:35", "view", "Engajamento no Feed Social (Visualização Completa)", "+10 nfs", "100 nfs")
+                ("07/10/2026 08:04", "shop", "Resgate de Pontos na Compra Shop (Pedido #SOP0711045469 — Desconto R$ 0,50)", "-50 nfs", "0 nfs"),
+                ("07/10/2026 08:05", "shop", "Cashback Compra Netfits Shop (Pedido #SOP0711045469 — Suplementação & Nutrição)", "+514 nfs", "514 nfs"),
+                ("07/10/2026 08:05", "view", "Leitura Completa de Artigo no Feed (Dwell time ≥ 3s)", "+10 nfs", "524 nfs"),
+                ("07/10/2026 08:15", "view", "Desafio Netfits: Longevidade & Especialistas Fibios (Dr. Franco / Dra. Isabella)", "+10 nfs", "534 nfs"),
+                ("07/10/2026 08:22", "click", "Acesso a Conteúdo e Link Oficial Integrado no Feed", "+10 nfs", "544 nfs"),
+                ("07/10/2026 08:30", "like", "Interação em Conteúdo da Comunidade (Curtida Auditada)", "+10 nfs", "554 nfs"),
+                ("07/10/2026 08:35", "view", "Engajamento no Feed Social (Visualização Completa)", "+10 nfs", "564 nfs")
             ]
         }
     ]

@@ -258,7 +258,7 @@ def create_document():
     orders_data = [
         ("GTJ0522372096", "André Gallo", "R$ 270,00", "+1.080 nfs (Cashback)", "PAID (Persistido)"),
         ("PFM0610443019", "Carlos Formigari", "R$ 195,00", "+780 nfs (Cashback)", "PAID (Persistido)"),
-        ("SOP0711045469", "Carlos Formigari", "R$ 129,11", "-50 nfs / +514 nfs", "PAID (Persistido)")
+        ("SOP0711045469", "Cristiane Formigari", "R$ 129,11", "-50 nfs (Uso) / +514 nfs", "PAID (Persistido)")
     ]
 
     for row_idx, data in enumerate(orders_data, start=1):
@@ -293,9 +293,11 @@ def create_document():
     p_balance.paragraph_format.space_before = Pt(8)
     p_balance.paragraph_format.space_after = Pt(6)
     r_bal = p_balance.add_run(
-        "• Saldo Consolidado de André Gallo: 1.130 nfs (50 nfs de boas-vindas + 1.080 nfs de cashback do pedido GTJ0522372096).\n"
-        "• Saldo Consolidado de Carlos Formigari: 1.354 nfs (50 nfs boas-vindas + 50 nfs indicação Cristiane + 10 nfs feed + "
-        "780 nfs cashback PFM0610443019 - 50 nfs resgate SOP0711045469 + 514 nfs cashback SOP0711045469)."
+        "• Saldo Consolidado de André Gallo: 1.130 nfs (50 nfs boas-vindas + 1.080 nfs cashback GTJ0522372096).\n"
+        "• Saldo Consolidado de Carlos Formigari: 915 nfs (50 nfs boas-vindas + 50 nfs indicação Cristiane + 10 nfs feed + "
+        "780 nfs cashback compra PFM0610443019 + 25 nfs comissão de indicação da compra de Cristiane).\n"
+        "• Saldo Consolidado de Cristiane Formigari: 564 nfs (50 nfs boas-vindas + 50 nfs feed - 50 nfs resgate no pedido SOP0711045469 + 514 nfs cashback do pedido SOP0711045469).\n"
+        "• Saldo Consolidado de Cristiane Queli Gallo: 50 nfs (50 nfs boas-vindas)."
     )
     r_bal.font.name = "Arial"
     r_bal.font.size = Pt(9.0)

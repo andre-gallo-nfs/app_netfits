@@ -98,7 +98,7 @@ const DEFAULT_PRESEEDED_USERS = [
     cpf: "",
     birthDate: "",
     address: "",
-    nfsBalance: 1354,
+    nfsBalance: 915,
     userCategory: "atleta",
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -135,7 +135,7 @@ const DEFAULT_PRESEEDED_USERS = [
     healthPlan: "",
     gym: "",
     wearable: "",
-    nfsBalance: 100,
+    nfsBalance: 564,
     userCategory: "atleta",
     identifier: "cristiane.formigari@amantikira.com.br",
     type: "athlete",
@@ -200,8 +200,8 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
   },
   {
     id: "tx-mkp-spend-SOP0711045469",
-    userId: "usr_carlos_formigari",
-    userName: "Carlos Rodrigo Formigari",
+    userId: "user-1791370530242",
+    userName: "Cristiane Ferreira Formigari",
     amount: -50,
     description: "🛍️ Resgate compra Mkplace Pedido #SOP0711045469",
     category: "shop",
@@ -209,12 +209,21 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
   },
   {
     id: "tx-mkp-earn-SOP0711045469",
-    userId: "usr_carlos_formigari",
-    userName: "Carlos Rodrigo Formigari",
+    userId: "user-1791370530242",
+    userName: "Cristiane Ferreira Formigari",
     amount: 514,
     description: "✨ Cashback compra Mkplace Pedido #SOP0711045469",
     category: "shop",
     timestamp: "2026-10-07T11:05:34Z",
+  },
+  {
+    id: "tx-mkp-ref-comm-SOP0711045469",
+    userId: "usr_carlos_formigari",
+    userName: "Carlos Rodrigo Formigari",
+    amount: 25,
+    description: "🤝 Comissão de Indicação (5%): Compra Shop de Cristiane Formigari #SOP0711045469",
+    category: "referral",
+    timestamp: "2026-10-07T11:05:35Z",
   },
   {
     id: "tx-welcome-carlos",
@@ -334,6 +343,29 @@ function isAndreGallo(str?: string | null): boolean {
     clean === "andre.gallo@netfits.com.br" ||
     clean === "andre gallo" ||
     clean === "andré gallo"
+  );
+}
+
+function isCristianeFormigari(str?: string | null): boolean {
+  if (!str) return false;
+  const clean = str.trim().toLowerCase();
+  const digits = clean.replace(/\D/g, "");
+  const cris = globalServerUsers?.find(
+    (u) =>
+      u.id === "user-1791370530242" ||
+      u.email === "cristiane.formigari@amantikira.com.br" ||
+      u.fullName?.toLowerCase().includes("cristiane ferreira formigari")
+  );
+  const crisCpfDigits = cris?.cpf ? String(cris.cpf).replace(/\D/g, "") : "11001624882";
+  if (digits && digits.length === 11 && (digits === crisCpfDigits || digits === "11001624882")) {
+    return true;
+  }
+  return (
+    clean === "user-1791370530242" ||
+    clean === "cristiane.formigari@amantikira.com.br" ||
+    clean === "cristiane ferreira formigari" ||
+    clean === "cristiane formigari" ||
+    clean === "cristiane ferreira"
   );
 }
 
@@ -739,6 +771,7 @@ export default {
             ? globalServerUsers.find(
                 (u) =>
                   u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
+                  (isCristianeFormigari(String(customerEmail)) && (u.id === "user-1791370530242" || u.email === "cristiane.formigari@amantikira.com.br")) ||
                   (isCarlosFormigari(String(customerEmail)) && u.id === "usr_carlos_formigari") ||
                   (isAndreGallo(String(customerEmail)) && u.id === "usr_andre")
               )
@@ -748,6 +781,7 @@ export default {
           if (!user && customerName) {
             user = globalServerUsers.find(
               (u) =>
+                (isCristianeFormigari(String(customerName)) && (u.id === "user-1791370530242" || u.fullName?.toLowerCase().includes("cristiane ferreira formigari"))) ||
                 (isCarlosFormigari(String(customerName)) && u.id === "usr_carlos_formigari") ||
                 (isAndreGallo(String(customerName)) && u.id === "usr_andre") ||
                 (u.fullName && String(u.fullName).trim().toLowerCase() === String(customerName).trim().toLowerCase())
@@ -762,14 +796,17 @@ export default {
                 u.id === customerRef ||
                 u.cpf === customerRef ||
                 (cleanRefDigits && cleanRefDigits.length === 11 && u.cpf && String(u.cpf).replace(/\D/g, "") === cleanRefDigits) ||
+                (isCristianeFormigari(customerRef) && (u.id === "user-1791370530242" || u.email === "cristiane.formigari@amantikira.com.br")) ||
                 (isCarlosFormigari(customerRef) && u.id === "usr_carlos_formigari") ||
                 (isAndreGallo(customerRef) && u.id === "usr_andre")
             );
           }
 
-          // 4. Se ainda não encontrado, atribui a Carlos Formigari se contiver referências a Formigari, ou André
+          // 4. Se ainda não encontrado, atribui conforme referências
           if (!user) {
-            if (isCarlosFormigari(customerRef) || isCarlosFormigari(customerName) || isCarlosFormigari(customerEmail)) {
+            if (isCristianeFormigari(customerRef) || isCristianeFormigari(customerName) || isCristianeFormigari(customerEmail)) {
+              user = globalServerUsers.find((u) => u.id === "user-1791370530242" || u.email === "cristiane.formigari@amantikira.com.br");
+            } else if (isCarlosFormigari(customerRef) || isCarlosFormigari(customerName) || isCarlosFormigari(customerEmail)) {
               user = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
             } else if (isAndreGallo(customerRef) || isAndreGallo(customerName) || isAndreGallo(customerEmail)) {
               user = globalServerUsers.find((u) => u.id === "usr_andre");
@@ -876,6 +913,24 @@ export default {
                   category: "shop",
                   timestamp: requestTimestamp,
                 });
+
+                // Se o usuário foi indicado por outro atleta, credita a comissão de indicação (5%)
+                if (user.referredBy) {
+                  const referrer = globalServerUsers.find((u) => u.referralCode === user.referredBy || u.id === user.referredBy);
+                  const commissionNfs = Math.floor(result.nfsEarned * 0.05);
+                  if (referrer && commissionNfs > 0) {
+                    referrer.nfsBalance = (referrer.nfsBalance || 0) + commissionNfs;
+                    globalServerTransactions.unshift({
+                      id: `tx-mkp-ref-comm-${orderId}`,
+                      userId: referrer.id,
+                      userName: referrer.fullName || "Atleta Netfits",
+                      amount: commissionNfs,
+                      description: `🤝 Comissão de Indicação (5%): Compra Shop de ${user.fullName || "Amigo Indicado"} #${orderId}`,
+                      category: "referral",
+                      timestamp: requestTimestamp,
+                    });
+                  }
+                }
               }
               lastSyncTimestamp = requestTimestamp;
             }
