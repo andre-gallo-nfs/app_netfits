@@ -697,7 +697,7 @@ function ProfilePage() {
               <Users className="size-5 text-muted-foreground mx-auto" />
               <p className="text-xs font-bold text-foreground">Sua tribo ainda não possui indicados</p>
               <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">
-                Você é o único usuário registrado na base de Produção. Compartilhe seu link exclusivo no WhatsApp acima para convidar amigos e ganhar +50 nfs por indicação!
+                Você ainda não possui indicados cadastrados. Compartilhe seu link exclusivo de convite no WhatsApp acima para trazer amigos e ganhar +50 nfs por indicação!
               </p>
             </div>
           ) : (
@@ -1023,7 +1023,7 @@ function ProfilePage() {
           <div className="space-y-3">
             <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
               Você está conectado como <strong className="text-foreground">{activeUser.fullName}</strong> ({activeUser.email || activeUser.identifier}).
-              Se este aparelho for compartilhado com outros membros da família ou equipe (como Carlos e Cristiane Formigari), use a opção abaixo para encerrar a sessão com segurança. Todos os dados, saldos, badges e transações permanecem 100% isolados por conta.
+              Se este aparelho for compartilhado com outras pessoas, utilize a opção abaixo para encerrar sua sessão com segurança. Seus dados, saldos, badges e transações permanecem sempre protegidos e isolados na sua conta.
             </p>
             <div className="pt-1">
               <button

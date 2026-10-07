@@ -652,7 +652,7 @@ function ParceirosRegistrationPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Ex: Dr. Carlos Silva ou Amanda Melo"
+                    placeholder="Ex: Dr. Roberto Silva ou Amanda Melo"
                     value={formData.responsibleName}
                     onChange={(e) => setFormData({ ...formData, responsibleName: e.target.value })}
                     className="w-full min-h-[48px] bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm md:text-base text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"

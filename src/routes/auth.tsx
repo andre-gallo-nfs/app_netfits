@@ -848,7 +848,7 @@ function AuthPage() {
                   setReferralCode(e.target.value.toUpperCase());
                   setIsAutoFilledReferral(false);
                 }}
-                placeholder="Ex: GALLO-NETFITS, MARINA-RUN..."
+                placeholder="Ex: CÓDIGO-DO-AMIGO..."
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-mono font-bold text-foreground uppercase focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
             </div>
@@ -1360,7 +1360,7 @@ function ForgotPasswordCard({ onClose }: { onClose: () => void }) {
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="Ex: crformigari72@gmail.com"
+                  placeholder="Ex: seu.email@exemplo.com ou CPF"
                   className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:bg-white"
                   required
                   autoFocus
