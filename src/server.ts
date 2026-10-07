@@ -155,6 +155,12 @@ function isAndreGallo(str?: string | null): boolean {
 function isCarlosFormigari(str?: string | null): boolean {
   if (!str) return false;
   const clean = str.trim().toLowerCase();
+  const digits = clean.replace(/\D/g, "");
+  const carlos = globalServerUsers?.find((u) => u.id === "usr_carlos_formigari");
+  const carlosCpfDigits = carlos?.cpf ? String(carlos.cpf).replace(/\D/g, "") : "";
+  if (digits && digits.length === 11 && carlosCpfDigits && digits === carlosCpfDigits) {
+    return true;
+  }
   return (
     clean === "usr_carlos_formigari" ||
     clean === "usr_103" ||
@@ -308,35 +314,71 @@ export default {
 
       const user = resolveUserFromToken(authHeader);
 
+      // Verificação específica de sub-rotas como /customer/addresses ou /customer/cards
       if (req.method === "GET") {
+        if (url.pathname.includes("/addresses") || url.pathname.endsWith("/addresses")) {
+          const profile = buildMkplaceProfile(user);
+          return new Response(JSON.stringify(profile.addresses), { status: 200, headers: corsHeaders });
+        }
+        if (url.pathname.includes("/cards") || url.pathname.endsWith("/cards") || url.pathname.includes("/payment-methods")) {
+          return new Response(JSON.stringify([]), { status: 200, headers: corsHeaders });
+        }
         const profile = buildMkplaceProfile(user);
         return new Response(JSON.stringify(profile), { status: 200, headers: corsHeaders });
       }
 
-      if (req.method === "PUT") {
+      if (req.method === "PUT" || req.method === "POST" || req.method === "PATCH") {
         try {
+          // Se for rota de cadastro/tokenização de cartão, responde confirmação positiva
+          if (url.pathname.includes("/cards") || url.pathname.endsWith("/cards") || url.pathname.includes("/payment-methods")) {
+            return new Response(
+              JSON.stringify({ success: true, message: "Cartão validado com sucesso" }),
+              { status: 200, headers: corsHeaders }
+            );
+          }
+
           const body = await req.json();
-          if (body.name) user.fullName = body.name;
+          if (body.name || body.fullName) user.fullName = String(body.name || body.fullName).trim();
           if (body.document || body.cpf) {
             user.cpf = String(body.document || body.cpf).replace(/\D/g, "");
           }
-          if (Array.isArray(body.phones) && body.phones[0]?.number) {
-            user.phone = `${body.phones[0].areaCode || "11"}${body.phones[0].number}`;
-          }
-          if (Array.isArray(body.addresses) && body.addresses[0]) {
-            const addr = body.addresses[0];
-            if (addr.street) user.street = addr.street;
-            if (addr.number) user.number = addr.number;
-            if (addr.complement !== undefined) user.complement = addr.complement;
-            if (addr.neighborhood) user.neighborhood = addr.neighborhood;
-            if (addr.city) user.city = addr.city;
-            if (addr.state) user.state = addr.state;
-            if (addr.shortState) user.shortState = addr.shortState;
-            if (addr.zipcode) user.zipcode = addr.zipcode;
-            user.address = `${user.street || ""}, ${user.number || ""}`.trim();
+          if (body.birthdate || body.birthDate) {
+            user.birthDate = String(body.birthdate || body.birthDate).trim();
           }
           if (body.gender !== undefined) user.gender = body.gender;
 
+          // Telefones (aceita array ou objeto/string individual)
+          if (Array.isArray(body.phones) && body.phones[0]?.number) {
+            user.phone = `${body.phones[0].areaCode || "11"}${body.phones[0].number}`;
+          } else if (body.phone) {
+            if (typeof body.phone === "object" && body.phone.number) {
+              user.phone = `${body.phone.areaCode || "11"}${body.phone.number}`;
+            } else {
+              user.phone = String(body.phone).trim();
+            }
+          }
+
+          // Endereço (aceita array, objeto único, billingAddress ou shippingAddress)
+          const incomingAddr =
+            (Array.isArray(body.addresses) && body.addresses[0]) ||
+            body.address ||
+            body.billingAddress ||
+            body.shippingAddress ||
+            null;
+
+          if (incomingAddr && typeof incomingAddr === "object") {
+            if (incomingAddr.street) user.street = String(incomingAddr.street).trim();
+            if (incomingAddr.number) user.number = String(incomingAddr.number).trim();
+            if (incomingAddr.complement !== undefined) user.complement = String(incomingAddr.complement || "").trim();
+            if (incomingAddr.neighborhood) user.neighborhood = String(incomingAddr.neighborhood).trim();
+            if (incomingAddr.city) user.city = String(incomingAddr.city).trim();
+            if (incomingAddr.state) user.state = String(incomingAddr.state).trim();
+            if (incomingAddr.shortState) user.shortState = String(incomingAddr.shortState).trim().toUpperCase();
+            if (incomingAddr.zipcode) user.zipcode = String(incomingAddr.zipcode).replace(/\D/g, "");
+            user.address = `${user.street || ""}, ${user.number || ""}`.trim();
+          }
+
+          lastSyncTimestamp = new Date().toISOString();
           const updatedProfile = buildMkplaceProfile(user);
           return new Response(JSON.stringify(updatedProfile), { status: 200, headers: corsHeaders });
         } catch (err: any) {
@@ -856,12 +898,17 @@ export default {
                   (merged as any)[key] = val;
                 }
               }
-              if (u.address) {
-                const parts = String(u.address).split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
-                if (parts[0]) merged.street = parts[0];
-                if (parts[1]) merged.number = parts[1];
-                if (parts[2]) merged.neighborhood = parts[2];
-                if (parts[3]) merged.city = parts[3];
+              if (u.address && (!merged.street || !merged.number || !merged.zipcode)) {
+                const rawAddr = String(u.address);
+                const cepMatch = rawAddr.match(/\b\d{5}-?\d{3}\b/);
+                if (cepMatch && !merged.zipcode) {
+                  merged.zipcode = cepMatch[0].replace(/\D/g, "");
+                }
+                const parts = rawAddr.replace(/\b\d{5}-?\d{3}\b/, "").split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
+                if (parts[0] && !merged.street) merged.street = parts[0];
+                if (parts[1] && !merged.number) merged.number = parts[1];
+                if (parts[2] && !merged.neighborhood) merged.neighborhood = parts[2];
+                if (parts[3] && !merged.city) merged.city = parts[3];
               }
               userMap.set(targetId, purgeFabricatedMockData(merged));
             }

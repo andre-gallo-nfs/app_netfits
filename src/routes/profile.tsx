@@ -127,6 +127,15 @@ export const formatCpfMask = (val: string) => {
   return v;
 };
 
+export const formatCepMask = (val: string) => {
+  let v = val.replace(/\D/g, "");
+  if (v.length > 8) v = v.slice(0, 8);
+  if (v.length > 5) {
+    return `${v.slice(0, 5)}-${v.slice(5)}`;
+  }
+  return v;
+};
+
 function ProfilePage() {
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -194,6 +203,14 @@ function ProfilePage() {
     email: activeUser.email || activeUser.identifier || "",
     cpf: formatCpfMask(activeUser.cpf || ""),
     phone: formatPhoneMask(activeUser.phone || ""),
+    zipcode: formatCepMask(activeUser.zipcode || ""),
+    street: activeUser.street || "",
+    number: activeUser.number || "",
+    complement: activeUser.complement || "",
+    neighborhood: activeUser.neighborhood || "",
+    city: activeUser.city || "",
+    state: activeUser.state || "",
+    shortState: (activeUser.shortState || "SP").toUpperCase(),
     address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : ""),
     birthDate: formatBirthDateForDisplay(activeUser.birthDate || ""),
     sports: activeUser.sports || [],
@@ -211,6 +228,14 @@ function ProfilePage() {
       email: activeUser.email || activeUser.identifier || prev.email,
       cpf: activeUser.cpf ? formatCpfMask(activeUser.cpf) : prev.cpf,
       phone: activeUser.phone ? formatPhoneMask(activeUser.phone) : prev.phone,
+      zipcode: activeUser.zipcode ? formatCepMask(activeUser.zipcode) : prev.zipcode,
+      street: activeUser.street || prev.street,
+      number: activeUser.number || prev.number,
+      complement: activeUser.complement !== undefined ? activeUser.complement : prev.complement,
+      neighborhood: activeUser.neighborhood || prev.neighborhood,
+      city: activeUser.city || prev.city,
+      state: activeUser.state || prev.state,
+      shortState: activeUser.shortState ? activeUser.shortState.toUpperCase() : prev.shortState,
       address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : prev.address),
       birthDate: activeUser.birthDate ? formatBirthDateForDisplay(activeUser.birthDate) : prev.birthDate,
       sports: Array.isArray(activeUser.sports) && activeUser.sports.length > 0 ? activeUser.sports : prev.sports,
@@ -221,6 +246,43 @@ function ProfilePage() {
       wearable: activeUser.wearable || prev.wearable,
     }));
   }, [activeUser.id]);
+
+  const handleCepChange = async (cepInput: string) => {
+    const masked = formatCepMask(cepInput);
+    setForm((prev) => ({ ...prev, zipcode: masked }));
+
+    const digits = masked.replace(/\D/g, "");
+    if (digits.length === 8) {
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.erro) {
+            setForm((prev) => {
+              const updatedStreet = data.logradouro || prev.street;
+              const updatedNeighborhood = data.bairro || prev.neighborhood;
+              const updatedCity = data.localidade || prev.city;
+              const updatedShortState = (data.uf || prev.shortState).toUpperCase();
+              const updatedState = data.estado || data.uf || prev.state;
+              const fullAddr = `${updatedStreet}${prev.number ? `, ${prev.number}` : ""}${updatedNeighborhood ? ` - ${updatedNeighborhood}` : ""}${updatedCity ? `, ${updatedCity}` : ""}${updatedShortState ? ` · ${updatedShortState}` : ""}`;
+              return {
+                ...prev,
+                street: updatedStreet,
+                neighborhood: updatedNeighborhood,
+                city: updatedCity,
+                shortState: updatedShortState,
+                state: updatedState,
+                address: fullAddr,
+              };
+            });
+            toast.success(`📍 Endereço preenchido via CEP: ${data.localidade}/${data.uf}!`);
+          }
+        }
+      } catch {
+        // Ignora se indisponível
+      }
+    }
+  };
 
   // Tribo gerada dinamicamente pelo banco de dados definitivo (zero mocks)
   const allUsers = sharedSandboxStore.getUsers();
@@ -272,7 +334,14 @@ function ProfilePage() {
     { id: "birthDate", label: "Nascimento", done: Boolean(form.birthDate && form.birthDate.trim().length >= 8) },
     { id: "phone", label: "Celular", done: Boolean(form.phone && form.phone.replace(/\D/g, "").length >= 10) },
     { id: "cpf", label: "CPF", done: Boolean(form.cpf && form.cpf.replace(/\D/g, "").length === 11) },
-    { id: "address", label: "Endereço", done: Boolean(form.address && form.address.trim().length >= 5) },
+    {
+      id: "address",
+      label: "Endereço",
+      done: Boolean(
+        (form.address && form.address.trim().length >= 5) ||
+        (form.street && form.number && form.zipcode.replace(/\D/g, "").length === 8)
+      ),
+    },
     { id: "sports", label: "Modalidades", done: Boolean(Array.isArray(form.sports) && form.sports.length > 0) },
     { id: "photo", label: "Foto / Avatar", done: Boolean(activeUser.avatarUrl) },
   ];
@@ -285,7 +354,17 @@ function ProfilePage() {
     const cleanPhone = form.phone.trim();
     const cleanCpf = form.cpf.trim();
     const cleanBirth = form.birthDate.trim();
-    const cleanAddress = form.address.trim();
+    const cleanZipcode = form.zipcode.replace(/\D/g, "");
+    const cleanStreet = form.street.trim();
+    const cleanNumber = form.number.trim();
+    const cleanComplement = form.complement.trim();
+    const cleanNeighborhood = form.neighborhood.trim();
+    const cleanCity = form.city.trim();
+    const cleanShortState = (form.shortState || "SP").trim().toUpperCase();
+    const cleanState = form.state.trim() || (cleanShortState === "SP" ? "São Paulo" : cleanShortState);
+    const formattedAddress =
+      form.address.trim() ||
+      `${cleanStreet}, ${cleanNumber || "S/N"}${cleanNeighborhood ? ` - ${cleanNeighborhood}` : ""}${cleanCity ? `, ${cleanCity}` : ""}${cleanShortState ? ` · ${cleanShortState}` : ""}`;
 
     sharedSandboxStore.updateUser(activeUser.id, {
       fullName: form.name.trim(),
@@ -293,7 +372,15 @@ function ProfilePage() {
       email: form.email.trim(),
       cpf: cleanCpf,
       phone: cleanPhone,
-      address: cleanAddress,
+      zipcode: cleanZipcode,
+      street: cleanStreet,
+      number: cleanNumber,
+      complement: cleanComplement,
+      neighborhood: cleanNeighborhood,
+      city: cleanCity,
+      state: cleanState,
+      shortState: cleanShortState,
+      address: formattedAddress,
       birthDate: cleanBirth,
       sports: form.sports,
       otherSport: form.otherSport.trim(),
@@ -303,7 +390,7 @@ function ProfilePage() {
       wearable: form.wearable,
     });
 
-    // Sincroniza imediatamente com o servidor para disponibilizar CPF e endereço para a Loja Oficial
+    // Sincroniza imediatamente com o servidor para disponibilizar CPF e endereço estruturado para a Loja Oficial
     fetch("/api/users-sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -314,7 +401,15 @@ function ProfilePage() {
           email: form.email.trim(),
           cpf: cleanCpf,
           phone: cleanPhone,
-          address: cleanAddress,
+          zipcode: cleanZipcode,
+          street: cleanStreet,
+          number: cleanNumber,
+          complement: cleanComplement,
+          neighborhood: cleanNeighborhood,
+          city: cleanCity,
+          state: cleanState,
+          shortState: cleanShortState,
+          address: formattedAddress,
           birthDate: cleanBirth,
         },
       }),
@@ -677,15 +772,130 @@ function ProfilePage() {
               />
             </Field>
           </div>
-          <Field label="Endereço" icon={MapPin}>
-            <input
-              type="text"
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              placeholder="Rua, número, bairro, cidade · UF"
-              className={inputClass}
-            />
-          </Field>
+          {/* Endereço Estruturado de Entrega & Cobrança (Obrigatório para Loja & Cartão de Crédito) */}
+          <div className="pt-3 border-t border-border/60 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <MapPin className="size-3.5 text-brand" /> Endereço de Entrega & Cobrança
+              </span>
+              <span className="text-[10px] text-muted-foreground font-medium">Requerido na Loja Oficial</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="CEP" icon={MapPin}>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={9}
+                  value={form.zipcode}
+                  onChange={(e) => handleCepChange(e.target.value)}
+                  placeholder="00000-000"
+                  className={inputClass}
+                />
+              </Field>
+              <div className="col-span-2">
+                <Field label="Rua / Logradouro">
+                  <input
+                    type="text"
+                    value={form.street}
+                    onChange={(e) => {
+                      const updated = e.target.value;
+                      setForm((prev) => ({
+                        ...prev,
+                        street: updated,
+                        address: `${updated}${prev.number ? `, ${prev.number}` : ""}${prev.neighborhood ? ` - ${prev.neighborhood}` : ""}${prev.city ? `, ${prev.city}` : ""}${prev.shortState ? ` · ${prev.shortState}` : ""}`,
+                      }));
+                    }}
+                    placeholder="Av. Paulista, Rua..."
+                    className={inputClass}
+                  />
+                </Field>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="Número">
+                <input
+                  type="text"
+                  value={form.number}
+                  onChange={(e) => {
+                    const updated = e.target.value;
+                    setForm((prev) => ({
+                      ...prev,
+                      number: updated,
+                      address: `${prev.street ? `${prev.street}, ` : ""}${updated}${prev.neighborhood ? ` - ${prev.neighborhood}` : ""}${prev.city ? `, ${prev.city}` : ""}${prev.shortState ? ` · ${prev.shortState}` : ""}`,
+                    }));
+                  }}
+                  placeholder="1000 ou S/N"
+                  className={inputClass}
+                />
+              </Field>
+              <div className="col-span-2">
+                <Field label="Complemento">
+                  <input
+                    type="text"
+                    value={form.complement}
+                    onChange={(e) => setForm({ ...form, complement: e.target.value })}
+                    placeholder="Apto, Bloco (opcional)"
+                    className={inputClass}
+                  />
+                </Field>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="Bairro">
+                <input
+                  type="text"
+                  value={form.neighborhood}
+                  onChange={(e) => {
+                    const updated = e.target.value;
+                    setForm((prev) => ({
+                      ...prev,
+                      neighborhood: updated,
+                      address: `${prev.street ? `${prev.street}, ` : ""}${prev.number || ""}${updated ? ` - ${updated}` : ""}${prev.city ? `, ${prev.city}` : ""}${prev.shortState ? ` · ${prev.shortState}` : ""}`,
+                    }));
+                  }}
+                  placeholder="Bairro"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Cidade">
+                <input
+                  type="text"
+                  value={form.city}
+                  onChange={(e) => {
+                    const updated = e.target.value;
+                    setForm((prev) => ({
+                      ...prev,
+                      city: updated,
+                      address: `${prev.street ? `${prev.street}, ` : ""}${prev.number || ""}${prev.neighborhood ? ` - ${prev.neighborhood}` : ""}${updated ? `, ${updated}` : ""}${prev.shortState ? ` · ${prev.shortState}` : ""}`,
+                    }));
+                  }}
+                  placeholder="Cidade"
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="UF">
+                <input
+                  type="text"
+                  maxLength={2}
+                  value={form.shortState}
+                  onChange={(e) => {
+                    const updated = e.target.value.toUpperCase();
+                    setForm((prev) => ({
+                      ...prev,
+                      shortState: updated,
+                      state: updated === "SP" ? "São Paulo" : updated,
+                      address: `${prev.street ? `${prev.street}, ` : ""}${prev.number || ""}${prev.neighborhood ? ` - ${prev.neighborhood}` : ""}${prev.city ? `, ${prev.city}` : ""}${updated ? ` · ${updated}` : ""}`,
+                    }));
+                  }}
+                  placeholder="SP"
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+          </div>
         </Card>
 
         {/* Sports */}
