@@ -2,17 +2,28 @@ import { useState } from "react";
 import { Copy, Check, Share2, Users, Sparkles, X, Gift } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { badgesStore } from "@/lib/badges-store";
+import {
+  WhatsAppIcon,
+  InstagramIcon,
+  TelegramIcon,
+  XIcon,
+  FacebookIcon,
+  TikTokIcon,
+  MessagesIcon,
+  MailIcon,
+} from "@/components/BrandIcons";
 import { toast } from "sonner";
 
 const CHANNELS = [
-  { key: "wpp", label: "WhatsApp", color: "bg-[#25D366]" },
-  { key: "ig", label: "Instagram", color: "bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600" },
-  { key: "tg", label: "Telegram", color: "bg-[#229ED9]" },
-  { key: "x", label: "X", color: "bg-black" },
-  { key: "tt", label: "TikTok", color: "bg-black" },
-  { key: "fb", label: "Facebook", color: "bg-[#1877F2]" },
-  { key: "msg", label: "Mensagens", color: "bg-emerald-500" },
-  { key: "mail", label: "E-mail", color: "bg-zinc-700" },
+  { key: "wpp", label: "WhatsApp", color: "bg-[#25D366]", Icon: WhatsAppIcon },
+  { key: "ig", label: "Instagram", color: "bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600", Icon: InstagramIcon },
+  { key: "tg", label: "Telegram", color: "bg-[#229ED9]", Icon: TelegramIcon },
+  { key: "x", label: "X", color: "bg-black", Icon: XIcon },
+  { key: "tt", label: "TikTok", color: "bg-black", Icon: TikTokIcon },
+  { key: "fb", label: "Facebook", color: "bg-[#1877F2]", Icon: FacebookIcon },
+  { key: "msg", label: "Mensagens", color: "bg-emerald-500", Icon: MessagesIcon },
+  { key: "mail", label: "E-mail", color: "bg-zinc-700", Icon: MailIcon },
 ] as const;
 
 export function InviteFriendsCard() {
@@ -28,20 +39,36 @@ export function InviteFriendsCard() {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(inviteUrl);
-      toast.success(`📋 Link direto de cadastro copiado! (${inviteUrl})`);
+      toast.success(`📋 Link de convite copiado! (${inviteUrl})`);
     } catch {
       /* ignore */
     }
     setCopied(true);
+    badgesStore.recordShare();
     setTimeout(() => setCopied(false), 1800);
   };
 
-  const handleChannel = (key: string) => {
+  const handleChannel = async (key: string) => {
     setSentChannels((prev) => (prev.includes(key) ? prev : [...prev, key]));
+    badgesStore.recordShare();
+
     const encoded = encodeURIComponent(shareText);
+
+    if (key === "ig" || key === "tt") {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        toast.success(`📋 Texto e link copiados! Abra o ${key === "ig" ? "Instagram" : "TikTok"} para colar.`);
+      } catch {
+        /* ignore */
+      }
+      const targetUrl = key === "ig" ? "https://instagram.com" : "https://tiktok.com";
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     const url =
       key === "wpp"
-        ? `https://wa.me/?text=${encoded}`
+        ? `https://api.whatsapp.com/send?text=${encoded}`
         : key === "tg"
         ? `https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encoded}`
         : key === "x"
@@ -53,7 +80,10 @@ export function InviteFriendsCard() {
         : key === "msg"
         ? `sms:?&body=${encoded}`
         : null;
-    if (url) window.open(url, "_blank", "noopener,noreferrer");
+
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   };
 
   const closeShare = () => {
@@ -83,7 +113,7 @@ export function InviteFriendsCard() {
             {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe <span className="text-brand">+50 nfs</span> por amigo.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">
-            Todo amigo que se cadastrar com seu link ganha +50 nfs de boas-vindas e você ganha +50 nfs na hora. Assinantes do <b>Netfits Club</b> turbinam a regra e passam a ganhar 10% de comissão em pontos sobre todas as compras deles no Shop!
+            Todo amigo que se cadastrar com seu código ou link ganha +50 nfs de boas-vindas e você ganha +50 nfs na hora. Assinantes do <b>Netfits Club</b> turbinam a regra e passam a ganhar 10% de comissão em pontos sobre todas as compras deles no Shop!
           </p>
 
           <div className="grid grid-cols-3 gap-2 mb-5">
@@ -101,7 +131,7 @@ export function InviteFriendsCard() {
             </span>
             <button
               onClick={copyLink}
-              className="shrink-0 flex items-center gap-1 bg-background text-foreground text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform"
+              className="shrink-0 flex items-center gap-1 bg-background text-foreground text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition-transform cursor-pointer"
               aria-label="Copiar link"
             >
               {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
@@ -111,17 +141,17 @@ export function InviteFriendsCard() {
 
           <button
             onClick={() => setOpen(true)}
-            className="w-full bg-brand text-brand-foreground text-sm font-bold py-3 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+            className="w-full bg-brand text-brand-foreground text-sm font-bold py-3 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform cursor-pointer"
           >
             <Share2 className="size-4" />
-            Compartilhar convite
+            Compartilhar convite (+50 nfs)
           </button>
         </div>
       </article>
 
       {open && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end justify-center"
           onClick={closeShare}
           role="dialog"
           aria-label="Compartilhar convite"
@@ -132,17 +162,17 @@ export function InviteFriendsCard() {
           >
             <div className="mx-auto w-10 h-1 rounded-full bg-zinc-300 mb-4" />
             <div className="flex items-center justify-between mb-1">
-              <p className="text-sm font-semibold">Compartilhar convite</p>
+              <p className="text-sm font-semibold">Compartilhar convite oficial</p>
               <button
                 onClick={closeShare}
-                className="size-8 grid place-items-center rounded-full hover:bg-muted"
+                className="size-8 grid place-items-center rounded-full hover:bg-muted cursor-pointer"
                 aria-label="Fechar"
               >
                 <X className="size-4" />
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-4">
-              Cada amigo que entrar pelo seu link vira fonte de nfs.
+              Cada amigo que entrar pelo seu link ganha +50 nfs e você ganha +50 nfs.
             </p>
 
             <div className="flex items-center gap-2 bg-muted rounded-full pl-4 pr-1 py-1 mb-5 ring-1 ring-black/5">
@@ -151,7 +181,7 @@ export function InviteFriendsCard() {
               </span>
               <button
                 onClick={copyLink}
-                className="shrink-0 flex items-center gap-1 bg-foreground text-background text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95"
+                className="shrink-0 flex items-center gap-1 bg-foreground text-background text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 cursor-pointer"
               >
                 {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
                 {copied ? "Copiado" : "Copiar"}
@@ -161,16 +191,17 @@ export function InviteFriendsCard() {
             <div className="grid grid-cols-4 gap-3">
               {CHANNELS.map((c) => {
                 const done = sentChannels.includes(c.key);
+                const IconComponent = c.Icon;
                 return (
                   <button
                     key={c.key}
                     onClick={() => handleChannel(c.key)}
-                    className="flex flex-col items-center gap-1.5 active:scale-95"
+                    className="flex flex-col items-center gap-1.5 active:scale-95 cursor-pointer group"
                   >
                     <div
-                      className={`size-12 rounded-full grid place-items-center text-white ${c.color} ring-1 ring-black/5 relative`}
+                      className={`size-12 rounded-full grid place-items-center text-white ${c.color} ring-1 ring-black/10 shadow-sm relative group-hover:scale-105 transition-transform`}
                     >
-                      <Share2 className="size-5" />
+                      <IconComponent className="size-5" />
                       {done && (
                         <div className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-brand grid place-items-center ring-2 ring-background">
                           <Check className="size-2.5 text-brand-foreground" />

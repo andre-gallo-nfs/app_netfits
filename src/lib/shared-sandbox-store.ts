@@ -168,7 +168,7 @@ const INITIAL_USERS: SandboxUser[] = [
     healthPlan: "",
     gym: "",
     wearable: "",
-    nfsBalance: 50,
+    nfsBalance: 1091,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
   },
@@ -220,6 +220,24 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
     category: "welcome",
     timestamp: "2026-10-05T00:00:00Z",
+  },
+  {
+    id: "tx-mkp-earn-PFM0610443019",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    amount: 227,
+    description: "✨ Cashback compra Mkplace Pedido #PFM0610443019 (R$ 56,85)",
+    category: "shop",
+    timestamp: "2026-10-06T10:45:38Z",
+  },
+  {
+    id: "tx-mkp-earn-GTJ0522372096",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    amount: 814,
+    description: "✨ Cashback compra Mkplace Pedido #GTJ0522372096 (R$ 203,50)",
+    category: "shop",
+    timestamp: "2026-10-05T22:38:35Z",
   },
   {
     id: "tx-mkp-spend-SOP0711045469",
@@ -463,21 +481,31 @@ class HomologationSandboxStore {
         if (Array.isArray(serverTxs) && serverTxs.length > 0) {
           const txMap = new Map<string, SandboxTransaction>();
           for (const tx of this.state.transactions) {
-            if (tx && tx.id) txMap.set(tx.id, tx);
+            if (tx && tx.id && tx.amount !== 1080 && !tx.description?.includes("1080")) {
+              txMap.set(tx.id, tx);
+            }
           }
           let hasNewTx = false;
           for (const stx of serverTxs) {
-            if (stx && stx.id && !txMap.has(stx.id)) {
+            if (stx && stx.id && stx.amount !== 1080 && !stx.description?.includes("1080") && !txMap.has(stx.id)) {
               txMap.set(stx.id, stx);
               hasNewTx = true;
             }
           }
-          if (hasNewTx) {
-            this.state.transactions = Array.from(txMap.values()).sort(
-              (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-            );
-            this.saveToStorageLocally();
+          this.state.transactions = Array.from(txMap.values()).sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
+
+          // Atualiza saldo de André Gallo com a soma legítima das transações
+          const andre = this.state.users.find((u) => u.id === "usr_andre");
+          if (andre) {
+            const andreTxTotal = this.state.transactions
+              .filter((t) => t.userId === "usr_andre")
+              .reduce((acc, t) => acc + (t.amount || 0), 0);
+            andre.nfsBalance = andreTxTotal > 0 ? andreTxTotal : 1091;
           }
+
+          this.saveToStorageLocally();
         }
       }
       this.notify();
@@ -590,6 +618,34 @@ class HomologationSandboxStore {
             hasNewUsers = true;
           }
         }
+        // Purgar transações antigas obsoletas (ex: 1080 nfs estimada)
+        stored.transactions = (stored.transactions || []).filter(
+          (tx) => tx && tx.amount !== 1080 && !tx.description?.includes("1080")
+        );
+
+        // Injetar transações oficiais que faltarem
+        const existingTxIds = new Set(stored.transactions.map((t) => t.id));
+        for (const initTx of INITIAL_TRANSACTIONS) {
+          if (!existingTxIds.has(initTx.id)) {
+            stored.transactions.push(initTx);
+            existingTxIds.add(initTx.id);
+          }
+        }
+
+        // Ordena por data decrescente
+        stored.transactions.sort(
+          (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
+
+        // Alinha o saldo de André Gallo com suas transações reais (1091 nfs)
+        const andreIdx = mergedUsers.findIndex((u) => u.id === "usr_andre");
+        if (andreIdx >= 0) {
+          const andreTxTotal = stored.transactions
+            .filter((t) => t.userId === "usr_andre")
+            .reduce((acc, t) => acc + (t.amount || 0), 0);
+          mergedUsers[andreIdx].nfsBalance = andreTxTotal > 0 ? andreTxTotal : 1091;
+        }
+
         stored.users = mergedUsers.map((u) => {
           let userWithBackup = { ...u };
           try {

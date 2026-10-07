@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Award, Lock, CheckCircle2, Sparkles, ChevronRight, Zap, Trophy,
   ArrowUpRight, Target, Share2, Users, ShoppingBag, BookOpen, Heart,
@@ -33,6 +33,10 @@ const CATEGORIES: { id: BadgeCategory | "all"; label: string }[] = [
 function BadgesPage() {
   const badges = useBadges();
   const [activeTab, setActiveTab] = useState<BadgeCategory | "all">("all");
+
+  useEffect(() => {
+    badgesStore.evaluate();
+  }, []);
 
   const unlockedCount = badgesStore.getUnlockedCount();
   const totalCount = badgesStore.getTotalCount();

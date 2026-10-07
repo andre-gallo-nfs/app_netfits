@@ -18,6 +18,7 @@ import { nativeBridge } from "@/lib/native-bridge";
 import { passkeyService } from "@/lib/webauthn-passkeys";
 import { appLockStore } from "@/lib/app-lock-store";
 import { dispatchWelcomeEmailSafe, dispatchPasswordResetEmailSafe } from "@/lib/emails/email-service";
+import { badgesStore } from "@/lib/badges-store";
 import { toast } from "sonner";
 
 function formatCPF(value: string): string {
@@ -369,6 +370,7 @@ function AuthPage() {
     dispatchWelcomeEmailSafe(recipientEmail, recipientName);
 
     toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
+    badgesStore.evaluate(res.user);
     appLockStore.setUnlocked(true);
     navigate({ to: "/feed" });
   };
@@ -389,6 +391,7 @@ function AuthPage() {
     }
 
     appLockStore.setUnlocked(true);
+    badgesStore.evaluate(res.user);
     navigate({ to: "/feed" });
   };
 

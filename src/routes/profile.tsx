@@ -11,6 +11,7 @@ import { sharedSandboxStore } from "../lib/shared-sandbox-store";
 import { appLockStore } from "../lib/app-lock-store";
 import { authStore } from "../lib/auth-store";
 import { isValidCPF } from "../lib/utils";
+import { badgesStore } from "../lib/badges-store";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -435,6 +436,7 @@ function ProfilePage() {
     }).catch((err) => console.warn("[Profile] Server sync warning:", err));
 
     setSaved(true);
+    badgesStore.evaluate();
     toast.success("Dados do perfil atualizados e salvos com sucesso no banco de dados!");
     setTimeout(() => setSaved(false), 3000);
   }
