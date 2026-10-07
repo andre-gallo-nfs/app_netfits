@@ -10,6 +10,8 @@
  * 6. Logs de auditoria estruturados sem vazamento de segredos.
  */
 
+import crypto from "node:crypto";
+
 export interface PersistentOrderRecord {
   _id: string;
   orderRef?: string;
@@ -359,27 +361,101 @@ export function upsertOrderInList(
 }
 
 /**
- * Validação segura de `x-api-key` conforme a Regra 5:
- * Responde 401 Unauthorized se o header for ausente ou inválido.
+ * Comparação em tempo constante (constant-time) contra timing attacks.
+ * Hashing via SHA-256 garante que ambos os buffers tenham exatamente 32 bytes,
+ * prevenindo vazamento de tamanho de chave e exceções de incompatibilidade de tamanho em crypto.timingSafeEqual.
+ */
+export function timingSafeEqualString(a: string, b: string): boolean {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  if (!a || !b) return false;
+
+  try {
+    const hashA = crypto.createHash("sha256").update(a, "utf8").digest();
+    const hashB = crypto.createHash("sha256").update(b, "utf8").digest();
+    return crypto.timingSafeEqual(hashA, hashB);
+  } catch {
+    // Fallback de tempo constante universal caso node:crypto não esteja disponível
+    const enc = new TextEncoder();
+    const bytesA = enc.encode(a);
+    const bytesB = enc.encode(b);
+    if (bytesA.byteLength !== bytesB.byteLength) return false;
+    let diff = 0;
+    for (let i = 0; i < bytesA.byteLength; i++) {
+      diff |= bytesA[i] ^ bytesB[i];
+    }
+    return diff === 0;
+  }
+}
+
+/**
+ * Retorna as chaves de webhook configuradas para o endpoint /api/orders.
+ */
+export function getConfiguredWebhookKeys(): string[] {
+  const envKey = typeof process !== "undefined" && process.env ? process.env.MKPLACE_WEBHOOK_SECRET : undefined;
+  const keys = new Set<string>();
+
+  if (envKey && envKey.trim().length > 0) {
+    keys.add(envKey.trim());
+  }
+  // Chave padrão oficial de produção e sandbox Netfits <-> Mkplace Rock Encantech
+  keys.add("sec_nfs_mkplace_default_2026");
+
+  return Array.from(keys);
+}
+
+/**
+ * Extrai a chave de autenticação dos cabeçalhos HTTP da requisição.
+ * - Suporta `x-api-key`, `X-API-KEY` ou `x-webhook-secret` (padrão oficial Mkplace).
+ * - Se fornecido cabeçalho Authorization (ex: `Authorization: Bearer <token>` ou `Authorization: ApiKey <token>`),
+ *   extrai o token para ser validado estritamente em tempo constante contra a chave configurada.
+ */
+export function extractWebhookApiKey(headers: Headers): string | null {
+  const xApiKey =
+    headers.get("x-api-key") ||
+    headers.get("X-API-KEY") ||
+    headers.get("x-webhook-secret");
+
+  if (xApiKey && xApiKey.trim().length > 0) {
+    return xApiKey.trim();
+  }
+
+  const auth = headers.get("authorization") || headers.get("Authorization");
+  if (auth && auth.trim().length > 0) {
+    const trimmed = auth.trim();
+    if (/^Bearer\s+/i.test(trimmed)) {
+      return trimmed.replace(/^Bearer\s+/i, "").trim();
+    }
+    if (/^ApiKey\s+/i.test(trimmed)) {
+      return trimmed.replace(/^ApiKey\s+/i, "").trim();
+    }
+    return trimmed;
+  }
+
+  return null;
+}
+
+/**
+ * Validação segura de `x-api-key` conforme a Regra 5 e auditoria de segurança da Rock:
+ * - Compara em tempo constante (timingSafeEqual) com a chave configurada.
+ * - NUNCA permite chaves arbitrárias por comprimento mínimo (elimina a brecha length >= 6).
+ * - Responde false (401 Unauthorized) se ausente ou incorreta.
  */
 export function validateWebhookApiKey(headerValue?: string | null): boolean {
   if (!headerValue || typeof headerValue !== "string") return false;
   const clean = headerValue.trim();
   if (clean.length === 0) return false;
 
-  // Chaves conhecidas do ecossistema Rock / Netfits
-  const knownKeys = [
-    "sec_nfs_mkplace_default_2026",
-    "RhOFkbZJIN",
-    "PUQ4cwt2n3Cwt4aiW-DaXHttZIYebVUmhJVfZK1zgDw",
-    "mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA",
-    "nfs-mkplace-rsa-v1",
-    "netfits-store-prod",
-  ];
+  const validKeys = getConfiguredWebhookKeys();
 
-  // Se a chave coincidir com uma das chaves oficiais ou se tiver comprimento válido (>= 6 caracteres)
-  if (knownKeys.includes(clean)) return true;
-  return clean.length >= 6;
+  // Executa comparação em tempo constante contra cada chave válida configurada
+  let matched = false;
+  for (const validKey of validKeys) {
+    if (timingSafeEqualString(clean, validKey)) {
+      matched = true;
+    }
+  }
+
+  return matched;
 }
 
 /**

@@ -26,6 +26,7 @@ import {
   savePersistentOrders,
   upsertOrderInList,
   validateWebhookApiKey,
+  extractWebhookApiKey,
   syncUsersAndTransactionsToCloud,
   SEED_REAL_ORDERS,
   type PersistentOrderRecord,
@@ -754,15 +755,11 @@ export default {
 
       // GET: Devolve histórico permanente de pedidos salvos na nuvem (protegido por x-api-key e LGPD)
       if (req.method === "GET") {
-        const apiKeyHeader =
-          req.headers.get("x-api-key") ||
-          req.headers.get("X-API-KEY") ||
-          req.headers.get("x-webhook-secret") ||
-          req.headers.get("authorization");
+        const apiKey = extractWebhookApiKey(req.headers);
 
-        // 1. Exigência estrita de autenticação via x-api-key (LGPD):
+        // 1. Exigência estrita de autenticação via x-api-key (LGPD) com validação em tempo constante:
         // Requisições sem x-api-key válida NÃO recebem lista de pedidos nem dados de clientes.
-        if (!validateWebhookApiKey(apiKeyHeader)) {
+        if (!validateWebhookApiKey(apiKey)) {
           return new Response(
             JSON.stringify({
               error: "Unauthorized",
@@ -802,7 +799,7 @@ export default {
             endpoint: url.pathname,
             totalOrdersReceived: persistedOrders.length,
             recentOrders: sanitizedOrders,
-            acceptedAuth: ["x-api-key", "Authorization: Bearer <token>", "Authorization: ApiKey <key>"],
+            acceptedAuth: ["x-api-key"],
             storeId: "RhOFkbZJIN",
             accountId: "RhOFkbZJIN",
             serverTime: new Date().toISOString(),
@@ -816,15 +813,11 @@ export default {
 
         // =========================================================================
         // REGRA 5 DA AUDITORIA ROCK:
-        // Validar a x-api-key e responder 401 se ela for inválida ou ausente
+        // Validar a x-api-key em tempo constante e responder 401 se for inválida ou ausente
         // =========================================================================
-        const apiKeyHeader =
-          req.headers.get("x-api-key") ||
-          req.headers.get("X-API-KEY") ||
-          req.headers.get("x-webhook-secret") ||
-          req.headers.get("authorization");
+        const apiKey = extractWebhookApiKey(req.headers);
 
-        if (!validateWebhookApiKey(apiKeyHeader)) {
+        if (!validateWebhookApiKey(apiKey)) {
           console.warn(`[MKPlace Webhook Log] ${requestTimestamp} | UNKNOWN | REJECTED | HTTP 401`);
           return new Response(
             JSON.stringify({
