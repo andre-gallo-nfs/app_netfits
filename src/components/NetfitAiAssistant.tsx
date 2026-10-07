@@ -55,73 +55,46 @@ export function NetfitAiAssistant() {
     }
   }, [messages, isOpen]);
 
+  const activeUser = sharedSandboxStore.useActiveUser();
+
   const resolveSmartResponse = (query: string): { text: string; actionLabel?: string; route?: string; finopsBadge?: string } => {
-    // 1. Avaliação pelo FinOps Token Optimizer (Zero-Token Fast Path)
+    const allUsers = sharedSandboxStore.getUsers();
+    const myReferrals = allUsers.filter(
+      (u) =>
+        u.id !== activeUser.id &&
+        ((u.referredBy && u.referredBy === activeUser.referralCode) ||
+          (u.associatedWith && u.associatedWith === activeUser.referralCode))
+    );
+    const txCount = sharedSandboxStore.getUserTransactions(activeUser.id).length;
+
+    // Avaliação pelo FinOps Token Optimizer 100% Realtime com Parâmetros Oficiais
     const fastPath = tokenOptimizer.evaluateQuery(query, {
       nfsBalance,
       balanceBRL,
       cppResgateBrl: params.cppResgateBrl,
-      userCategory: currentUser?.userCategory,
+      userCategory: currentUser?.userCategory || activeUser.type,
+      params,
+      user: {
+        id: activeUser.id,
+        fullName: activeUser.fullName,
+        email: activeUser.email || activeUser.identifier || "",
+        userCategory: currentUser?.userCategory || activeUser.type,
+        referralCode: activeUser.referralCode,
+        referredBy: activeUser.referredBy,
+        sports: activeUser.sports,
+        wearable: activeUser.wearable,
+        healthPlan: activeUser.healthPlan,
+        gym: activeUser.gym,
+        referralsCount: myReferrals.length,
+        transactionsCount: txCount,
+      },
     });
 
-    if (fastPath.handled) {
-      return {
-        text: fastPath.text,
-        actionLabel: fastPath.actionLabel,
-        route: fastPath.route,
-        finopsBadge: "⚡ Zero-Token Fast Path (<5ms)",
-      };
-    }
-
-    // 2. Triagem contextual com Context Caching
-    const q = query.toLowerCase().trim();
-
-    // Smart Fit & Academias
-    if (q.includes("smart fit") || q.includes("academia") || q.includes("presença") || q.includes("treino")) {
-      return {
-        text: "Ao vincular sua conta da Smart Fit no app Netfits, você ganha **+15 nfs por cada treino validado** por catraca na academia, acumulando pontos automáticos todo mês!",
-        actionLabel: "Ver Atividades",
-        route: "/activities",
-        finopsBadge: "✨ Gemini Flash (Context Caching Ativo)",
-      };
-    }
-
-    // Senha, Login & Segurança / Biometria
-    if (q.includes("senha") || q.includes("esqueceu") || q.includes("login") || q.includes("biometria") || q.includes("face id") || q.includes("passkey")) {
-      return {
-        text: "Para recuperar sua senha, acesse a tela de Login e clique em 'Esqueceu sua senha?'. Você também pode ativar o acesso por Biometria / Face ID (Passkeys) para acessar a conta em 1 toque de forma ultra segura e sem custo de SMS!",
-        actionLabel: "Ir para Login / Cadastro",
-        route: "/auth",
-        finopsBadge: "⚡ Zero-Token Fast Path (<5ms)",
-      };
-    }
-
-    // Nutrologia e Especialistas
-    if (q.includes("nutrição") || q.includes("nutri") || q.includes("isabella") || q.includes("consulta") || q.includes("alimentação")) {
-      return {
-        text: "Temos a Dra. Isabella Santos (Nutrologia Esportiva) em nossa rede de especialistas credenciados. Você pode agendar orientações nutricionais focadas em longevidade e saúde esportiva diretamente no Feed e Shop!",
-        actionLabel: "Ver no Feed",
-        route: "/feed",
-        finopsBadge: "✨ Gemini Flash (Context Caching Ativo)",
-      };
-    }
-
-    // Como Ganhar Pontos / Como Funciona
-    if (q.includes("funciona") || q.includes("como ganho") || q.includes("o que é") || q.includes("propósito") || q.includes("netfits")) {
-      return {
-        text: "A Netfits transforma seus hábitos saudáveis em moedas digitais (nfs)! Você ganha pontos de 4 formas: 1) Curtindo e postando no Feed; 2) Mantendo treinos semanais; 3) Conectando seu wearable/Smart Fit; 4) Indicando novos amigos com seu código.",
-        actionLabel: "Ver minha Carteira",
-        route: "/wallet",
-        finopsBadge: "⚡ Zero-Token Fast Path (<5ms)",
-      };
-    }
-
-    // Resposta padrão inteligente com Context Caching
     return {
-      text: `Entendi sua dúvida sobre "${query}". Posso orientar você sobre seu saldo atual (${nfsBalance.toLocaleString("pt-BR")} nfs), cotação dos pontos, resgates no Shop ou como ganhar bônus indicando amigos! O que deseja saber?`,
-      actionLabel: "Explorar o Shop",
-      route: "/market",
-      finopsBadge: "✨ Gemini Flash (Context Caching Ativo)",
+      text: fastPath.text,
+      actionLabel: fastPath.actionLabel,
+      route: fastPath.route,
+      finopsBadge: fastPath.handled ? "⚡ Zero-Token Fast Path (<5ms)" : "✨ Gemini Flash (Realtime Grounded)",
     };
   };
 
@@ -232,38 +205,44 @@ export function NetfitAiAssistant() {
               </button>
             </div>
 
-            {/* Quick Chips */}
+            {/* Quick Chips 100% Realtime */}
             <div className="p-3 border-b border-zinc-800/60 bg-zinc-900/40 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
               <button
-                onClick={() => handleSend("Qual o meu saldo?")}
-                className="shrink-0 bg-purple-950/80 border border-purple-500/50 text-purple-200 font-semibold rounded-full px-3 py-1.5 transition-colors flex items-center gap-1"
+                onClick={() => handleSend("Qual o meu saldo e quanto tenho em reais?")}
+                className="shrink-0 bg-purple-950/80 border border-purple-500/50 text-purple-200 font-semibold rounded-full px-3 py-1.5 transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <Wallet className="size-3.5 text-lime-400" />
-                Meu Saldo
+                Meu Saldo ({nfsBalance.toLocaleString()} nfs)
               </button>
               <button
-                onClick={() => handleSend("Quanto vale 1 nfs?")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+                onClick={() => handleSend("Quanto vale 1 nfs em resgates no Shop?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
-                💵 Cotação do nfs
+                💵 1 nfs = R$ {(params.cppResgateBrl || 0.01).toFixed(2)}
               </button>
               <button
-                onClick={() => handleSend("Como funciona o bônus de indicação?")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+                onClick={() => handleSend("Quantos pontos ganho por treino com relógio ou na Smart Fit?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
-                🎁 Indicar Amigos (+50 nfs)
+                🏃 Treinos (+{params.nfsPerWorkout || 20} nfs)
               </button>
               <button
-                onClick={() => handleSend("Como ganho netfits?")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+                onClick={() => handleSend("Como funciona o bônus de indicação e qual meu código?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
-                💡 Como ganho nfs?
+                🎁 Indicar Amigos (+{params.normalUserNewReferralBonusNfs || 50} nfs)
               </button>
               <button
-                onClick={() => handleSend("Recomende produtos do Netfits Shop")}
-                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors"
+                onClick={() => handleSend("Quais são os médicos e especialistas da Fibios?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
-                👟 Sugestões no Shop
+                🩺 Dra. Isabella & Fibios
+              </button>
+              <button
+                onClick={() => handleSend("Como funciona o cashback e resgates no Netfits Shop?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
+              >
+                🛍️ Shop ({params.nfsEarnedPerBrlSpent || 4.0} nfs/R$)
               </button>
             </div>
 
