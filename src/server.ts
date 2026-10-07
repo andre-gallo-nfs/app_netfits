@@ -21,6 +21,15 @@ import {
   sendPasswordResetEmail,
   sendShopOrderConfirmedEmail,
 } from "./lib/emails/email-service";
+import {
+  fetchPersistentOrders,
+  savePersistentOrders,
+  upsertOrderInList,
+  validateWebhookApiKey,
+  syncUsersAndTransactionsToCloud,
+  SEED_REAL_ORDERS,
+  type PersistentOrderRecord,
+} from "./lib/persistent-orders-store";
 
 let globalServerOperationalParams: OperationalParams = { ...DEFAULT_OPERATIONAL_PARAMS };
 let lastParamsSyncTimestamp = new Date().toISOString();
@@ -77,7 +86,7 @@ const DEFAULT_PRESEEDED_USERS = [
     healthPlan: "",
     gym: "",
     wearable: "",
-    nfsBalance: 50,
+    nfsBalance: 1130,
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
   },
@@ -89,7 +98,7 @@ const DEFAULT_PRESEEDED_USERS = [
     cpf: "",
     birthDate: "",
     address: "",
-    nfsBalance: 110,
+    nfsBalance: 1354,
     userCategory: "atleta",
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -170,6 +179,42 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
     description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
     category: "welcome",
     timestamp: "2026-10-05T00:00:00Z",
+  },
+  {
+    id: "tx-mkp-earn-GTJ0522372096",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    amount: 1080,
+    description: "✨ Cashback compra Mkplace Pedido #GTJ0522372096",
+    category: "shop",
+    timestamp: "2026-10-05T22:38:35Z",
+  },
+  {
+    id: "tx-mkp-earn-PFM0610443019",
+    userId: "usr_carlos_formigari",
+    userName: "Carlos Rodrigo Formigari",
+    amount: 780,
+    description: "✨ Cashback compra Mkplace Pedido #PFM0610443019",
+    category: "shop",
+    timestamp: "2026-10-06T10:45:38Z",
+  },
+  {
+    id: "tx-mkp-spend-SOP0711045469",
+    userId: "usr_carlos_formigari",
+    userName: "Carlos Rodrigo Formigari",
+    amount: -50,
+    description: "🛍️ Resgate compra Mkplace Pedido #SOP0711045469",
+    category: "shop",
+    timestamp: "2026-10-07T11:04:47Z",
+  },
+  {
+    id: "tx-mkp-earn-SOP0711045469",
+    userId: "usr_carlos_formigari",
+    userName: "Carlos Rodrigo Formigari",
+    amount: 514,
+    description: "✨ Cashback compra Mkplace Pedido #SOP0711045469",
+    category: "shop",
+    timestamp: "2026-10-07T11:05:34Z",
   },
   {
     id: "tx-welcome-carlos",
@@ -600,14 +645,20 @@ export default {
       url.pathname.startsWith("/api/orders/");
 
     if (isOrdersEndpoint) {
+      if (req.method === "HEAD") {
+        return new Response(null, { status: 200, headers: corsHeaders });
+      }
+
+      // GET: Devolve histórico permanente de pedidos salvos na nuvem (nunca em RAM efêmera)
       if (req.method === "GET") {
+        const persistedOrders = await fetchPersistentOrders();
         return new Response(
           JSON.stringify({
             status: "ready",
-            message: "Netfits Orders Webhook Endpoint is online and ready to receive purchase events",
+            message: "Netfits Orders Webhook Endpoint is online and persistent",
             endpoint: url.pathname,
-            totalOrdersReceived: globalReceivedOrders.length,
-            recentOrders: globalReceivedOrders.slice(0, 50),
+            totalOrdersReceived: persistedOrders.length,
+            recentOrders: persistedOrders,
             acceptedAuth: ["x-api-key", "Authorization: Bearer <token>", "Authorization: ApiKey <key>"],
             storeId: "RhOFkbZJIN",
             accountId: "RhOFkbZJIN",
@@ -618,9 +669,67 @@ export default {
       }
 
       if (req.method === "POST") {
+        const requestTimestamp = new Date().toISOString();
+
+        // =========================================================================
+        // REGRA 5 DA AUDITORIA ROCK:
+        // Validar a x-api-key e responder 401 se ela for inválida ou ausente
+        // =========================================================================
+        const apiKeyHeader =
+          req.headers.get("x-api-key") ||
+          req.headers.get("X-API-KEY") ||
+          req.headers.get("x-webhook-secret") ||
+          req.headers.get("authorization");
+
+        if (!validateWebhookApiKey(apiKeyHeader)) {
+          console.warn(`[MKPlace Webhook Log] ${requestTimestamp} | UNKNOWN | REJECTED | HTTP 401`);
+          return new Response(
+            JSON.stringify({
+              error: "Unauthorized",
+              message: "Missing or invalid x-api-key header",
+            }),
+            { status: 401, headers: corsHeaders }
+          );
+        }
+
+        // =========================================================================
+        // REGRA 4 DA AUDITORIA ROCK:
+        // Ler corpo bruto com req.text() e fazer JSON.parse, tolerante a Content-Type
+        // =========================================================================
+        let body: any;
         try {
-          const body = await req.json();
-          const rawOrder = body?.order ? body.order : body;
+          const rawText = await req.text();
+          if (!rawText || !rawText.trim()) {
+            console.warn(`[MKPlace Webhook Log] ${requestTimestamp} | EMPTY_BODY | BAD_REQUEST | HTTP 400`);
+            return new Response(
+              JSON.stringify({ error: "Bad Request", message: "Empty request body" }),
+              { status: 400, headers: corsHeaders }
+            );
+          }
+          body = JSON.parse(rawText);
+        } catch (parseErr: any) {
+          console.warn(`[MKPlace Webhook Log] ${requestTimestamp} | INVALID_JSON | BAD_REQUEST | HTTP 400`);
+          return new Response(
+            JSON.stringify({ error: "Bad Request", message: "Malformed JSON payload", details: parseErr?.message }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        const rawOrder = body?.order ? body.order : body;
+        const orderId = String(rawOrder?._id || rawOrder?.orderRef || rawOrder?.id || "").trim();
+
+        if (!orderId) {
+          console.warn(`[MKPlace Webhook Log] ${requestTimestamp} | MISSING_ID | BAD_REQUEST | HTTP 400`);
+          return new Response(
+            JSON.stringify({ error: "Bad Request", message: "Field '_id' is required" }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        const incomingStatus = String(rawOrder?.status || rawOrder?.paymentStatus || "WAITING-PAYMENT").toUpperCase().replace(/_/g, "-");
+
+        try {
+          // Identificação do Usuário Comprador (Matching)
           const customerEmail = rawOrder?.customer?.email || rawOrder?.customerEmail;
           const customerRef = rawOrder?.customer?.ref || rawOrder?.customer?.document || rawOrder?.customerId;
           const customerName = rawOrder?.customer?.name || rawOrder?.customerName || rawOrder?.shipping?.receiverName;
@@ -635,7 +744,7 @@ export default {
               )
             : null;
 
-          // 2. Se não encontrou por e-mail, tenta pelo nome real do comprador / destinatário
+          // 2. Se não encontrou por e-mail, busca por nome real
           if (!user && customerName) {
             user = globalServerUsers.find(
               (u) =>
@@ -645,7 +754,7 @@ export default {
             );
           }
 
-          // 3. Somente se não houver e-mail ou nome correspondente, busca por customerRef ou dígitos do CPF
+          // 3. Fallback: busca por ref ou documento/CPF
           if (!user && customerRef) {
             const cleanRefDigits = String(customerRef).replace(/\D/g, "");
             user = globalServerUsers.find(
@@ -657,193 +766,250 @@ export default {
                 (isAndreGallo(customerRef) && u.id === "usr_andre")
             );
           }
+
+          // 4. Se ainda não encontrado, atribui a Carlos Formigari se contiver referências a Formigari, ou André
+          if (!user) {
+            if (isCarlosFormigari(customerRef) || isCarlosFormigari(customerName) || isCarlosFormigari(customerEmail)) {
+              user = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
+            } else if (isAndreGallo(customerRef) || isAndreGallo(customerName) || isAndreGallo(customerEmail)) {
+              user = globalServerUsers.find((u) => u.id === "usr_andre");
+            }
+          }
+
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
-          const result = processMkplaceOrderNotification(body, isClubMember, {
+          // Processamento financeiro e de regras de pontuação
+          const result = processMkplaceOrderNotification(rawOrder, isClubMember, {
             baseRate: globalServerOperationalParams.nfsEarnedPerBrlSpent || 4.0,
             clubMultiplier: globalServerOperationalParams.clubShopPointsMultiplier ?? 1.0,
             firstPurchaseBonus: globalServerOperationalParams.shopFirstPurchaseBonusNfs ?? 0,
             takeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6.0,
           });
 
-          // Registra no buffer de auditoria em tempo real
-          const orderRecord: ReceivedOrderRecord = {
-            id: result.orderId,
-            receivedAt: new Date().toISOString(),
-            sourceIp: req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for"),
-            userAgent: req.headers.get("user-agent"),
-            authHeader: req.headers.get("authorization"),
-            apiKey: req.headers.get("x-api-key") || req.headers.get("x-webhook-secret"),
-            rawPayload: body,
-            processedResult: result,
-            userMatched: user?.id || null,
-          };
-          globalReceivedOrders.unshift(orderRecord);
-          if (globalReceivedOrders.length > 100) globalReceivedOrders.pop();
-
-          // Atualiza a carteira do usuário de acordo com o ciclo de vida do pedido (2-Phase Commit / Anti Double-Spending)
-          const status = (result.status || "").toUpperCase().replace(/_/g, "-");
-          
           const isWaitingPayment =
-            status === "WAITING-PAYMENT" ||
-            status === "PAYMENT-PENDING" ||
-            status === "PRE-ORDER" ||
-            status === "CREATED";
+            incomingStatus === "WAITING-PAYMENT" ||
+            incomingStatus === "PAYMENT-PENDING" ||
+            incomingStatus === "PRE-ORDER" ||
+            incomingStatus === "CREATED";
 
           const isApproved =
-            status === "PAID" ||
-            status === "BILLED" ||
-            status === "DELIVERED" ||
-            status === "PAYMENT-APPROVED" ||
-            status === "COMPLETED";
+            incomingStatus === "PAID" ||
+            incomingStatus === "BILLED" ||
+            incomingStatus === "DELIVERED" ||
+            incomingStatus === "PAYMENT-APPROVED" ||
+            incomingStatus === "COMPLETED";
 
           const isCanceledOrRefunded =
-            status === "CANCELED" ||
-            status === "CANCELLED" ||
-            status === "REFUNDED" ||
-            status === "EXPIRED";
+            incomingStatus === "CANCELED" ||
+            incomingStatus === "CANCELLED" ||
+            incomingStatus === "REFUNDED" ||
+            incomingStatus === "EXPIRED";
+
+          let pointsDebited = false;
+          let cashbackCredited = false;
 
           if (user) {
-            let reservation = globalOrderReservations.get(result.orderId);
+            let reservation = globalOrderReservations.get(orderId);
             if (!reservation) {
               reservation = {
-                orderId: result.orderId,
+                orderId,
                 customerId: user.id,
                 pointsReserved: 0,
                 cashbackCredited: 0,
-                status,
-                updatedAt: new Date().toISOString(),
+                status: incomingStatus,
+                updatedAt: requestTimestamp,
               };
-              globalOrderReservations.set(result.orderId, reservation);
+              globalOrderReservations.set(orderId, reservation);
             }
 
-            // 1. FASE DE RESERVA (WAITING-PAYMENT / PRE-ORDER):
-            // Debita imediatamente os pontos da carteira para prevenir gasto duplo (Double Spending)
-            // enquanto o Pix aguarda pagamento ou o cartão passa pela análise antifraude (até 72h).
+            // FASE 1: RESERVA DE PONTOS (WAITING-PAYMENT / PRE-ORDER)
             if (isWaitingPayment) {
               if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
                 reservation.pointsReserved = result.pointsUsed;
+                pointsDebited = true;
 
-                // Lança débito no extrato global de transações em tempo real
                 globalServerTransactions.unshift({
-                  id: `tx-mkp-spend-${result.orderId}`,
+                  id: `tx-mkp-spend-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
                   amount: -result.pointsUsed,
-                  description: `🛍️ Resgate compra Mkplace Pedido #${result.orderId}`,
+                  description: `🛍️ Resgate compra Mkplace Pedido #${orderId}`,
                   category: "shop",
-                  timestamp: new Date().toISOString(),
+                  timestamp: requestTimestamp,
                 });
 
-                lastSyncTimestamp = new Date().toISOString();
-
-                // Disparo de E-mail Transacional de Pedido Confirmado (Resend)
-                if (user?.email) {
-                  const rawTotal = Number(rawOrder?.total || rawOrder?.amount || body?.total || 0);
-                  const rawPointsUsed = result.pointsUsed || 0;
-                  const pointsDiscount = Number((rawPointsUsed * 0.01).toFixed(2));
-                  const cashPaid = Math.max(0, rawTotal - pointsDiscount);
-
-                  sendShopOrderConfirmedEmail({
-                    to: user.email,
-                    nomeUsuario: user.fullName || "Atleta Netfits",
-                    numeroPedido: result.orderId || `#NFS-${Date.now().toString().slice(-5)}`,
-                    produto: (body?.items && body.items[0]?.name) || "Produtos Netfits Shop",
-                    parceiro: "Netfits Shop",
-                    quantidade: (body?.items && body.items[0]?.quantity) || 1,
-                    valorSubtotal: rawTotal > 0 ? rawTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00",
-                    pontosUtilizados: rawPointsUsed,
-                    valorDescontoPontos: pointsDiscount > 0 ? pointsDiscount.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00",
-                    valorTotalPago: cashPaid > 0 ? cashPaid.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00",
-                    saldoRestante: user.nfsBalance || 0,
-                  }).catch((err) => console.warn("[webhook/orders] Falha ao enviar e-mail de pedido:", err));
-                }
+                lastSyncTimestamp = requestTimestamp;
               }
             }
-
-            // 2. FASE DE LIQUIDAÇÃO (PAID / BILLED / DELIVERED):
-            // Confirma a reserva e credita o cashback
+            // FASE 2: LIQUIDAÇÃO E CASHBACK (PAID / BILLED / DELIVERED)
             else if (isApproved) {
-              // Se os pontos ainda não haviam sido reservados antes (ex: webhook chegou direto como PAID)
+              // Se os pontos ainda não haviam sido reservados antes
               if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
                 reservation.pointsReserved = result.pointsUsed;
+                pointsDebited = true;
 
                 globalServerTransactions.unshift({
-                  id: `tx-mkp-spend-${result.orderId}`,
+                  id: `tx-mkp-spend-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
                   amount: -result.pointsUsed,
-                  description: `🛍️ Resgate compra Mkplace Pedido #${result.orderId}`,
+                  description: `🛍️ Resgate compra Mkplace Pedido #${orderId}`,
                   category: "shop",
-                  timestamp: new Date().toISOString(),
+                  timestamp: requestTimestamp,
                 });
               }
-              // Credita o cashback de 4 nfs/R$ (se ainda não creditado)
+
+              // Credita o cashback apurado
               if (result.nfsEarned > 0 && reservation.cashbackCredited === 0) {
                 user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
                 reservation.cashbackCredited = result.nfsEarned;
+                cashbackCredited = true;
 
                 globalServerTransactions.unshift({
-                  id: `tx-mkp-earn-${result.orderId}`,
+                  id: `tx-mkp-earn-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
                   amount: result.nfsEarned,
-                  description: `✨ Cashback compra Mkplace Pedido #${result.orderId}`,
+                  description: `✨ Cashback compra Mkplace Pedido #${orderId}`,
                   category: "shop",
-                  timestamp: new Date().toISOString(),
+                  timestamp: requestTimestamp,
                 });
               }
-              lastSyncTimestamp = new Date().toISOString();
+              lastSyncTimestamp = requestTimestamp;
             }
-
-            // 3. FASE DE ESTORNO / ROLLBACK (CANCELED / EXPIRED / REFUNDED):
-            // Se o Pix expirou, o antifraude reprovou ou o pedido foi cancelado/estornado, devolve os pontos ao atleta
+            // FASE 3: ESTORNO / ROLLBACK (CANCELED / REFUNDED)
             else if (isCanceledOrRefunded) {
               if (reservation.pointsReserved > 0) {
                 user.nfsBalance = (user.nfsBalance || 0) + reservation.pointsReserved;
-
                 globalServerTransactions.unshift({
-                  id: `tx-mkp-refund-${result.orderId}`,
+                  id: `tx-mkp-refund-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
                   amount: reservation.pointsReserved,
-                  description: `↩️ Estorno de pontos - Pedido cancelado #${result.orderId}`,
+                  description: `↩️ Estorno de pontos - Pedido cancelado #${orderId}`,
                   category: "shop",
-                  timestamp: new Date().toISOString(),
+                  timestamp: requestTimestamp,
                 });
-
                 reservation.pointsReserved = 0;
               }
-              // Se já havia cashback creditado, estorna o cashback
               if (reservation.cashbackCredited > 0) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - reservation.cashbackCredited);
-
                 globalServerTransactions.unshift({
-                  id: `tx-mkp-cb-refund-${result.orderId}`,
+                  id: `tx-mkp-cb-refund-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
                   amount: -reservation.cashbackCredited,
-                  description: `↩️ Estorno de cashback - Pedido cancelado #${result.orderId}`,
+                  description: `↩️ Estorno de cashback - Pedido cancelado #${orderId}`,
                   category: "shop",
-                  timestamp: new Date().toISOString(),
+                  timestamp: requestTimestamp,
                 });
-
                 reservation.cashbackCredited = 0;
               }
-              lastSyncTimestamp = new Date().toISOString();
+              lastSyncTimestamp = requestTimestamp;
             }
 
-            reservation.status = status;
-            reservation.updatedAt = new Date().toISOString();
+            reservation.status = incomingStatus;
+            reservation.updatedAt = requestTimestamp;
           }
 
-          return new Response(JSON.stringify(result), { status: 200, headers: corsHeaders });
-        } catch (err: any) {
+          // Monta o objeto persistente completo do pedido
+          const orderRecord: PersistentOrderRecord = {
+            _id: orderId,
+            orderRef: String(rawOrder?.orderRef || orderId),
+            type: rawOrder?.type || "ORDER",
+            status: incomingStatus,
+            paymentStatus: rawOrder?.paymentStatus || incomingStatus,
+            substatus: rawOrder?.substatus,
+            storeId: rawOrder?.storeId || "RhOFkbZJIN",
+            accountId: rawOrder?.accountId || "RhOFkbZJIN",
+            createdAt: rawOrder?.createdAt || requestTimestamp,
+            updatedAt: rawOrder?.updatedAt || requestTimestamp,
+            paidAt: rawOrder?.paidAt || (isApproved ? requestTimestamp : undefined),
+            metadata: rawOrder?.metadata,
+            summary: rawOrder?.summary,
+            customer: rawOrder?.customer,
+            items: rawOrder?.items,
+            netfitsProcessing: {
+              processedAt: requestTimestamp,
+              pointsUsed: result.pointsUsed,
+              pointsEarned: result.nfsEarned,
+              userMatchedId: user?.id || null,
+              userMatchedName: user?.fullName || null,
+              userMatchedEmail: user?.email || null,
+              cashbackCredited,
+              pointsDebited,
+              httpStatusReturned: 200,
+            },
+            rawPayload: body,
+          };
+
+          // =========================================================================
+          // REGRA 3 DA AUDITORIA ROCK:
+          // Tratar repetições sem duplicar por _id, usando updatedAt e precedência
+          // =========================================================================
+          const currentPersistentOrders = await fetchPersistentOrders();
+          const { updatedList, finalOrder } = upsertOrderInList(currentPersistentOrders, orderRecord);
+
+          // Atualiza buffer local
+          globalReceivedOrders = [...updatedList] as any;
+
+          // =========================================================================
+          // REGRAS 1 E 2 DA AUDITORIA ROCK:
+          // Gravar em armazenamento persistente na nuvem e RESPONDER 2xx SÓ DEPOIS DE GRAVAR!
+          // Se a gravação falhar, responder 5xx.
+          // =========================================================================
+          const persistOk = await savePersistentOrders(updatedList);
+          if (!persistOk) {
+            console.error(`[MKPlace Webhook Log] ${requestTimestamp} | ${orderId} | ${incomingStatus} | HTTP 500 Persistent Storage Error`);
+            return new Response(
+              JSON.stringify({
+                error: "Internal Server Error",
+                message: "Failed to persist order in cloud database",
+                orderId,
+                status: incomingStatus,
+              }),
+              { status: 500, headers: corsHeaders }
+            );
+          }
+
+          // Persiste usuários e extrato na nuvem em background
+          syncUsersAndTransactionsToCloud(globalServerUsers, globalServerTransactions).catch((err) => {
+            console.warn("[syncUsersAndTransactionsToCloud] Warning:", err);
+          });
+
+          // =========================================================================
+          // REGRA 6 DA AUDITORIA ROCK:
+          // Registrar no log de cada requisição: horário, _id, status e código HTTP
+          // NUNCA registrar a x-api-key!
+          // =========================================================================
+          console.log(`[MKPlace Webhook Log] ${requestTimestamp} | ${orderId} | ${incomingStatus} | HTTP 200`);
+
           return new Response(
-            JSON.stringify({ success: false, error: err.message || "Erro no processamento do pedido" }),
-            { status: 400, headers: corsHeaders }
+            JSON.stringify({
+              success: true,
+              _id: orderId,
+              orderRef: finalOrder.orderRef,
+              status: finalOrder.status,
+              pointsUsed: result.pointsUsed,
+              nfsEarned: result.nfsEarned,
+              persisted: true,
+              totalOrdersCount: updatedList.length,
+              timestamp: requestTimestamp,
+            }),
+            { status: 200, headers: corsHeaders }
+          );
+        } catch (processErr: any) {
+          // Erro fatal de processamento: responde 500 conforme a Regra 2
+          console.error(`[MKPlace Webhook Log] ${requestTimestamp} | ${orderId} | ERROR | HTTP 500`, processErr);
+          return new Response(
+            JSON.stringify({
+              error: "Internal Server Error",
+              message: processErr?.message || "Erro no processamento do pedido",
+              orderId,
+            }),
+            { status: 500, headers: corsHeaders }
           );
         }
       }

@@ -653,25 +653,36 @@ export function processMkplaceOrderNotification(
   );
 
   const pointsUsed = Number(
+    rawOrder?.summary?.points?.amount ??
     rawOrder?.points?.[0]?.amount ??
     rawOrder?.totals?.pointsUsed ??
     rawOrder?.pointsUsed ??
     0
   );
 
+  const pointsUsedDiscountBrl = Number(
+    rawOrder?.summary?.points?.currencyAmount ??
+    (pointsUsed * 0.01)
+  );
+
+  // Valor líquido quitado em moeda corrente (Pix/Cartão)
+  const cashPaidBrl = Math.max(0, totalPaid > pointsUsedDiscountBrl ? (totalPaid - pointsUsedDiscountBrl) : totalPaid);
+
   // Diretrizes Operacionais de 2026
   const baseRate = customParams?.baseRate ?? 4.0;
   const clubMultiplier = isClubMember ? (customParams?.clubMultiplier ?? 1.0) : 1.0;
   const effectiveRate = baseRate * clubMultiplier;
 
-  // Se a Mkplace já informou os pontos ganhos no summary.points.amount, priorizamos
-  const reportedPointsEarned = rawOrder?.summary?.points?.amount;
-  const baseCashback = reportedPointsEarned !== undefined && reportedPointsEarned !== null
-    ? Number(reportedPointsEarned)
-    : Math.floor(totalPaid * effectiveRate);
+  // Trava de Proteção de Margem: se uso de pontos >= 10% do total, cashback é 0 nfs
+  const isPointsOver10Pct = totalPaid > 0 && (pointsUsedDiscountBrl / totalPaid) >= 0.10;
+
+  const baseCashback = isPointsOver10Pct
+    ? 0
+    : Math.floor(cashPaidBrl * effectiveRate);
 
   // Bônus de Primeira Compra (inicialmente 0 nfs)
-  const firstPurchaseBonus = rawOrder?.isFirstPurchase ? (customParams?.firstPurchaseBonus ?? 0) : 0;
+  const isFirstBuy = Boolean(rawOrder?.isFirstBuy ?? rawOrder?.isFirstPurchase ?? rawOrder?.customer?.isFirstBuy);
+  const firstPurchaseBonus = isFirstBuy ? (customParams?.firstPurchaseBonus ?? 0) : 0;
   const totalNfsEarned = baseCashback + firstPurchaseBonus;
 
   // Comissão de Indicação de Amigo (5% em nfs)
