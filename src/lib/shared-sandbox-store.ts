@@ -160,19 +160,6 @@ const INITIAL_USERS: SandboxUser[] = [
     phone: "(11) 99535-1513",
     cpf: "25664730803",
     birthDate: "05/12/1983",
-    zipcode: "04005-030",
-    street: "Rua Karl Von Den Steinen",
-    number: "54",
-    complement: "Apto 112",
-    neighborhood: "Vila Mariana",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    address: "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP",
-    sports: ["Corrida de rua", "Musculação"],
-    healthPlan: "Bradesco Saúde",
-    gym: "Bio Ritmo",
-    wearable: "Garmin Fenix",
     nfsBalance: 110,
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -614,14 +601,6 @@ class HomologationSandboxStore {
             if (!mergedUsers[existingIdx].cpf) mergedUsers[existingIdx].cpf = initUser.cpf;
             if (!mergedUsers[existingIdx].phone) mergedUsers[existingIdx].phone = initUser.phone;
             if (!mergedUsers[existingIdx].birthDate) mergedUsers[existingIdx].birthDate = initUser.birthDate;
-            if (!mergedUsers[existingIdx].address) mergedUsers[existingIdx].address = initUser.address;
-            if (!mergedUsers[existingIdx].street) mergedUsers[existingIdx].street = initUser.street;
-            if (!mergedUsers[existingIdx].number) mergedUsers[existingIdx].number = initUser.number;
-            if (!mergedUsers[existingIdx].neighborhood) mergedUsers[existingIdx].neighborhood = initUser.neighborhood;
-            if (!mergedUsers[existingIdx].city) mergedUsers[existingIdx].city = initUser.city;
-            if (!mergedUsers[existingIdx].state) mergedUsers[existingIdx].state = initUser.state;
-            if (!mergedUsers[existingIdx].shortState) mergedUsers[existingIdx].shortState = initUser.shortState;
-            if (!mergedUsers[existingIdx].zipcode) mergedUsers[existingIdx].zipcode = initUser.zipcode;
             hasNewUsers = true;
           }
         }
