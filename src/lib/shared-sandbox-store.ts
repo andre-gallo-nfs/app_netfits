@@ -811,13 +811,22 @@ class HomologationSandboxStore {
     return newTx;
   }
 
-  // 3. Cadastro de Novo Atleta (Campos Separados Obrigatórios: E-mail, Celular, CPF, Data de Nascimento)
+  // 3. Cadastro de Novo Atleta (Campos Obrigatórios: Nome, E-mail, Celular, CPF, Data de Nascimento e Endereço Completo)
   public registerAthlete(data: {
     fullName: string;
     email: string;
     phone: string;
     cpf: string;
     birthDate: string;
+    zipcode?: string;
+    street?: string;
+    number?: string;
+    complement?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    shortState?: string;
+    address?: string;
     password?: string;
     referralCode?: string;
   }): { success: boolean; user?: SandboxUser; error?: string; isDuplicate?: boolean; matchedField?: string } {
@@ -842,6 +851,15 @@ class HomologationSandboxStore {
         if (data.phone?.trim()) existingAndre.phone = data.phone.trim();
         if (data.cpf?.trim()) existingAndre.cpf = data.cpf.trim();
         if (data.birthDate?.trim()) existingAndre.birthDate = data.birthDate.trim();
+        if (data.zipcode?.trim()) existingAndre.zipcode = data.zipcode.trim();
+        if (data.street?.trim()) existingAndre.street = data.street.trim();
+        if (data.number?.trim()) existingAndre.number = data.number.trim();
+        if (data.complement !== undefined) existingAndre.complement = data.complement.trim();
+        if (data.neighborhood?.trim()) existingAndre.neighborhood = data.neighborhood.trim();
+        if (data.city?.trim()) existingAndre.city = data.city.trim();
+        if (data.state?.trim()) existingAndre.state = data.state.trim();
+        if (data.shortState?.trim()) existingAndre.shortState = data.shortState.trim();
+        if (data.address?.trim()) existingAndre.address = data.address.trim();
         if (data.password?.trim()) existingAndre.passwordHash = data.password.trim();
         this.saveToStorage();
         this.setActiveUser("usr_andre");
@@ -864,6 +882,15 @@ class HomologationSandboxStore {
         if (data.phone?.trim()) existingCarlos.phone = data.phone.trim();
         if (data.cpf?.trim()) existingCarlos.cpf = data.cpf.trim();
         if (data.birthDate?.trim()) existingCarlos.birthDate = data.birthDate.trim();
+        if (data.zipcode?.trim()) existingCarlos.zipcode = data.zipcode.trim();
+        if (data.street?.trim()) existingCarlos.street = data.street.trim();
+        if (data.number?.trim()) existingCarlos.number = data.number.trim();
+        if (data.complement !== undefined) existingCarlos.complement = data.complement.trim();
+        if (data.neighborhood?.trim()) existingCarlos.neighborhood = data.neighborhood.trim();
+        if (data.city?.trim()) existingCarlos.city = data.city.trim();
+        if (data.state?.trim()) existingCarlos.state = data.state.trim();
+        if (data.shortState?.trim()) existingCarlos.shortState = data.shortState.trim();
+        if (data.address?.trim()) existingCarlos.address = data.address.trim();
         if (data.password?.trim()) existingCarlos.passwordHash = data.password.trim();
         this.saveToStorage();
         this.setActiveUser("usr_carlos_formigari");
@@ -886,6 +913,15 @@ class HomologationSandboxStore {
         if (data.phone?.trim()) existingCris.phone = data.phone.trim();
         if (data.cpf?.trim()) existingCris.cpf = data.cpf.trim();
         if (data.birthDate?.trim()) existingCris.birthDate = data.birthDate.trim();
+        if (data.zipcode?.trim()) existingCris.zipcode = data.zipcode.trim();
+        if (data.street?.trim()) existingCris.street = data.street.trim();
+        if (data.number?.trim()) existingCris.number = data.number.trim();
+        if (data.complement !== undefined) existingCris.complement = data.complement.trim();
+        if (data.neighborhood?.trim()) existingCris.neighborhood = data.neighborhood.trim();
+        if (data.city?.trim()) existingCris.city = data.city.trim();
+        if (data.state?.trim()) existingCris.state = data.state.trim();
+        if (data.shortState?.trim()) existingCris.shortState = data.shortState.trim();
+        if (data.address?.trim()) existingCris.address = data.address.trim();
         if (data.password?.trim()) existingCris.passwordHash = data.password.trim();
         this.saveToStorage();
         this.setActiveUser("usr_cristiane_gallo");
@@ -923,6 +959,8 @@ class HomologationSandboxStore {
     const welcomeBonus = operationalParamsStore.getParams().newUserRegistrationBonusNfs ?? 50;
     const initialNfs = welcomeBonus;
 
+    const fullAddr = data.address?.trim() || (data.street ? `${data.street}${data.number ? `, ${data.number}` : ""}${data.neighborhood ? ` - ${data.neighborhood}` : ""}${data.city ? `, ${data.city}` : ""}${data.shortState ? ` · ${data.shortState}` : ""}` : undefined);
+
     const newUser: SandboxUser = {
       id: newId,
       identifier: data.email,
@@ -931,6 +969,15 @@ class HomologationSandboxStore {
       cpf: data.cpf,
       birthDate: data.birthDate,
       fullName: data.fullName,
+      zipcode: data.zipcode?.trim(),
+      street: data.street?.trim(),
+      number: data.number?.trim(),
+      complement: data.complement?.trim(),
+      neighborhood: data.neighborhood?.trim(),
+      city: data.city?.trim(),
+      state: data.state?.trim(),
+      shortState: data.shortState?.trim(),
+      address: fullAddr,
       type: "athlete",
       nfsBalance: initialNfs,
       referralCode: newRefCode,

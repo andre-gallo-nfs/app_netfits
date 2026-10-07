@@ -10,6 +10,16 @@ export type StoredUser = {
   email: string;
   phone: string;
   cpf: string;
+  birthDate?: string;
+  zipcode?: string;
+  street?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  shortState?: string;
+  address?: string;
   passwordHash?: string;
   userCategory?: "atleta" | "associado" | "especialista" | "parceiro";
   registeredAt?: string;

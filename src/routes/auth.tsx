@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import {
   User, Lock, Mail, Phone, CreditCard, ShieldCheck, AlertCircle,
   CheckCircle2, XCircle, Eye, EyeOff, Sparkles, ArrowRight, KeyRound,
-  LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar, Fingerprint
+  LogIn, UserPlus, AlertTriangle, Award, Gift, Calendar, Fingerprint,
+  MapPin
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import {
@@ -79,6 +80,14 @@ function isValidBirthDate(str: string): boolean {
   return true;
 }
 
+export function formatCepMask(value: string): string {
+  let v = value.replace(/\D/g, "").slice(0, 8);
+  if (v.length > 5) {
+    return `${v.slice(0, 5)}-${v.slice(5)}`;
+  }
+  return v;
+}
+
 const EMAIL_DOMAINS = [
   "@gmail.com",
   "@hotmail.com",
@@ -119,6 +128,18 @@ function AuthPage() {
   const [phone, setPhone] = useState("");
   const [cpf, setCpf] = useState("");
   const [birthDate, setBirthDate] = useState("");
+
+  // Campos de Endereço Completo Mandatórios
+  const [zipcode, setZipcode] = useState("");
+  const [street, setStreet] = useState("");
+  const [number, setNumber] = useState("");
+  const [complement, setComplement] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [city, setCity] = useState("");
+  const [shortState, setShortState] = useState("SP");
+  const [state, setState] = useState("São Paulo");
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
@@ -170,6 +191,37 @@ function AuthPage() {
   const loginIdentifierType = detectIdentifierType(loginIdentifier);
   const pwdRules = validatePasswordRules(password);
 
+  const handleCepChange = async (cepInput: string) => {
+    const masked = formatCepMask(cepInput);
+    setZipcode(masked);
+    setFormError(null);
+
+    const digits = masked.replace(/\D/g, "");
+    if (digits.length === 8) {
+      setIsLoadingCep(true);
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        if (res.ok) {
+          const data = await res.json();
+          if (!data.erro) {
+            if (data.logradouro) setStreet(data.logradouro);
+            if (data.bairro) setNeighborhood(data.bairro);
+            if (data.localidade) setCity(data.localidade);
+            if (data.uf) setShortState(data.uf.toUpperCase());
+            if (data.estado) setState(data.estado);
+            toast.success(`📍 Endereço preenchido via CEP: ${data.localidade}/${data.uf}!`);
+          } else {
+            toast.error("CEP não localizado. Preencha os campos de rua e bairro manualmente.");
+          }
+        }
+      } catch {
+        // Ignora se indisponível momentaneamente
+      } finally {
+        setIsLoadingCep(false);
+      }
+    }
+  };
+
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setDuplicateAlert(null);
@@ -181,57 +233,95 @@ function AuthPage() {
       return;
     }
 
-    // 2. E-mail Exclusivo Obrigatório
+    // 2. CPF Obrigatório e Válido matematicamente (11 dígitos oficiais)
+    if (!cpf.trim() || !isValidCPF(cpf)) {
+      setFormError("Por favor, informe um CPF válido com 11 dígitos para emissão e segurança cadastral.");
+      return;
+    }
+
+    // 3. E-mail Exclusivo Obrigatório
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim() || !emailRegex.test(email.trim())) {
       setFormError("Por favor, informe um endereço de E-mail válido (ex: seu.nome@email.com).");
       return;
     }
 
-    // 3. Celular com DDD Obrigatório
+    // 4. Data de Nascimento Obrigatória
+    if (!birthDate.trim() || !isValidBirthDate(birthDate)) {
+      setFormError("Por favor, informe sua Data de Nascimento no formato DD/MM/AAAA (ex: 15/08/1988).");
+      return;
+    }
+
+    // 5. Celular com DDD Obrigatório
     const phoneDigits = phone.replace(/\D/g, "");
     if (!phone.trim() || phoneDigits.length < 10) {
       setFormError("Por favor, informe seu número de Celular com DDD (ex: (11) 98765-4321).");
       return;
     }
 
-    // 4. CPF Obrigatório e Válido matematicamente (11 dígitos oficiais)
-    if (!cpf.trim() || !isValidCPF(cpf)) {
-      setFormError("Por favor, informe um CPF válido com 11 dígitos para emissão e segurança cadastral.");
+    // 6. Endereço Completo Mandatório (CEP, Rua, Número, Bairro, Cidade, UF)
+    const cleanCep = zipcode.replace(/\D/g, "");
+    if (!zipcode.trim() || cleanCep.length !== 8) {
+      setFormError("O CEP é mandatório. Por favor, informe um CEP válido com 8 dígitos (ex: 01426-001).");
+      return;
+    }
+    if (!street.trim() || street.trim().length < 2) {
+      setFormError("A Rua / Logradouro é obrigatória no endereço completo de entrega.");
+      return;
+    }
+    if (!number.trim()) {
+      setFormError("O Número do endereço é obrigatório (caso não possua número, informe 'S/N').");
+      return;
+    }
+    if (!neighborhood.trim() || neighborhood.trim().length < 2) {
+      setFormError("O Bairro é obrigatório no endereço completo.");
+      return;
+    }
+    if (!city.trim() || city.trim().length < 2) {
+      setFormError("A Cidade é obrigatória no endereço completo.");
+      return;
+    }
+    if (!shortState.trim() || shortState.trim().length !== 2) {
+      setFormError("A UF (Estado) é obrigatória com 2 letras (ex: SP, RJ, MG).");
       return;
     }
 
-    // 5. Data de Nascimento Obrigatória
-    if (!birthDate.trim() || !isValidBirthDate(birthDate)) {
-      setFormError("Por favor, informe sua Data de Nascimento no formato DD/MM/AAAA (ex: 15/08/1988).");
-      return;
-    }
-
-    // 6. Regras de Senha Alfanumérica
+    // 7. Regras de Senha Alfanumérica
     if (!pwdRules.isValid) {
       setFormError("A senha não preenche todos os critérios de segurança requeridos.");
       return;
     }
 
-    // 7. Confirmação de Senha
+    // 8. Confirmação de Senha
     if (confirmPassword !== password) {
       setFormError("As senhas digitadas não coincidem. Verifique o campo de confirmação.");
       return;
     }
 
-    // 8. Aceite de Termos e LGPD
+    // 9. Aceite de Termos e LGPD
     if (!acceptedTerms || !acceptedLgpd) {
       setFormError("Por favor, leia e aceite os Termos de Uso e o Consentimento LGPD para concluir seu cadastro.");
       return;
     }
 
-    // Tentar cadastrar no sharedSandboxStore com persistência de senha
+    const calculatedAddress = `${street.trim()}, ${number.trim()}${complement.trim() ? ` (${complement.trim()})` : ""}${neighborhood.trim() ? ` - ${neighborhood.trim()}` : ""}, ${city.trim()} · ${shortState.trim().toUpperCase()}`;
+
+    // Tentar cadastrar no sharedSandboxStore com persistência de dados completos
     const res = sharedSandboxStore.registerAthlete({
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
       cpf: cpf.trim(),
       birthDate: birthDate.trim(),
+      zipcode: zipcode.trim(),
+      street: street.trim(),
+      number: number.trim(),
+      complement: complement.trim(),
+      neighborhood: neighborhood.trim(),
+      city: city.trim(),
+      state: state.trim() || shortState.trim().toUpperCase(),
+      shortState: shortState.trim().toUpperCase(),
+      address: calculatedAddress,
       password: password.trim(),
       referralCode: referralCode.trim(),
     });
@@ -256,6 +346,16 @@ function AuthPage() {
         email: res.user.email || email.trim(),
         phone: res.user.phone || phone.trim(),
         cpf: res.user.cpf || cpf.trim(),
+        birthDate: birthDate.trim(),
+        zipcode: zipcode.trim(),
+        street: street.trim(),
+        number: number.trim(),
+        complement: complement.trim(),
+        neighborhood: neighborhood.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        shortState: shortState.trim().toUpperCase(),
+        address: calculatedAddress,
         passwordHash: password.trim(),
         userCategory: "atleta",
         registeredAt: res.user.registeredAt,
@@ -399,7 +499,7 @@ function AuthPage() {
       {/* Registration Form */}
       {mode === "register" && (
         <form onSubmit={handleRegisterSubmit} className="space-y-4">
-          {/* Nome Completo */}
+          {/* 1. Nome Completo */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-foreground flex items-center justify-between">
               <span>Nome Completo *</span>
@@ -412,7 +512,10 @@ function AuthPage() {
               <input
                 type="text"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  setFormError(null);
+                }}
                 placeholder="Digite seu nome completo"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
@@ -420,7 +523,32 @@ function AuthPage() {
             </div>
           </div>
 
-          {/* E-mail Exclusivo com Sugestões de Domínio Rápido */}
+          {/* 2. CPF */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>CPF (Somente Números) *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <CreditCard className="size-4 text-purple-600" />
+              </div>
+              <input
+                type="text"
+                value={cpf}
+                onChange={(e) => {
+                  setCpf(formatCPF(e.target.value));
+                  setDuplicateAlert(null);
+                  setFormError(null);
+                }}
+                placeholder="123.456.789-00"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                required
+              />
+            </div>
+          </div>
+
+          {/* 3. E-mail Exclusivo com Sugestões de Domínio Rápido */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-foreground flex items-center justify-between">
               <span>E-mail Exclusivo *</span>
@@ -497,57 +625,7 @@ function AuthPage() {
             </div>
           </div>
 
-          {/* Celular com DDD */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-foreground flex items-center justify-between">
-              <span>Celular com DDD *</span>
-              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
-                <Phone className="size-4 text-purple-600" />
-              </div>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(formatPhone(e.target.value));
-                  setDuplicateAlert(null);
-                  setFormError(null);
-                }}
-                placeholder="(11) 98765-4321"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
-                required
-              />
-            </div>
-          </div>
-
-          {/* CPF */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-foreground flex items-center justify-between">
-              <span>CPF (Somente Números) *</span>
-              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
-                <CreditCard className="size-4 text-purple-600" />
-              </div>
-              <input
-                type="text"
-                value={cpf}
-                onChange={(e) => {
-                  setCpf(formatCPF(e.target.value));
-                  setDuplicateAlert(null);
-                  setFormError(null);
-                }}
-                placeholder="123.456.789-00"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Data de Nascimento */}
+          {/* 4. Data de Nascimento */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-foreground flex items-center justify-between">
               <span>Data de Nascimento *</span>
@@ -567,6 +645,178 @@ function AuthPage() {
                   setBirthDate(formatBirthDateMask(e.target.value));
                   setFormError(null);
                 }}
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                required
+              />
+            </div>
+          </div>
+
+          {/* 5. Bloco de Endereço Completo Mandatório (Com CEP e Preenchimento Automático) */}
+          <div className="pt-2 pb-1 border-t border-border/80 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <MapPin className="size-3.5 text-purple-600" /> Endereço Completo de Entrega & Cobrança *
+              </span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Necessário para validação cadastral e envio de produtos na Loja Oficial (MKPlace).
+            </p>
+
+            {/* CEP e Rua / Logradouro */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+                  <span>CEP *</span>
+                  {isLoadingCep && <span className="text-[9px] text-purple-600 animate-pulse font-normal">Buscando...</span>}
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={9}
+                  value={zipcode}
+                  onChange={(e) => handleCepChange(e.target.value)}
+                  placeholder="00000-000"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  required
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Rua / Logradouro *
+                </label>
+                <input
+                  type="text"
+                  value={street}
+                  onChange={(e) => {
+                    setStreet(e.target.value);
+                    setFormError(null);
+                  }}
+                  placeholder="Av. Paulista, Rua..."
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Número e Complemento */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Número *
+                </label>
+                <input
+                  type="text"
+                  value={number}
+                  onChange={(e) => {
+                    setNumber(e.target.value);
+                    setFormError(null);
+                  }}
+                  placeholder="100 ou S/N"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  required
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+                  <span>Complemento</span>
+                  <span className="text-[9px] text-muted-foreground font-normal">Opcional</span>
+                </label>
+                <input
+                  type="text"
+                  value={complement}
+                  onChange={(e) => setComplement(e.target.value)}
+                  placeholder="Apto 42, Bloco B (opcional)"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
+              </div>
+            </div>
+
+            {/* Bairro, Cidade e UF */}
+            <div className="grid grid-cols-5 gap-2">
+              <div className="col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Bairro *
+                </label>
+                <input
+                  type="text"
+                  value={neighborhood}
+                  onChange={(e) => {
+                    setNeighborhood(e.target.value);
+                    setFormError(null);
+                  }}
+                  placeholder="Bairro"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  required
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Cidade *
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => {
+                    setCity(e.target.value);
+                    setFormError(null);
+                  }}
+                  placeholder="Cidade"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  required
+                />
+              </div>
+
+              <div className="col-span-1 space-y-1">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  UF *
+                </label>
+                <input
+                  type="text"
+                  maxLength={2}
+                  value={shortState}
+                  onChange={(e) => {
+                    const uf = e.target.value.toUpperCase();
+                    setShortState(uf);
+                    if (uf === "SP") setState("São Paulo");
+                    else if (uf === "RJ") setState("Rio de Janeiro");
+                    else if (uf === "MG") setState("Minas Gerais");
+                    else if (uf === "PR") setState("Paraná");
+                    else if (uf === "SC") setState("Santa Catarina");
+                    else if (uf === "RS") setState("Rio Grande do Sul");
+                    else setState(uf);
+                    setFormError(null);
+                  }}
+                  placeholder="SP"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-bold text-foreground text-center uppercase focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Celular com DDD */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-foreground flex items-center justify-between">
+              <span>Celular com DDD *</span>
+              <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">Obrigatório</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+                <Phone className="size-4 text-purple-600" />
+              </div>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(formatPhone(e.target.value));
+                  setDuplicateAlert(null);
+                  setFormError(null);
+                }}
+                placeholder="(11) 98765-4321"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
