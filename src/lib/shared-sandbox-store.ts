@@ -879,99 +879,38 @@ class HomologationSandboxStore {
     const cleanPhoneDigits = data.phone.replace(/\D/g, "");
     const cleanCpfDigits = data.cpf.replace(/\D/g, "");
 
-    // 1. Reconhecimento estrito do André Gallo completando/atualizando seus dados cadastrais
-    const cleanName = (data.fullName || "").trim().toLowerCase();
-    const isAndre =
-      cleanEmail === "aacgallo@hotmail.com" ||
-      cleanEmail === "aacgallo@hotmail.com.br" ||
-      cleanName === "andre gallo" ||
-      cleanName === "andré gallo";
+    // Reconhecimento universal: se o usuário já existe na base (por CPF de 11 dígitos ou E-mail único),
+    // atualiza seus dados cadastrais sem duplicar registro nem colidir por nomes de família.
+    const existingUser = this.state.users.find((u) => {
+      const uCpf = u.cpf ? u.cpf.replace(/\D/g, "") : "";
+      const uEmail = (u.email || u.identifier || "").trim().toLowerCase();
+      const matchCpf = Boolean(cleanCpfDigits && cleanCpfDigits.length === 11 && uCpf === cleanCpfDigits);
+      const matchEmail = Boolean(cleanEmail && cleanEmail.includes("@") && uEmail === cleanEmail);
+      return matchCpf || matchEmail;
+    });
 
-    if (isAndre) {
-      const existingAndre = this.state.users.find((u) => u.id === "usr_andre");
-      if (existingAndre) {
-        if (data.fullName?.trim()) existingAndre.fullName = data.fullName.trim();
-        existingAndre.email = data.email.trim();
-        existingAndre.identifier = data.email.trim();
-        if (data.phone?.trim()) existingAndre.phone = data.phone.trim();
-        if (data.cpf?.trim()) existingAndre.cpf = data.cpf.trim();
-        if (data.birthDate?.trim()) existingAndre.birthDate = data.birthDate.trim();
-        if (data.zipcode?.trim()) existingAndre.zipcode = data.zipcode.trim();
-        if (data.street?.trim()) existingAndre.street = data.street.trim();
-        if (data.number?.trim()) existingAndre.number = data.number.trim();
-        if (data.complement !== undefined) existingAndre.complement = data.complement.trim();
-        if (data.neighborhood?.trim()) existingAndre.neighborhood = data.neighborhood.trim();
-        if (data.city?.trim()) existingAndre.city = data.city.trim();
-        if (data.state?.trim()) existingAndre.state = data.state.trim();
-        if (data.shortState?.trim()) existingAndre.shortState = data.shortState.trim();
-        if (data.address?.trim()) existingAndre.address = data.address.trim();
-        if (data.password?.trim()) existingAndre.passwordHash = data.password.trim();
-        this.saveToStorage();
-        this.setActiveUser("usr_andre");
-        return { success: true, user: existingAndre };
+    if (existingUser) {
+      if (data.fullName?.trim()) existingUser.fullName = data.fullName.trim();
+      if (data.email?.trim()) {
+        existingUser.email = data.email.trim();
+        existingUser.identifier = data.email.trim();
       }
-    }
-
-    // 2. Reconhecimento estrito do Carlos Rodrigo Formigari completando/ativando seu cadastro
-    const isCarlos =
-      cleanEmail === "crformigari72@gmail.com" ||
-      cleanName === "carlos rodrigo formigari" ||
-      cleanName === "carlos formigari";
-
-    if (isCarlos) {
-      const existingCarlos = this.state.users.find((u) => u.id === "usr_carlos_formigari");
-      if (existingCarlos) {
-        if (data.fullName?.trim()) existingCarlos.fullName = data.fullName.trim();
-        existingCarlos.email = data.email.trim();
-        existingCarlos.identifier = data.email.trim();
-        if (data.phone?.trim()) existingCarlos.phone = data.phone.trim();
-        if (data.cpf?.trim()) existingCarlos.cpf = data.cpf.trim();
-        if (data.birthDate?.trim()) existingCarlos.birthDate = data.birthDate.trim();
-        if (data.zipcode?.trim()) existingCarlos.zipcode = data.zipcode.trim();
-        if (data.street?.trim()) existingCarlos.street = data.street.trim();
-        if (data.number?.trim()) existingCarlos.number = data.number.trim();
-        if (data.complement !== undefined) existingCarlos.complement = data.complement.trim();
-        if (data.neighborhood?.trim()) existingCarlos.neighborhood = data.neighborhood.trim();
-        if (data.city?.trim()) existingCarlos.city = data.city.trim();
-        if (data.state?.trim()) existingCarlos.state = data.state.trim();
-        if (data.shortState?.trim()) existingCarlos.shortState = data.shortState.trim();
-        if (data.address?.trim()) existingCarlos.address = data.address.trim();
-        if (data.password?.trim()) existingCarlos.passwordHash = data.password.trim();
-        this.saveToStorage();
-        this.setActiveUser("usr_carlos_formigari");
-        return { success: true, user: existingCarlos };
-      }
-    }
-
-    // 3. Reconhecimento estrito da Cristiane Queli da Silva Gallo completando/ativando seu cadastro
-    const isCris =
-      cleanName === "cristiane queli da silva gallo" ||
-      cleanName === "cristiane gallo" ||
-      cleanName === "cristiane";
-
-    if (isCris) {
-      const existingCris = this.state.users.find((u) => u.id === "usr_cristiane_gallo");
-      if (existingCris) {
-        if (data.fullName?.trim()) existingCris.fullName = data.fullName.trim();
-        existingCris.email = data.email.trim();
-        existingCris.identifier = data.email.trim();
-        if (data.phone?.trim()) existingCris.phone = data.phone.trim();
-        if (data.cpf?.trim()) existingCris.cpf = data.cpf.trim();
-        if (data.birthDate?.trim()) existingCris.birthDate = data.birthDate.trim();
-        if (data.zipcode?.trim()) existingCris.zipcode = data.zipcode.trim();
-        if (data.street?.trim()) existingCris.street = data.street.trim();
-        if (data.number?.trim()) existingCris.number = data.number.trim();
-        if (data.complement !== undefined) existingCris.complement = data.complement.trim();
-        if (data.neighborhood?.trim()) existingCris.neighborhood = data.neighborhood.trim();
-        if (data.city?.trim()) existingCris.city = data.city.trim();
-        if (data.state?.trim()) existingCris.state = data.state.trim();
-        if (data.shortState?.trim()) existingCris.shortState = data.shortState.trim();
-        if (data.address?.trim()) existingCris.address = data.address.trim();
-        if (data.password?.trim()) existingCris.passwordHash = data.password.trim();
-        this.saveToStorage();
-        this.setActiveUser("usr_cristiane_gallo");
-        return { success: true, user: existingCris };
-      }
+      if (data.phone?.trim()) existingUser.phone = data.phone.trim();
+      if (data.cpf?.trim()) existingUser.cpf = data.cpf.trim();
+      if (data.birthDate?.trim()) existingUser.birthDate = data.birthDate.trim();
+      if (data.zipcode?.trim()) existingUser.zipcode = data.zipcode.trim();
+      if (data.street?.trim()) existingUser.street = data.street.trim();
+      if (data.number?.trim()) existingUser.number = data.number.trim();
+      if (data.complement !== undefined) existingUser.complement = data.complement.trim();
+      if (data.neighborhood?.trim()) existingUser.neighborhood = data.neighborhood.trim();
+      if (data.city?.trim()) existingUser.city = data.city.trim();
+      if (data.state?.trim()) existingUser.state = data.state.trim();
+      if (data.shortState?.trim()) existingUser.shortState = data.shortState.trim();
+      if (data.address?.trim()) existingUser.address = data.address.trim();
+      if (data.password?.trim()) existingUser.passwordHash = data.password.trim();
+      this.saveToStorage();
+      this.setActiveUser(existingUser.id);
+      return { success: true, user: existingUser };
     }
 
     // Checar duplicidade em E-mail, Celular e CPF

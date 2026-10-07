@@ -331,60 +331,172 @@ function getCorsHeaders() {
   };
 }
 
-function isAndreGallo(str?: string | null): boolean {
-  if (!str) return false;
-  const clean = str.trim().toLowerCase();
-  return (
-    clean === "usr_andre" ||
-    clean === "usr_102" ||
-    clean === "usr_101" ||
-    clean === "aacgallo@hotmail.com" ||
-    clean === "aacgallo@hotmail.com.br" ||
-    clean === "andre.gallo@netfits.com.br" ||
-    clean === "andre gallo" ||
-    clean === "andré gallo"
-  );
+/**
+ * Normaliza strings para comparações seguras:
+ * Converte para minúsculas, remove acentos diacríticos e colapsa múltiplos espaços em branco.
+ */
+export function normalizeString(str?: string | null): string {
+  if (!str) return "";
+  return String(str)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
 }
 
-function isCristianeFormigari(str?: string | null): boolean {
-  if (!str) return false;
-  const clean = str.trim().toLowerCase();
-  const digits = clean.replace(/\D/g, "");
-  const cris = globalServerUsers?.find(
-    (u) =>
-      u.id === "user-1791370530242" ||
-      u.email === "cristiane.formigari@amantikira.com.br" ||
-      u.fullName?.toLowerCase().includes("cristiane ferreira formigari")
-  );
-  const crisCpfDigits = cris?.cpf ? String(cris.cpf).replace(/\D/g, "") : "11001624882";
-  if (digits && digits.length === 11 && (digits === crisCpfDigits || digits === "11001624882")) {
-    return true;
-  }
-  return (
-    clean === "user-1791370530242" ||
-    clean === "cristiane.formigari@amantikira.com.br" ||
-    clean === "cristiane ferreira formigari" ||
-    clean === "cristiane formigari" ||
-    clean === "cristiane ferreira"
-  );
+/**
+ * Normaliza números de CPF (remove caracteres não-dígito).
+ * Retorna string vazia caso não contenha exatamente 11 dígitos numéricos válidos.
+ */
+export function normalizeCpf(str?: string | null): string {
+  if (!str) return "";
+  const digits = String(str).replace(/\D/g, "");
+  return digits.length === 11 ? digits : "";
 }
 
-function isCarlosFormigari(str?: string | null): boolean {
-  if (!str) return false;
-  const clean = str.trim().toLowerCase();
-  const digits = clean.replace(/\D/g, "");
-  const carlos = globalServerUsers?.find((u) => u.id === "usr_carlos_formigari");
-  const carlosCpfDigits = carlos?.cpf ? String(carlos.cpf).replace(/\D/g, "") : "";
-  if (digits && digits.length === 11 && carlosCpfDigits && digits === carlosCpfDigits) {
-    return true;
+/**
+ * Busca universal e determinística de usuário por qualquer identificador único (ID, CPF, E-mail, ou Nome Completo).
+ * Aplicável rigorosamente a TODO E QUALQUER USUÁRIO cadastrado na plataforma (sem exceções ou regras duras de nomes).
+ */
+export function findUserByAnyIdentifier(query?: string | null, users: any[] = globalServerUsers): any | null {
+  if (!query || typeof query !== "string") return null;
+  const clean = query.trim();
+  if (!clean) return null;
+
+  const cleanLower = clean.toLowerCase();
+  const cleanCpfDigits = normalizeCpf(clean);
+  const normalizedQueryName = normalizeString(clean);
+
+  // 1. Chave primária: ID exato
+  const byId = users.find((u) => u && u.id && String(u.id).trim() === clean);
+  if (byId) return byId;
+
+  // 2. Chave unívoca nacional: CPF de 11 dígitos
+  if (cleanCpfDigits) {
+    const byCpf = users.find((u) => {
+      const uCpf = normalizeCpf(u.cpf || u.document);
+      return Boolean(uCpf && uCpf === cleanCpfDigits);
+    });
+    if (byCpf) return byCpf;
   }
-  return (
-    clean === "usr_carlos_formigari" ||
-    clean === "usr_103" ||
-    clean === "crformigari72@gmail.com" ||
-    clean === "carlos rodrigo formigari" ||
-    clean === "carlos formigari"
-  );
+
+  // 3. Chave de acesso: E-mail exato
+  if (cleanLower.includes("@")) {
+    const byEmail = users.find((u) => {
+      const uEmail = String(u.email || u.identifier || "").trim().toLowerCase();
+      return uEmail && uEmail === cleanLower;
+    });
+    if (byEmail) return byEmail;
+  }
+
+  // 4. Nome Completo Exato (Normalizado, sem acentos, sem colisão de sobrenomes familiares)
+  if (normalizedQueryName.length >= 4) {
+    const byName = users.find((u) => {
+      const uName = normalizeString(u.fullName || u.name);
+      return Boolean(uName && uName === normalizedQueryName);
+    });
+    if (byName) return byName;
+  }
+
+  return null;
+}
+
+/**
+ * Motor Universal e Determinístico de Resolução de Usuário para Webhooks de Pedidos:
+ * Aplicável a TODO E QUALQUER USUÁRIO no ecossistema Netfits (associados, atletas, parceiros).
+ *
+ * Elimina completamente ambiguidades entre membros da mesma família ou que compartilham sobrenomes
+ * (ex: Formigari, Gallo, Silva), priorizando sempre chaves unívocas:
+ * 1. ID do Usuário (customer.ref / customerId)
+ * 2. CPF Oficial (customer.document / customer.cpf) — 11 dígitos estritos
+ * 3. E-mail Único (customer.email / customerEmail)
+ * 4. Nome Completo Exato (customer.name normalizado)
+ * 5. Auto-provisionamento Onboarding Dinâmico: caso o pedido seja a primeira compra de um novo atleta,
+ *    cria o registro completo com base nos dados do webhook (Nome, CPF, E-mail, Data de Nascimento, Endereço com CEP).
+ */
+export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUsers): any {
+  if (!rawOrder) return null;
+
+  const customerObj = rawOrder.customer || {};
+  const shippingObj = rawOrder.shipping || rawOrder.deliveryAddress || {};
+
+  const candidateRef = String(customerObj.ref || rawOrder.customerId || customerObj.id || "").trim();
+  const rawDocument = String(customerObj.document || customerObj.cpf || rawOrder.customerDocument || "").trim();
+  const cleanCpf = normalizeCpf(rawDocument) || normalizeCpf(candidateRef);
+  const candidateEmail = String(customerObj.email || rawOrder.customerEmail || "").trim().toLowerCase();
+  const rawCustomerName = String(customerObj.name || rawOrder.customerName || shippingObj.receiverName || "").trim();
+  const normalizedCustomerName = normalizeString(rawCustomerName);
+
+  // 1. MATCH POR ID DO USUÁRIO
+  if (candidateRef) {
+    const userById = users.find((u) => u && u.id && u.id === candidateRef);
+    if (userById) return userById;
+  }
+
+  // 2. MATCH POR CPF OFICIAL (11 DÍGITOS)
+  if (cleanCpf) {
+    const userByCpf = users.find((u) => {
+      const uCpf = normalizeCpf(u.cpf || u.document);
+      return Boolean(uCpf && uCpf === cleanCpf);
+    });
+    if (userByCpf) return userByCpf;
+  }
+
+  // 3. MATCH POR E-MAIL ÚNICO
+  if (candidateEmail && candidateEmail.includes("@")) {
+    const userByEmail = users.find((u) => {
+      const uEmail = String(u.email || u.identifier || "").trim().toLowerCase();
+      return uEmail && uEmail === candidateEmail;
+    });
+    if (userByEmail) return userByEmail;
+  }
+
+  // 4. MATCH POR NOME COMPLETO EXATO (Normalizado, sem acentos e sem colisão de sobrenome isolado)
+  if (normalizedCustomerName && normalizedCustomerName.length >= 4) {
+    const userByName = users.find((u) => {
+      const uName = normalizeString(u.fullName || u.name);
+      return Boolean(uName && uName === normalizedCustomerName);
+    });
+    if (userByName) return userByName;
+  }
+
+  // 5. AUTO-PROVISIONAMENTO ONBOARDING DINÂMICO
+  // Se o usuário ainda não existe na base (ex: primeira compra direta via checkout parceiro),
+  // provisiona o registro completo para que seus pontos sejam creditados imediatamente em seu próprio extrato.
+  if (candidateEmail || cleanCpf || rawCustomerName) {
+    const newUserId = candidateRef && candidateRef.startsWith("usr_")
+      ? candidateRef
+      : `usr_client_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+    const newUser = {
+      id: newUserId,
+      fullName: rawCustomerName || "Novo Atleta Netfits",
+      email: candidateEmail || "",
+      cpf: cleanCpf,
+      phone: String(customerObj.phone?.number || customerObj.phone || "").trim(),
+      birthDate: String(customerObj.birthdate || customerObj.birthDate || "").trim(),
+      address: String(shippingObj.street || "").trim(),
+      street: String(shippingObj.street || "").trim(),
+      number: String(shippingObj.number || "").trim(),
+      neighborhood: String(shippingObj.neighborhood || "").trim(),
+      city: String(shippingObj.city || "").trim(),
+      state: String(shippingObj.state || "").trim(),
+      shortState: String(shippingObj.shortState || shippingObj.state || "").slice(0, 2).toUpperCase(),
+      zipcode: String(shippingObj.zipcode || "").replace(/\D/g, ""),
+      sports: [],
+      nfsBalance: 0,
+      userCategory: "atleta",
+      registeredAt: new Date().toISOString(),
+      onboardingCompleted: true,
+      autoProvisionedFromOrder: true,
+    };
+
+    users.push(newUser);
+    return newUser;
+  }
+
+  return null;
 }
 
 function resolveUserFromToken(token?: string | null): any {
@@ -407,36 +519,27 @@ function resolveUserFromToken(token?: string | null): any {
 
   if (payload) {
     const customerId = payload.customerId || payload.sub;
-    const user = globalServerUsers.find(
-      (u) =>
-        u.id === customerId ||
-        u.email?.toLowerCase() === payload.email?.toLowerCase() ||
-        u.cpf === customerId ||
-        (isCarlosFormigari(customerId) && u.id === "usr_carlos_formigari") ||
-        (isCarlosFormigari(payload.email) && u.id === "usr_carlos_formigari") ||
-        (isAndreGallo(customerId) && u.id === "usr_andre") ||
-        (isAndreGallo(payload.email) && u.id === "usr_andre")
-    );
-    if (user) return user;
+    const email = payload.email;
+    const cpf = payload.cpf || payload.document;
+    const name = payload.name;
 
-    if (isCarlosFormigari(customerId) || isCarlosFormigari(payload.email)) {
-      const carlos = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
-      if (carlos) return carlos;
-    }
+    // Busca universal por qualquer um dos campos fornecidos no JWT
+    const found =
+      findUserByAnyIdentifier(customerId, globalServerUsers) ||
+      findUserByAnyIdentifier(cpf, globalServerUsers) ||
+      findUserByAnyIdentifier(email, globalServerUsers) ||
+      findUserByAnyIdentifier(name, globalServerUsers);
 
-    if (isAndreGallo(customerId) || isAndreGallo(payload.email)) {
-      const andre = globalServerUsers.find((u) => u.id === "usr_andre");
-      if (andre) return andre;
-    }
+    if (found) return found;
 
-    const rawCpf = String(payload.cpf || payload.document || "").replace(/\D/g, "");
-    const rawPhone = String(payload.phone || "").trim();
+    // Auto-provisionamento caso não exista
+    const cleanCpf = normalizeCpf(cpf);
     const fallbackUser = {
       id: customerId || `usr_${Date.now()}`,
-      fullName: payload.name || "Atleta Netfits",
-      email: payload.email || "",
-      phone: rawPhone,
-      cpf: rawCpf,
+      fullName: name || "Atleta Netfits",
+      email: email || "",
+      phone: String(payload.phone || "").trim(),
+      cpf: cleanCpf,
       birthDate: payload.birthDate || payload.birthdate || "",
       address: "",
       street: "",
@@ -453,22 +556,11 @@ function resolveUserFromToken(token?: string | null): any {
     return fallbackUser;
   }
 
-  // Token em texto puro / ID direto
-  const found = globalServerUsers.find(
-    (u) =>
-      u.id === cleanToken ||
-      u.email?.toLowerCase() === cleanToken.toLowerCase() ||
-      (isCarlosFormigari(cleanToken) && u.id === "usr_carlos_formigari") ||
-      (isAndreGallo(cleanToken) && u.id === "usr_andre")
-  );
-  if (found) return found;
+  // Token direto em texto puro / ID / CPF / E-mail
+  const foundDirect = findUserByAnyIdentifier(cleanToken, globalServerUsers);
+  if (foundDirect) return foundDirect;
 
-  if (isCarlosFormigari(cleanToken)) {
-    const carlos = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
-    if (carlos) return carlos;
-  }
-
-  // Fallback definitivo
+  // Fallback padrão se token vazio ou irreconhecível
   return globalServerUsers[0];
 }
 
@@ -761,57 +853,8 @@ export default {
         const incomingStatus = String(rawOrder?.status || rawOrder?.paymentStatus || "WAITING-PAYMENT").toUpperCase().replace(/_/g, "-");
 
         try {
-          // Identificação do Usuário Comprador (Matching)
-          const customerEmail = rawOrder?.customer?.email || rawOrder?.customerEmail;
-          const customerRef = rawOrder?.customer?.ref || rawOrder?.customer?.document || rawOrder?.customerId;
-          const customerName = rawOrder?.customer?.name || rawOrder?.customerName || rawOrder?.shipping?.receiverName;
-
-          // 1. Prioridade absoluta para o e-mail real do comprador
-          let user = customerEmail
-            ? globalServerUsers.find(
-                (u) =>
-                  u.email?.toLowerCase() === String(customerEmail).toLowerCase() ||
-                  (isCristianeFormigari(String(customerEmail)) && (u.id === "user-1791370530242" || u.email === "cristiane.formigari@amantikira.com.br")) ||
-                  (isCarlosFormigari(String(customerEmail)) && u.id === "usr_carlos_formigari") ||
-                  (isAndreGallo(String(customerEmail)) && u.id === "usr_andre")
-              )
-            : null;
-
-          // 2. Se não encontrou por e-mail, busca por nome real
-          if (!user && customerName) {
-            user = globalServerUsers.find(
-              (u) =>
-                (isCristianeFormigari(String(customerName)) && (u.id === "user-1791370530242" || u.fullName?.toLowerCase().includes("cristiane ferreira formigari"))) ||
-                (isCarlosFormigari(String(customerName)) && u.id === "usr_carlos_formigari") ||
-                (isAndreGallo(String(customerName)) && u.id === "usr_andre") ||
-                (u.fullName && String(u.fullName).trim().toLowerCase() === String(customerName).trim().toLowerCase())
-            );
-          }
-
-          // 3. Fallback: busca por ref ou documento/CPF
-          if (!user && customerRef) {
-            const cleanRefDigits = String(customerRef).replace(/\D/g, "");
-            user = globalServerUsers.find(
-              (u) =>
-                u.id === customerRef ||
-                u.cpf === customerRef ||
-                (cleanRefDigits && cleanRefDigits.length === 11 && u.cpf && String(u.cpf).replace(/\D/g, "") === cleanRefDigits) ||
-                (isCristianeFormigari(customerRef) && (u.id === "user-1791370530242" || u.email === "cristiane.formigari@amantikira.com.br")) ||
-                (isCarlosFormigari(customerRef) && u.id === "usr_carlos_formigari") ||
-                (isAndreGallo(customerRef) && u.id === "usr_andre")
-            );
-          }
-
-          // 4. Se ainda não encontrado, atribui conforme referências
-          if (!user) {
-            if (isCristianeFormigari(customerRef) || isCristianeFormigari(customerName) || isCristianeFormigari(customerEmail)) {
-              user = globalServerUsers.find((u) => u.id === "user-1791370530242" || u.email === "cristiane.formigari@amantikira.com.br");
-            } else if (isCarlosFormigari(customerRef) || isCarlosFormigari(customerName) || isCarlosFormigari(customerEmail)) {
-              user = globalServerUsers.find((u) => u.id === "usr_carlos_formigari");
-            } else if (isAndreGallo(customerRef) || isAndreGallo(customerName) || isAndreGallo(customerEmail)) {
-              user = globalServerUsers.find((u) => u.id === "usr_andre");
-            }
-          }
+          // Identificação Universal e Determinística do Usuário Comprador (Motor de Resolução Netfits)
+          const user = resolveUserForOrder(rawOrder, globalServerUsers);
 
           const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
 
@@ -1081,36 +1124,27 @@ export default {
             const body = await req.json();
             const lookupId = body?.userId || body?.id;
             const lookupEmail = body?.email || body?.identifier;
+            const lookupCpf = body?.cpf || body?.document;
+            const lookupName = body?.fullName || body?.name;
 
-            if (lookupId || lookupEmail) {
-              if (isCarlosFormigari(lookupId) || isCarlosFormigari(lookupEmail)) {
-                targetUser = globalServerUsers.find((u) => u.id === "usr_carlos_formigari") || {
-                  id: "usr_carlos_formigari",
-                  fullName: body?.fullName || "Carlos Rodrigo Formigari",
-                  email: "crformigari72@gmail.com",
+            if (lookupId || lookupEmail || lookupCpf || lookupName) {
+              const found =
+                findUserByAnyIdentifier(lookupId, globalServerUsers) ||
+                findUserByAnyIdentifier(lookupCpf, globalServerUsers) ||
+                findUserByAnyIdentifier(lookupEmail, globalServerUsers) ||
+                findUserByAnyIdentifier(lookupName, globalServerUsers);
+              if (found) {
+                targetUser = found;
+              } else {
+                targetUser = {
+                  id: lookupId || `usr_${Date.now()}`,
+                  fullName: lookupName || "Atleta Netfits",
+                  email: lookupEmail || "",
+                  cpf: normalizeCpf(lookupCpf) || undefined,
                   nfsBalance: 50,
                   userCategory: "atleta",
                 };
-              } else if (isAndreGallo(lookupId) || isAndreGallo(lookupEmail)) {
-                targetUser = globalServerUsers.find((u) => u.id === "usr_andre") || globalServerUsers[0];
-              } else {
-                const found = globalServerUsers.find(
-                  (u) =>
-                    u.id === lookupId ||
-                    u.email?.toLowerCase() === String(lookupEmail || lookupId).toLowerCase()
-                );
-                if (found) {
-                  targetUser = found;
-                } else {
-                  targetUser = {
-                    id: lookupId || `usr_${Date.now()}`,
-                    fullName: body?.fullName || "Atleta Netfits",
-                    email: lookupEmail || "",
-                    nfsBalance: 50,
-                    userCategory: "atleta",
-                  };
-                  globalServerUsers.push(targetUser);
-                }
+                globalServerUsers.push(targetUser);
               }
             }
             // Atualização imediata dos dados cadastrais (CPF, telefone, endereço) no servidor
@@ -1149,35 +1183,31 @@ export default {
         } else if (req.method === "GET") {
           const userId = url.searchParams.get("userId") || url.searchParams.get("id");
           const email = url.searchParams.get("email");
-          const lookup = userId || email;
+          const cpf = url.searchParams.get("cpf") || url.searchParams.get("document");
+          const fullName = url.searchParams.get("fullName") || url.searchParams.get("name");
 
-          if (lookup) {
-            if (isCarlosFormigari(lookup)) {
-              targetUser = globalServerUsers.find((u) => u.id === "usr_carlos_formigari") || globalServerUsers[1];
-            } else if (isAndreGallo(lookup)) {
-              targetUser = globalServerUsers.find((u) => u.id === "usr_andre") || globalServerUsers[0];
+          if (userId || email || cpf || fullName) {
+            const found =
+              findUserByAnyIdentifier(userId, globalServerUsers) ||
+              findUserByAnyIdentifier(cpf, globalServerUsers) ||
+              findUserByAnyIdentifier(email, globalServerUsers) ||
+              findUserByAnyIdentifier(fullName, globalServerUsers);
+            if (found) {
+              targetUser = found;
             } else {
-              const found = globalServerUsers.find(
-                (u) =>
-                  u.id === lookup ||
-                  u.email?.toLowerCase() === lookup.toLowerCase()
-              );
-              if (found) {
-                targetUser = found;
-              } else {
-                targetUser = {
-                  id: userId || `usr_${Date.now()}`,
-                  fullName: url.searchParams.get("fullName") || "Atleta Netfits",
-                  email: email || "",
-                  nfsBalance: 50,
-                  userCategory: "atleta",
-                };
-                globalServerUsers.push(targetUser);
-              }
+              targetUser = {
+                id: userId || `usr_${Date.now()}`,
+                fullName: fullName || "Atleta Netfits",
+                email: email || "",
+                cpf: normalizeCpf(cpf) || undefined,
+                nfsBalance: 50,
+                userCategory: "atleta",
+              };
+              globalServerUsers.push(targetUser);
             }
 
-            const getCpf = url.searchParams.get("cpf") || url.searchParams.get("document");
-            if (getCpf) targetUser.cpf = getCpf.replace(/\D/g, "");
+            const getCpf = cpf;
+            if (getCpf) targetUser.cpf = normalizeCpf(getCpf) || targetUser.cpf;
             const getPhone = url.searchParams.get("phone");
             if (getPhone) targetUser.phone = getPhone.trim();
             const getAddress = url.searchParams.get("address");
@@ -1323,19 +1353,17 @@ export default {
             if (u && u.id) userMap.set(u.id, u);
           }
           for (const rawUser of incomingUsers) {
-            if (rawUser && (rawUser.id || rawUser.email)) {
+            if (rawUser && (rawUser.id || rawUser.email || rawUser.cpf || rawUser.fullName)) {
               const u = purgeFabricatedMockData(rawUser);
-              const targetId = isCarlosFormigari(u.id) || isCarlosFormigari(u.email)
-                ? "usr_carlos_formigari"
-                : isAndreGallo(u.id) || isAndreGallo(u.email)
-                ? "usr_andre"
-                : u.id;
+              const found =
+                findUserByAnyIdentifier(u.id, globalServerUsers) ||
+                findUserByAnyIdentifier(u.cpf || u.document, globalServerUsers) ||
+                findUserByAnyIdentifier(u.email || u.identifier, globalServerUsers) ||
+                findUserByAnyIdentifier(u.fullName || u.name, globalServerUsers);
+              const targetId = found ? found.id : (u.id || `usr_${Date.now()}`);
               u.id = targetId;
-              if (targetId === "usr_carlos_formigari") {
-                u.email = "crformigari72@gmail.com";
-                if (!u.fullName) u.fullName = "Carlos Rodrigo Formigari";
-              }
-              const existing = userMap.get(targetId);
+
+              const existing = userMap.get(targetId) || found;
               const merged = { ...existing };
               for (const [key, val] of Object.entries(u)) {
                 if (val !== undefined && val !== null && val !== "") {
@@ -1371,8 +1399,16 @@ export default {
             }
             for (const rawTx of incomingTxs) {
               if (rawTx && rawTx.id) {
-                if (isCarlosFormigari(rawTx.userId)) rawTx.userId = "usr_carlos_formigari";
-                if (isAndreGallo(rawTx.userId)) rawTx.userId = "usr_andre";
+                if (rawTx.userId) {
+                  const resolvedUser =
+                    findUserByAnyIdentifier(rawTx.userId, globalServerUsers) ||
+                    findUserByAnyIdentifier(rawTx.userEmail, globalServerUsers) ||
+                    findUserByAnyIdentifier(rawTx.userName, globalServerUsers);
+                  if (resolvedUser) {
+                    rawTx.userId = resolvedUser.id;
+                    if (!rawTx.userName && resolvedUser.fullName) rawTx.userName = resolvedUser.fullName;
+                  }
+                }
                 txMap.set(rawTx.id, rawTx);
               }
             }
@@ -1422,12 +1458,14 @@ export default {
     // ==========================================
     if (url.pathname === "/api/transactions-sync" || url.pathname === "/api/transactions-sync/") {
       const filterUserId = url.searchParams.get("userId") || url.searchParams.get("id");
-      const txs = filterUserId
+      let matchedUserId: string | null = null;
+      if (filterUserId) {
+        const found = findUserByAnyIdentifier(filterUserId, globalServerUsers);
+        matchedUserId = found ? found.id : filterUserId;
+      }
+      const txs = matchedUserId
         ? globalServerTransactions.filter(
-            (t) =>
-              t.userId === filterUserId ||
-              (isCarlosFormigari(filterUserId) && t.userId === "usr_carlos_formigari") ||
-              (isAndreGallo(filterUserId) && t.userId === "usr_andre")
+            (t) => t.userId === matchedUserId || t.userId === filterUserId
           )
         : globalServerTransactions;
 
