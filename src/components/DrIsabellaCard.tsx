@@ -138,26 +138,26 @@ export function DrIsabellaCard() {
 
       {/* Status da Trava Antifraude no Card */}
       {rewarded ? (
-        <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-600 dark:text-lime-400 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="size-4 shrink-0" />
+        <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-700 text-xs font-bold flex items-center gap-2">
+          <CheckCircle2 className="size-4 shrink-0 text-lime-600" />
           <span>Vídeo assistido (90%+ de retenção) — +10 nfs creditados</span>
         </div>
       ) : (
-        <div className="mb-3 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-medium flex items-center justify-between">
+        <div className="mb-3 p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-[11px] font-medium flex items-center justify-between">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-4 text-lime-400 shrink-0" />
+            <ShieldCheck className="size-4 text-purple-600 shrink-0" />
             <span>Regra Antifraude: Assista 90% do vídeo para receber +10 nfs</span>
           </span>
-          <span className="font-mono text-lime-400 font-bold">{progress}%</span>
+          <span className="font-mono text-purple-700 font-bold">{progress}%</span>
         </div>
       )}
 
       <button
         type="button"
         onClick={handleOpenVideo}
-        className="w-full bg-foreground text-background text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 cursor-pointer transition hover:opacity-90"
+        className="w-full bg-zinc-900 text-white text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 cursor-pointer transition hover:bg-zinc-800"
       >
-        <Play className="size-4 fill-background" />
+        <Play className="size-4 fill-white" />
         Assistir vídeo · 4:12 (+10 nfs)
       </button>
 
@@ -169,7 +169,7 @@ export function DrIsabellaCard() {
           aria-label="Vídeo Dra. Isabella Formigari"
         >
           <div
-            className="w-full max-w-md bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-zinc-200 dark:border-zinc-800"
+            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-zinc-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Player de Vídeo com Barra de Retenção */}
@@ -185,17 +185,17 @@ export function DrIsabellaCard() {
                 <button
                   type="button"
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="size-16 rounded-full bg-background/95 grid place-items-center shadow-lg cursor-pointer hover:scale-105 transition"
+                  className="size-16 rounded-full bg-white/95 grid place-items-center shadow-lg cursor-pointer hover:scale-105 transition"
                   aria-label={isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
                 >
-                  <Play className={`size-7 ml-0.5 fill-foreground text-foreground ${isPlaying ? "opacity-50" : ""}`} />
+                  <Play className={`size-7 ml-0.5 fill-zinc-900 text-zinc-900 ${isPlaying ? "opacity-50" : ""}`} />
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={handleClose}
-                className="absolute top-3 right-3 size-9 rounded-full bg-background/90 grid place-items-center cursor-pointer"
+                className="absolute top-3 right-3 size-9 rounded-full bg-white/90 text-zinc-900 grid place-items-center cursor-pointer hover:bg-white"
                 aria-label="Fechar"
               >
                 <X className="size-5" />
@@ -213,15 +213,15 @@ export function DrIsabellaCard() {
             </div>
 
             {/* Barra de Retenção Visual */}
-            <div className="p-4 bg-zinc-100 dark:bg-zinc-800/80 border-b border-zinc-200 dark:border-zinc-700/60 space-y-2">
+            <div className="p-4 bg-zinc-50 border-b border-zinc-200 space-y-2">
               <div className="flex justify-between text-xs font-semibold">
-                <span className="text-zinc-600 dark:text-zinc-300">Retenção de Vídeo Auditada:</span>
-                <span className="font-mono font-bold text-purple-600 dark:text-lime-400">
+                <span className="text-zinc-700">Retenção de Vídeo Auditada:</span>
+                <span className="font-mono font-bold text-purple-700">
                   {progress}% {progress >= 90 ? "✔ (Mínimo 90% atingido)" : ""}
                 </span>
               </div>
 
-              <div className="h-2.5 w-full bg-zinc-300 dark:bg-zinc-700 rounded-full overflow-hidden">
+              <div className="h-2.5 w-full bg-zinc-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-purple-600 to-lime-400 rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
@@ -229,12 +229,12 @@ export function DrIsabellaCard() {
               </div>
 
               {progress < 90 ? (
-                <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                <p className="text-[11px] text-amber-800 font-medium">
                   ⚠️ <b>Regra Antifraude:</b> Assista ao menos 90% do vídeo para validar a retenção e liberar os 10 nfs.
                 </p>
               ) : (
-                <p className="text-[11px] text-lime-600 dark:text-lime-400 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="size-3.5" />
+                <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="size-3.5 text-emerald-600" />
                   Parabéns! Retenção de 90% validada e +10 nfs creditados com sucesso.
                 </p>
               )}
