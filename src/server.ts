@@ -130,6 +130,38 @@ function purgeFabricatedMockData(u: any): any {
 }
 
 let globalServerUsers: any[] = DEFAULT_PRESEEDED_USERS.map(purgeFabricatedMockData);
+
+const DEFAULT_PRESEEDED_TRANSACTIONS = [
+  {
+    id: "tx-welcome-andre",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+    category: "welcome",
+    timestamp: "2026-10-05T00:00:00Z",
+  },
+  {
+    id: "tx-welcome-carlos",
+    userId: "usr_carlos_formigari",
+    userName: "Carlos Rodrigo Formigari",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+    category: "welcome",
+    timestamp: "2026-10-06T00:00:00Z",
+  },
+  {
+    id: "tx-welcome-cristiane",
+    userId: "usr_cristiane_gallo",
+    userName: "Cristiane Queli da Silva Gallo",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+    category: "welcome",
+    timestamp: "2026-10-06T00:00:00Z",
+  },
+];
+
+let globalServerTransactions: any[] = [...DEFAULT_PRESEEDED_TRANSACTIONS];
 let lastSyncTimestamp = new Date().toISOString();
 
 const handler = createStartHandler(defaultStreamHandler);
@@ -948,6 +980,30 @@ export default {
               userMap.set(targetId, purgeFabricatedMockData(merged));
             }
           }
+          // Processamento e sincronização em tempo real de transações e histórico de ações
+          const incomingTxs = Array.isArray(body?.transactions)
+            ? body.transactions
+            : body?.transaction
+            ? [body.transaction]
+            : [];
+
+          if (incomingTxs.length > 0) {
+            const txMap = new Map<string, any>();
+            for (const tx of globalServerTransactions) {
+              if (tx && tx.id) txMap.set(tx.id, tx);
+            }
+            for (const rawTx of incomingTxs) {
+              if (rawTx && rawTx.id) {
+                if (isCarlosFormigari(rawTx.userId)) rawTx.userId = "usr_carlos_formigari";
+                if (isAndreGallo(rawTx.userId)) rawTx.userId = "usr_andre";
+                txMap.set(rawTx.id, rawTx);
+              }
+            }
+            globalServerTransactions = Array.from(txMap.values()).sort(
+              (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          }
+
           globalServerUsers = Array.from(userMap.values());
           lastSyncTimestamp = new Date().toISOString();
 
@@ -956,6 +1012,8 @@ export default {
               success: true,
               count: globalServerUsers.length,
               users: globalServerUsers,
+              transactions: globalServerTransactions,
+              transactionsCount: globalServerTransactions.length,
               updatedAt: lastSyncTimestamp,
             }),
             { status: 200, headers: corsHeaders }
@@ -968,12 +1026,39 @@ export default {
         }
       }
 
-      // GET: Retornar todos os usuários sincronizados no servidor
+      // GET: Retornar todos os usuários e extrato de transações sincronizados no servidor
       return new Response(
         JSON.stringify({
           success: true,
           count: globalServerUsers.length,
           users: globalServerUsers,
+          transactions: globalServerTransactions,
+          transactionsCount: globalServerTransactions.length,
+          updatedAt: lastSyncTimestamp,
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
+    // ==========================================
+    // ENDPOINTS DE EXTRATO DE TRANSAÇÕES EM TEMPO REAL
+    // ==========================================
+    if (url.pathname === "/api/transactions-sync" || url.pathname === "/api/transactions-sync/") {
+      const filterUserId = url.searchParams.get("userId") || url.searchParams.get("id");
+      const txs = filterUserId
+        ? globalServerTransactions.filter(
+            (t) =>
+              t.userId === filterUserId ||
+              (isCarlosFormigari(filterUserId) && t.userId === "usr_carlos_formigari") ||
+              (isAndreGallo(filterUserId) && t.userId === "usr_andre")
+          )
+        : globalServerTransactions;
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          count: txs.length,
+          transactions: txs,
           updatedAt: lastSyncTimestamp,
         }),
         { status: 200, headers: corsHeaders }

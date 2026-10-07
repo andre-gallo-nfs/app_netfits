@@ -770,10 +770,15 @@ function AdminDashboardPage() {
     referralCode: "",
   });
 
+  const [sandboxTransactionsList, setSandboxTransactionsList] = useState(() => sharedSandboxStore.getTransactions());
+  const [viewingStatementUserId, setViewingStatementUserId] = useState<string | null>(null);
+
   useEffect(() => {
     setSandboxUsersList(sharedSandboxStore.getUsers());
+    setSandboxTransactionsList(sharedSandboxStore.getTransactions());
     const unsub = sharedSandboxStore.subscribe(() => {
       setSandboxUsersList([...sharedSandboxStore.getUsers()]);
+      setSandboxTransactionsList([...sharedSandboxStore.getTransactions()]);
     });
     return () => unsub();
   }, []);
@@ -4204,6 +4209,13 @@ function AdminDashboardPage() {
                                   <LogIn className="size-3" />
                                   <span>{isCurrentActive ? "Ativo" : "Assumir"}</span>
                                 </button>
+                                <button
+                                  onClick={() => setViewingStatementUserId(u.id)}
+                                  className="p-1.5 rounded-lg bg-zinc-850 hover:bg-zinc-700 text-lime-400 hover:text-white transition cursor-pointer"
+                                  title="Ver Extrato de Ações e Transações em Tempo Real"
+                                >
+                                  <FileText className="size-3" />
+                                </button>
                                 {u.id !== "user-admin" && (
                                   <button
                                     onClick={() => {
@@ -4226,6 +4238,135 @@ function AdminDashboardPage() {
                 </table>
               </div>
             </div>
+
+            {/* AUDITORIA GLOBAL DE AÇÕES E TRANSAÇÕES EM TEMPO REAL */}
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <div>
+                  <h3 className="font-bold text-white text-base flex items-center gap-2">
+                    <Activity className="size-5 text-lime-400" />
+                    <span>Auditoria Global de Ações & Transações em Tempo Real</span>
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Log de telemetria centralizado e sincronizado em tempo real ({sandboxTransactionsList.length} ações registradas).
+                  </p>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-400 text-xs font-mono font-bold flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
+                  Nuvem Ao Vivo (3s Polling)
+                </span>
+              </div>
+
+              <div className="overflow-x-auto max-h-80 overflow-y-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-zinc-800 text-[10px] uppercase font-bold text-zinc-400">
+                      <th className="py-2 px-3">Data / Hora</th>
+                      <th className="py-2 px-3">Usuário</th>
+                      <th className="py-2 px-3">Categoria</th>
+                      <th className="py-2 px-3">Descrição da Ação</th>
+                      <th className="py-2 px-3 text-right">Pontos</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60 font-mono">
+                    {sandboxTransactionsList.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-6 text-center text-zinc-500">
+                          Nenhuma ação registrada ainda.
+                        </td>
+                      </tr>
+                    ) : (
+                      sandboxTransactionsList.slice(0, 30).map((tx) => (
+                        <tr key={tx.id} className="hover:bg-zinc-900/50">
+                          <td className="py-2 px-3 text-zinc-500 whitespace-nowrap">
+                            {new Date(tx.timestamp).toLocaleString("pt-BR")}
+                          </td>
+                          <td className="py-2 px-3 font-bold text-white whitespace-nowrap">
+                            {tx.userName || tx.userId}
+                          </td>
+                          <td className="py-2 px-3">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-950/60 text-purple-300 border border-purple-500/30 uppercase">
+                              {tx.category}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-zinc-300 font-sans">
+                            {tx.description}
+                          </td>
+                          <td className={`py-2 px-3 text-right font-bold whitespace-nowrap ${
+                            tx.amount >= 0 ? "text-lime-400" : "text-red-400"
+                          }`}>
+                            {tx.amount >= 0 ? `+${tx.amount}` : tx.amount} nfs
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* MODAL: EXTRATO INDIVIDUAL DE AÇÕES EM TEMPO REAL */}
+            {viewingStatementUserId && (() => {
+              const targetUser = sandboxUsersList.find((u) => u.id === viewingStatementUserId);
+              const userTxs = sandboxTransactionsList.filter((tx) => tx.userId === viewingStatementUserId);
+              return (
+                <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                  <div className="bg-zinc-950 border border-purple-500/40 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-4 animate-in zoom-in-95 max-h-[85vh] flex flex-col">
+                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                      <div>
+                        <h3 className="font-bold text-white text-base flex items-center gap-2">
+                          <FileText className="size-5 text-lime-400" />
+                          <span>Extrato de Ações — {targetUser?.fullName || "Usuário"}</span>
+                        </h3>
+                        <p className="text-xs text-zinc-400 mt-0.5">
+                          Saldo Atual: <strong className="text-lime-400 font-mono">{targetUser?.nfsBalance ?? 0} nfs</strong> · {userTxs.length} ações auditadas
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setViewingStatementUserId(null)}
+                        className="size-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white grid place-items-center cursor-pointer"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                      {userTxs.length === 0 ? (
+                        <div className="text-center py-10 text-zinc-500 text-xs">
+                          Nenhuma ação ou movimentação registrada para este usuário ainda.
+                        </div>
+                      ) : (
+                        userTxs.map((tx) => (
+                          <div
+                            key={tx.id}
+                            className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between text-xs"
+                          >
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-zinc-200">{tx.description}</span>
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-950/60 text-purple-300 border border-purple-500/30 uppercase">
+                                  {tx.category}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-zinc-500">
+                                {new Date(tx.timestamp).toLocaleString("pt-BR")}
+                              </p>
+                            </div>
+                            <span
+                              className={`font-mono font-bold text-sm ${
+                                tx.amount >= 0 ? "text-lime-400" : "text-red-400"
+                              }`}
+                            >
+                              {tx.amount >= 0 ? `+${tx.amount}` : tx.amount} nfs
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* MODAL: CRIAR NOVO USUÁRIO DE TESTE */}
             {showAddTestUserModal && (

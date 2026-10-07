@@ -290,10 +290,10 @@ class HomologationSandboxStore {
         this.syncFromCloud();
       }, 500);
 
-      // Polling periódico automático (a cada 6s) para buscar cadastros feitos em outros celulares
+      // Polling periódico automático (a cada 3s) para buscar cadastros, ações e saldo em tempo real
       setInterval(() => {
         this.syncFromCloud();
-      }, 6000);
+      }, 3000);
 
       window.addEventListener("focus", () => {
         this.syncFromCloud();
@@ -337,7 +337,7 @@ class HomologationSandboxStore {
               for (const [key, val] of Object.entries(su)) {
                 if (val !== undefined && val !== null && val !== "") {
                   if (key === "nfsBalance") {
-                    (merged as any)[key] = Math.max(Number(val) || 0, Number((current as any)[key]) || 0);
+                    (merged as any)[key] = Number(val) ?? (current as any)[key];
                   } else if (key === "passwordHash") {
                     (merged as any)[key] = val || (current as any)[key];
                   } else {
@@ -351,6 +351,28 @@ class HomologationSandboxStore {
             }
           }
           this.saveToStorageLocally();
+        }
+
+        // 3. Sincronização em tempo real de extrato de transações e histórico de ações
+        const serverTxs: SandboxTransaction[] = json?.transactions || [];
+        if (Array.isArray(serverTxs) && serverTxs.length > 0) {
+          const txMap = new Map<string, SandboxTransaction>();
+          for (const tx of this.state.transactions) {
+            if (tx && tx.id) txMap.set(tx.id, tx);
+          }
+          let hasNewTx = false;
+          for (const stx of serverTxs) {
+            if (stx && stx.id && !txMap.has(stx.id)) {
+              txMap.set(stx.id, stx);
+              hasNewTx = true;
+            }
+          }
+          if (hasNewTx) {
+            this.state.transactions = Array.from(txMap.values()).sort(
+              (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+            this.saveToStorageLocally();
+          }
         }
       }
       this.notify();
@@ -368,11 +390,14 @@ class HomologationSandboxStore {
       this.saveToStorageLocally();
       this.broadcastChannel?.postMessage("sync");
 
-      // Transmite cadastro/atualização para o servidor global assincronamente
+      // Transmite cadastro, atualização de saldos E extrato completo de ações para o servidor global assincronamente
       await fetch("/api/users-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ users: this.state.users }),
+        body: JSON.stringify({
+          users: this.state.users,
+          transactions: this.state.transactions,
+        }),
       });
     } catch (err) {
       console.warn("[CloudSync Push Warning]", err);
