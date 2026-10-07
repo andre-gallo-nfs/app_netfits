@@ -50,6 +50,7 @@ function WalletPage() {
           <div className="mt-5 relative z-10">
             <Link
               to="/market"
+              aria-label="Usar pontos Netfits no Shop Oficial"
               className="w-full bg-brand text-brand-foreground text-xs font-bold py-3 rounded-full hover:brightness-110 active:scale-95 transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <ShoppingBag className="size-4" />
@@ -71,7 +72,7 @@ function WalletPage() {
         {balance === 0 ? (
           <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-center space-y-1">
             <p className="text-xs font-bold text-zinc-300">Nenhum lote de pontos ativo no momento</p>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-zinc-400">
               Pratique atividades físicas ou interaja no feed para receber seus primeiros pontos nfs!
             </p>
           </div>
@@ -92,7 +93,7 @@ function WalletPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-foreground">{batch.source}</span>
                     {batch.isNext && (
-                      <span className="text-[9px] font-bold bg-lime-400 text-zinc-950 px-2 py-0.2 rounded-full">
+                      <span className="text-[9px] font-bold bg-lime-400 text-zinc-950 px-2 py-0.5 rounded-full">
                         🟢 Lote Ativo
                       </span>
                     )}

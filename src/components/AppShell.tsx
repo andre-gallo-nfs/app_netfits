@@ -43,6 +43,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         }
       });
     }
+    // Inicializar status bar nativa do celular (evita sobreposição)
+    nativeBridge.initNativeStatusBar();
     // Checagem de atualizações transparentes em nuvem (Over-The-Air)
     nativeBridge.checkForLiveUpdates();
   }, []);
@@ -91,11 +93,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen w-full flex justify-center bg-zinc-200/40">
       <div className="w-full max-w-md min-h-screen bg-background flex flex-col relative shadow-2xl ring-1 ring-black/5">
-        <TopBar />
+        {path !== "/profile" && <TopBar />}
         <main className={`flex-1 ${path === "/market" ? "overflow-hidden pb-16" : "overflow-y-auto pb-28"}`}>{children}</main>
         <NetfitAiAssistant />
-        {/* Footer Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */}
-        <nav className="fixed bottom-0 w-full max-w-md bg-white text-zinc-500 border-t border-zinc-200 px-6 pt-3 pb-8 flex items-center justify-between z-40 shadow-lg">
+        {/* Footer Navigation Bar (Cor Branco Sólido com Safe Area Inferior para Gestos e Home Bar) */}
+        <nav
+          className="fixed bottom-0 w-full max-w-md bg-white text-zinc-600 border-t border-zinc-200 px-6 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] flex items-center justify-between z-40 shadow-lg"
+          aria-label="Navegação Principal do Aplicativo"
+        >
           {tabs.map((t) => {
             const active = path === t.to;
             const Icon = t.icon;
@@ -103,12 +108,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={t.to}
                 to={t.to}
-                className={`flex flex-col items-center gap-1 transition-all active:scale-95 ${
+                aria-label={`Aba ${t.label}`}
+                aria-current={active ? "page" : undefined}
+                className={`flex flex-col items-center justify-center min-h-[44px] min-w-[48px] gap-1 transition-all active:scale-95 ${
                   active ? "text-purple-600 font-bold" : "text-zinc-500 hover:text-zinc-900"
                 }`}
               >
-                <Icon className="size-5 shrink-0" strokeWidth={active ? 2.5 : 2} />
-                <span className="text-[10px] font-medium">{t.label}</span>
+                <Icon className="size-5 shrink-0" strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
+                <span className="text-[10px] font-medium leading-none">{t.label}</span>
               </Link>
             );
           })}
@@ -136,12 +143,19 @@ function TopBar() {
     : "NF";
 
   return (
-    /* Header Navigation Bar (Cor Branco Sólido Sem Transparência - bg-white) */
-    <header className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3 py-2.5 flex items-center justify-between shadow-xs">
-      <Link to="/feed" className="flex items-center gap-2 shrink-0" aria-label="Netfits Feed Principal">
+    /* Header Navigation Bar (Protegido por Safe Area Superior para nunca ser sobreposto pela barra de status) */
+    <header
+      className="sticky top-0 z-30 bg-white text-zinc-900 border-b border-zinc-200 px-3.5 pt-[calc(env(safe-area-inset-top,0px)+0.625rem)] pb-2.5 flex items-center justify-between shadow-xs transition-all"
+      role="banner"
+    >
+      <Link
+        to="/feed"
+        className="flex items-center gap-2 shrink-0 py-1 min-h-[44px]"
+        aria-label="Ir para o Feed Principal Netfits"
+      >
         <img
           src={netfitsDarkLogo}
-          alt="Netfits"
+          alt="Netfits Logo"
           className="h-8 w-auto object-contain shrink-0 rounded-lg shadow-sm"
         />
         <span className="font-extrabold tracking-tight text-xl text-zinc-900">
@@ -151,19 +165,21 @@ function TopBar() {
       <div className="flex items-center gap-1.5 shrink-0">
         <Link
           to="/wallet"
-          className="bg-zinc-100 text-zinc-900 rounded-full px-2 py-0.5 flex items-center gap-1 ring-1 ring-zinc-200 hover:bg-zinc-200 transition"
+          aria-label={`Carteira Netfits: ${balance.toLocaleString("pt-BR")} nfs`}
+          className="bg-zinc-100 text-zinc-900 rounded-full px-2.5 py-1 min-h-[36px] flex items-center gap-1.5 ring-1 ring-zinc-200 hover:bg-zinc-200 active:scale-95 transition"
         >
-          <div className="size-3.5 bg-purple-600 rounded-full flex items-center justify-center">
-            <span className="text-[6px] font-extrabold text-white">nfs</span>
+          <div className="size-4 bg-purple-600 rounded-full flex items-center justify-center shrink-0">
+            <span className="text-[7px] font-extrabold text-white">nfs</span>
           </div>
           <span className="text-[11px] font-mono font-extrabold tracking-wider text-purple-700">{balance.toLocaleString("pt-BR")}</span>
         </Link>
 
         <Link
           to="/levels"
-          className="bg-purple-50 text-purple-700 rounded-full px-2 py-0.5 flex items-center gap-1 ring-1 ring-purple-200 font-bold hover:bg-purple-100 transition-all text-[9px]"
+          aria-label={`Galeria de Selos: ${unlockedCount} de ${totalCount} badges`}
+          className="bg-purple-50 text-purple-700 rounded-full px-2.5 py-1 min-h-[36px] flex items-center gap-1 ring-1 ring-purple-200 font-bold hover:bg-purple-100 active:scale-95 transition-all text-[9.5px]"
         >
-          <Award className="size-3 text-purple-600 shrink-0" />
+          <Award className="size-3.5 text-purple-600 shrink-0" aria-hidden="true" />
           <span className="font-extrabold">{unlockedCount}/{totalCount} Badges</span>
         </Link>
 
@@ -171,16 +187,17 @@ function TopBar() {
           type="button"
           onClick={() => appLockStore.lock()}
           title="Bloquear aplicativo (Exigir Biometria/Senha)"
-          className="size-7 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 grid place-items-center transition cursor-pointer"
+          aria-label="Bloquear aplicativo e exigir biometria ou senha"
+          className="size-9 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 grid place-items-center transition cursor-pointer active:scale-95"
         >
-          <Lock className="size-3.5" />
+          <Lock className="size-4" aria-hidden="true" />
         </button>
 
         <Link
           to="/profile"
-          aria-label="Meu perfil"
+          aria-label={`Acessar Perfil de ${activeUser.fullName}`}
           title={activeUser.fullName}
-          className="size-7 rounded-full overflow-hidden bg-purple-600 text-white font-extrabold text-[10px] flex items-center justify-center ring-2 ring-purple-500/20 shadow-xs hover:scale-105 transition shrink-0"
+          className="size-9 rounded-full overflow-hidden bg-purple-600 text-white font-extrabold text-[11px] flex items-center justify-center ring-2 ring-purple-500/20 shadow-xs hover:scale-105 active:scale-95 transition shrink-0"
         >
           {activeUser.avatarUrl ? (
             <img src={activeUser.avatarUrl} alt={activeUser.fullName} className="w-full h-full object-cover" />

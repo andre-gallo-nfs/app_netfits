@@ -28,7 +28,7 @@ export function InstitutionalWebHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 px-6 py-4 transition-all">
+    <header className="sticky top-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/80 px-6 pt-[calc(env(safe-area-inset-top,0px)+1rem)] pb-4 transition-all">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Logo & Marca */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0 group">

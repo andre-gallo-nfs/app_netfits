@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { LoyaltyProgramsCard } from "../components/LoyaltyProgramsCard";
 import { sharedSandboxStore } from "../lib/shared-sandbox-store";
 import { appLockStore } from "../lib/app-lock-store";
+import { authStore } from "../lib/auth-store";
+import { isValidCPF } from "../lib/utils";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -353,6 +355,13 @@ function ProfilePage() {
     e.preventDefault();
     const cleanPhone = form.phone.trim();
     const cleanCpf = form.cpf.trim();
+    const digitsCpf = cleanCpf.replace(/\D/g, "");
+
+    if (digitsCpf.length > 0 && !isValidCPF(digitsCpf)) {
+      toast.error("CPF informado é inválido. Por favor, verifique os 11 dígitos digitados.");
+      return;
+    }
+
     const cleanBirth = form.birthDate.trim();
     const cleanZipcode = form.zipcode.replace(/\D/g, "");
     const cleanStreet = form.street.trim();
@@ -390,6 +399,16 @@ function ProfilePage() {
       wearable: form.wearable,
     });
 
+    // Mantém credenciais sincronizadas no authStore para login e desbloqueio por senha
+    authStore.recordRegisteredUser({
+      id: activeUser.id,
+      fullName: form.name.trim(),
+      email: form.email.trim(),
+      cpf: cleanCpf,
+      phone: cleanPhone,
+      passwordHash: activeUser.passwordHash,
+    });
+
     // Sincroniza imediatamente com o servidor para disponibilizar CPF e endereço estruturado para a Loja Oficial
     fetch("/api/users-sync", {
       method: "POST",
@@ -423,29 +442,31 @@ function ProfilePage() {
   const isReferred = !!activeUser.referredBy;
 
   return (
-    <main className="min-h-screen bg-background pb-28 font-sans">
-      {/* Header */}
-      <section className="bg-foreground text-background px-4 pt-6 pb-16 relative">
+    <div className="min-h-screen bg-background pb-28 font-sans">
+      {/* Header com Safe Area Superior */}
+      <header className="bg-foreground text-background px-4 pt-[calc(env(safe-area-inset-top,0px)+1rem)] pb-16 relative" role="banner">
         <div className="flex items-center justify-between">
           <Link
             to="/feed"
+            aria-label="Voltar para o Feed"
             className="size-9 rounded-full bg-background/10 hover:bg-background/20 grid place-items-center transition"
           >
             <ArrowLeft className="size-5" />
           </Link>
           <div className="flex items-center gap-2">
             <User className="size-4 text-brand" />
-            <span className="text-sm font-bold tracking-tight">Meu Perfil Netfits</span>
+            <h1 className="text-sm font-bold tracking-tight">Meu Perfil Netfits</h1>
           </div>
           <Link
             to="/auth"
+            aria-label="Gerenciar ou alternar sessão"
             className="text-xs font-bold bg-brand text-brand-foreground px-3 py-1.5 rounded-full hover:opacity-90 transition flex items-center gap-1"
           >
             <LogIn className="size-3" />
             Sessão / Trocar
           </Link>
         </div>
-      </section>
+      </header>
 
       {/* Avatar overlap */}
       <section className="px-4 -mt-12">
@@ -1097,7 +1118,7 @@ function ProfilePage() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }
 

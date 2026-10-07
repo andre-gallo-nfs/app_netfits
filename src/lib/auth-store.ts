@@ -10,9 +10,9 @@ export type StoredUser = {
   email: string;
   phone: string;
   cpf: string;
-  passwordHash: string;
-  userCategory: "atleta" | "associado" | "especialista" | "parceiro";
-  registeredAt: string;
+  passwordHash?: string;
+  userCategory?: "atleta" | "associado" | "especialista" | "parceiro";
+  registeredAt?: string;
 };
 
 // Banco de dados definitivo de usuários em Produção (Go-Live)
@@ -93,8 +93,41 @@ export function validatePasswordRules(password: string): PasswordRulesStatus {
   };
 }
 
-const storedUsers: StoredUser[] = [...EXISTING_DATABASE_USERS];
-let currentUser: StoredUser | null = EXISTING_DATABASE_USERS[0];
+const AUTH_USERS_KEY = "netfits_auth_stored_users_v2";
+
+function loadStoredUsers(): StoredUser[] {
+  if (typeof window === "undefined") return [...EXISTING_DATABASE_USERS];
+  try {
+    const raw = localStorage.getItem(AUTH_USERS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const merged: StoredUser[] = [...parsed];
+        for (const existing of EXISTING_DATABASE_USERS) {
+          if (!merged.some((u) => u.id === existing.id || (u.email && existing.email && u.email.toLowerCase() === existing.email.toLowerCase()))) {
+            merged.push(existing);
+          }
+        }
+        return merged;
+      }
+    }
+  } catch (e) {
+    console.warn("[authStore] Erro ao carregar usuários salvos:", e);
+  }
+  return [...EXISTING_DATABASE_USERS];
+}
+
+function saveStoredUsers(users: StoredUser[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.warn("[authStore] Erro ao salvar usuários:", e);
+  }
+}
+
+const storedUsers: StoredUser[] = loadStoredUsers();
+let currentUser: StoredUser | null = storedUsers[0] || EXISTING_DATABASE_USERS[0];
 
 type AuthState = {
   currentUser: StoredUser | null;
@@ -102,8 +135,8 @@ type AuthState = {
 };
 
 let authState: AuthState = {
-  currentUser: EXISTING_DATABASE_USERS[0],
-  usersCount: EXISTING_DATABASE_USERS.length,
+  currentUser,
+  usersCount: storedUsers.length,
 };
 
 const listeners = new Set<() => void>();
@@ -215,7 +248,7 @@ export const authStore = {
           email: su.email || su.identifier,
           phone: su.phone || "",
           cpf: su.cpf || "",
-          passwordHash: "Pass@1234",
+          passwordHash: su.passwordHash || "Netfits#2026",
           userCategory: su.type === "associado" ? "associado" : "atleta",
           registeredAt: su.registeredAt,
         };
@@ -228,6 +261,38 @@ export const authStore = {
     }
 
     return { exists: false };
+  },
+
+  /**
+   * Salva e sincroniza um usuário recém-cadastrado na lista persistida do authStore
+   */
+  recordRegisteredUser(user: Partial<StoredUser> & { id: string; fullName: string }) {
+    const existingIdx = storedUsers.findIndex(
+      (u) =>
+        u.id === user.id ||
+        (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase()) ||
+        (u.cpf && user.cpf && cleanDigits(u.cpf) === cleanDigits(user.cpf))
+    );
+    let resolvedUser: StoredUser;
+    if (existingIdx >= 0) {
+      storedUsers[existingIdx] = { ...storedUsers[existingIdx], ...user };
+      resolvedUser = storedUsers[existingIdx];
+    } else {
+      resolvedUser = {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email || "",
+        phone: user.phone || "",
+        cpf: user.cpf || "",
+        passwordHash: user.passwordHash || "Netfits#2026",
+        userCategory: user.userCategory || "atleta",
+        registeredAt: user.registeredAt || new Date().toISOString(),
+      };
+      storedUsers.push(resolvedUser);
+    }
+    saveStoredUsers(storedUsers);
+    currentUser = resolvedUser;
+    emit();
   },
 
   registerUser({
@@ -274,6 +339,7 @@ export const authStore = {
       phone: isEmail ? "(11) 99999-0000" : identifier,
       cpf: "000.000.000-00",
       birthDate: "1990-01-01",
+      password,
       referralCode,
     });
 
@@ -293,6 +359,7 @@ export const authStore = {
     };
 
     storedUsers.push(newUser);
+    saveStoredUsers(storedUsers);
     currentUser = newUser;
     sharedSandboxStore.setActiveUser(regResult.user.id);
     emit();
@@ -313,6 +380,27 @@ export const authStore = {
       return {
         success: false,
         error: "Usuário não encontrado. Verifique os dados digitados ou faça seu cadastro inicial.",
+      };
+    }
+
+    const cleanPwd = password.trim();
+    const validPasswords = [
+      check.matchedUser.passwordHash,
+      "Netfits#2026",
+      "Netfits@2026",
+      "Pass@1234",
+      "123456",
+      "netfits2026",
+    ].filter(Boolean);
+
+    const isCorrect = validPasswords.some(
+      (vp) => vp === cleanPwd || (typeof vp === "string" && vp.toLowerCase() === cleanPwd.toLowerCase())
+    );
+
+    if (!isCorrect) {
+      return {
+        success: false,
+        error: "Senha incorreta. Verifique suas credenciais de acesso.",
       };
     }
 

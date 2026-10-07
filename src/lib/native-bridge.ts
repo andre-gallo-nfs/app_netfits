@@ -28,6 +28,23 @@ export const nativeBridge = {
   },
 
   /**
+   * Configura e inicializa a barra de status nativa do celular (StatusBar)
+   * Garantindo que os ícones do sistema (bateria, hora, notificações) fiquem legíveis
+   * e que o header do aplicativo não seja sobreposto.
+   */
+  async initNativeStatusBar(): Promise<void> {
+    if (!this.isNativePlatform()) return;
+    try {
+      const { StatusBar, Style } = await import("@capacitor/status-bar");
+      await StatusBar.setStyle({ style: Style.Dark });
+      await StatusBar.setBackgroundColor({ color: "#ffffff" });
+      await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+    } catch (e) {
+      console.warn("[NativeBridge] StatusBar config warning:", e);
+    }
+  },
+
+  /**
    * Aciona a verificação por Biometria Nativa (Face ID / Touch ID no iOS ou Fingerprint no Android).
    */
   async triggerBiometricAuth(): Promise<{ success: boolean; error?: string }> {

@@ -813,6 +813,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
       <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={handleCompleteView}
+          aria-label={viewed ? "Leitura concluída" : "Concluir leitura do artigo e ganhar pontos"}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 ${
             viewed
               ? "bg-purple-600 text-white ring-purple-600 shadow-sm"
@@ -824,6 +825,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
         </button>
         <button
           onClick={handleLinkClick}
+          aria-label={linkClicked ? "Link do parceiro acessado" : "Acessar link do parceiro e ganhar pontos"}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 ${
             linkClicked
               ? "bg-emerald-600 text-white ring-emerald-600 shadow-sm"
@@ -842,7 +844,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
               : "bg-muted text-foreground ring-black/5"
           }`}
           aria-pressed={liked}
-          aria-label="Curtir"
+          aria-label="Curtir publicação"
         >
           <Heart className={`size-4 ${liked ? "fill-current" : ""}`} />
           Curtir
@@ -850,7 +852,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
         <button
           onClick={() => setShareOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-muted text-foreground ring-1 ring-black/5 active:scale-95"
-          aria-label="Compartilhar"
+          aria-label="Compartilhar publicação"
         >
           <Share2 className="size-4 text-lime-400" />
           Compartilhar
@@ -863,7 +865,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
               : "bg-muted text-foreground ring-black/5"
           }`}
           aria-pressed={saved}
-          aria-label="Salvar"
+          aria-label="Salvar publicação nos favoritos"
         >
           <Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
           Salvar
@@ -878,7 +880,7 @@ function SocialActions({ id, title, isOwnPost = false }: { id: string; title: st
           aria-label="Compartilhar"
         >
           <div
-            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl p-5 pb-8 max-h-[85vh] flex flex-col shadow-2xl border-t border-zinc-200"
+            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl p-5 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] max-h-[85vh] flex flex-col shadow-2xl border-t border-zinc-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mx-auto w-10 h-1 rounded-full bg-zinc-300 mb-4" />

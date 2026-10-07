@@ -225,16 +225,18 @@ function MarketEmbeddedPage() {
               <button
                 type="button"
                 onClick={handleRefresh}
-                className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
+                className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition cursor-pointer"
                 title="Recarregar Loja"
+                aria-label="Recarregar catálogo da loja oficial"
               >
                 <RefreshCw className="size-3.5" />
               </button>
               <button
                 type="button"
                 onClick={handleOpenExternal}
-                className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+                className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
                 title="Abrir em Nova Aba"
+                aria-label="Abrir loja oficial em nova aba"
               >
                 <span>Nova Aba</span>
                 <ExternalLink className="size-3" />

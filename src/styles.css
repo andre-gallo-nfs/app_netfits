@@ -80,3 +80,17 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Safe Area Insets for Mobile Notches, Cutouts, Status Bar & Home Indicators */
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+.header-safe {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 0.625rem);
+}
+.bottom-nav-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+}

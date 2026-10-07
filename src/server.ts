@@ -212,13 +212,15 @@ function resolveUserFromToken(token?: string | null): any {
       if (andre) return andre;
     }
 
-    return {
+    const rawCpf = String(payload.cpf || payload.document || "").replace(/\D/g, "");
+    const rawPhone = String(payload.phone || "").trim();
+    const fallbackUser = {
       id: customerId || `usr_${Date.now()}`,
       fullName: payload.name || "Atleta Netfits",
       email: payload.email || "",
-      phone: "",
-      cpf: "",
-      birthDate: "",
+      phone: rawPhone,
+      cpf: rawCpf,
+      birthDate: payload.birthDate || payload.birthdate || "",
       address: "",
       street: "",
       number: "",
@@ -230,6 +232,8 @@ function resolveUserFromToken(token?: string | null): any {
       nfsBalance: 50,
       userCategory: "atleta",
     };
+    globalServerUsers.push(fallbackUser);
+    return fallbackUser;
   }
 
   // Token em texto puro / ID direto
@@ -496,16 +500,19 @@ export default {
             user = globalServerUsers.find(
               (u) =>
                 (isCarlosFormigari(String(customerName)) && u.id === "usr_carlos_formigari") ||
-                (isAndreGallo(String(customerName)) && u.id === "usr_andre")
+                (isAndreGallo(String(customerName)) && u.id === "usr_andre") ||
+                (u.fullName && String(u.fullName).trim().toLowerCase() === String(customerName).trim().toLowerCase())
             );
           }
 
-          // 3. Somente se não houver e-mail ou nome correspondente, busca por customerRef
+          // 3. Somente se não houver e-mail ou nome correspondente, busca por customerRef ou dígitos do CPF
           if (!user && customerRef) {
+            const cleanRefDigits = String(customerRef).replace(/\D/g, "");
             user = globalServerUsers.find(
               (u) =>
                 u.id === customerRef ||
                 u.cpf === customerRef ||
+                (cleanRefDigits && cleanRefDigits.length === 11 && u.cpf && String(u.cpf).replace(/\D/g, "") === cleanRefDigits) ||
                 (isCarlosFormigari(customerRef) && u.id === "usr_carlos_formigari") ||
                 (isAndreGallo(customerRef) && u.id === "usr_andre")
             );

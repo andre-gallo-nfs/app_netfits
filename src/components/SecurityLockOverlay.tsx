@@ -74,9 +74,9 @@ export function SecurityLockOverlay() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-zinc-950 text-white flex flex-col items-center justify-between p-6 select-none overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-zinc-950 text-white flex flex-col items-center justify-between px-6 pt-[calc(env(safe-area-inset-top,0px)+1rem)] pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] select-none overflow-y-auto">
       {/* Top Header */}
-      <div className="w-full max-w-sm flex items-center justify-between pt-4">
+      <div className="w-full max-w-sm flex items-center justify-between pt-1">
         <div className="flex items-center gap-2">
           <img src={netfitsDarkLogo} alt="Netfits" className="h-7 w-auto object-contain" />
         </div>

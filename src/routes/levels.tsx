@@ -121,7 +121,9 @@ function BadgesPage() {
               <button
                 key={cat.id}
                 onClick={() => setActiveTab(cat.id)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition-all flex items-center gap-1 ${
+                aria-pressed={active}
+                aria-label={`Filtrar selos por categoria ${cat.label}`}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer ${
                   active
                     ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
                     : "bg-muted text-muted-foreground hover:text-foreground"

@@ -37,6 +37,7 @@ export interface SandboxUser {
   loyaltyPrograms?: string[];
   loyaltyPointsEstimate?: string;
   gender?: string | null;
+  passwordHash?: string;
 }
 
 export interface SandboxTransaction {
@@ -120,10 +121,11 @@ export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T
   if (user.phone === "(11) 99535-1513" || user.phone === "11995351513") {
     user.phone = "";
   }
-  if (user.email && (user.email.endsWith("@netfits.com.br") || user.email.includes("netfits.com.br"))) {
+  // Higieniza apenas placeholders mock conhecidos, nunca e-mails reais de novos usuários
+  if (user.email === "atleta@netfits.com.br" || user.email === "mock@netfits.com.br" || user.email === "fake@netfits.com.br") {
     user.email = "";
   }
-  if (user.identifier && user.identifier.endsWith("@netfits.com.br")) {
+  if (user.identifier === "atleta@netfits.com.br" || user.identifier === "mock@netfits.com.br") {
     user.identifier = user.fullName || user.id;
   }
   if (typeof user.address === "string" && user.address.toLowerCase().includes("steinen")) {
@@ -334,8 +336,11 @@ class HomologationSandboxStore {
               const merged: SandboxUser = { ...current };
               for (const [key, val] of Object.entries(su)) {
                 if (val !== undefined && val !== null && val !== "") {
-                  const currVal = (current as any)[key];
-                  if (currVal === undefined || currVal === "" || (Array.isArray(currVal) && currVal.length === 0)) {
+                  if (key === "nfsBalance") {
+                    (merged as any)[key] = Math.max(Number(val) || 0, Number((current as any)[key]) || 0);
+                  } else if (key === "passwordHash") {
+                    (merged as any)[key] = val || (current as any)[key];
+                  } else {
                     (merged as any)[key] = val;
                   }
                 }
@@ -701,6 +706,7 @@ class HomologationSandboxStore {
     phone: string;
     cpf: string;
     birthDate: string;
+    password?: string;
     referralCode?: string;
   }): { success: boolean; user?: SandboxUser; error?: string; isDuplicate?: boolean; matchedField?: string } {
     const cleanEmail = data.email.trim().toLowerCase();
@@ -724,6 +730,7 @@ class HomologationSandboxStore {
         if (data.phone?.trim()) existingAndre.phone = data.phone.trim();
         if (data.cpf?.trim()) existingAndre.cpf = data.cpf.trim();
         if (data.birthDate?.trim()) existingAndre.birthDate = data.birthDate.trim();
+        if (data.password?.trim()) existingAndre.passwordHash = data.password.trim();
         this.saveToStorage();
         this.setActiveUser("usr_andre");
         return { success: true, user: existingAndre };
@@ -745,6 +752,7 @@ class HomologationSandboxStore {
         if (data.phone?.trim()) existingCarlos.phone = data.phone.trim();
         if (data.cpf?.trim()) existingCarlos.cpf = data.cpf.trim();
         if (data.birthDate?.trim()) existingCarlos.birthDate = data.birthDate.trim();
+        if (data.password?.trim()) existingCarlos.passwordHash = data.password.trim();
         this.saveToStorage();
         this.setActiveUser("usr_carlos_formigari");
         return { success: true, user: existingCarlos };
@@ -766,6 +774,7 @@ class HomologationSandboxStore {
         if (data.phone?.trim()) existingCris.phone = data.phone.trim();
         if (data.cpf?.trim()) existingCris.cpf = data.cpf.trim();
         if (data.birthDate?.trim()) existingCris.birthDate = data.birthDate.trim();
+        if (data.password?.trim()) existingCris.passwordHash = data.password.trim();
         this.saveToStorage();
         this.setActiveUser("usr_cristiane_gallo");
         return { success: true, user: existingCris };
@@ -816,6 +825,7 @@ class HomologationSandboxStore {
       referredBy: referrer ? referrer.referralCode : undefined,
       associatedWith: referrer && referrer.type === "associado" ? referrer.referralCode : undefined,
       registeredAt: new Date().toISOString(),
+      passwordHash: data.password?.trim() || "Netfits#2026",
     };
 
     this.state.users.push(newUser);

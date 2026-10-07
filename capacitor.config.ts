@@ -32,7 +32,8 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       style: "DARK",
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
+      overlaysWebView: false
     },
     Biometric: {
       reason: "Autentique-se com Face ID / Digital para acessar sua conta Netfits"

@@ -191,8 +191,8 @@ export function NetfitAiAssistant() {
       {/* Floating Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-4 z-50 bg-gradient-to-tr from-purple-700 to-purple-600 text-white p-3.5 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center gap-2 ring-2 ring-lime-400/80 group"
-        aria-label="Abrir Netfit AI"
+        className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+4.75rem)] right-4 z-50 bg-gradient-to-tr from-purple-700 to-purple-600 text-white p-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 ring-2 ring-lime-400/80 group cursor-pointer"
+        aria-label="Abrir assistente virtual Netfit AI"
       >
         <div className="relative">
           <img src={netfitsLogo} alt="Netfits" className="h-6 w-auto object-contain" />
@@ -205,8 +205,8 @@ export function NetfitAiAssistant() {
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end">
           <div className="w-full max-w-md bg-zinc-950 text-zinc-100 h-full flex flex-col shadow-2xl border-l border-zinc-800 animate-in slide-in-from-right duration-300">
-            {/* Header */}
-            <div className="p-4 border-b border-zinc-800 bg-zinc-900/90 flex items-center justify-between">
+            {/* Header com Safe Area Superior */}
+            <div className="p-4 pt-[calc(env(safe-area-inset-top,0px)+1rem)] border-b border-zinc-800 bg-zinc-900/90 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded-full bg-zinc-900 border border-purple-500/30 grid place-items-center shadow-inner p-1.5">
                   <img src={netfitsLogo} alt="Netfits" className="h-full w-auto object-contain" />
@@ -225,6 +225,7 @@ export function NetfitAiAssistant() {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
+                aria-label="Fechar assistente Netfit AI"
                 className="p-2 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 transition-colors"
               >
                 <X className="size-5" />
@@ -311,8 +312,8 @@ export function NetfitAiAssistant() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Input Bar */}
-            <div className="p-3 border-t border-zinc-800 bg-zinc-900">
+            {/* Input Bar com Safe Area Inferior */}
+            <div className="p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] border-t border-zinc-800 bg-zinc-900">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -330,7 +331,8 @@ export function NetfitAiAssistant() {
                 <button
                   type="submit"
                   disabled={!inputValue.trim()}
-                  className="bg-lime-400 hover:bg-lime-300 disabled:opacity-50 text-zinc-950 p-2.5 rounded-full transition-colors font-bold shrink-0"
+                  aria-label="Enviar mensagem para o assistente Netfit AI"
+                  className="bg-lime-400 hover:bg-lime-300 disabled:opacity-50 text-zinc-950 p-2.5 rounded-full transition-colors font-bold shrink-0 cursor-pointer"
                 >
                   <Send className="size-4" />
                 </button>

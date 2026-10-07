@@ -203,8 +203,9 @@ class AppLockStore {
       (u) => u.id === activeUser.id || (u.email && u.email.toLowerCase() === userEmail)
     );
 
-    // Senhas válidas: senha salva do usuário, senha padrão da suíte ou "Netfits#2026"
+    // Senhas válidas: senha cadastrada do usuário ativo, senha salva no banco ou padrão
     const validPasswords = [
+      activeUser.passwordHash,
       foundStored?.passwordHash,
       "Netfits#2026",
       "Netfits@2026",

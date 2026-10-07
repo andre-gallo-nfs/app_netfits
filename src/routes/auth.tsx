@@ -26,6 +26,30 @@ function formatCPF(value: string): string {
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
 
+export function isValidCPF(value: string): boolean {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(digits)) return false;
+
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(digits[i], 10) * (10 - i);
+  }
+  let rev = 11 - (sum % 11);
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(digits[9], 10)) return false;
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(digits[i], 10) * (11 - i);
+  }
+  rev = 11 - (sum % 11);
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(digits[10], 10)) return false;
+
+  return true;
+}
+
 function formatPhone(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 11);
   if (digits.length <= 2) return digits.length ? `(${digits}` : "";
@@ -170,10 +194,9 @@ function AuthPage() {
       return;
     }
 
-    // 4. CPF Obrigatório (11 dígitos)
-    const cpfDigits = cpf.replace(/\D/g, "");
-    if (!cpf.trim() || cpfDigits.length !== 11) {
-      setFormError("Por favor, informe um CPF válido com 11 dígitos.");
+    // 4. CPF Obrigatório e Válido matematicamente (11 dígitos oficiais)
+    if (!cpf.trim() || !isValidCPF(cpf)) {
+      setFormError("Por favor, informe um CPF válido com 11 dígitos para emissão e segurança cadastral.");
       return;
     }
 
@@ -201,13 +224,14 @@ function AuthPage() {
       return;
     }
 
-    // Tentar cadastrar no sharedSandboxStore
+    // Tentar cadastrar no sharedSandboxStore com persistência de senha
     const res = sharedSandboxStore.registerAthlete({
       fullName: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
       cpf: cpf.trim(),
       birthDate: birthDate.trim(),
+      password: password.trim(),
       referralCode: referralCode.trim(),
     });
 
@@ -223,8 +247,18 @@ function AuthPage() {
       return;
     }
 
-    // Sucesso no cadastro
+    // Sucesso no cadastro: salvar também no authStore persistido
     if (res.user) {
+      authStore.recordRegisteredUser({
+        id: res.user.id,
+        fullName: res.user.fullName,
+        email: res.user.email || email.trim(),
+        phone: res.user.phone || phone.trim(),
+        cpf: res.user.cpf || cpf.trim(),
+        passwordHash: password.trim(),
+        userCategory: "atleta",
+        registeredAt: res.user.registeredAt,
+      });
       passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
     }
     toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
@@ -252,7 +286,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 flex flex-col justify-center px-4 py-8 max-w-md mx-auto font-sans">
+    <div className="min-h-screen bg-white text-zinc-900 flex flex-col justify-center px-4 pt-[calc(env(safe-area-inset-top,0px)+1.5rem)] pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] max-w-md mx-auto font-sans">
       {/* Header Branding (Logo verde no fundo preto e marca Netfits em preto no fundo branco) */}
       <div className="text-center mb-6 space-y-2">
         <div className="inline-flex items-center justify-center gap-2.5 mb-2">
