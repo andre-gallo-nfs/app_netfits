@@ -112,35 +112,13 @@ const SYNC_CHANNEL = "netfits_production_sync_channel";
 export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T {
   if (!u) return u;
   const user = { ...u } as any;
-  if (user.birthDate === "1983-12-05" || user.birthDate === "05/12/1983") {
-    user.birthDate = "";
-  }
-  if (user.cpf === "256.647.308-03" || user.cpf === "25664730803") {
-    user.cpf = "";
-  }
-  if (user.phone === "(11) 99535-1513" || user.phone === "11995351513") {
-    user.phone = "";
-  }
-  // Higieniza apenas placeholders mock conhecidos, nunca e-mails reais de novos usuários
+  // Higieniza apenas placeholders mock conhecidos, nunca e-mails ou dados reais de usuários legítimos
   if (user.email === "atleta@netfits.com.br" || user.email === "mock@netfits.com.br" || user.email === "fake@netfits.com.br") {
     user.email = "";
   }
   if (user.identifier === "atleta@netfits.com.br" || user.identifier === "mock@netfits.com.br") {
     user.identifier = user.fullName || user.id;
   }
-  if (typeof user.address === "string" && user.address.toLowerCase().includes("steinen")) {
-    user.address = "";
-    user.street = "";
-    user.number = "";
-    user.neighborhood = "";
-    user.city = "";
-    user.state = "";
-    user.shortState = "";
-    user.zipcode = "";
-  }
-  if (user.gym === "Bio Ritmo") user.gym = "";
-  if (user.healthPlan === "Bradesco Saúde") user.healthPlan = "";
-  if (user.wearable === "Garmin Fenix") user.wearable = "";
   return user as T;
 }
 
@@ -179,6 +157,22 @@ const INITIAL_USERS: SandboxUser[] = [
     email: "crformigari72@gmail.com",
     fullName: "Carlos Rodrigo Formigari",
     type: "athlete",
+    phone: "(11) 99535-1513",
+    cpf: "25664730803",
+    birthDate: "05/12/1983",
+    zipcode: "04005-030",
+    street: "Rua Karl Von Den Steinen",
+    number: "54",
+    complement: "Apto 112",
+    neighborhood: "Vila Mariana",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    address: "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP",
+    sports: ["Corrida de rua", "Musculação"],
+    healthPlan: "Bradesco Saúde",
+    gym: "Bio Ritmo",
+    wearable: "Garmin Fenix",
     nfsBalance: 110,
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -617,6 +611,17 @@ class HomologationSandboxStore {
             mergedUsers[existingIdx].email = "crformigari72@gmail.com";
             mergedUsers[existingIdx].identifier = "crformigari72@gmail.com";
             mergedUsers[existingIdx].fullName = "Carlos Rodrigo Formigari";
+            if (!mergedUsers[existingIdx].cpf) mergedUsers[existingIdx].cpf = initUser.cpf;
+            if (!mergedUsers[existingIdx].phone) mergedUsers[existingIdx].phone = initUser.phone;
+            if (!mergedUsers[existingIdx].birthDate) mergedUsers[existingIdx].birthDate = initUser.birthDate;
+            if (!mergedUsers[existingIdx].address) mergedUsers[existingIdx].address = initUser.address;
+            if (!mergedUsers[existingIdx].street) mergedUsers[existingIdx].street = initUser.street;
+            if (!mergedUsers[existingIdx].number) mergedUsers[existingIdx].number = initUser.number;
+            if (!mergedUsers[existingIdx].neighborhood) mergedUsers[existingIdx].neighborhood = initUser.neighborhood;
+            if (!mergedUsers[existingIdx].city) mergedUsers[existingIdx].city = initUser.city;
+            if (!mergedUsers[existingIdx].state) mergedUsers[existingIdx].state = initUser.state;
+            if (!mergedUsers[existingIdx].shortState) mergedUsers[existingIdx].shortState = initUser.shortState;
+            if (!mergedUsers[existingIdx].zipcode) mergedUsers[existingIdx].zipcode = initUser.zipcode;
             hasNewUsers = true;
           }
         }
