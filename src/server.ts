@@ -86,7 +86,7 @@ const DEFAULT_PRESEEDED_USERS = [
     healthPlan: "",
     gym: "",
     wearable: "",
-    nfsBalance: 1130,
+    nfsBalance: 50,
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
   },
@@ -98,7 +98,7 @@ const DEFAULT_PRESEEDED_USERS = [
     cpf: "",
     birthDate: "",
     address: "",
-    nfsBalance: 915,
+    nfsBalance: 135,
     userCategory: "atleta",
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -179,24 +179,6 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
     description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
     category: "welcome",
     timestamp: "2026-10-05T00:00:00Z",
-  },
-  {
-    id: "tx-mkp-earn-GTJ0522372096",
-    userId: "usr_andre",
-    userName: "André Gallo",
-    amount: 1080,
-    description: "✨ Cashback compra Mkplace Pedido #GTJ0522372096",
-    category: "shop",
-    timestamp: "2026-10-05T22:38:35Z",
-  },
-  {
-    id: "tx-mkp-earn-PFM0610443019",
-    userId: "usr_carlos_formigari",
-    userName: "Carlos Rodrigo Formigari",
-    amount: 780,
-    description: "✨ Cashback compra Mkplace Pedido #PFM0610443019",
-    category: "shop",
-    timestamp: "2026-10-06T10:45:38Z",
   },
   {
     id: "tx-mkp-spend-SOP0711045469",
@@ -415,7 +397,11 @@ export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUs
   // 1. MATCH POR ID DO USUÁRIO (customer.ref emitido pelo SSO da Netfits)
   if (candidateRef) {
     const userById = users.find((u) => u && u.id && u.id === candidateRef);
-    if (userById) return userById;
+    if (userById) {
+      if (!userById.cpf && cleanCpf && cleanCpf.length === 11) userById.cpf = cleanCpf;
+      if (!userById.email && candidateEmail) userById.email = candidateEmail;
+      return userById;
+    }
   }
 
   // 2. MATCH POR CPF OFICIAL NACIONAL (11 DÍGITOS ESTRITOS)
@@ -424,7 +410,10 @@ export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUs
       const uCpf = normalizeCpf(u.cpf || u.document);
       return Boolean(uCpf && uCpf === cleanCpf);
     });
-    if (userByCpf) return userByCpf;
+    if (userByCpf) {
+      if (!userByCpf.email && candidateEmail) userByCpf.email = candidateEmail;
+      return userByCpf;
+    }
   }
 
   // 3. MATCH POR E-MAIL ÚNICO
@@ -433,7 +422,10 @@ export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUs
       const uEmail = String(u.email || u.identifier || "").trim().toLowerCase();
       return Boolean(uEmail && uEmail === candidateEmail);
     });
-    if (userByEmail) return userByEmail;
+    if (userByEmail) {
+      if (!userByEmail.cpf && cleanCpf && cleanCpf.length === 11) userByEmail.cpf = cleanCpf;
+      return userByEmail;
+    }
   }
 
   // 4. AUTO-PROVISIONAMENTO ONBOARDING DINÂMICO
@@ -769,16 +761,56 @@ export default {
         return new Response(null, { status: 200, headers: corsHeaders });
       }
 
-      // GET: Devolve histórico permanente de pedidos salvos na nuvem (nunca em RAM efêmera)
+      // GET: Devolve histórico permanente de pedidos salvos na nuvem (protegido por x-api-key e LGPD)
       if (req.method === "GET") {
+        const apiKeyHeader =
+          req.headers.get("x-api-key") ||
+          req.headers.get("X-API-KEY") ||
+          req.headers.get("x-webhook-secret") ||
+          req.headers.get("authorization");
+
+        // 1. Exigência estrita de autenticação via x-api-key (LGPD):
+        // Requisições sem x-api-key válida NÃO recebem lista de pedidos nem dados de clientes.
+        if (!validateWebhookApiKey(apiKeyHeader)) {
+          return new Response(
+            JSON.stringify({
+              error: "Unauthorized",
+              message: "Missing or invalid x-api-key header for orders endpoint",
+            }),
+            { status: 401, headers: corsHeaders }
+          );
+        }
+
         const persistedOrders = await fetchPersistentOrders();
+
+        // 2. Higienização estrita de dados pessoais sensíveis (LGPD):
+        // Mesmo autenticado com x-api-key, remove CPF e e-mail cru dos pedidos retornados.
+        const sanitizedOrders = persistedOrders.map((ord: any) => ({
+          _id: ord._id,
+          orderRef: ord.orderRef,
+          type: ord.type,
+          status: ord.status,
+          paymentStatus: ord.paymentStatus,
+          substatus: ord.substatus,
+          summary: ord.summary,
+          customer: ord.customer
+            ? {
+                ref: ord.customer.ref,
+                name: ord.customer.name,
+              }
+            : undefined,
+          createdAt: ord.createdAt,
+          updatedAt: ord.updatedAt,
+          paidAt: ord.paidAt,
+        }));
+
         return new Response(
           JSON.stringify({
             status: "ready",
             message: "Netfits Orders Webhook Endpoint is online and persistent",
             endpoint: url.pathname,
             totalOrdersReceived: persistedOrders.length,
-            recentOrders: persistedOrders,
+            recentOrders: sanitizedOrders,
             acceptedAuth: ["x-api-key", "Authorization: Bearer <token>", "Authorization: ApiKey <key>"],
             storeId: "RhOFkbZJIN",
             accountId: "RhOFkbZJIN",
@@ -1095,6 +1127,7 @@ export default {
               status: finalOrder.status,
               pointsUsed: result.pointsUsed,
               nfsEarned: result.nfsEarned,
+              isReplay,
               persisted: true,
               totalOrdersCount: updatedList.length,
               timestamp: requestTimestamp,

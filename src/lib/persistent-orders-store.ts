@@ -134,108 +134,6 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
       httpStatusReturned: 200,
     },
   },
-  {
-    _id: "PFM0610443019",
-    orderRef: "PFM0610443019",
-    type: "ORDER",
-    status: "PAID",
-    paymentStatus: "PAID",
-    substatus: { code: "200", reason: "Paid" },
-    storeId: "RhOFkbZJIN",
-    accountId: "RhOFkbZJIN",
-    createdAt: "2026-10-06T10:45:02.000Z",
-    paidAt: "2026-10-06T10:45:38.000Z",
-    updatedAt: "2026-10-06T10:45:38.000Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
-    summary: {
-      items: 1,
-      total: 180.0,
-      totalPriceDiscount: 0,
-      totalShippingCost: 15.0,
-      totalShippingDiscount: 0,
-      finalPrice: 195.0,
-      points: { amount: 0, currencyAmount: 0 },
-    },
-    customer: {
-      ref: "usr_carlos_formigari",
-      name: "Carlos Rodrigo Formigari",
-      email: "crformigari72@gmail.com",
-      document: "",
-      type: "atleta",
-      isFirstBuy: false,
-    },
-    items: [
-      {
-        _id: "itm_vestuario_01",
-        name: "Vestuário Esportivo & Performance — Netfits Shop",
-        quantity: 1,
-        price: 180.0,
-        finalPrice: 180.0,
-      },
-    ],
-    netfitsProcessing: {
-      processedAt: "2026-10-06T10:45:40.000Z",
-      pointsUsed: 0,
-      pointsEarned: 780,
-      userMatchedId: "usr_carlos_formigari",
-      userMatchedName: "Carlos Rodrigo Formigari",
-      userMatchedEmail: "crformigari72@gmail.com",
-      cashbackCredited: true,
-      pointsDebited: false,
-      httpStatusReturned: 200,
-    },
-  },
-  {
-    _id: "GTJ0522372096",
-    orderRef: "GTJ0522372096",
-    type: "ORDER",
-    status: "PAID",
-    paymentStatus: "PAID",
-    substatus: { code: "200", reason: "Paid" },
-    storeId: "RhOFkbZJIN",
-    accountId: "RhOFkbZJIN",
-    createdAt: "2026-10-05T22:37:53.000Z",
-    paidAt: "2026-10-05T22:38:35.000Z",
-    updatedAt: "2026-10-05T22:38:35.000Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
-    summary: {
-      items: 1,
-      total: 250.0,
-      totalPriceDiscount: 0,
-      totalShippingCost: 20.0,
-      totalShippingDiscount: 0,
-      finalPrice: 270.0,
-      points: { amount: 0, currencyAmount: 0 },
-    },
-    customer: {
-      ref: "usr_andre",
-      name: "André Gallo",
-      email: "aacgallo@hotmail.com",
-      document: "",
-      type: "associado",
-      isFirstBuy: false,
-    },
-    items: [
-      {
-        _id: "itm_calcado_01",
-        name: "Calçado Esportivo Alta Rodagem — Netfits Shop",
-        quantity: 1,
-        price: 250.0,
-        finalPrice: 250.0,
-      },
-    ],
-    netfitsProcessing: {
-      processedAt: "2026-10-05T22:38:36.000Z",
-      pointsUsed: 0,
-      pointsEarned: 1080,
-      userMatchedId: "usr_andre",
-      userMatchedName: "André Gallo",
-      userMatchedEmail: "aacgallo@hotmail.com",
-      cashbackCredited: true,
-      pointsDebited: false,
-      httpStatusReturned: 200,
-    },
-  },
 ];
 
 // Cache em memória de alta performance local para o isolate atual
@@ -282,9 +180,8 @@ export async function fetchPersistentOrders(): Promise<PersistentOrderRecord[]> 
               const seed = mergedMap.get(ord._id);
               if (seed) {
                 mergedMap.set(ord._id, {
+                  ...seed,
                   ...ord,
-                  customer: seed.customer || ord.customer,
-                  netfitsProcessing: seed.netfitsProcessing || ord.netfitsProcessing,
                 });
               } else {
                 mergedMap.set(ord._id, ord);
@@ -343,6 +240,26 @@ export async function savePersistentOrders(orders: PersistentOrderRecord[]): Pro
 
     if (res.ok) {
       return true;
+    } else if (res.status === 409) {
+      // Conflito temporário de concorrência no GitHub Gist — aguarda 350ms e retenta
+      await new Promise((r) => setTimeout(r, 350));
+      const retryRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `token ${GIST_TOKEN}`,
+          "User-Agent": "Netfits-Production-App",
+          "Content-Type": "application/json",
+          Accept: "application/vnd.github.v3+json",
+        },
+        body: JSON.stringify({
+          files: {
+            [GIST_FILENAME]: {
+              content: JSON.stringify(payload, null, 2),
+            },
+          },
+        }),
+      });
+      return retryRes.ok;
     } else {
       console.error("[PersistentOrders] Falha na resposta da nuvem ao salvar:", res.status, res.statusText);
       return false;
