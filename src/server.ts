@@ -724,6 +724,18 @@ export default {
               if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
                 reservation.pointsReserved = result.pointsUsed;
+
+                // Lança débito no extrato global de transações em tempo real
+                globalServerTransactions.unshift({
+                  id: `tx-mkp-spend-${result.orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: -result.pointsUsed,
+                  description: `🛍️ Resgate compra Mkplace Pedido #${result.orderId}`,
+                  category: "shop",
+                  timestamp: new Date().toISOString(),
+                });
+
                 lastSyncTimestamp = new Date().toISOString();
 
                 // Disparo de E-mail Transacional de Pedido Confirmado (Resend)
@@ -757,11 +769,31 @@ export default {
               if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
                 reservation.pointsReserved = result.pointsUsed;
+
+                globalServerTransactions.unshift({
+                  id: `tx-mkp-spend-${result.orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: -result.pointsUsed,
+                  description: `🛍️ Resgate compra Mkplace Pedido #${result.orderId}`,
+                  category: "shop",
+                  timestamp: new Date().toISOString(),
+                });
               }
               // Credita o cashback de 4 nfs/R$ (se ainda não creditado)
               if (result.nfsEarned > 0 && reservation.cashbackCredited === 0) {
                 user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
                 reservation.cashbackCredited = result.nfsEarned;
+
+                globalServerTransactions.unshift({
+                  id: `tx-mkp-earn-${result.orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: result.nfsEarned,
+                  description: `✨ Cashback compra Mkplace Pedido #${result.orderId}`,
+                  category: "shop",
+                  timestamp: new Date().toISOString(),
+                });
               }
               lastSyncTimestamp = new Date().toISOString();
             }
@@ -771,11 +803,33 @@ export default {
             else if (isCanceledOrRefunded) {
               if (reservation.pointsReserved > 0) {
                 user.nfsBalance = (user.nfsBalance || 0) + reservation.pointsReserved;
+
+                globalServerTransactions.unshift({
+                  id: `tx-mkp-refund-${result.orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: reservation.pointsReserved,
+                  description: `↩️ Estorno de pontos - Pedido cancelado #${result.orderId}`,
+                  category: "shop",
+                  timestamp: new Date().toISOString(),
+                });
+
                 reservation.pointsReserved = 0;
               }
               // Se já havia cashback creditado, estorna o cashback
               if (reservation.cashbackCredited > 0) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - reservation.cashbackCredited);
+
+                globalServerTransactions.unshift({
+                  id: `tx-mkp-cb-refund-${result.orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: -reservation.cashbackCredited,
+                  description: `↩️ Estorno de cashback - Pedido cancelado #${result.orderId}`,
+                  category: "shop",
+                  timestamp: new Date().toISOString(),
+                });
+
                 reservation.cashbackCredited = 0;
               }
               lastSyncTimestamp = new Date().toISOString();
