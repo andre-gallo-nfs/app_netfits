@@ -366,14 +366,13 @@ export function findUserByAnyIdentifier(query?: string | null, users: any[] = gl
 
   const cleanLower = clean.toLowerCase();
   const cleanCpfDigits = normalizeCpf(clean);
-  const normalizedQueryName = normalizeString(clean);
 
   // 1. Chave primária: ID exato
   const byId = users.find((u) => u && u.id && String(u.id).trim() === clean);
   if (byId) return byId;
 
-  // 2. Chave unívoca nacional: CPF de 11 dígitos
-  if (cleanCpfDigits) {
+  // 2. Chave unívoca nacional: CPF de 11 dígitos estritos
+  if (cleanCpfDigits && cleanCpfDigits.length === 11) {
     const byCpf = users.find((u) => {
       const uCpf = normalizeCpf(u.cpf || u.document);
       return Boolean(uCpf && uCpf === cleanCpfDigits);
@@ -381,24 +380,16 @@ export function findUserByAnyIdentifier(query?: string | null, users: any[] = gl
     if (byCpf) return byCpf;
   }
 
-  // 3. Chave de acesso: E-mail exato
+  // 3. Chave de acesso: E-mail único exato
   if (cleanLower.includes("@")) {
     const byEmail = users.find((u) => {
       const uEmail = String(u.email || u.identifier || "").trim().toLowerCase();
-      return uEmail && uEmail === cleanLower;
+      return Boolean(uEmail && uEmail === cleanLower);
     });
     if (byEmail) return byEmail;
   }
 
-  // 4. Nome Completo Exato (Normalizado, sem acentos, sem colisão de sobrenomes familiares)
-  if (normalizedQueryName.length >= 4) {
-    const byName = users.find((u) => {
-      const uName = normalizeString(u.fullName || u.name);
-      return Boolean(uName && uName === normalizedQueryName);
-    });
-    if (byName) return byName;
-  }
-
+  // NUNCA buscar por nome: nomes não são identificadores unívocos em bases de larga escala.
   return null;
 }
 
@@ -406,14 +397,8 @@ export function findUserByAnyIdentifier(query?: string | null, users: any[] = gl
  * Motor Universal e Determinístico de Resolução de Usuário para Webhooks de Pedidos:
  * Aplicável a TODO E QUALQUER USUÁRIO no ecossistema Netfits (associados, atletas, parceiros).
  *
- * Elimina completamente ambiguidades entre membros da mesma família ou que compartilham sobrenomes
- * (ex: Formigari, Gallo, Silva), priorizando sempre chaves unívocas:
- * 1. ID do Usuário (customer.ref / customerId)
- * 2. CPF Oficial (customer.document / customer.cpf) — 11 dígitos estritos
- * 3. E-mail Único (customer.email / customerEmail)
- * 4. Nome Completo Exato (customer.name normalizado)
- * 5. Auto-provisionamento Onboarding Dinâmico: caso o pedido seja a primeira compra de um novo atleta,
- *    cria o registro completo com base nos dados do webhook (Nome, CPF, E-mail, Data de Nascimento, Endereço com CEP).
+ * Utiliza EXCLUSIVAMENTE identificadores unívocos próprios (ID, CPF de 11 dígitos ou E-mail único).
+ * Jamais utiliza correspondência parcial ou total por nomes de exibição.
  */
 export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUsers): any {
   if (!rawOrder) return null;
@@ -426,16 +411,15 @@ export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUs
   const cleanCpf = normalizeCpf(rawDocument) || normalizeCpf(candidateRef);
   const candidateEmail = String(customerObj.email || rawOrder.customerEmail || "").trim().toLowerCase();
   const rawCustomerName = String(customerObj.name || rawOrder.customerName || shippingObj.receiverName || "").trim();
-  const normalizedCustomerName = normalizeString(rawCustomerName);
 
-  // 1. MATCH POR ID DO USUÁRIO
+  // 1. MATCH POR ID DO USUÁRIO (customer.ref emitido pelo SSO da Netfits)
   if (candidateRef) {
     const userById = users.find((u) => u && u.id && u.id === candidateRef);
     if (userById) return userById;
   }
 
-  // 2. MATCH POR CPF OFICIAL (11 DÍGITOS)
-  if (cleanCpf) {
+  // 2. MATCH POR CPF OFICIAL NACIONAL (11 DÍGITOS ESTRITOS)
+  if (cleanCpf && cleanCpf.length === 11) {
     const userByCpf = users.find((u) => {
       const uCpf = normalizeCpf(u.cpf || u.document);
       return Boolean(uCpf && uCpf === cleanCpf);
@@ -447,24 +431,14 @@ export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUs
   if (candidateEmail && candidateEmail.includes("@")) {
     const userByEmail = users.find((u) => {
       const uEmail = String(u.email || u.identifier || "").trim().toLowerCase();
-      return uEmail && uEmail === candidateEmail;
+      return Boolean(uEmail && uEmail === candidateEmail);
     });
     if (userByEmail) return userByEmail;
   }
 
-  // 4. MATCH POR NOME COMPLETO EXATO (Normalizado, sem acentos e sem colisão de sobrenome isolado)
-  if (normalizedCustomerName && normalizedCustomerName.length >= 4) {
-    const userByName = users.find((u) => {
-      const uName = normalizeString(u.fullName || u.name);
-      return Boolean(uName && uName === normalizedCustomerName);
-    });
-    if (userByName) return userByName;
-  }
-
-  // 5. AUTO-PROVISIONAMENTO ONBOARDING DINÂMICO
-  // Se o usuário ainda não existe na base (ex: primeira compra direta via checkout parceiro),
-  // provisiona o registro completo para que seus pontos sejam creditados imediatamente em seu próprio extrato.
-  if (candidateEmail || cleanCpf || rawCustomerName) {
+  // 4. AUTO-PROVISIONAMENTO ONBOARDING DINÂMICO
+  // Apenas provisiona novo atleta se possuir ao menos um identificador unívoco real (CPF válido ou E-mail)
+  if ((cleanCpf && cleanCpf.length === 11) || (candidateEmail && candidateEmail.includes("@"))) {
     const newUserId = candidateRef && candidateRef.startsWith("usr_")
       ? candidateRef
       : `usr_client_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -496,12 +470,14 @@ export function resolveUserForOrder(rawOrder: any, users: any[] = globalServerUs
     return newUser;
   }
 
+  // Sem identificadores unívocos válidos: não vincula a nenhum usuário existente
   return null;
 }
 
 function resolveUserFromToken(token?: string | null): any {
-  if (!token) return globalServerUsers[0];
+  if (!token) return null;
   const cleanToken = token.replace(/^Bearer\s+/i, "").trim();
+  if (!cleanToken) return null;
 
   let payload: any = null;
   try {
@@ -523,45 +499,47 @@ function resolveUserFromToken(token?: string | null): any {
     const cpf = payload.cpf || payload.document;
     const name = payload.name;
 
-    // Busca universal por qualquer um dos campos fornecidos no JWT
+    // Busca unívoca exclusiva por ID, CPF ou E-mail
     const found =
       findUserByAnyIdentifier(customerId, globalServerUsers) ||
       findUserByAnyIdentifier(cpf, globalServerUsers) ||
-      findUserByAnyIdentifier(email, globalServerUsers) ||
-      findUserByAnyIdentifier(name, globalServerUsers);
+      findUserByAnyIdentifier(email, globalServerUsers);
 
     if (found) return found;
 
-    // Auto-provisionamento caso não exista
+    // Auto-provisionamento apenas se houver identificador unívoco válido
     const cleanCpf = normalizeCpf(cpf);
-    const fallbackUser = {
-      id: customerId || `usr_${Date.now()}`,
-      fullName: name || "Atleta Netfits",
-      email: email || "",
-      phone: String(payload.phone || "").trim(),
-      cpf: cleanCpf,
-      birthDate: payload.birthDate || payload.birthdate || "",
-      address: "",
-      street: "",
-      number: "",
-      neighborhood: "",
-      city: "",
-      state: "",
-      shortState: "",
-      zipcode: "",
-      nfsBalance: 50,
-      userCategory: "atleta",
-    };
-    globalServerUsers.push(fallbackUser);
-    return fallbackUser;
+    if (cleanCpf || (email && String(email).includes("@")) || customerId) {
+      const fallbackUser = {
+        id: customerId || `usr_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        fullName: name || "Atleta Netfits",
+        email: email || "",
+        phone: String(payload.phone || "").trim(),
+        cpf: cleanCpf,
+        birthDate: payload.birthDate || payload.birthdate || "",
+        address: "",
+        street: "",
+        number: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+        shortState: "",
+        zipcode: "",
+        nfsBalance: 50,
+        userCategory: "atleta",
+      };
+      globalServerUsers.push(fallbackUser);
+      return fallbackUser;
+    }
+    return null;
   }
 
   // Token direto em texto puro / ID / CPF / E-mail
   const foundDirect = findUserByAnyIdentifier(cleanToken, globalServerUsers);
   if (foundDirect) return foundDirect;
 
-  // Fallback padrão se token vazio ou irreconhecível
-  return globalServerUsers[0];
+  // Sem token válido: retorna null (jamais atribui a outro usuário por padrão)
+  return null;
 }
 
 interface ReceivedOrderRecord {
@@ -626,6 +604,12 @@ export default {
         url.searchParams.get("customerToken");
 
       const user = resolveUserFromToken(authHeader);
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: "Unauthorized", message: "Token de autenticação ausente ou inválido" }),
+          { status: 401, headers: corsHeaders }
+        );
+      }
 
       // Verificação específica de sub-rotas como /customer/addresses ou /customer/cards
       if (req.method === "GET") {
@@ -725,8 +709,14 @@ export default {
         url.searchParams.get("token");
 
       const user = resolveUserFromToken(authHeader);
-      const balance = user.nfsBalance ?? 50;
-      const walletResponse = buildMkplaceLoyaltyWallet(balance, user.id || "usr_andre");
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: "Unauthorized", message: "Token de autenticação ausente ou inválido" }),
+          { status: 401, headers: corsHeaders }
+        );
+      }
+      const balance = user.nfsBalance ?? 0;
+      const walletResponse = buildMkplaceLoyaltyWallet(balance, user.id);
       return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
     }
 
@@ -744,12 +734,18 @@ export default {
     if (isPointsEndpoint) {
       const authHeader = req.headers.get("Authorization") || url.searchParams.get("token");
       const user = resolveUserFromToken(authHeader);
+      if (!user) {
+        return new Response(
+          JSON.stringify({ error: "Unauthorized", message: "Token de autenticação ausente ou inválido" }),
+          { status: 401, headers: corsHeaders }
+        );
+      }
       return new Response(
         JSON.stringify({
           success: true,
           status: "RESERVED",
           customerId: user.id,
-          balance: user.nfsBalance ?? 50,
+          balance: user.nfsBalance ?? 0,
           timestamp: new Date().toISOString(),
         }),
         { status: 200, headers: corsHeaders }
@@ -885,28 +881,36 @@ export default {
             incomingStatus === "REFUNDED" ||
             incomingStatus === "EXPIRED";
 
-          let pointsDebited = false;
-          let cashbackCredited = false;
+          // =========================================================================
+          // IDEMPOTÊNCIA FINANCEIRA ESTRITA EM NÍVEL DE BANCO DE DADOS (ANTI-DUPLICAÇÃO)
+          // =========================================================================
+          // Consulta o estado persistente histórico no banco ANTES de qualquer mutação de saldo ou ledger.
+          const currentPersistentOrders = await fetchPersistentOrders();
+          const existingOrder = currentPersistentOrders.find((o) => o._id === orderId);
+
+          const alreadyCreditedCashback = Boolean(
+            existingOrder?.netfitsProcessing?.cashbackCredited === true ||
+            globalServerTransactions.some((t) => t.id === `tx-mkp-earn-${orderId}`)
+          );
+
+          const alreadyDebitedPoints = Boolean(
+            existingOrder?.netfitsProcessing?.pointsDebited === true ||
+            globalServerTransactions.some((t) => t.id === `tx-mkp-spend-${orderId}`)
+          );
+
+          const alreadyCreditedReferral = Boolean(
+            globalServerTransactions.some((t) => t.id === `tx-mkp-ref-comm-${orderId}`)
+          );
+
+          let pointsDebited = alreadyDebitedPoints;
+          let cashbackCredited = alreadyCreditedCashback;
+          let isReplay = false;
 
           if (user) {
-            let reservation = globalOrderReservations.get(orderId);
-            if (!reservation) {
-              reservation = {
-                orderId,
-                customerId: user.id,
-                pointsReserved: 0,
-                cashbackCredited: 0,
-                status: incomingStatus,
-                updatedAt: requestTimestamp,
-              };
-              globalOrderReservations.set(orderId, reservation);
-            }
-
             // FASE 1: RESERVA DE PONTOS (WAITING-PAYMENT / PRE-ORDER)
             if (isWaitingPayment) {
-              if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
+              if (result.pointsUsed > 0 && !alreadyDebitedPoints) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
-                reservation.pointsReserved = result.pointsUsed;
                 pointsDebited = true;
 
                 globalServerTransactions.unshift({
@@ -924,10 +928,9 @@ export default {
             }
             // FASE 2: LIQUIDAÇÃO E CASHBACK (PAID / BILLED / DELIVERED)
             else if (isApproved) {
-              // Se os pontos ainda não haviam sido reservados antes
-              if (result.pointsUsed > 0 && reservation.pointsReserved === 0) {
+              // Débito de pontos usados: só debita se ainda não foi debitado
+              if (result.pointsUsed > 0 && !alreadyDebitedPoints) {
                 user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.pointsUsed);
-                reservation.pointsReserved = result.pointsUsed;
                 pointsDebited = true;
 
                 globalServerTransactions.unshift({
@@ -941,10 +944,9 @@ export default {
                 });
               }
 
-              // Credita o cashback apurado
-              if (result.nfsEarned > 0 && reservation.cashbackCredited === 0) {
+              // Crédito de cashback: SÓ ACONTECE SE NÃO TIVER SIDO CREDITADO ANTERIORMENTE
+              if (result.nfsEarned > 0 && !alreadyCreditedCashback) {
                 user.nfsBalance = (user.nfsBalance || 0) + result.nfsEarned;
-                reservation.cashbackCredited = result.nfsEarned;
                 cashbackCredited = true;
 
                 globalServerTransactions.unshift({
@@ -958,8 +960,10 @@ export default {
                 });
 
                 // Se o usuário foi indicado por outro atleta, credita a comissão de indicação (5%)
-                if (user.referredBy) {
-                  const referrer = globalServerUsers.find((u) => u.referralCode === user.referredBy || u.id === user.referredBy);
+                if (user.referredBy && !alreadyCreditedReferral) {
+                  const referrer = globalServerUsers.find(
+                    (u) => u.referralCode === user.referredBy || u.id === user.referredBy
+                  );
                   const commissionNfs = Math.floor(result.nfsEarned * 0.05);
                   if (referrer && commissionNfs > 0) {
                     referrer.nfsBalance = (referrer.nfsBalance || 0) + commissionNfs;
@@ -974,42 +978,42 @@ export default {
                     });
                   }
                 }
+                lastSyncTimestamp = requestTimestamp;
+              } else if (alreadyCreditedCashback) {
+                // SINALIZA REPLAY DE EVENTO JÁ PROCESSADO
+                isReplay = true;
               }
-              lastSyncTimestamp = requestTimestamp;
             }
             // FASE 3: ESTORNO / ROLLBACK (CANCELED / REFUNDED)
             else if (isCanceledOrRefunded) {
-              if (reservation.pointsReserved > 0) {
-                user.nfsBalance = (user.nfsBalance || 0) + reservation.pointsReserved;
+              if (alreadyDebitedPoints) {
+                user.nfsBalance = (user.nfsBalance || 0) + result.pointsUsed;
                 globalServerTransactions.unshift({
                   id: `tx-mkp-refund-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
-                  amount: reservation.pointsReserved,
+                  amount: result.pointsUsed,
                   description: `↩️ Estorno de pontos - Pedido cancelado #${orderId}`,
                   category: "shop",
                   timestamp: requestTimestamp,
                 });
-                reservation.pointsReserved = 0;
+                pointsDebited = false;
               }
-              if (reservation.cashbackCredited > 0) {
-                user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - reservation.cashbackCredited);
+              if (alreadyCreditedCashback) {
+                user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.nfsEarned);
                 globalServerTransactions.unshift({
                   id: `tx-mkp-cb-refund-${orderId}`,
                   userId: user.id,
                   userName: user.fullName || "Atleta Netfits",
-                  amount: -reservation.cashbackCredited,
+                  amount: -result.nfsEarned,
                   description: `↩️ Estorno de cashback - Pedido cancelado #${orderId}`,
                   category: "shop",
                   timestamp: requestTimestamp,
                 });
-                reservation.cashbackCredited = 0;
+                cashbackCredited = false;
               }
               lastSyncTimestamp = requestTimestamp;
             }
-
-            reservation.status = incomingStatus;
-            reservation.updatedAt = requestTimestamp;
           }
 
           // Monta o objeto persistente completo do pedido
@@ -1047,7 +1051,6 @@ export default {
           // REGRA 3 DA AUDITORIA ROCK:
           // Tratar repetições sem duplicar por _id, usando updatedAt e precedência
           // =========================================================================
-          const currentPersistentOrders = await fetchPersistentOrders();
           const { updatedList, finalOrder } = upsertOrderInList(currentPersistentOrders, orderRecord);
 
           // Atualiza buffer local
@@ -1116,7 +1119,7 @@ export default {
     // 4. Emissor de Token SSO Mkplace (/api/marketplace/mkplace/token)
     if (url.pathname === "/api/marketplace/mkplace/token" || url.pathname === "/api/marketplace/mkplace/token/") {
       try {
-        let targetUser = globalServerUsers[0]; // André Gallo padrão apenas se nenhum identificador for enviado
+        let targetUser: any = null;
         let customExpires: number | undefined;
 
         if (req.method === "POST") {
@@ -1125,20 +1128,18 @@ export default {
             const lookupId = body?.userId || body?.id;
             const lookupEmail = body?.email || body?.identifier;
             const lookupCpf = body?.cpf || body?.document;
-            const lookupName = body?.fullName || body?.name;
 
-            if (lookupId || lookupEmail || lookupCpf || lookupName) {
+            if (lookupId || lookupEmail || lookupCpf) {
               const found =
                 findUserByAnyIdentifier(lookupId, globalServerUsers) ||
                 findUserByAnyIdentifier(lookupCpf, globalServerUsers) ||
-                findUserByAnyIdentifier(lookupEmail, globalServerUsers) ||
-                findUserByAnyIdentifier(lookupName, globalServerUsers);
+                findUserByAnyIdentifier(lookupEmail, globalServerUsers);
               if (found) {
                 targetUser = found;
               } else {
                 targetUser = {
-                  id: lookupId || `usr_${Date.now()}`,
-                  fullName: lookupName || "Atleta Netfits",
+                  id: lookupId || `usr_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                  fullName: body?.fullName || body?.name || "Atleta Netfits",
                   email: lookupEmail || "",
                   cpf: normalizeCpf(lookupCpf) || undefined,
                   nfsBalance: 50,
@@ -1148,30 +1149,32 @@ export default {
               }
             }
             // Atualização imediata dos dados cadastrais (CPF, telefone, endereço) no servidor
-            if (body?.cpf) targetUser.cpf = String(body.cpf).replace(/\D/g, "");
-            if (body?.document) targetUser.cpf = String(body.document).replace(/\D/g, "");
-            if (body?.phone) targetUser.phone = String(body.phone).trim();
-            if (body?.address) targetUser.address = String(body.address).trim();
-            if (body?.street) targetUser.street = String(body.street).trim();
-            if (body?.number) targetUser.number = String(body.number).trim();
-            if (body?.complement !== undefined) targetUser.complement = String(body.complement).trim();
-            if (body?.neighborhood) targetUser.neighborhood = String(body.neighborhood).trim();
-            if (body?.city) targetUser.city = String(body.city).trim();
-            if (body?.state) targetUser.state = String(body.state).trim();
-            if (body?.shortState) targetUser.shortState = String(body.shortState).trim();
-            if (body?.zipcode) targetUser.zipcode = String(body.zipcode).trim();
-            if (body?.birthDate) targetUser.birthDate = String(body.birthDate).trim();
-            if (body?.gender !== undefined) targetUser.gender = body.gender;
-            if (body?.fullName && (!targetUser.fullName || targetUser.fullName === "Atleta Netfits")) {
-              targetUser.fullName = String(body.fullName).trim();
-            }
+            if (targetUser) {
+              if (body?.cpf) targetUser.cpf = String(body.cpf).replace(/\D/g, "");
+              if (body?.document) targetUser.cpf = String(body.document).replace(/\D/g, "");
+              if (body?.phone) targetUser.phone = String(body.phone).trim();
+              if (body?.address) targetUser.address = String(body.address).trim();
+              if (body?.street) targetUser.street = String(body.street).trim();
+              if (body?.number) targetUser.number = String(body.number).trim();
+              if (body?.complement !== undefined) targetUser.complement = String(body.complement).trim();
+              if (body?.neighborhood) targetUser.neighborhood = String(body.neighborhood).trim();
+              if (body?.city) targetUser.city = String(body.city).trim();
+              if (body?.state) targetUser.state = String(body.state).trim();
+              if (body?.shortState) targetUser.shortState = String(body.shortState).trim();
+              if (body?.zipcode) targetUser.zipcode = String(body.zipcode).trim();
+              if (body?.birthDate) targetUser.birthDate = String(body.birthDate).trim();
+              if (body?.gender !== undefined) targetUser.gender = body.gender;
+              if (body?.fullName && (!targetUser.fullName || targetUser.fullName === "Atleta Netfits")) {
+                targetUser.fullName = String(body.fullName).trim();
+              }
 
-            if (targetUser.address && (!targetUser.street || !targetUser.number)) {
-              const parts = String(targetUser.address).split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
-              if (parts[0] && !targetUser.street) targetUser.street = parts[0];
-              if (parts[1] && !targetUser.number) targetUser.number = parts[1];
-              if (parts[2] && !targetUser.neighborhood) targetUser.neighborhood = parts[2];
-              if (parts[3] && !targetUser.city) targetUser.city = parts[3];
+              if (targetUser.address && (!targetUser.street || !targetUser.number)) {
+                const parts = String(targetUser.address).split(/[,\-·]/).map((s: string) => s.trim()).filter(Boolean);
+                if (parts[0] && !targetUser.street) targetUser.street = parts[0];
+                if (parts[1] && !targetUser.number) targetUser.number = parts[1];
+                if (parts[2] && !targetUser.neighborhood) targetUser.neighborhood = parts[2];
+                if (parts[3] && !targetUser.city) targetUser.city = parts[3];
+              }
             }
 
             if (body?.expiresInSeconds) {
@@ -1184,20 +1187,18 @@ export default {
           const userId = url.searchParams.get("userId") || url.searchParams.get("id");
           const email = url.searchParams.get("email");
           const cpf = url.searchParams.get("cpf") || url.searchParams.get("document");
-          const fullName = url.searchParams.get("fullName") || url.searchParams.get("name");
 
-          if (userId || email || cpf || fullName) {
+          if (userId || email || cpf) {
             const found =
               findUserByAnyIdentifier(userId, globalServerUsers) ||
               findUserByAnyIdentifier(cpf, globalServerUsers) ||
-              findUserByAnyIdentifier(email, globalServerUsers) ||
-              findUserByAnyIdentifier(fullName, globalServerUsers);
+              findUserByAnyIdentifier(email, globalServerUsers);
             if (found) {
               targetUser = found;
             } else {
               targetUser = {
-                id: userId || `usr_${Date.now()}`,
-                fullName: fullName || "Atleta Netfits",
+                id: userId || `usr_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                fullName: url.searchParams.get("fullName") || url.searchParams.get("name") || "Atleta Netfits",
                 email: email || "",
                 cpf: normalizeCpf(cpf) || undefined,
                 nfsBalance: 50,
@@ -1217,6 +1218,16 @@ export default {
           if (expParam) {
             customExpires = Number(expParam);
           }
+        }
+
+        if (!targetUser) {
+          return new Response(
+            JSON.stringify({
+              error: "BadRequest",
+              message: "Identificador unívoco do usuário (userId, cpf ou email) é obrigatório para emissão de token",
+            }),
+            { status: 400, headers: corsHeaders }
+          );
         }
 
         const expiresInSeconds = customExpires && customExpires > 0 ? customExpires : 86400;
