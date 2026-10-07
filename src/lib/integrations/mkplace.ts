@@ -426,9 +426,7 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
     birthdate = `${y}-${m}-${d}`;
   }
 
-  // Tratamento de endereço: garante que todos os campos obrigatórios pelo contrato Mkplace
-  // ("receiverName", "street", "city", "shortState", "state", "number", "zipcode", "neighborhood")
-  // e pelo gateway de cartão de crédito estejam preenchidos com valores válidos.
+  // Tratamento de endereço: formata o endereço real do usuário para o contrato oficial da Mkplace.
   let street = (user.street || "").trim();
   let number = (user.number || "").trim();
   let complement = (user.complement || "").trim();
@@ -456,39 +454,41 @@ export function buildMkplaceProfile(user: any): MkplaceCustomerProfile {
     if (parts[3] && !city) city = parts[3];
   }
 
-  // Valores padrão homologados para garantir que nenhuma compra/cartão seja recusado por endereço nulo
-  if (!street) street = "Av. Paulista";
-  if (!number) number = "1000";
-  if (!neighborhood) neighborhood = "Bela Vista";
-  if (!city) city = "São Paulo";
-  if (!shortState || shortState.length !== 2) shortState = "SP";
-  if (!state) state = shortState === "SP" ? "São Paulo" : shortState;
-  if (!zipcode || zipcode.length !== 8) zipcode = "01310100";
-
   const receiverName = user.fullName || "Atleta Netfits";
-  const addrVerifyHash = crypto
-    .createHash("sha256")
-    .update(String(user.id || "") + street + number + zipcode)
-    .digest("hex")
-    .slice(0, 16);
+  const hasAddress = Boolean(street || user.address || zipcode);
+  let addresses: MkplaceAddress[] = [];
 
-  const primaryAddress: MkplaceAddress = {
-    isPrimary: true,
-    receiverName,
-    street,
-    number,
-    complement: complement || null,
-    neighborhood,
-    city,
-    state,
-    shortState,
-    zipcode,
-    countryCode: "BR",
-    type: "residential",
-    verifyToken: `vrf_addr_${addrVerifyHash}`,
-  };
+  if (hasAddress) {
+    if (!number) number = "S/N";
+    if (!shortState && state && state.length === 2) shortState = state.toUpperCase();
+    if (!state) state = shortState || "SP";
+    if (!shortState) shortState = state.length === 2 ? state.toUpperCase() : "SP";
 
-  const addresses: MkplaceAddress[] = [primaryAddress];
+    const cleanZipcode = (zipcode || "").replace(/\D/g, "");
+    const addrVerifyHash = crypto
+      .createHash("sha256")
+      .update(String(user.id || "") + street + number + cleanZipcode)
+      .digest("hex")
+      .slice(0, 16);
+
+    addresses = [
+      {
+        isPrimary: true,
+        receiverName,
+        street: street || "Endereço",
+        number,
+        complement: complement || null,
+        neighborhood: neighborhood || "",
+        city: city || "",
+        state,
+        shortState: shortState.toUpperCase().slice(0, 2),
+        zipcode: cleanZipcode,
+        countryCode: "BR",
+        type: "residential",
+        verifyToken: `vrf_addr_${addrVerifyHash}`,
+      },
+    ];
+  }
 
   return {
     _id: String(user.id || "usr_101"),
