@@ -102,8 +102,6 @@ export function AdminAuthGuard({ children, onUnlocked, onLock }: AdminAuthGuardP
     ].includes(cleanEmail);
 
     const isAuthorizedPassword =
-      cleanPass === "Netfits@2026" ||
-      cleanPass === "Netfits#2026" ||
       cleanPass === "Admin@2026" ||
       cleanPass === "202626";
 

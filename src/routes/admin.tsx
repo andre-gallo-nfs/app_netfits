@@ -691,7 +691,7 @@ function AdminDashboardPage() {
 
     if (
       (cleanUser === "admin@netfits.com.br" || cleanUser === "diretoria@netfits.com.br") &&
-      (cleanPass === "Admin@2026" || cleanPass === "Netfits#2026")
+      cleanPass === "Admin@2026"
     ) {
       setIsAuthenticated(true);
       if (typeof window !== "undefined") {

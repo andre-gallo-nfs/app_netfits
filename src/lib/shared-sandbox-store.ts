@@ -171,6 +171,7 @@ const INITIAL_USERS: SandboxUser[] = [
     nfsBalance: 1091,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
+    passwordHash: "Admin@2026",
   },
   {
     id: "usr_carlos_formigari",
@@ -998,7 +999,7 @@ class HomologationSandboxStore {
       referredBy: referrer ? referrer.referralCode : undefined,
       associatedWith: referrer && referrer.type === "associado" ? referrer.referralCode : undefined,
       registeredAt: new Date().toISOString(),
-      passwordHash: data.password?.trim() || "Netfits#2026",
+      passwordHash: data.password?.trim() || "",
     };
 
     this.state.users.push(newUser);

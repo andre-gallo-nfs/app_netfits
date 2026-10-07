@@ -33,7 +33,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     email: "aacgallo@hotmail.com",
     phone: "",
     cpf: "",
-    passwordHash: "Netfits#2026",
+    passwordHash: "Admin@2026",
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
   },
@@ -41,11 +41,21 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     id: "usr_carlos_formigari",
     fullName: "Carlos Rodrigo Formigari",
     email: "crformigari72@gmail.com",
-    phone: "",
-    cpf: "",
-    passwordHash: "Netfits#2026",
+    phone: "(11) 99535-1513",
+    cpf: "25664730803",
+    passwordHash: "Kite@1972",
     userCategory: "atleta",
     registeredAt: "2026-10-06T00:00:00Z",
+  },
+  {
+    id: "user-1791370530242",
+    fullName: "Cristiane Ferreira Formigari",
+    email: "cristiane.formigari@amantikira.com.br",
+    phone: "(11) 98381-7390",
+    cpf: "11001624882",
+    passwordHash: "Kite@1970",
+    userCategory: "atleta",
+    registeredAt: "2026-10-07T10:55:30.242Z",
   },
   {
     id: "usr_cristiane_gallo",
@@ -53,7 +63,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     email: "",
     phone: "",
     cpf: "",
-    passwordHash: "Netfits#2026",
+    passwordHash: "",
     userCategory: "atleta",
     registeredAt: "2026-10-06T00:00:00Z",
   },
@@ -182,7 +192,7 @@ export const authStore = {
       email: active.email || active.identifier,
       phone: active.phone || (active.identifier.includes("@") ? "" : active.identifier),
       cpf: active.cpf || "",
-      passwordHash: "Pass@1234",
+      passwordHash: active.passwordHash || "",
       userCategory: active.type === "associado" ? "associado" : "atleta",
       registeredAt: active.registeredAt,
     };
@@ -193,13 +203,11 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
-    // 0. Reconhecer instantaneamente os 3 usuários fundadores/oficiais da Netfits
+    // 0. Reconhecer instantaneamente os usuários fundadores/oficiais da Netfits por identificador único
     if (
       raw === "aacgallo@hotmail.com" ||
       raw === "aacgallo@hotmail.com.br" ||
-      raw === "usr_andre" ||
-      raw === "andre gallo" ||
-      raw === "andré gallo"
+      raw === "usr_andre"
     ) {
       const andreUser = storedUsers.find((u) => u.id === "usr_andre") || storedUsers[0];
       return { exists: true, matchedField: "email", matchedUser: andreUser };
@@ -208,26 +216,32 @@ export const authStore = {
     if (
       raw === "crformigari72@gmail.com" ||
       raw === "usr_carlos_formigari" ||
-      raw === "carlos rodrigo formigari" ||
-      raw === "carlos formigari"
+      digits === "25664730803"
     ) {
       const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari") || storedUsers[1];
-      return { exists: true, matchedField: "email", matchedUser: carlosUser };
+      return { exists: true, matchedField: digits === "25664730803" ? "cpf" : "email", matchedUser: carlosUser };
     }
 
     if (
-      raw === "usr_cristiane_gallo" ||
-      raw === "cristiane queli da silva gallo" ||
-      raw === "cristiane gallo" ||
-      raw === "cristiane"
+      raw === "cristiane.formigari@amantikira.com.br" ||
+      raw === "user-1791370530242" ||
+      digits === "11001624882"
     ) {
-      const crisUser = storedUsers.find((u) => u.id === "usr_cristiane_gallo") || storedUsers[2];
-      return { exists: true, matchedField: "email", matchedUser: crisUser };
+      const crisFormigari = storedUsers.find((u) => u.id === "user-1791370530242") ||
+        storedUsers.find((u) => u.email?.toLowerCase() === "cristiane.formigari@amantikira.com.br");
+      if (crisFormigari) {
+        return { exists: true, matchedField: digits === "11001624882" ? "cpf" : "email", matchedUser: crisFormigari };
+      }
+    }
+
+    if (raw === "usr_cristiane_gallo") {
+      const crisUser = storedUsers.find((u) => u.id === "usr_cristiane_gallo");
+      if (crisUser) return { exists: true, matchedField: "email", matchedUser: crisUser };
     }
 
     // 1. Checar lista local de usuários salvos
     for (const u of storedUsers) {
-      if (u.email.toLowerCase() === raw) {
+      if (u.email && u.email.toLowerCase() === raw) {
         return { exists: true, matchedField: "email", matchedUser: u };
       }
       if (digits.length > 0) {
@@ -258,7 +272,7 @@ export const authStore = {
           email: su.email || su.identifier,
           phone: su.phone || "",
           cpf: su.cpf || "",
-          passwordHash: su.passwordHash || "Netfits#2026",
+          passwordHash: su.passwordHash || "",
           userCategory: su.type === "associado" ? "associado" : "atleta",
           registeredAt: su.registeredAt,
         };
@@ -294,7 +308,7 @@ export const authStore = {
         email: user.email || "",
         phone: user.phone || "",
         cpf: user.cpf || "",
-        passwordHash: user.passwordHash || "Netfits#2026",
+        passwordHash: user.passwordHash || "",
         userCategory: user.userCategory || "atleta",
         registeredAt: user.registeredAt || new Date().toISOString(),
       };
@@ -394,68 +408,62 @@ export const authStore = {
     }
 
     const cleanPwd = password.trim();
-    const userSpecificPasswords: string[] = [];
+    const validPasswords: string[] = [];
 
-    // Senhas conhecidas e familiares para a liderança Netfits
+    // 1. Senha gravada no perfil do usuário
+    if (check.matchedUser.passwordHash) {
+      validPasswords.push(check.matchedUser.passwordHash);
+    }
+
+    // 2. Busca senha salva no sharedSandboxStore se houver
+    const sbUser = sharedSandboxStore.getUsers().find((u) => u.id === check.matchedUser!.id);
+    if (sbUser?.passwordHash) {
+      validPasswords.push(sbUser.passwordHash);
+    }
+
+    // 3. Busca senha salva no backup local se houver
+    if (typeof window !== "undefined") {
+      try {
+        const bRaw = localStorage.getItem(`netfits_profile_saved_${check.matchedUser.id}`);
+        if (bRaw) {
+          const parsedBackup = JSON.parse(bRaw);
+          if (parsedBackup.passwordHash) validPasswords.push(parsedBackup.passwordHash);
+        }
+      } catch {}
+    }
+
+    // 4. Senhas reais e individuais cadastradas pelos usuários fundadores
     if (
       check.matchedUser.id === "usr_carlos_formigari" ||
       check.matchedUser.email?.toLowerCase().includes("crformigari")
     ) {
-      userSpecificPasswords.push(
-        "Kite@1972",
-        "kite@1972",
-        "Kite@1970",
-        "kite@1970",
-        "Formigari72",
-        "Formigari@1972",
-        "Formigari@72",
-        "Formigari",
-        "carlos1972"
-      );
+      validPasswords.push("Kite@1972", "kite@1972");
     }
 
     if (
       check.matchedUser.id === "user-1791370530242" ||
       check.matchedUser.email?.toLowerCase().includes("cristiane.formigari")
     ) {
-      userSpecificPasswords.push("Kite@1970", "kite@1970");
+      validPasswords.push("Kite@1970", "kite@1970");
     }
 
-    // Busca senha salva no sharedSandboxStore se houver
-    const sbUser = sharedSandboxStore.getUsers().find((u) => u.id === check.matchedUser!.id);
-    if (sbUser?.passwordHash) {
-      userSpecificPasswords.push(sbUser.passwordHash);
+    if (
+      check.matchedUser.id === "usr_andre" ||
+      check.matchedUser.email?.toLowerCase().includes("aacgallo")
+    ) {
+      validPasswords.push("Admin@2026");
     }
 
-    // Busca senha salva no backup local se houver
-    if (typeof window !== "undefined") {
-      try {
-        const bRaw = localStorage.getItem(`netfits_profile_saved_${check.matchedUser.id}`);
-        if (bRaw) {
-          const parsedBackup = JSON.parse(bRaw);
-          if (parsedBackup.passwordHash) userSpecificPasswords.push(parsedBackup.passwordHash);
-        }
-      } catch {}
-    }
+    const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));
 
-    const validPasswords = [
-      check.matchedUser.passwordHash,
-      ...userSpecificPasswords,
-      "Netfits#2026",
-      "Netfits@2026",
-      "Pass@1234",
-      "123456",
-      "netfits2026",
-    ].filter(Boolean);
-
-    const isCorrect = validPasswords.some(
+    const isCorrect = uniqueValidPasswords.some(
       (vp) => vp === cleanPwd || (typeof vp === "string" && vp.toLowerCase() === cleanPwd.toLowerCase())
     );
 
     if (!isCorrect) {
       return {
         success: false,
-        error: "Senha incorreta. Verifique suas credenciais de acesso.",
+        error: "Senha incorreta. Digite sua senha pessoal cadastrada.",
       };
     }
 
