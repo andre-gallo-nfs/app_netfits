@@ -126,15 +126,15 @@ const INITIAL_USERS: SandboxUser[] = [
     phone: "11995351513",
     cpf: "25664730803",
     birthDate: "",
-    address: "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP",
-    street: "Rua Karl Von Den Steinen",
-    number: "54",
-    complement: "Apto 112",
-    neighborhood: "Vila Mariana",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "04005-030",
+    address: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    shortState: "",
+    zipcode: "",
     sports: [],
     healthPlan: "",
     gym: "",
@@ -642,35 +642,25 @@ class HomologationSandboxStore {
               userWithBackup = { ...userWithBackup, ...backup };
             }
           } catch {}
+          if (typeof userWithBackup.address === "string" && userWithBackup.address.toLowerCase().includes("steinen")) {
+            userWithBackup.address = "";
+            userWithBackup.street = "";
+            userWithBackup.number = "";
+            userWithBackup.complement = "";
+            userWithBackup.neighborhood = "";
+            userWithBackup.city = "";
+            userWithBackup.state = "";
+            userWithBackup.shortState = "";
+            userWithBackup.zipcode = "";
+          }
           if (u.id === "usr_carlos_formigari") {
             if (userWithBackup.cpf === "25664730803" || userWithBackup.cpf === "256.647.308-03") userWithBackup.cpf = "";
             if (userWithBackup.phone === "(11) 99535-1513" || userWithBackup.phone === "11995351513") userWithBackup.phone = "";
             if (userWithBackup.birthDate === "05/12/1983" || userWithBackup.birthDate === "1983-12-05") userWithBackup.birthDate = "";
-            if (typeof userWithBackup.address === "string" && userWithBackup.address.toLowerCase().includes("steinen")) {
-              userWithBackup.address = "";
-              userWithBackup.street = "";
-              userWithBackup.number = "";
-              userWithBackup.neighborhood = "";
-              userWithBackup.city = "";
-              userWithBackup.state = "";
-              userWithBackup.shortState = "";
-              userWithBackup.zipcode = "";
-            }
           }
           if (u.id === "usr_andre") {
             if (!userWithBackup.cpf) userWithBackup.cpf = "25664730803";
             if (!userWithBackup.phone) userWithBackup.phone = "11995351513";
-            if (!userWithBackup.address) {
-              userWithBackup.address = "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP";
-              userWithBackup.street = "Rua Karl Von Den Steinen";
-              userWithBackup.number = "54";
-              userWithBackup.complement = "Apto 112";
-              userWithBackup.neighborhood = "Vila Mariana";
-              userWithBackup.city = "São Paulo";
-              userWithBackup.state = "São Paulo";
-              userWithBackup.shortState = "SP";
-              userWithBackup.zipcode = "04005-030";
-            }
           }
           try {
             localStorage.setItem(`netfits_profile_saved_${u.id}`, JSON.stringify(userWithBackup));

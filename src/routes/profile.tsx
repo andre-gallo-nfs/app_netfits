@@ -373,9 +373,9 @@ function ProfilePage() {
     const cleanCity = form.city.trim();
     const cleanShortState = (form.shortState || "SP").trim().toUpperCase();
     const cleanState = form.state.trim() || (cleanShortState === "SP" ? "São Paulo" : cleanShortState);
-    const formattedAddress =
-      form.address.trim() ||
-      `${cleanStreet}, ${cleanNumber || "S/N"}${cleanNeighborhood ? ` - ${cleanNeighborhood}` : ""}${cleanCity ? `, ${cleanCity}` : ""}${cleanShortState ? ` · ${cleanShortState}` : ""}`;
+    const formattedAddress = cleanStreet
+      ? `${cleanStreet}, ${cleanNumber || "S/N"}${cleanComplement ? ` (${cleanComplement})` : ""}${cleanNeighborhood ? ` - ${cleanNeighborhood}` : ""}${cleanCity ? `, ${cleanCity}` : ""}${cleanShortState ? ` · ${cleanShortState}` : ""}`
+      : form.address.trim();
 
     sharedSandboxStore.updateUser(activeUser.id, {
       fullName: form.name.trim(),
