@@ -665,20 +665,37 @@ export function processMkplaceOrderNotification(
     (pointsUsed * 0.01)
   );
 
-  // Valor líquido quitado em moeda corrente (Pix/Cartão)
-  const cashPaidBrl = Math.max(0, totalPaid > pointsUsedDiscountBrl ? (totalPaid - pointsUsedDiscountBrl) : totalPaid);
+  // Regra Operacional Netfits: Cálculo de cashback estritamente sobre produtos (exclui frete e taxas)
+  const shippingCost = Number(
+    rawOrder?.summary?.totalShippingCost ??
+    rawOrder?.shippingCost ??
+    rawOrder?.totals?.shippingBrl ??
+    0
+  );
+
+  const productTotal = Number(
+    rawOrder?.summary?.total ??
+    (rawOrder?.items && Array.isArray(rawOrder.items) && rawOrder.items.length > 0
+      ? rawOrder.items.reduce((acc: number, it: any) => acc + (Number(it.finalPrice ?? it.price ?? 0) * (Number(it.quantity) || 1)), 0)
+      : Math.max(0, totalPaid - shippingCost))
+  );
+
+  const cleanProductTotal = Math.max(0, productTotal);
+
+  // Valor líquido de produtos quitado em moeda corrente (Pix/Cartão), descontando pontos usados
+  const cashPaidProductsBrl = Math.max(0, cleanProductTotal - pointsUsedDiscountBrl);
 
   // Diretrizes Operacionais de 2026
   const baseRate = customParams?.baseRate ?? 4.0;
   const clubMultiplier = isClubMember ? (customParams?.clubMultiplier ?? 1.0) : 1.0;
   const effectiveRate = baseRate * clubMultiplier;
 
-  // Trava de Proteção de Margem: se uso de pontos >= 10% do total, cashback é 0 nfs
-  const isPointsOver10Pct = totalPaid > 0 && (pointsUsedDiscountBrl / totalPaid) >= 0.10;
+  // Trava de Proteção de Margem: se uso de pontos >= 10% do valor de produtos, cashback é 0 nfs
+  const isPointsOver10Pct = cleanProductTotal > 0 && (pointsUsedDiscountBrl / cleanProductTotal) >= 0.10;
 
   const baseCashback = isPointsOver10Pct
     ? 0
-    : Math.floor(cashPaidBrl * effectiveRate);
+    : Math.floor(cashPaidProductsBrl * effectiveRate);
 
   // Bônus de Primeira Compra (inicialmente 0 nfs)
   const isFirstBuy = Boolean(rawOrder?.isFirstBuy ?? rawOrder?.isFirstPurchase ?? rawOrder?.customer?.isFirstBuy);
@@ -690,9 +707,9 @@ export function processMkplaceOrderNotification(
   // A comissão sobre compras valerá no futuro exclusivamente para assinantes do clube.
   const friendCommissionNfs = 0;
 
-  // Take Rate Netfits de 6.0%
-  const takeRatePct = 6.0;
-  const netfitsTakeRateBrl = Number((totalPaid * (takeRatePct / 100)).toFixed(2));
+  // Take Rate Netfits de 6.0% sobre o valor dos produtos
+  const takeRatePct = customParams?.takeRatePct ?? 6.0;
+  const netfitsTakeRateBrl = Number((cleanProductTotal * (takeRatePct / 100)).toFixed(2));
 
   // Prazo atuarial de liquidação (14 dias CDC)
   const settlement = new Date();

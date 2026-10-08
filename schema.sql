@@ -203,3 +203,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ============================================================
+-- TABELA DE PEDIDOS (ESPELHAMENTO PERSISTENTE ROCK ENCANTECH / MKPLACE)
+-- ============================================================
+
+-- Table: Orders (Espelhamento Persistente Oficial de Pedidos da Loja Oficial)
+CREATE TABLE IF NOT EXISTS orders (
+    id VARCHAR(100) PRIMARY KEY, -- ex: GTJ0522372096, PFM0610443019, SOP0711045469
+    order_ref VARCHAR(100),
+    type VARCHAR(50) DEFAULT 'ORDER',
+    status VARCHAR(50) NOT NULL,
+    payment_status VARCHAR(50),
+    user_id VARCHAR(100),
+    customer_name VARCHAR(150),
+    customer_email VARCHAR(255),
+    total_products NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    shipping_cost NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    final_price NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    points_used INTEGER NOT NULL DEFAULT 0,
+    points_earned INTEGER NOT NULL DEFAULT 0,
+    cashback_credited BOOLEAN NOT NULL DEFAULT FALSE,
+    raw_payload JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    paid_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+
+

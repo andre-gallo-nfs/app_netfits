@@ -64,7 +64,8 @@ if (isDryRun || !dbUrl || dbUrl.includes("[PROD_DB_PASSWORD]") || dbUrl.includes
     "system_parameters",
     "system_parameters_history",
     "wallet_transactions_archive",
-    "cold_tier_runs"
+    "cold_tier_runs",
+    "orders"
   ];
 
   console.log("\n✅ TABELAS MAPEADAS NO SCHEMA:");
