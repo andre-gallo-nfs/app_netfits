@@ -75,15 +75,15 @@ const DEFAULT_PRESEEDED_USERS = [
     phone: "11995351513",
     cpf: "25664730803",
     birthDate: "",
-    address: "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP",
-    street: "Rua Karl Von Den Steinen",
-    number: "54",
-    complement: "Apto 112",
-    neighborhood: "Vila Mariana",
-    city: "São Paulo",
-    state: "São Paulo",
-    shortState: "SP",
-    zipcode: "04005-030",
+    address: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    shortState: "",
+    zipcode: "",
     sports: [],
     healthPlan: "",
     gym: "",
@@ -1400,6 +1400,17 @@ export default {
                 if (parts[1] && !merged.number) merged.number = parts[1];
                 if (parts[2] && !merged.neighborhood) merged.neighborhood = parts[2];
                 if (parts[3] && !merged.city) merged.city = parts[3];
+              }
+              if (typeof merged.address === "string" && merged.address.toLowerCase().includes("steinen")) {
+                merged.address = "";
+                merged.street = "";
+                merged.number = "";
+                merged.complement = "";
+                merged.neighborhood = "";
+                merged.city = "";
+                merged.state = "";
+                merged.shortState = "";
+                merged.zipcode = "";
               }
               userMap.set(targetId, purgeFabricatedMockData(merged));
             }
