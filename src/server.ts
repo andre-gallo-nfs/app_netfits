@@ -28,6 +28,7 @@ import {
   validateWebhookApiKey,
   extractWebhookApiKey,
   syncUsersAndTransactionsToCloud,
+  fetchPersistentUsersAndTransactionsFromCloud,
   SEED_REAL_ORDERS,
   type PersistentOrderRecord,
 } from "./lib/persistent-orders-store";
@@ -1450,10 +1451,12 @@ export default {
           globalServerUsers = Array.from(userMap.values());
           lastSyncTimestamp = new Date().toISOString();
 
-          // Sincroniza imediatamente com a nuvem permanente (Gist Engine)
-          syncUsersAndTransactionsToCloud(globalServerUsers, globalServerTransactions).catch((err) => {
+          // Sincroniza imediatamente com a nuvem permanente (Gist Engine) de forma garantida antes da resposta HTTP
+          try {
+            await syncUsersAndTransactionsToCloud(globalServerUsers, globalServerTransactions);
+          } catch (err) {
             console.warn("[users-sync] CloudSync Warning:", err);
-          });
+          }
 
           return new Response(
             JSON.stringify({
@@ -1474,7 +1477,32 @@ export default {
         }
       }
 
-      // GET: Retornar todos os usuários e extrato de transações sincronizados no servidor
+      // GET: Retornar todos os usuários e extrato de transações sincronizados na nuvem permanente
+      try {
+        const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
+        if (cloudData && Array.isArray(cloudData.users) && cloudData.users.length > 0) {
+          const userMap = new Map<string, any>();
+          for (const u of globalServerUsers) {
+            if (u && u.id) userMap.set(u.id, u);
+          }
+          for (const cu of cloudData.users) {
+            if (cu && cu.id) {
+              const existing = userMap.get(cu.id) || {};
+              userMap.set(cu.id, { ...existing, ...cu });
+            }
+          }
+          globalServerUsers = Array.from(userMap.values());
+          if (cloudData.transactions && cloudData.transactions.length > 0) {
+            globalServerTransactions = cloudData.transactions;
+          }
+          if (cloudData.updatedAt) {
+            lastSyncTimestamp = cloudData.updatedAt;
+          }
+        }
+      } catch (err) {
+        console.warn("[GET users-sync] Cloud hydration warning:", err);
+      }
+
       return new Response(
         JSON.stringify({
           success: true,

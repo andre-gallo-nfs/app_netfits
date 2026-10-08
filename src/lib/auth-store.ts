@@ -31,8 +31,9 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     id: "usr_andre",
     fullName: "André Gallo",
     email: "aacgallo@hotmail.com",
-    phone: "",
-    cpf: "",
+    phone: "11995351513",
+    cpf: "25664730803",
+    birthDate: "13/11/1975",
     passwordHash: "Admin@2026",
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -41,8 +42,16 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     id: "usr_carlos_formigari",
     fullName: "Carlos Rodrigo Formigari",
     email: "crformigari72@gmail.com",
-    phone: "(11) 99535-1513",
-    cpf: "25664730803",
+    phone: "(11) 98426-4116",
+    cpf: "11553412877",
+    birthDate: "05/12/1972",
+    address: "Alameda das Embaúbas, 365 - Alphaville, Santana de Parnaíba · SP",
+    street: "Alameda das Embaúbas",
+    number: "365",
+    zipcode: "06542195",
+    city: "Santana de Parnaíba",
+    state: "São Paulo",
+    shortState: "SP",
     passwordHash: "Kite@1972",
     userCategory: "atleta",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -291,12 +300,14 @@ export const authStore = {
    * Salva e sincroniza um usuário recém-cadastrado na lista persistida do authStore
    */
   recordRegisteredUser(user: Partial<StoredUser> & { id: string; fullName: string }) {
-    const existingIdx = storedUsers.findIndex(
-      (u) =>
-        u.id === user.id ||
-        (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase()) ||
-        (u.cpf && user.cpf && cleanDigits(u.cpf) === cleanDigits(user.cpf))
-    );
+    let existingIdx = storedUsers.findIndex((u) => u.id === user.id);
+    if (existingIdx === -1) {
+      existingIdx = storedUsers.findIndex(
+        (u) =>
+          (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase()) ||
+          (u.cpf && user.cpf && cleanDigits(u.cpf) === cleanDigits(user.cpf))
+      );
+    }
     let resolvedUser: StoredUser;
     if (existingIdx >= 0) {
       storedUsers[existingIdx] = { ...storedUsers[existingIdx], ...user };

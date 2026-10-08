@@ -560,10 +560,72 @@ export function validateWebhookApiKey(headerValue?: string | null): boolean {
   return matched;
 }
 
+let inMemoryUsersCache: any[] = [];
+let inMemoryTxsCache: any[] = [];
+let lastUsersCacheSyncTime = 0;
+
+/**
+ * Busca os usuários e transações sincronizados na nuvem permanente (Gist Engine)
+ */
+export async function fetchPersistentUsersAndTransactionsFromCloud(): Promise<{
+  users: any[];
+  transactions: any[];
+  updatedAt?: string;
+} | null> {
+  const now = Date.now();
+  if (inMemoryUsersCache.length > 0 && now - lastUsersCacheSyncTime < 3000) {
+    return {
+      users: inMemoryUsersCache,
+      transactions: inMemoryTxsCache,
+    };
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      signal: controller.signal,
+      headers: {
+        Authorization: `token ${GIST_TOKEN}`,
+        "User-Agent": "Netfits-Production-App",
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const gist = await res.json();
+      const file = gist?.files?.["netfits_users_sync.json"];
+      if (file && file.content) {
+        const parsed = JSON.parse(file.content);
+        if (Array.isArray(parsed?.users) && parsed.users.length > 0) {
+          inMemoryUsersCache = parsed.users;
+          inMemoryTxsCache = parsed.transactions || [];
+          lastUsersCacheSyncTime = now;
+          return {
+            users: inMemoryUsersCache,
+            transactions: inMemoryTxsCache,
+            updatedAt: parsed.updatedAt,
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("[fetchPersistentUsers] Error fetching from Gist:", err);
+  }
+
+  return null;
+}
+
 /**
  * Sincroniza usuários e transações com a nuvem persistente
  */
 export async function syncUsersAndTransactionsToCloud(users: any[], transactions: any[]): Promise<boolean> {
+  inMemoryUsersCache = [...users];
+  inMemoryTxsCache = [...transactions];
+  lastUsersCacheSyncTime = Date.now();
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);

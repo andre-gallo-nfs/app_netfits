@@ -249,7 +249,7 @@ function ProfilePage() {
       coaching: activeUser.coaching || prev.coaching,
       wearable: activeUser.wearable || prev.wearable,
     }));
-  }, [activeUser.id]);
+  }, [activeUser.id, activeUser.address, activeUser.street, activeUser.number, activeUser.zipcode, activeUser.cpf, activeUser.phone, activeUser.birthDate]);
 
   const handleCepChange = async (cepInput: string) => {
     const masked = formatCepMask(cepInput);
@@ -353,7 +353,7 @@ function ProfilePage() {
   const completedChecklistCount = checklistItems.filter((i) => i.done).length;
   const profileCompletionPct = Math.round((completedChecklistCount / checklistItems.length) * 100);
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const cleanPhone = form.phone.trim();
     const cleanCpf = form.cpf.trim();
@@ -401,6 +401,10 @@ function ProfilePage() {
       wearable: form.wearable,
     });
 
+    // Atualiza imediatamente o estado de activeUser no componente para evitar descompasso de renderização
+    const freshUser = sharedSandboxStore.getActiveUser();
+    setActiveUser(freshUser);
+
     // Mantém credenciais sincronizadas no authStore para login e desbloqueio por senha
     authStore.recordRegisteredUser({
       id: activeUser.id,
@@ -412,29 +416,33 @@ function ProfilePage() {
     });
 
     // Sincroniza imediatamente com o servidor para disponibilizar CPF e endereço estruturado para a Loja Oficial
-    fetch("/api/users-sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user: {
-          id: activeUser.id,
-          fullName: form.name.trim(),
-          email: form.email.trim(),
-          cpf: cleanCpf,
-          phone: cleanPhone,
-          zipcode: cleanZipcode,
-          street: cleanStreet,
-          number: cleanNumber,
-          complement: cleanComplement,
-          neighborhood: cleanNeighborhood,
-          city: cleanCity,
-          state: cleanState,
-          shortState: cleanShortState,
-          address: formattedAddress,
-          birthDate: cleanBirth,
-        },
-      }),
-    }).catch((err) => console.warn("[Profile] Server sync warning:", err));
+    try {
+      await fetch("/api/users-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user: {
+            id: activeUser.id,
+            fullName: form.name.trim(),
+            email: form.email.trim(),
+            cpf: cleanCpf,
+            phone: cleanPhone,
+            zipcode: cleanZipcode,
+            street: cleanStreet,
+            number: cleanNumber,
+            complement: cleanComplement,
+            neighborhood: cleanNeighborhood,
+            city: cleanCity,
+            state: cleanState,
+            shortState: cleanShortState,
+            address: formattedAddress,
+            birthDate: cleanBirth,
+          },
+        }),
+      });
+    } catch (err) {
+      console.warn("[Profile] Server sync warning:", err);
+    }
 
     setSaved(true);
     badgesStore.evaluate();

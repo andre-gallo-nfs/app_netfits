@@ -841,12 +841,12 @@ class HomologationSandboxStore {
     const user = this.state.users.find((u) => u.id === userId);
     if (user) {
       Object.assign(user, updates);
-      if (updates.address) {
+      if (updates.address && (!user.street || !user.number)) {
         const parts = updates.address.split(/[,\-·]/).map((s) => s.trim()).filter(Boolean);
-        if (parts[0]) user.street = parts[0];
-        if (parts[1]) user.number = parts[1];
-        if (parts[2]) user.neighborhood = parts[2];
-        if (parts[3]) user.city = parts[3];
+        if (parts[0] && !user.street) user.street = parts[0];
+        if (parts[1] && !user.number) user.number = parts[1];
+        if (parts[2] && !user.neighborhood) user.neighborhood = parts[2];
+        if (parts[3] && !user.city) user.city = parts[3];
       }
       if (typeof window !== "undefined") {
         try {
