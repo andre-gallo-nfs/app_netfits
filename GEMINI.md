@@ -26,7 +26,10 @@ Antes de realizar QUALQUER alteração, refatoração, edição em lote ou imple
 3. **Arquitetura FinOps**:
    - Priorizar soluções de custo zero (Zero-Token Fast-Path em IA, Passkeys biométricas para eliminar SMS OTP, Cold Data Tiering no PostgreSQL).
 
-4. **Deploy Contínuo Automático na Vercel (Produção)**:
-   - Toda alteração finalizada e validada deve ser enviada diretamente para o GitHub (`git push origin main`).
-   - Como a Vercel está conectada ao repositório via CI/CD, o push para a `main` dispara o deploy em produção (`https://app-netfits.vercel.app`) de forma 100% automática e transparente.
+4. **Arquitetura de Deploy Dual & Portão de Validação Humana (OBRIGATÓRIO)**:
+   - **PROIBIDO push direto na branch `main`**: Toda alteração, refatoração ou nova funcionalidade solicitada via prompt DEVE ser desenvolvida e enviada exclusivamente para a branch `staging` (`git push origin staging`).
+   - **Ambiente de Homologação**: O push na branch `staging` atualiza o ambiente de homologação/preview.
+   - **Portão Humano**: O André realiza a validação funcional e de negócio para conferir se o prompt foi interpretado e executado corretamente sem efeitos colaterais.
+   - **Tombamento Oficial para Produção**: Somente após o "de acordo" explícito do André, é executado o tombamento (`npm run promote:prod`), que promove `staging` para `main` com Quality Gate aprovado e dispara o deploy oficial de produção.
+   - O ambiente de desenvolvimento deve sempre retornar à branch `staging` após qualquer tombamento.
 

@@ -1,0 +1,219 @@
+{
+  "users": [
+    {
+      "id": "usr_andre",
+      "fullName": "André Gallo",
+      "email": "aacgallo@hotmail.com",
+      "phone": "11995351513",
+      "cpf": "25664730803",
+      "birthDate": "",
+      "address": "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP",
+      "street": "Rua Karl Von Den Steinen",
+      "number": "54",
+      "neighborhood": "Vila Mariana",
+      "city": "São Paulo",
+      "state": "São Paulo",
+      "shortState": "SP",
+      "zipcode": "04005-030",
+      "sports": [],
+      "healthPlan": "",
+      "gym": "",
+      "wearable": "",
+      "nfsBalance": 1091,
+      "userCategory": "associado",
+      "registeredAt": "2026-10-05T00:00:00Z"
+    },
+    {
+      "id": "usr_carlos_formigari",
+      "fullName": "Carlos Rodrigo Formigari",
+      "email": "crformigari72@gmail.com",
+      "phone": "",
+      "cpf": "",
+      "birthDate": "",
+      "address": "",
+      "nfsBalance": 110,
+      "userCategory": "atleta",
+      "referralCode": "FORMIGARI-NFS",
+      "registeredAt": "2026-10-06T00:00:00Z"
+    },
+    {
+      "id": "usr_cristiane_gallo",
+      "fullName": "Cristiane Queli da Silva Gallo",
+      "email": "",
+      "phone": "",
+      "cpf": "",
+      "birthDate": "",
+      "address": "",
+      "nfsBalance": 50,
+      "userCategory": "atleta",
+      "referralCode": "CRIS-NETFITS",
+      "registeredAt": "2026-10-06T00:00:00Z"
+    },
+    {
+      "id": "user-1791370530242",
+      "fullName": "Cristiane Ferreira Formigari",
+      "email": "cristiane.formigari@amantikira.com.br",
+      "phone": "(11) 98381-7390",
+      "cpf": "11001624882",
+      "birthDate": "24/05/1970",
+      "address": "",
+      "street": "",
+      "number": "",
+      "neighborhood": "",
+      "city": "",
+      "state": "",
+      "shortState": "",
+      "zipcode": "",
+      "sports": [],
+      "healthPlan": "",
+      "gym": "",
+      "wearable": "",
+      "nfsBalance": 564,
+      "userCategory": "atleta",
+      "identifier": "cristiane.formigari@amantikira.com.br",
+      "type": "athlete",
+      "referralCode": "NET-1243",
+      "referredBy": "FORMIGARI-NFS",
+      "registeredAt": "2026-10-07T10:55:30.242Z",
+      "passwordHash": "Kite@1970"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx-mkp-earn-GTJ0522372096",
+      "userId": "usr_andre",
+      "userName": "André Gallo",
+      "amount": 814,
+      "description": "✨ Cashback compra Mkplace Pedido #GTJ0522372096",
+      "category": "shop",
+      "timestamp": "2026-10-07T19:41:14.925Z"
+    },
+    {
+      "id": "tx-mkp-earn-PFM0610443019",
+      "userId": "usr_andre",
+      "userName": "André Gallo",
+      "amount": 227,
+      "description": "✨ Cashback compra Mkplace Pedido #PFM0610443019",
+      "category": "shop",
+      "timestamp": "2026-10-07T19:41:12.262Z"
+    },
+    {
+      "id": "tx-welcome-andre",
+      "userId": "usr_andre",
+      "userName": "André Gallo",
+      "amount": 50,
+      "description": "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+      "category": "welcome",
+      "timestamp": "2026-10-05T00:00:00Z"
+    },
+    {
+      "id": "tx-mkp-spend-SOP0711045469",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": -50,
+      "description": "🛍️ Resgate compra Mkplace Pedido #SOP0711045469",
+      "category": "shop",
+      "timestamp": "2026-10-07T11:04:47Z"
+    },
+    {
+      "id": "tx-mkp-earn-SOP0711045469",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 514,
+      "description": "✨ Cashback compra Mkplace Pedido #SOP0711045469",
+      "category": "shop",
+      "timestamp": "2026-10-07T11:05:34Z"
+    },
+    {
+      "id": "tx-welcome-carlos",
+      "userId": "usr_carlos_formigari",
+      "userName": "Carlos Rodrigo Formigari",
+      "amount": 50,
+      "description": "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+      "category": "welcome",
+      "timestamp": "2026-10-06T00:00:00Z"
+    },
+    {
+      "id": "tx-referral-carlos",
+      "userId": "usr_carlos_formigari",
+      "userName": "Carlos Rodrigo Formigari",
+      "amount": 50,
+      "description": "🤝 Bônus por Indicar Novo Usuário (Cristiane Ferreira Formigari)",
+      "category": "referral",
+      "timestamp": "2026-10-07T10:55:30.242Z"
+    },
+    {
+      "id": "tx-feed-carlos",
+      "userId": "usr_carlos_formigari",
+      "userName": "Carlos Rodrigo Formigari",
+      "amount": 10,
+      "description": "📱 Engajamento no Feed de Conteúdo",
+      "category": "view",
+      "timestamp": "2026-10-06T18:00:00Z"
+    },
+    {
+      "id": "tx-welcome-cristiane-gallo",
+      "userId": "usr_cristiane_gallo",
+      "userName": "Cristiane Queli da Silva Gallo",
+      "amount": 50,
+      "description": "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
+      "category": "welcome",
+      "timestamp": "2026-10-06T00:00:00Z"
+    },
+    {
+      "id": "tx-welcome-cristiane-formigari",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 50,
+      "description": "🎉 Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+      "category": "welcome",
+      "timestamp": "2026-10-07T10:55:30.242Z"
+    },
+    {
+      "id": "tx-feed-cristiane-1",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 10,
+      "description": "📱 Leitura Completa de Artigo no Feed",
+      "category": "view",
+      "timestamp": "2026-10-07T11:05:00Z"
+    },
+    {
+      "id": "tx-feed-cristiane-2",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 10,
+      "description": "🧠 Desafio Netfits: Longevidade & Especialistas Fibios",
+      "category": "view",
+      "timestamp": "2026-10-07T11:15:00Z"
+    },
+    {
+      "id": "tx-feed-cristiane-3",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 10,
+      "description": "🔗 Acesso a Conteúdo e Link Oficial",
+      "category": "click",
+      "timestamp": "2026-10-07T11:22:00Z"
+    },
+    {
+      "id": "tx-feed-cristiane-4",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 10,
+      "description": "❤️ Interação em Conteúdo da Comunidade",
+      "category": "like",
+      "timestamp": "2026-10-07T11:30:00Z"
+    },
+    {
+      "id": "tx-feed-cristiane-5",
+      "userId": "user-1791370530242",
+      "userName": "Cristiane Ferreira Formigari",
+      "amount": 10,
+      "description": "📱 Engajamento no Feed Social",
+      "category": "view",
+      "timestamp": "2026-10-07T11:35:40Z"
+    }
+  ],
+  "updatedAt": "2026-10-07T19:41:20.054Z"
+}

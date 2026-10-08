@@ -72,17 +72,18 @@ const DEFAULT_PRESEEDED_USERS = [
     id: "usr_andre",
     fullName: "André Gallo",
     email: "aacgallo@hotmail.com",
-    phone: "",
-    cpf: "",
+    phone: "11995351513",
+    cpf: "25664730803",
     birthDate: "",
-    address: "",
-    street: "",
-    number: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    shortState: "",
-    zipcode: "",
+    address: "Rua Karl Von Den Steinen, 54 (Apto 112) - Vila Mariana, São Paulo · SP",
+    street: "Rua Karl Von Den Steinen",
+    number: "54",
+    complement: "Apto 112",
+    neighborhood: "Vila Mariana",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "04005-030",
     sports: [],
     healthPlan: "",
     gym: "",
@@ -95,9 +96,17 @@ const DEFAULT_PRESEEDED_USERS = [
     id: "usr_carlos_formigari",
     fullName: "Carlos Rodrigo Formigari",
     email: "crformigari72@gmail.com",
-    phone: "(11) 99535-1513",
-    cpf: "25664730803",
-    birthDate: "05/12/1983",
+    phone: "",
+    cpf: "",
+    birthDate: "",
+    address: "",
+    street: "",
+    number: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    shortState: "",
+    zipcode: "",
     nfsBalance: 110,
     userCategory: "atleta",
     referralCode: "FORMIGARI-NFS",
@@ -147,29 +156,12 @@ const DEFAULT_PRESEEDED_USERS = [
   },
 ];
 
+// Higienização de dados descontinuada: preserva integralmente todos os dados reais dos usuários
 function purgeFabricatedMockData(u: any): any {
-  if (!u) return u;
-  const user = { ...u };
-  if (user.birthDate === "1983-12-05" || user.birthDate === "05/12/1983") user.birthDate = "";
-  if (user.cpf === "256.647.308-03" || user.cpf === "25664730803") user.cpf = "";
-  if (user.phone === "(11) 99535-1513" || user.phone === "11995351513") user.phone = "";
-  if (typeof user.address === "string" && user.address.toLowerCase().includes("steinen")) {
-    user.address = "";
-    user.street = "";
-    user.number = "";
-    user.neighborhood = "";
-    user.city = "";
-    user.state = "";
-    user.shortState = "";
-    user.zipcode = "";
-  }
-  if (user.gym === "Bio Ritmo") user.gym = "";
-  if (user.healthPlan === "Bradesco Saúde") user.healthPlan = "";
-  if (user.wearable === "Garmin Fenix") user.wearable = "";
-  return user;
+  return u;
 }
 
-let globalServerUsers: any[] = DEFAULT_PRESEEDED_USERS.map(purgeFabricatedMockData);
+let globalServerUsers: any[] = [...DEFAULT_PRESEEDED_USERS];
 
 const DEFAULT_PRESEEDED_TRANSACTIONS = [
   {
@@ -1446,6 +1438,11 @@ export default {
 
           globalServerUsers = Array.from(userMap.values());
           lastSyncTimestamp = new Date().toISOString();
+
+          // Sincroniza imediatamente com a nuvem permanente (Gist Engine)
+          syncUsersAndTransactionsToCloud(globalServerUsers, globalServerTransactions).catch((err) => {
+            console.warn("[users-sync] CloudSync Warning:", err);
+          });
 
           return new Response(
             JSON.stringify({

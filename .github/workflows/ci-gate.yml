@@ -1,0 +1,34 @@
+name: Quality Gate & Validation
+
+on:
+  push:
+    branches: [ staging, main ]
+  pull_request:
+    branches: [ staging, main ]
+
+jobs:
+  validate:
+    name: Lint, Types & Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci || npm install --include=dev
+
+      - name: Validate Routes
+        run: node scripts/validate-routes.cjs
+
+      - name: TypeScript Verification
+        run: npm run typecheck
+
+      - name: Production Build Check
+        run: npx vite build --mode production

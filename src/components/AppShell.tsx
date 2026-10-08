@@ -161,6 +161,11 @@ function TopBar() {
         <span className="font-extrabold tracking-tight text-xl text-zinc-900">
           Netfits
         </span>
+        {typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_ENV === "staging" && (
+          <span className="text-[9px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-700 border border-amber-500/30 px-1.5 py-0.5 rounded-full ml-1">
+            Homolog
+          </span>
+        )}
       </Link>
       <div className="flex items-center gap-1.5 shrink-0">
         <Link
