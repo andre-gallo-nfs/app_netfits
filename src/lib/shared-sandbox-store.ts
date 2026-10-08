@@ -125,20 +125,21 @@ const INITIAL_USERS: SandboxUser[] = [
     type: "admin",
     phone: "11995351513",
     cpf: "25664730803",
-    birthDate: "",
-    address: "",
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    shortState: "",
-    zipcode: "",
-    sports: [],
-    healthPlan: "",
-    gym: "",
-    wearable: "",
+    birthDate: "13/11/1975",
+    address: "Rua Carlos Steinen, 193 (Apto 121) - Paraíso, São Paulo · SP",
+    street: "Rua Carlos Steinen",
+    number: "193",
+    complement: "Apto 121",
+    neighborhood: "Paraíso",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "04004011",
+    sports: ["Corrida de rua", "Trail running", "Maratona", "Triathlon", "Ciclismo", "Natação", "Musculação"],
+    healthPlan: "Sem plano",
+    gym: "Academia local / Independente",
+    coaching: "Limite Team",
+    wearable: "Garmin Forerunner",
     nfsBalance: 1091,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -641,17 +642,6 @@ class HomologationSandboxStore {
               userWithBackup = { ...userWithBackup, ...backup };
             }
           } catch {}
-          if (typeof userWithBackup.address === "string" && userWithBackup.address.toLowerCase().includes("steinen")) {
-            userWithBackup.address = "";
-            userWithBackup.street = "";
-            userWithBackup.number = "";
-            userWithBackup.complement = "";
-            userWithBackup.neighborhood = "";
-            userWithBackup.city = "";
-            userWithBackup.state = "";
-            userWithBackup.shortState = "";
-            userWithBackup.zipcode = "";
-          }
           if (u.id === "usr_carlos_formigari") {
             if (userWithBackup.cpf === "25664730803" || userWithBackup.cpf === "256.647.308-03") userWithBackup.cpf = "11553412877";
             if (userWithBackup.phone === "(11) 99535-1513" || userWithBackup.phone === "11995351513") userWithBackup.phone = "(11) 98426-4116";

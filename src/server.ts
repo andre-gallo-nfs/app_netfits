@@ -75,20 +75,21 @@ const DEFAULT_PRESEEDED_USERS = [
     email: "aacgallo@hotmail.com",
     phone: "11995351513",
     cpf: "25664730803",
-    birthDate: "",
-    address: "",
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    shortState: "",
-    zipcode: "",
-    sports: [],
-    healthPlan: "",
-    gym: "",
-    wearable: "",
+    birthDate: "13/11/1975",
+    address: "Rua Carlos Steinen, 193 (Apto 121) - Paraíso, São Paulo · SP",
+    street: "Rua Carlos Steinen",
+    number: "193",
+    complement: "Apto 121",
+    neighborhood: "Paraíso",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "04004011",
+    sports: ["Corrida de rua", "Trail running", "Maratona", "Triathlon", "Ciclismo", "Natação", "Musculação"],
+    healthPlan: "Sem plano",
+    gym: "Academia local / Independente",
+    coaching: "Limite Team",
+    wearable: "Garmin Forerunner",
     nfsBalance: 1091,
     userCategory: "associado",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -1401,17 +1402,6 @@ export default {
                 if (parts[1] && !merged.number) merged.number = parts[1];
                 if (parts[2] && !merged.neighborhood) merged.neighborhood = parts[2];
                 if (parts[3] && !merged.city) merged.city = parts[3];
-              }
-              if (typeof merged.address === "string" && merged.address.toLowerCase().includes("steinen")) {
-                merged.address = "";
-                merged.street = "";
-                merged.number = "";
-                merged.complement = "";
-                merged.neighborhood = "";
-                merged.city = "";
-                merged.state = "";
-                merged.shortState = "";
-                merged.zipcode = "";
               }
               userMap.set(targetId, purgeFabricatedMockData(merged));
             }
