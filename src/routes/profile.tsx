@@ -202,53 +202,88 @@ function ProfilePage() {
     toast.info("Avatar removido. Exibindo suas iniciais.");
   };
 
-  const [form, setForm] = useState({
-    name: activeUser.fullName || "",
-    email: activeUser.email || activeUser.identifier || "",
-    cpf: formatCpfMask(activeUser.cpf || ""),
-    phone: formatPhoneMask(activeUser.phone || ""),
-    zipcode: formatCepMask(activeUser.zipcode || ""),
-    street: activeUser.street || "",
-    number: activeUser.number || "",
-    complement: activeUser.complement || "",
-    neighborhood: activeUser.neighborhood || "",
-    city: activeUser.city || "",
-    state: activeUser.state || "",
-    shortState: (activeUser.shortState || "SP").toUpperCase(),
-    address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : ""),
-    birthDate: formatBirthDateForDisplay(activeUser.birthDate || ""),
-    sports: activeUser.sports || [],
-    otherSport: activeUser.otherSport || "",
-    healthPlan: activeUser.healthPlan || "Sem plano",
-    gym: activeUser.gym || "Não frequento",
-    coaching: activeUser.coaching || "",
-    wearable: activeUser.wearable || "Não uso",
-  });
+  const getInitialForm = () => {
+    let backup: any = {};
+    if (typeof window !== "undefined") {
+      try {
+        const rawBackup =
+          localStorage.getItem(`netfits_profile_saved_${activeUser.id}`) ||
+          localStorage.getItem("netfits_user_profile_form_backup");
+        if (rawBackup) {
+          backup = JSON.parse(rawBackup);
+        }
+      } catch {}
+    }
+
+    const resolvedStreet = activeUser.street || backup.street || "";
+    const resolvedNumber = activeUser.number || backup.number || "";
+    const resolvedZipcode = activeUser.zipcode || backup.zipcode || "";
+    const resolvedComplement = activeUser.complement !== undefined ? activeUser.complement : (backup.complement || "");
+    const resolvedNeighborhood = activeUser.neighborhood || backup.neighborhood || "";
+    const resolvedCity = activeUser.city || backup.city || "";
+    const resolvedShortState = (activeUser.shortState || backup.shortState || "SP").toUpperCase();
+    const resolvedState = activeUser.state || backup.state || (resolvedShortState === "SP" ? "São Paulo" : resolvedShortState);
+    const resolvedAddress = activeUser.address || backup.address || (resolvedStreet ? `${resolvedStreet}${resolvedNumber ? `, ${resolvedNumber}` : ""}${resolvedNeighborhood ? ` - ${resolvedNeighborhood}` : ""}${resolvedCity ? `, ${resolvedCity}` : ""}${resolvedShortState ? ` · ${resolvedShortState}` : ""}` : "");
+
+    return {
+      name: activeUser.fullName || backup.fullName || backup.name || "",
+      email: activeUser.email || activeUser.identifier || backup.email || "",
+      cpf: formatCpfMask(activeUser.cpf || backup.cpf || ""),
+      phone: formatPhoneMask(activeUser.phone || backup.phone || ""),
+      zipcode: formatCepMask(resolvedZipcode),
+      street: resolvedStreet,
+      number: resolvedNumber,
+      complement: resolvedComplement,
+      neighborhood: resolvedNeighborhood,
+      city: resolvedCity,
+      state: resolvedState,
+      shortState: resolvedShortState,
+      address: resolvedAddress,
+      birthDate: formatBirthDateForDisplay(activeUser.birthDate || backup.birthDate || ""),
+      sports: ((Array.isArray(activeUser.sports) && activeUser.sports.length > 0) ? activeUser.sports : (backup.sports || [])) as string[],
+      otherSport: activeUser.otherSport || backup.otherSport || "",
+      healthPlan: activeUser.healthPlan || backup.healthPlan || "Sem plano",
+      gym: activeUser.gym || backup.gym || "Não frequento",
+      coaching: activeUser.coaching || backup.coaching || "",
+      wearable: activeUser.wearable || backup.wearable || "Não uso",
+    };
+  };
+
+  const [form, setForm] = useState(getInitialForm);
 
   useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      name: activeUser.fullName || prev.name,
-      email: activeUser.email || activeUser.identifier || prev.email,
-      cpf: activeUser.cpf ? formatCpfMask(activeUser.cpf) : prev.cpf,
-      phone: activeUser.phone ? formatPhoneMask(activeUser.phone) : prev.phone,
-      zipcode: activeUser.zipcode ? formatCepMask(activeUser.zipcode) : prev.zipcode,
-      street: activeUser.street || prev.street,
-      number: activeUser.number || prev.number,
-      complement: activeUser.complement !== undefined ? activeUser.complement : prev.complement,
-      neighborhood: activeUser.neighborhood || prev.neighborhood,
-      city: activeUser.city || prev.city,
-      state: activeUser.state || prev.state,
-      shortState: activeUser.shortState ? activeUser.shortState.toUpperCase() : prev.shortState,
-      address: activeUser.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : prev.address),
-      birthDate: activeUser.birthDate ? formatBirthDateForDisplay(activeUser.birthDate) : prev.birthDate,
-      sports: Array.isArray(activeUser.sports) && activeUser.sports.length > 0 ? activeUser.sports : prev.sports,
-      otherSport: activeUser.otherSport || prev.otherSport,
-      healthPlan: activeUser.healthPlan || prev.healthPlan,
-      gym: activeUser.gym || prev.gym,
-      coaching: activeUser.coaching || prev.coaching,
-      wearable: activeUser.wearable || prev.wearable,
-    }));
+    setForm((prev) => {
+      let backup: any = {};
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("netfits_user_profile_form_backup") || localStorage.getItem(`netfits_profile_saved_${activeUser.id}`);
+          if (raw) backup = JSON.parse(raw);
+        } catch {}
+      }
+      return {
+        ...prev,
+        name: activeUser.fullName || prev.name || backup.name || backup.fullName || "",
+        email: activeUser.email || activeUser.identifier || prev.email || backup.email || "",
+        cpf: activeUser.cpf ? formatCpfMask(activeUser.cpf) : (prev.cpf || (backup.cpf ? formatCpfMask(backup.cpf) : "")),
+        phone: activeUser.phone ? formatPhoneMask(activeUser.phone) : (prev.phone || (backup.phone ? formatPhoneMask(backup.phone) : "")),
+        zipcode: activeUser.zipcode ? formatCepMask(activeUser.zipcode) : (prev.zipcode || (backup.zipcode ? formatCepMask(backup.zipcode) : "")),
+        street: activeUser.street || prev.street || backup.street || "",
+        number: activeUser.number || prev.number || backup.number || "",
+        complement: activeUser.complement !== undefined ? activeUser.complement : (prev.complement || backup.complement || ""),
+        neighborhood: activeUser.neighborhood || prev.neighborhood || backup.neighborhood || "",
+        city: activeUser.city || prev.city || backup.city || "",
+        state: activeUser.state || prev.state || backup.state || "",
+        shortState: activeUser.shortState ? activeUser.shortState.toUpperCase() : (prev.shortState || backup.shortState || "SP"),
+        address: activeUser.address || prev.address || backup.address || (activeUser.street ? `${activeUser.street}${activeUser.number ? `, ${activeUser.number}` : ""}${activeUser.neighborhood ? ` - ${activeUser.neighborhood}` : ""}${activeUser.city ? `, ${activeUser.city}` : ""}${activeUser.shortState ? ` · ${activeUser.shortState}` : ""}` : ""),
+        birthDate: activeUser.birthDate ? formatBirthDateForDisplay(activeUser.birthDate) : (prev.birthDate || (backup.birthDate ? formatBirthDateForDisplay(backup.birthDate) : "")),
+        sports: (Array.isArray(activeUser.sports) && activeUser.sports.length > 0 ? activeUser.sports : (prev.sports.length > 0 ? prev.sports : (backup.sports || []))) as string[],
+        otherSport: activeUser.otherSport || prev.otherSport || backup.otherSport || "",
+        healthPlan: activeUser.healthPlan || prev.healthPlan || backup.healthPlan || "Sem plano",
+        gym: activeUser.gym || prev.gym || backup.gym || "Não frequento",
+        coaching: activeUser.coaching || prev.coaching || backup.coaching || "",
+        wearable: activeUser.wearable || prev.wearable || backup.wearable || "Não uso",
+      };
+    });
   }, [activeUser.id, activeUser.address, activeUser.street, activeUser.number, activeUser.zipcode, activeUser.cpf, activeUser.phone, activeUser.birthDate]);
 
   const handleCepChange = async (cepInput: string) => {
@@ -377,7 +412,45 @@ function ProfilePage() {
       ? `${cleanStreet}, ${cleanNumber || "S/N"}${cleanComplement ? ` (${cleanComplement})` : ""}${cleanNeighborhood ? ` - ${cleanNeighborhood}` : ""}${cleanCity ? `, ${cleanCity}` : ""}${cleanShortState ? ` · ${cleanShortState}` : ""}`
       : form.address.trim();
 
-    sharedSandboxStore.updateUser(activeUser.id, {
+    const targetUserId =
+      activeUser.id === "usr_carlos_formigari" && (form.email.includes("aacgallo") || cleanCpf === "25664730803")
+        ? "usr_andre"
+        : activeUser.id;
+
+    if (typeof window !== "undefined") {
+      try {
+        const payloadToSave = {
+          id: targetUserId,
+          fullName: form.name.trim(),
+          email: form.email.trim(),
+          cpf: cleanCpf,
+          phone: cleanPhone,
+          zipcode: cleanZipcode,
+          street: cleanStreet,
+          number: cleanNumber,
+          complement: cleanComplement,
+          neighborhood: cleanNeighborhood,
+          city: cleanCity,
+          state: cleanState,
+          shortState: cleanShortState,
+          address: formattedAddress,
+          birthDate: cleanBirth,
+          sports: form.sports,
+          otherSport: form.otherSport.trim(),
+          healthPlan: form.healthPlan,
+          gym: form.gym,
+          coaching: form.coaching.trim(),
+          wearable: form.wearable,
+        };
+        localStorage.setItem(`netfits_profile_saved_${targetUserId}`, JSON.stringify(payloadToSave));
+        localStorage.setItem("netfits_user_profile_form_backup", JSON.stringify(payloadToSave));
+        localStorage.setItem("netfits_production_active_user_v1", targetUserId);
+      } catch (err) {
+        console.warn("[Profile] Local storage backup warning:", err);
+      }
+    }
+
+    sharedSandboxStore.updateUser(targetUserId, {
       fullName: form.name.trim(),
       identifier: form.email.trim(),
       email: form.email.trim(),
@@ -407,7 +480,7 @@ function ProfilePage() {
 
     // Mantém credenciais sincronizadas no authStore para login e desbloqueio por senha
     authStore.recordRegisteredUser({
-      id: activeUser.id,
+      id: targetUserId,
       fullName: form.name.trim(),
       email: form.email.trim(),
       cpf: cleanCpf,
@@ -422,7 +495,7 @@ function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user: {
-            id: activeUser.id,
+            id: targetUserId,
             fullName: form.name.trim(),
             email: form.email.trim(),
             cpf: cleanCpf,
