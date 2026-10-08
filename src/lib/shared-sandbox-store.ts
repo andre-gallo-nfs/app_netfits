@@ -150,17 +150,17 @@ const INITIAL_USERS: SandboxUser[] = [
     email: "crformigari72@gmail.com",
     fullName: "Carlos Rodrigo Formigari",
     type: "athlete",
-    phone: "",
-    cpf: "",
-    birthDate: "",
-    address: "",
-    street: "",
-    number: "",
-    neighborhood: "",
-    city: "",
-    state: "",
-    shortState: "",
-    zipcode: "",
+    phone: "(11) 98426-4116",
+    cpf: "11553412877",
+    birthDate: "05/12/1972",
+    address: "Alameda das Embaúbas, 365 - Alphaville, Santana de Parnaíba · SP",
+    street: "Alameda das Embaúbas",
+    number: "365",
+    neighborhood: "Alphaville",
+    city: "Santana de Parnaíba",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "06542195",
     nfsBalance: 110,
     referralCode: "FORMIGARI-NFS",
     registeredAt: "2026-10-06T00:00:00Z",
@@ -391,16 +391,15 @@ class HomologationSandboxStore {
         }
       });
 
-      // Sincronização inicial pontual ao carregar
+      // Sincronização inicial pontual ao carregar (apenas pull da nuvem, nunca push de defaults)
       setTimeout(() => {
-        this.syncToCloud();
         this.syncFromCloud();
       }, 500);
 
-      // Polling periódico automático (a cada 3s) para buscar cadastros, ações e saldo em tempo real
+      // Polling periódico automático (a cada 15s) para buscar cadastros, ações e saldo em tempo real
       setInterval(() => {
         this.syncFromCloud();
-      }, 3000);
+      }, 15000);
 
       window.addEventListener("focus", () => {
         this.syncFromCloud();
@@ -654,13 +653,28 @@ class HomologationSandboxStore {
             userWithBackup.zipcode = "";
           }
           if (u.id === "usr_carlos_formigari") {
-            if (userWithBackup.cpf === "25664730803" || userWithBackup.cpf === "256.647.308-03") userWithBackup.cpf = "";
-            if (userWithBackup.phone === "(11) 99535-1513" || userWithBackup.phone === "11995351513") userWithBackup.phone = "";
-            if (userWithBackup.birthDate === "05/12/1983" || userWithBackup.birthDate === "1983-12-05") userWithBackup.birthDate = "";
+            if (userWithBackup.cpf === "25664730803" || userWithBackup.cpf === "256.647.308-03") userWithBackup.cpf = "11553412877";
+            if (userWithBackup.phone === "(11) 99535-1513" || userWithBackup.phone === "11995351513") userWithBackup.phone = "(11) 98426-4116";
+            if (userWithBackup.birthDate === "05/12/1983" || userWithBackup.birthDate === "1983-12-05") userWithBackup.birthDate = "05/12/1972";
           }
           if (u.id === "usr_andre") {
             if (!userWithBackup.cpf) userWithBackup.cpf = "25664730803";
             if (!userWithBackup.phone) userWithBackup.phone = "11995351513";
+            try {
+              const fbRaw = localStorage.getItem("netfits_user_profile_form_backup");
+              if (fbRaw) {
+                const fb = JSON.parse(fbRaw);
+                if (fb.street && !userWithBackup.street) userWithBackup.street = fb.street;
+                if (fb.number && !userWithBackup.number) userWithBackup.number = fb.number;
+                if (fb.complement !== undefined && !userWithBackup.complement) userWithBackup.complement = fb.complement;
+                if (fb.neighborhood && !userWithBackup.neighborhood) userWithBackup.neighborhood = fb.neighborhood;
+                if (fb.city && !userWithBackup.city) userWithBackup.city = fb.city;
+                if (fb.state && !userWithBackup.state) userWithBackup.state = fb.state;
+                if (fb.shortState && !userWithBackup.shortState) userWithBackup.shortState = fb.shortState;
+                if (fb.zipcode && !userWithBackup.zipcode) userWithBackup.zipcode = fb.zipcode;
+                if (fb.address && !userWithBackup.address) userWithBackup.address = fb.address;
+              }
+            } catch {}
           }
           try {
             localStorage.setItem(`netfits_profile_saved_${u.id}`, JSON.stringify(userWithBackup));
@@ -713,6 +727,7 @@ class HomologationSandboxStore {
         const active = this.getActiveUser();
         if (active && active.id) {
           localStorage.setItem(`netfits_profile_saved_${active.id}`, JSON.stringify(active));
+          localStorage.setItem("netfits_user_profile_form_backup", JSON.stringify(active));
         }
       } catch (err) {
         console.warn("[saveToStorage] Profile backup warning:", err);
@@ -760,7 +775,16 @@ class HomologationSandboxStore {
 
   public getActiveUser(): SandboxUser {
     if (typeof window !== "undefined") {
-      const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
+      let deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
+      if (deviceUserId === "usr_carlos_formigari") {
+        try {
+          const authRaw = localStorage.getItem("netfits_auth_stored_users_v2");
+          if (authRaw && (authRaw.includes("aacgallo") || authRaw.includes("25664730803"))) {
+            deviceUserId = "usr_andre";
+            localStorage.setItem(DEVICE_SESSION_KEY, "usr_andre");
+          }
+        } catch {}
+      }
       if (deviceUserId) {
         const found = this.state.users.find((u) => u.id === deviceUserId);
         if (found) return found;

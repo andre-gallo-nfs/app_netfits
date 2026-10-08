@@ -216,19 +216,20 @@ export const authStore = {
     if (
       raw === "aacgallo@hotmail.com" ||
       raw === "aacgallo@hotmail.com.br" ||
-      raw === "usr_andre"
+      raw === "usr_andre" ||
+      digits === "25664730803"
     ) {
       const andreUser = storedUsers.find((u) => u.id === "usr_andre") || storedUsers[0];
-      return { exists: true, matchedField: "email", matchedUser: andreUser };
+      return { exists: true, matchedField: digits === "25664730803" ? "cpf" : "email", matchedUser: andreUser };
     }
 
     if (
       raw === "crformigari72@gmail.com" ||
       raw === "usr_carlos_formigari" ||
-      digits === "25664730803"
+      digits === "11553412877"
     ) {
       const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari") || storedUsers[1];
-      return { exists: true, matchedField: digits === "25664730803" ? "cpf" : "email", matchedUser: carlosUser };
+      return { exists: true, matchedField: digits === "11553412877" ? "cpf" : "email", matchedUser: carlosUser };
     }
 
     if (
