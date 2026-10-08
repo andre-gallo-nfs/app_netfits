@@ -1439,6 +1439,11 @@ export default {
           globalServerUsers = Array.from(userMap.values());
           lastSyncTimestamp = new Date().toISOString();
 
+          // Sincroniza imediatamente com a nuvem permanente (Gist Engine)
+          syncUsersAndTransactionsToCloud(globalServerUsers, globalServerTransactions).catch((err) => {
+            console.warn("[users-sync] CloudSync Warning:", err);
+          });
+
           return new Response(
             JSON.stringify({
               success: true,
