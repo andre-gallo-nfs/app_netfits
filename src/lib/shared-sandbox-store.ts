@@ -765,16 +765,7 @@ class HomologationSandboxStore {
 
   public getActiveUser(): SandboxUser {
     if (typeof window !== "undefined") {
-      let deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
-      if (deviceUserId === "usr_carlos_formigari") {
-        try {
-          const authRaw = localStorage.getItem("netfits_auth_stored_users_v2");
-          if (authRaw && (authRaw.includes("aacgallo") || authRaw.includes("25664730803"))) {
-            deviceUserId = "usr_andre";
-            localStorage.setItem(DEVICE_SESSION_KEY, "usr_andre");
-          }
-        } catch {}
-      }
+      const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
       if (deviceUserId) {
         const found = this.state.users.find((u) => u.id === deviceUserId);
         if (found) return found;

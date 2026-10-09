@@ -412,10 +412,7 @@ function ProfilePage() {
       ? `${cleanStreet}, ${cleanNumber || "S/N"}${cleanComplement ? ` (${cleanComplement})` : ""}${cleanNeighborhood ? ` - ${cleanNeighborhood}` : ""}${cleanCity ? `, ${cleanCity}` : ""}${cleanShortState ? ` · ${cleanShortState}` : ""}`
       : form.address.trim();
 
-    const targetUserId =
-      activeUser.id === "usr_carlos_formigari" && (form.email.includes("aacgallo") || cleanCpf === "25664730803")
-        ? "usr_andre"
-        : activeUser.id;
+    const targetUserId = activeUser.id;
 
     if (typeof window !== "undefined") {
       try {
