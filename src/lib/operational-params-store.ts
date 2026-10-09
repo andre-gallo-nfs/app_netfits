@@ -15,6 +15,7 @@ export type OperationalParams = {
   nfsPerLike?: number;
   nfsPerSave?: number;
   nfsPerShare?: number;
+  nfsPerQuiz?: number; // nfs por resposta correta em Desafio/Quiz diário (5 nfs homologado Fibios)
   dailyMaxPointsThirdPartyInteractions?: number;
 
   // Travas de Segurança Antifraude & Moderação
@@ -128,7 +129,8 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   nfsPerTextPost: 10,
   nfsPerLike: 10,
   nfsPerSave: 10,
-  nfsPerShare: 10,
+  nfsPerShare: 1, // 1 nf por compartilhamento em rede social (Homologado Fibios/Carlos Formigari)
+  nfsPerQuiz: 5, // 5 nfs por acerto no Desafio/Quiz diário (Homologado Fibios/Carlos Formigari)
   dailyMaxPointsThirdPartyInteractions: 100,
 
   blockSelfEngagementRewards: true, // Auto-engajamento sempre bloqueado

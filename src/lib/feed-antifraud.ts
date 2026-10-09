@@ -71,6 +71,8 @@ export const feedAntifraud = {
       pointsPerView: params.nfsPerPostView ?? 10,
       pointsPerVideo: params.nfsPerPostView ?? 10,
       pointsPerLinkClick: params.nfsPerLinkClick ?? 10,
+      pointsPerQuiz: params.nfsPerQuiz ?? 5, // 5 nfs por acerto em quiz diário (Homologação Fibios)
+      pointsPerShare: params.nfsPerShare ?? 1, // 1 nf por compartilhamento em rede social (Homologação Fibios)
       minVideoCompletionPct: params.minVideoCompletionPct ?? 90, // Regra oficial: 90% de retenção mínima do vídeo
       minDwellTimeSeconds: params.minDwellTimeSecondsForView ?? 3,
       maxInteractionsPerMinute: params.maxInteractionsPerMinute ?? 10,
@@ -162,7 +164,22 @@ export const feedAntifraud = {
       };
     }
 
-    // 4. Trava de Dwell Time em Leitura
+    // 4. Trava de Quiz Diário (Limite estrito de 1 desafio/quiz premiado por dia)
+    if (action === "quiz") {
+      const today = getTodayString();
+      const log = loadActionLog();
+      const todayQuizCount = log.filter((item) => item.action === "quiz" && item.timestamp.startsWith(today)).length;
+      if (todayQuizCount >= 1) {
+        return {
+          allowed: false,
+          reason: "🔒 Antifraude: Limite de 1 quiz premiado por dia atingido. O Desafio Netfits é diário. Volte amanhã para o novo desafio!",
+          dailyCount,
+          dailyLimit: rules.dailyInteractionLimit,
+        };
+      }
+    }
+
+    // 5. Trava de Dwell Time em Leitura
     if (action === "read" && typeof extraContext?.dwellTimeSeconds === "number") {
       if (extraContext.dwellTimeSeconds < rules.minDwellTimeSeconds) {
         return {
@@ -174,7 +191,7 @@ export const feedAntifraud = {
       }
     }
 
-    // 5. Trava de Retenção em Vídeo (Mínimo de 90%)
+    // 6. Trava de Retenção em Vídeo (Mínimo de 90%)
     if (action === "video_view" && typeof extraContext?.videoProgressPct === "number") {
       if (extraContext.videoProgressPct < rules.minVideoCompletionPct) {
         return {
@@ -186,7 +203,7 @@ export const feedAntifraud = {
       }
     }
 
-    // 6. Trava de Teto Diário de Interações com Terceiros (máx 10 interações = 100 nfs/dia)
+    // 7. Trava de Teto Diário de Interações com Terceiros (máx 10 interações = 100 nfs/dia)
     if (dailyCount >= rules.dailyInteractionLimit) {
       return {
         allowed: false,

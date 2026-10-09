@@ -14,12 +14,14 @@ import {
   ShieldCheck, 
   Heart,
   Calendar,
-  Share2
+  Share2,
+  Flame
 } from "lucide-react";
 import drFrancoAvatar from "@/assets/dr-franco-avatar.png";
 import drFrancoBanner from "@/assets/dr-franco-banner.png";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
+import { FeedSocialActions } from "@/components/FeedSocialActions";
 import { toast } from "sonner";
 
 interface QuizOption {
@@ -53,7 +55,7 @@ const QUIZ_OPTIONS: QuizOption[] = [
 const QUIZ_POST_ID = "franco-forca-quiz";
 const ARTICLE_POST_ID = "franco-forca-artigo";
 
-export function DrFrancoQuizCard() {
+export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge?: boolean }) {
   const [selectedOption, setSelectedOption] = useState<string>("opt-1");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export function DrFrancoQuizCard() {
 
   const handleSubmit = () => {
     if (hasSubmitted) {
-      toast.info("Você já concluiu este desafio e conquistou seus 10 nfs!");
+      toast.info("Você já concluiu este desafio e conquistou seus pontos!");
       return;
     }
 
@@ -101,13 +103,14 @@ export function DrFrancoQuizCard() {
         return;
       }
 
+      const points = feedAntifraud.getRules().pointsPerQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
-      wallet.earn(10, "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)");
-      feedAntifraud.recordAction("quiz", QUIZ_POST_ID, 10);
-      toast.success("🎉 Parabéns! Resposta correta (+10 nfs creditados na sua carteira)");
+      wallet.earn(points, "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)");
+      feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
+      toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);
     } else {
-      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus 10 NFs!");
+      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus NFs!");
       toast.error("Resposta incorreta. Leia a dica e tente novamente!");
     }
   };
@@ -151,9 +154,17 @@ export function DrFrancoQuizCard() {
               onClick={() => setArticleOpen(true)}
             />
             <div className="cursor-pointer" onClick={() => setArticleOpen(true)}>
-              <h3 className="text-sm font-bold text-zinc-900 leading-tight hover:text-purple-600 transition-colors">
-                Dr. Franco responde
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-zinc-900 leading-tight hover:text-purple-600 transition-colors">
+                  Dr. Franco responde
+                </h3>
+                {isDailyChallenge && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-800 text-[10px] font-black uppercase tracking-tight">
+                    <Flame className="size-3 text-amber-500 fill-amber-500 animate-pulse" />
+                    Desafio do Dia
+                  </span>
+                )}
+              </div>
               <p className="text-[11px] text-zinc-600 font-medium">
                 por Fibios · há 2 horas
               </p>
@@ -191,106 +202,127 @@ export function DrFrancoQuizCard() {
           </div>
         </div>
 
-        {/* 3. Módulo Interativo Desafio Netfits (Quiz-to-Earn) */}
-        <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-          {/* Cabeçalho do Quiz */}
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
-              <Trophy className="size-5" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                DESAFIO NETFITS
-              </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-xs font-bold text-zinc-800">
-                  Responda e ganhe
+        {/* 3. Módulo Condicional: Desafio do Dia (24h) OU Artigo Permanente sem Quiz */}
+        {isDailyChallenge ? (
+          <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+            {/* Cabeçalho do Quiz */}
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
+                <Trophy className="size-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
+                  DESAFIO NETFITS (VÁLIDO POR 24H)
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-                  10 NFs
-                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-xs font-bold text-zinc-800">
+                    Responda e ganhe
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
+                    5 NFs
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Pergunta */}
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
-            Qual hábito ajuda mais a preservar a força ao longo da vida?
-          </h4>
+            {/* Pergunta */}
+            <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
+              Qual hábito ajuda mais a preservar a força ao longo da vida?
+            </h4>
 
-          {/* Lista de Alternativas (Radio Buttons) */}
-          <div className="space-y-2.5">
-            {QUIZ_OPTIONS.map((opt) => {
-              const isSelected = selectedOption === opt.id;
-              const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+            {/* Lista de Alternativas (Radio Buttons) */}
+            <div className="space-y-2.5">
+              {QUIZ_OPTIONS.map((opt) => {
+                const isSelected = selectedOption === opt.id;
+                const isFinishedCorrect = hasSubmitted && opt.isCorrect;
 
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => {
-                    if (!hasSubmitted) {
-                      setSelectedOption(opt.id);
-                      setErrorMsg(null);
-                    }
-                  }}
-                  disabled={hasSubmitted}
-                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
-                    isFinishedCorrect
-                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
-                      : isSelected
-                      ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
-                      : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
-                  } ${hasSubmitted ? "cursor-default" : ""}`}
-                >
-                  <div
-                    className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
-                      isFinishedCorrect || isSelected
-                        ? "border-lime-600 bg-lime-500/20"
-                        : "border-zinc-400"
-                    }`}
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      if (!hasSubmitted) {
+                        setSelectedOption(opt.id);
+                        setErrorMsg(null);
+                      }
+                    }}
+                    disabled={hasSubmitted}
+                    className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
+                      isFinishedCorrect
+                        ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
+                        : isSelected
+                        ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
+                        : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
+                    } ${hasSubmitted ? "cursor-default" : ""}`}
                   >
-                    {(isFinishedCorrect || isSelected) && (
-                      <div className="size-2 rounded-full bg-lime-600" />
-                    )}
-                  </div>
-                  <span className="flex-1 text-zinc-900 font-medium">{opt.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mensagem de Erro Educativo se errar */}
-          {errorMsg && (
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <p>{errorMsg}</p>
+                    <div
+                      className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
+                        isFinishedCorrect || isSelected
+                          ? "border-lime-600 bg-lime-500/20"
+                          : "border-zinc-400"
+                      }`}
+                    >
+                      {(isFinishedCorrect || isSelected) && (
+                        <div className="size-2 rounded-full bg-lime-600" />
+                      )}
+                    </div>
+                    <span className="flex-1 text-zinc-900 font-medium">{opt.text}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          {/* Botão de Ação / Conclusão */}
-          {!hasSubmitted ? (
+            {/* Mensagem de Erro Educativo se errar */}
+            {errorMsg && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
+                <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                <p>{errorMsg}</p>
+              </div>
+            )}
+
+            {/* Botão de Ação / Conclusão */}
+            {!hasSubmitted ? (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
+              >
+                <span>Responder e conquistar 5 NFs</span>
+                <ArrowRight className="size-4" />
+              </button>
+            ) : (
+              <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
+                <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
+                <div className="flex-1 text-xs">
+                  <span className="font-bold text-lime-700 block">
+                    Desafio conquistado!
+                  </span>
+                  <span className="text-zinc-800 font-medium">+5 NFs foram creditados na sua carteira Netfits.</span>
+                </div>
+                <Sparkles className="size-4 text-lime-600 shrink-0" />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-purple-50 text-purple-700 grid place-items-center shrink-0">
+                <BookOpen className="size-5 text-purple-600" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-zinc-900 block">Artigo Educativo Permanente</span>
+                <span className="text-[11px] text-zinc-600 font-medium">Toque no card para ler a análise clínica completa</span>
+              </div>
+            </div>
             <button
               type="button"
-              onClick={handleSubmit}
-              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
+              onClick={() => setArticleOpen(true)}
+              className="text-xs font-bold text-purple-700 bg-purple-100/80 hover:bg-purple-200 px-3.5 py-2 rounded-xl transition active:scale-95 cursor-pointer shadow-xs"
             >
-              <span>Responder e conquistar 10 NFs</span>
-              <ArrowRight className="size-4" />
+              Ler Artigo
             </button>
-          ) : (
-            <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
-              <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
-              <div className="flex-1 text-xs">
-                <span className="font-bold text-lime-700 block">
-                  Desafio conquistado!
-                </span>
-                <span className="text-zinc-800 font-medium">+10 NFs foram creditados na sua carteira Netfits.</span>
-              </div>
-              <Sparkles className="size-4 text-lime-600 shrink-0" />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 4. Pílula de Sabedoria / Takeaway no Rodapé */}
         <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-purple-950 border border-zinc-800 rounded-2xl p-4 text-white flex items-center gap-3.5 shadow-sm">
@@ -304,6 +336,13 @@ export function DrFrancoQuizCard() {
             </strong>
           </p>
         </div>
+
+        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar */}
+        <FeedSocialActions
+          id={ARTICLE_POST_ID}
+          title="Dr. Franco Merici — Por que a força muscular importa para a longevidade? (Fibios)"
+          onOpenArticle={() => setArticleOpen(true)}
+        />
       </article>
 
       {/* 5. Modal de Leitura Completa da Postagem */}

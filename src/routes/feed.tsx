@@ -8,17 +8,9 @@ import { InviteFriendsCard } from "@/components/InviteFriendsCard";
 import { DrIsabellaCard } from "@/components/DrIsabellaCard";
 import { DrFrancoQuizCard } from "@/components/DrFrancoQuizCard";
 import { DraIsabellaQuizCard } from "@/components/DraIsabellaQuizCard";
+import { NetfitsEducationalCard } from "@/components/NetfitsEducationalCard";
+import { FeedSocialActions } from "@/components/FeedSocialActions";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
-import {
-  WhatsAppIcon,
-  InstagramIcon,
-  TelegramIcon,
-  XIcon,
-  FacebookIcon,
-  TikTokIcon,
-  MessagesIcon,
-  MailIcon,
-} from "@/components/BrandIcons";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { wallet } from "@/lib/wallet-store";
 import { toast } from "sonner";
@@ -88,22 +80,25 @@ export function FeedPage() {
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
 
-        {/* 2. Desafio Diário Fibios: Dr. Franco Merici (Força & Longevidade) */}
-        <DrFrancoQuizCard />
+        {/* 2. Desafio Diário Fibios: Dr. Franco Merici (Força & Longevidade) — Topo do Feed com Quiz Ativo 24h (5 NFs) */}
+        <DrFrancoQuizCard isDailyChallenge={true} />
 
-        {/* 3. Desafio Diário Fibios: Dra. Isabella Formigari (Biomarcadores & Sono) */}
-        <DraIsabellaQuizCard />
+        {/* 3. Educacional da Plataforma: O Propósito Netfits & Healthspan (Time Netfits) */}
+        <NetfitsEducationalCard />
 
-        {/* 4. Protocolo Fibios: Dra. Isabella Formigari (Vídeo 4:12 & Agendamento) */}
+        {/* 4. Conteúdo Permanente Fibios: Dra. Isabella Formigari (Biomarcadores & Sono — Artigo Histórico sem Quiz) */}
+        <DraIsabellaQuizCard isDailyChallenge={false} />
+
+        {/* 5. Protocolo Fibios: Dra. Isabella Formigari (Vídeo 4:12 & Agendamento) */}
         <DrIsabellaCard />
 
-        {/* 5. Clínica & Especialistas Fibios */}
+        {/* 6. Clínica & Especialistas Fibios */}
         {feedItems.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}
 
         <div className="px-4 py-8 text-center text-xs text-muted-foreground font-medium">
-          Você viu todos os conteúdos curados pela Fibios por hoje. Novas atualizações em breve.
+          Você viu todos os conteúdos curados pela Fibios e pelo Educacional Netfits por hoje. Novas atualizações em breve.
         </div>
       </div>
     </div>
@@ -640,302 +635,14 @@ function CardHeader({
   );
 }
 
-const SHARE_CHANNELS = [
-  { key: "wpp", label: "WhatsApp", color: "bg-[#25D366]", Icon: WhatsAppIcon },
-  { key: "ig", label: "Instagram", color: "bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600", Icon: InstagramIcon },
-  { key: "tg", label: "Telegram", color: "bg-[#229ED9]", Icon: TelegramIcon },
-  { key: "x", label: "X", color: "bg-black", Icon: XIcon },
-  { key: "tt", label: "TikTok", color: "bg-black", Icon: TikTokIcon },
-  { key: "fb", label: "Facebook", color: "bg-[#1877F2]", Icon: FacebookIcon },
-  { key: "msg", label: "Mensagens", color: "bg-emerald-500", Icon: MessagesIcon },
-  { key: "mail", label: "E-mail", color: "bg-zinc-700", Icon: MailIcon },
-] as const;
-
 function SocialActions({ id, title, isOwnPost = false }: { id: string; title: string; isOwnPost?: boolean }) {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [viewed, setViewed] = useState(false);
-  const [linkClicked, setLinkClicked] = useState(false);
-  const params = useOperationalParams();
-
-  const postUrl = typeof window !== "undefined" ? `${window.location.origin}/feed#${id}` : `https://www.netfits.com.br/feed#${id}`;
-  const shareText = `Confira no Netfits: ${title} — ${postUrl}`;
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (feedAntifraud.hasClaimed("like", id)) setLiked(true);
-      if (feedAntifraud.hasClaimed("read", id)) setViewed(true);
-      if (feedAntifraud.hasClaimed("link_click", `link-${id}`)) setLinkClicked(true);
-    }
-  }, [id]);
-
-  const handleLike = () => {
-    if (liked) {
-      setLiked(false);
-      toast.info("Curtida removida.");
-      return;
-    }
-
-    const validation = feedAntifraud.validateAction("like", id, { isOwnPost });
-    if (!validation.allowed) {
-      toast.warning(validation.reason || "Ação não pontuada pelas regras antifraude.");
-      return;
-    }
-
-    setLiked(true);
-    const points = params.nfsPerLike || 10;
-    sharedSandboxStore.rewardEngagement("like", title, points);
-    feedAntifraud.recordAction("like", id, points);
-    toast.success(`+${points} nfs acumulados por curtir post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
-  };
-
-  const handleSave = () => {
-    setSaved((v) => {
-      const next = !v;
-      if (next) {
-        if (isOwnPost) {
-          toast.info("Post próprio salvo! (Ações próprias não geram pontos)");
-        } else {
-          toast.info("Post de terceiro adicionado aos salvos.");
-        }
-      } else {
-        toast.info("Post removido dos salvos.");
-      }
-      return next;
-    });
-  };
-
-  const handleCompleteView = () => {
-    if (viewed) {
-      toast.info("Você já confirmou a leitura desta publicação.");
-      return;
-    }
-
-    const validation = feedAntifraud.validateAction("read", id, {
-      dwellTimeSeconds: 3,
-      isOwnPost,
-    });
-    if (!validation.allowed) {
-      toast.warning(validation.reason || "Ação não permitida pelas regras antifraude.");
-      return;
-    }
-
-    setViewed(true);
-    const points = params.nfsPerPostView || 10;
-    sharedSandboxStore.rewardEngagement("view", title, points);
-    feedAntifraud.recordAction("read", id, points);
-    toast.success(`+${points} nfs por leitura de post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
-  };
-
-  const handleLinkClick = () => {
-    if (linkClicked) {
-      toast.info("Você já recebeu a bonificação deste link.");
-      return;
-    }
-
-    const validation = feedAntifraud.validateAction("link_click", `link-${id}`, { isOwnPost });
-    if (!validation.allowed) {
-      toast.warning(validation.reason || "Ação não permitida pelas regras antifraude.");
-      return;
-    }
-
-    setLinkClicked(true);
-    const points = params.nfsPerLinkClick || 10;
-    sharedSandboxStore.rewardEngagement("click", title, points);
-    feedAntifraud.recordAction("link_click", `link-${id}`, points);
-    toast.success(`+${points} nfs por clicar no link! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
-  };
-
-  const handleCopyPostLink = async () => {
-    try {
-      await navigator.clipboard.writeText(postUrl);
-      toast.success("📋 Link do post copiado para a área de transferência!");
-    } catch {
-      /* ignore */
-    }
-    setCopied(true);
-    triggerShareReward("copy_link");
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const triggerShareReward = (channelKey: string) => {
-    const shareKey = `share-${channelKey}-${id}`;
-    const validation = feedAntifraud.validateAction("share", shareKey, { isOwnPost });
-    if (validation.allowed) {
-      const points = params.nfsPerShare || 10;
-      sharedSandboxStore.rewardEngagement("share", title, points);
-      feedAntifraud.recordAction("share", shareKey, points);
-      badgesStore.recordShare();
-      toast.success(`+${points} nfs por compartilhar no ${channelKey.toUpperCase()}! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
-    } else {
-      badgesStore.recordShare();
-    }
-  };
-
-  const handleShareChannel = async (key: string) => {
-    triggerShareReward(key);
-    const encoded = encodeURIComponent(shareText);
-
-    if (key === "ig" || key === "tt") {
-      try {
-        await navigator.clipboard.writeText(shareText);
-        toast.success(`📋 Texto copiado! Abra o ${key === "ig" ? "Instagram" : "TikTok"} para compartilhar.`);
-      } catch {
-        /* ignore */
-      }
-      const targetUrl = key === "ig" ? "https://instagram.com" : "https://tiktok.com";
-      window.open(targetUrl, "_blank", "noopener,noreferrer");
-      setShareOpen(false);
-      return;
-    }
-
-    const url =
-      key === "wpp"
-        ? `https://api.whatsapp.com/send?text=${encoded}`
-        : key === "tg"
-        ? `https://t.me/share/url?url=${encodeURIComponent(postUrl)}&text=${encoded}`
-        : key === "x"
-        ? `https://twitter.com/intent/tweet?text=${encoded}`
-        : key === "fb"
-        ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`
-        : key === "mail"
-        ? `mailto:?subject=${encodeURIComponent(title)}&body=${encoded}`
-        : key === "msg"
-        ? `sms:?&body=${encoded}`
-        : null;
-
-    if (url) {
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
-    setShareOpen(false);
-  };
-
   return (
-    <div className="relative">
-      <div className="flex items-center gap-2 flex-wrap">
-        <button
-          onClick={handleCompleteView}
-          aria-label={viewed ? "Leitura concluída" : "Concluir leitura do artigo e ganhar pontos"}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 cursor-pointer ${
-            viewed
-              ? "bg-purple-600 text-white ring-purple-600 shadow-sm"
-              : "bg-purple-500/10 text-purple-400 ring-purple-500/30 hover:bg-purple-500/20"
-          }`}
-        >
-          <Eye className="size-4" />
-          {viewed ? `Lido (+${params.nfsPerPostView || 10} nfs)` : `Concluir Leitura (+${params.nfsPerPostView || 10} nfs)`}
-        </button>
-        <button
-          onClick={handleLinkClick}
-          aria-label={linkClicked ? "Link do parceiro acessado" : "Acessar link do parceiro e ganhar pontos"}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 cursor-pointer ${
-            linkClicked
-              ? "bg-emerald-600 text-white ring-emerald-600 shadow-sm"
-              : "bg-muted text-foreground ring-black/5 hover:bg-emerald-500/10 hover:text-emerald-400"
-          }`}
-          title="Acessar link externo / parceiro recomendado"
-        >
-          <ExternalLink className="size-4" />
-          {linkClicked ? `Link Aberto (+${params.nfsPerLinkClick || 10} nfs)` : `Ver Link (+${params.nfsPerLinkClick || 10} nfs)`}
-        </button>
-        <button
-          onClick={handleLike}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 cursor-pointer ${
-            liked
-              ? "bg-brand text-brand-foreground ring-brand"
-              : "bg-muted text-foreground ring-black/5"
-          }`}
-          aria-pressed={liked}
-          aria-label="Curtir publicação"
-        >
-          <Heart className={`size-4 ${liked ? "fill-current" : ""}`} />
-          Curtir
-        </button>
-        <button
-          onClick={() => setShareOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-muted text-foreground ring-1 ring-black/5 active:scale-95 cursor-pointer"
-          aria-label="Compartilhar publicação"
-        >
-          <Share2 className="size-4 text-lime-400" />
-          Compartilhar
-        </button>
-        <button
-          onClick={handleSave}
-          className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 active:scale-95 cursor-pointer ${
-            saved
-              ? "bg-foreground text-background ring-foreground"
-              : "bg-muted text-foreground ring-black/5"
-          }`}
-          aria-pressed={saved}
-          aria-label="Salvar publicação nos favoritos"
-        >
-          <Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
-          Salvar
-        </button>
-      </div>
-
-      {shareOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end justify-center"
-          onClick={() => setShareOpen(false)}
-          role="dialog"
-          aria-label="Compartilhar"
-        >
-          <div
-            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl p-5 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] shadow-2xl border-t border-zinc-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mx-auto w-10 h-1 rounded-full bg-zinc-300 mb-4" />
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold">Compartilhar publicação</p>
-              <button
-                onClick={() => setShareOpen(false)}
-                className="size-7 rounded-full bg-muted grid place-items-center cursor-pointer hover:bg-zinc-200"
-                aria-label="Fechar"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <p className="text-xs text-muted-foreground mb-4 line-clamp-1">{title}</p>
-
-            <div className="flex items-center gap-2 bg-muted rounded-full pl-4 pr-1 py-1 mb-5 ring-1 ring-black/5">
-              <span className="flex-1 text-xs font-medium truncate text-muted-foreground">
-                {postUrl}
-              </span>
-              <button
-                onClick={handleCopyPostLink}
-                className="shrink-0 flex items-center gap-1 bg-foreground text-background text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 cursor-pointer"
-              >
-                {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-                {copied ? "Copiado" : "Copiar"}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-4 gap-3">
-              {SHARE_CHANNELS.map((c) => {
-                const IconComponent = c.Icon;
-                return (
-                  <button
-                    key={`${id}-${c.key}`}
-                    onClick={() => handleShareChannel(c.key)}
-                    className="flex flex-col items-center gap-1.5 active:scale-95 cursor-pointer group"
-                  >
-                    <div
-                      className={`size-12 rounded-full grid place-items-center text-white ${c.color} ring-1 ring-black/10 shadow-sm group-hover:scale-105 transition-transform`}
-                    >
-                      <IconComponent className="size-5" />
-                    </div>
-                    <span className="text-[10px] font-medium text-center">{c.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <FeedSocialActions
+      id={id}
+      title={title}
+      isOwnPost={isOwnPost}
+      showViewButton={true}
+      showLinkButton={true}
+    />
   );
 }
