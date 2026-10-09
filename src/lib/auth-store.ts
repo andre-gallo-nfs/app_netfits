@@ -224,49 +224,11 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
-    // 0. Reconhecer instantaneamente os usuários fundadores/oficiais da Netfits por identificador único
-    if (
-      raw === "aacgallo@hotmail.com" ||
-      raw === "aacgallo@hotmail.com.br" ||
-      raw === "usr_andre" ||
-      digits === "25664730803"
-    ) {
-      const andreUser = storedUsers.find((u) => u.id === "usr_andre");
-      if (andreUser) {
-        return { exists: true, matchedField: digits === "25664730803" ? "cpf" : "email", matchedUser: andreUser };
-      }
-    }
-
-    if (
-      raw === "crformigari72@gmail.com" ||
-      raw === "usr_carlos_formigari" ||
-      digits === "11553412877"
-    ) {
-      const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari");
-      if (carlosUser) {
-        return { exists: true, matchedField: digits === "11553412877" ? "cpf" : "email", matchedUser: carlosUser };
-      }
-    }
-
-    if (
-      raw === "cristiane.formigari@amantikira.com.br" ||
-      raw === "user-1791370530242" ||
-      digits === "11001624882"
-    ) {
-      const crisFormigari = storedUsers.find((u) => u.id === "user-1791370530242") ||
-        storedUsers.find((u) => u.email?.toLowerCase() === "cristiane.formigari@amantikira.com.br");
-      if (crisFormigari) {
-        return { exists: true, matchedField: digits === "11001624882" ? "cpf" : "email", matchedUser: crisFormigari };
-      }
-    }
-
-    if (raw === "usr_cristiane_gallo") {
-      const crisUser = storedUsers.find((u) => u.id === "usr_cristiane_gallo");
-      if (crisUser) return { exists: true, matchedField: "email", matchedUser: crisUser };
-    }
-
-    // 1. Checar lista local de usuários salvos
+    // 1. Checar lista local de usuários cadastrados de forma estritamente genérica (ID, e-mail, telefone ou CPF)
     for (const u of storedUsers) {
+      if (u.id && u.id.toLowerCase() === raw) {
+        return { exists: true, matchedField: "email", matchedUser: u };
+      }
       if (u.email && u.email.toLowerCase() === raw) {
         return { exists: true, matchedField: "email", matchedUser: u };
       }
@@ -460,28 +422,6 @@ export const authStore = {
       } catch {}
     }
 
-    // 4. Senhas reais e individuais cadastradas pelos usuários fundadores
-    if (
-      check.matchedUser.id === "usr_carlos_formigari" ||
-      check.matchedUser.email?.toLowerCase().includes("crformigari")
-    ) {
-      validPasswords.push("Kite@1972", "kite@1972");
-    }
-
-    if (
-      check.matchedUser.id === "user-1791370530242" ||
-      check.matchedUser.email?.toLowerCase().includes("cristiane.formigari")
-    ) {
-      validPasswords.push("Kite@1970", "kite@1970");
-    }
-
-    if (
-      check.matchedUser.id === "usr_andre" ||
-      check.matchedUser.email?.toLowerCase().includes("aacgallo")
-    ) {
-      validPasswords.push("Admin@2026");
-    }
-
     const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));
 
     const isCorrect = uniqueValidPasswords.some(
@@ -581,7 +521,7 @@ export const authStore = {
       targetUser = storedUsers.find((u) => u.id === res.credential?.userId) || null;
     }
     if (!targetUser) {
-      targetUser = currentUser || storedUsers[0];
+      return { success: false, error: "Credencial biométrica não vinculada a nenhum usuário deste dispositivo." };
     }
 
     currentUser = targetUser;

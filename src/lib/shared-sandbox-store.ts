@@ -109,10 +109,11 @@ const STORAGE_KEY = "netfits_production_db_v2";
 const DEVICE_SESSION_KEY = "netfits_production_session_v2";
 const SYNC_CHANNEL = "netfits_production_sync_channel";
 
-// Purgar de forma permanente a chave legada anterior que contaminava sessões entre dispositivos
+// Purgar de forma permanente chaves legadas anteriores que contaminavam sessões e perfis entre dispositivos
 if (typeof window !== "undefined") {
   try {
     localStorage.removeItem("netfits_production_active_user_v1");
+    localStorage.removeItem("netfits_user_profile_form_backup");
   } catch {}
 }
 
@@ -499,13 +500,14 @@ class HomologationSandboxStore {
             (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
           );
 
-          // Atualiza saldo de André Gallo com a soma legítima das transações
-          const andre = this.state.users.find((u) => u.id === "usr_andre");
-          if (andre) {
-            const andreTxTotal = this.state.transactions
-              .filter((t) => t.userId === "usr_andre")
+          // Atualiza saldo de todos os usuários com a soma de suas transações
+          for (const u of this.state.users) {
+            const userTxTotal = this.state.transactions
+              .filter((t) => t.userId === u.id)
               .reduce((acc, t) => acc + (t.amount || 0), 0);
-            andre.nfsBalance = andreTxTotal > 0 ? andreTxTotal : 1091;
+            if (userTxTotal > 0) {
+              u.nfsBalance = userTxTotal;
+            }
           }
 
           this.saveToStorageLocally();
@@ -521,7 +523,7 @@ class HomologationSandboxStore {
   }
 
   public async syncToCloud(): Promise<void> {
-    if (typeof window === "undefined") return;
+    if (typeof window !== "undefined") return;
     try {
       this.saveToStorageLocally();
       this.broadcastChannel?.postMessage("sync");
@@ -545,7 +547,7 @@ class HomologationSandboxStore {
     if (idx >= 0) {
       const removed = this.state.users.splice(idx, 1)[0];
       if (this.state.activeUserId === userId) {
-        this.state.activeUserId = this.state.users[0]?.id || "usr_andre";
+        this.state.activeUserId = "";
       }
       this.saveToStorage();
       toast.success(`Usuário "${removed.fullName}" excluído com sucesso!`);
@@ -601,30 +603,20 @@ class HomologationSandboxStore {
             (u) =>
               u.id === initUser.id ||
               (u.identifier && u.identifier.toLowerCase() === initUser.identifier.toLowerCase()) ||
-              (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase()) ||
-              (initUser.id === "usr_carlos_formigari" &&
-                (u.id === "usr_carlos_formigari" ||
-                  u.email?.toLowerCase() === "crformigari72@gmail.com" ||
-                  u.identifier?.toLowerCase() === "crformigari72@gmail.com" ||
-                  u.email?.toLowerCase() === "carlos.formigari@netfits.com.br" ||
-                  u.fullName?.toLowerCase() === "carlos rodrigo formigari" ||
-                  u.fullName?.toLowerCase() === "carlos formigari"))
+              (u.email && initUser.email && u.email.toLowerCase() === initUser.email.toLowerCase())
           );
           if (existingIdx === -1) {
             mergedUsers.push(initUser);
             hasNewUsers = true;
-          } else if (initUser.id === "usr_carlos_formigari") {
-            mergedUsers[existingIdx].id = "usr_carlos_formigari";
-            mergedUsers[existingIdx].email = "crformigari72@gmail.com";
-            mergedUsers[existingIdx].identifier = "crformigari72@gmail.com";
-            mergedUsers[existingIdx].fullName = "Carlos Rodrigo Formigari";
-            if (!mergedUsers[existingIdx].cpf) mergedUsers[existingIdx].cpf = initUser.cpf;
-            if (!mergedUsers[existingIdx].phone) mergedUsers[existingIdx].phone = initUser.phone;
-            if (!mergedUsers[existingIdx].birthDate) mergedUsers[existingIdx].birthDate = initUser.birthDate;
-            hasNewUsers = true;
+          } else {
+            // Mescla atributos estruturais preservando dados salvos
+            mergedUsers[existingIdx] = {
+              ...initUser,
+              ...mergedUsers[existingIdx],
+            };
           }
         }
-        // Purgar transações antigas obsoletas (ex: 1080 nfs estimada)
+        // Purgar transações antigas obsoletas se houver
         stored.transactions = (stored.transactions || []).filter(
           (tx) => tx && tx.amount !== 1080 && !tx.description?.includes("1080")
         );
@@ -643,53 +635,25 @@ class HomologationSandboxStore {
           (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         );
 
-        // Alinha o saldo de André Gallo com suas transações reais (1091 nfs)
-        const andreIdx = mergedUsers.findIndex((u) => u.id === "usr_andre");
-        if (andreIdx >= 0) {
-          const andreTxTotal = stored.transactions
-            .filter((t) => t.userId === "usr_andre")
+        // Reconciliação contábil legítima e genérica para TODOS os usuários
+        for (const u of mergedUsers) {
+          const userTxTotal = stored.transactions
+            .filter((t) => t.userId === u.id)
             .reduce((acc, t) => acc + (t.amount || 0), 0);
-          mergedUsers[andreIdx].nfsBalance = andreTxTotal > 0 ? andreTxTotal : 1091;
-        }
-
-        stored.users = mergedUsers.map((u) => {
-          let userWithBackup = { ...u };
+          if (userTxTotal > 0) {
+            u.nfsBalance = userTxTotal;
+          }
+          // Carrega backup individual salvo estritamente pelo ID do usuário
           try {
             const bRaw = localStorage.getItem(`netfits_profile_saved_${u.id}`);
             if (bRaw) {
               const backup = JSON.parse(bRaw);
-              userWithBackup = { ...userWithBackup, ...backup };
+              Object.assign(u, backup);
             }
           } catch {}
-          if (u.id === "usr_carlos_formigari") {
-            if (userWithBackup.cpf === "25664730803" || userWithBackup.cpf === "256.647.308-03") userWithBackup.cpf = "11553412877";
-            if (userWithBackup.phone === "(11) 99535-1513" || userWithBackup.phone === "11995351513") userWithBackup.phone = "(11) 98426-4116";
-            if (userWithBackup.birthDate === "05/12/1983" || userWithBackup.birthDate === "1983-12-05") userWithBackup.birthDate = "05/12/1972";
-          }
-          if (u.id === "usr_andre") {
-            if (!userWithBackup.cpf) userWithBackup.cpf = "25664730803";
-            if (!userWithBackup.phone) userWithBackup.phone = "11995351513";
-            try {
-              const fbRaw = localStorage.getItem("netfits_user_profile_form_backup");
-              if (fbRaw) {
-                const fb = JSON.parse(fbRaw);
-                if (fb.street && !userWithBackup.street) userWithBackup.street = fb.street;
-                if (fb.number && !userWithBackup.number) userWithBackup.number = fb.number;
-                if (fb.complement !== undefined && !userWithBackup.complement) userWithBackup.complement = fb.complement;
-                if (fb.neighborhood && !userWithBackup.neighborhood) userWithBackup.neighborhood = fb.neighborhood;
-                if (fb.city && !userWithBackup.city) userWithBackup.city = fb.city;
-                if (fb.state && !userWithBackup.state) userWithBackup.state = fb.state;
-                if (fb.shortState && !userWithBackup.shortState) userWithBackup.shortState = fb.shortState;
-                if (fb.zipcode && !userWithBackup.zipcode) userWithBackup.zipcode = fb.zipcode;
-                if (fb.address && !userWithBackup.address) userWithBackup.address = fb.address;
-              }
-            } catch {}
-          }
-          try {
-            localStorage.setItem(`netfits_profile_saved_${u.id}`, JSON.stringify(userWithBackup));
-          } catch {}
-          return userWithBackup;
-        });
+        }
+
+        stored.users = mergedUsers;
         stored.interactions = (stored.interactions || []).filter((i) => !i.id.startsWith("int-00"));
         if (!stored.activeUserId) {
           stored.activeUserId = "";
@@ -736,7 +700,6 @@ class HomologationSandboxStore {
         const active = this.getActiveUser();
         if (active && active.id) {
           localStorage.setItem(`netfits_profile_saved_${active.id}`, JSON.stringify(active));
-          localStorage.setItem("netfits_user_profile_form_backup", JSON.stringify(active));
         }
       } catch (err) {
         console.warn("[saveToStorage] Profile backup warning:", err);
