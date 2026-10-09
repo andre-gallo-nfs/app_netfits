@@ -210,9 +210,7 @@ function ProfilePage() {
     let backup: any = {};
     if (typeof window !== "undefined") {
       try {
-        const rawBackup =
-          localStorage.getItem(`netfits_profile_saved_${activeUser.id}`) ||
-          localStorage.getItem("netfits_user_profile_form_backup");
+        const rawBackup = localStorage.getItem(`netfits_profile_saved_${activeUser.id}`);
         if (rawBackup) {
           backup = JSON.parse(rawBackup);
         }
@@ -260,7 +258,7 @@ function ProfilePage() {
       let backup: any = {};
       if (typeof window !== "undefined") {
         try {
-          const raw = localStorage.getItem("netfits_user_profile_form_backup") || localStorage.getItem(`netfits_profile_saved_${activeUser.id}`);
+          const raw = localStorage.getItem(`netfits_profile_saved_${activeUser.id}`);
           if (raw) backup = JSON.parse(raw);
         } catch {}
       }
@@ -444,8 +442,7 @@ function ProfilePage() {
           wearable: form.wearable,
         };
         localStorage.setItem(`netfits_profile_saved_${targetUserId}`, JSON.stringify(payloadToSave));
-        localStorage.setItem("netfits_user_profile_form_backup", JSON.stringify(payloadToSave));
-        localStorage.setItem("netfits_production_active_user_v1", targetUserId);
+        localStorage.setItem("netfits_production_session_v2", targetUserId);
       } catch (err) {
         console.warn("[Profile] Local storage backup warning:", err);
       }

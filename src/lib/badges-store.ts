@@ -174,7 +174,7 @@ function getBadgesStorageKey(userId?: string): string {
   const uid =
     userId ||
     (typeof window !== "undefined"
-      ? localStorage.getItem("netfits_production_active_user_v1") || "anon"
+      ? localStorage.getItem("netfits_production_session_v2") || "anon"
       : "anon");
   return `${BADGES_STORAGE_KEY_PREFIX}${uid}`;
 }
@@ -282,21 +282,15 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
     try {
       const uid = activeUser.id;
       shareCount = parseInt(
-        localStorage.getItem(`netfits_shares_count_${uid}`) ||
-          localStorage.getItem("netfits_shares_count") ||
-          "0",
+        localStorage.getItem(`netfits_shares_count_${uid}`) || "0",
         10
       );
       feedLikeCount = parseInt(
-        localStorage.getItem(`netfits_likes_count_${uid}`) ||
-          localStorage.getItem("netfits_likes_count") ||
-          "0",
+        localStorage.getItem(`netfits_likes_count_${uid}`) || "0",
         10
       );
       feedReadCount = parseInt(
-        localStorage.getItem(`netfits_reads_count_${uid}`) ||
-          localStorage.getItem("netfits_reads_count") ||
-          "0",
+        localStorage.getItem(`netfits_reads_count_${uid}`) || "0",
         10
       );
     } catch {}
@@ -354,8 +348,7 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
       case "explorador_shop":
         if (
           typeof window !== "undefined" &&
-          (localStorage.getItem(`netfits_shop_visited_${activeUser.id}`) === "true" ||
-            localStorage.getItem("netfits_shop_visited") === "true")
+          localStorage.getItem(`netfits_shop_visited_${activeUser.id}`) === "true"
         ) {
           shouldUnlock = true;
           newProgress = 1;

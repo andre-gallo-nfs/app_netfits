@@ -27,7 +27,7 @@ function getTodayString(): string {
 
 function getActionLogKey(): string {
   try {
-    const uid = localStorage.getItem("netfits_production_active_user_v1") || "anon";
+    const uid = localStorage.getItem("netfits_production_session_v2") || "anon";
     return `netfits_feed_actions_log_v2_${uid}`;
   } catch {
     return "netfits_feed_actions_log_v2_anon";

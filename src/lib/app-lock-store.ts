@@ -229,16 +229,6 @@ class AppLockStore {
       } catch {}
     }
 
-    if (activeUser.id === "usr_carlos_formigari" || userEmail.includes("crformigari")) {
-      validPasswords.push("Kite@1972", "kite@1972");
-    }
-    if (activeUser.id === "user-1791370530242" || userEmail.includes("cristiane.formigari")) {
-      validPasswords.push("Kite@1970", "kite@1970");
-    }
-    if (activeUser.id === "usr_andre" || userEmail.includes("aacgallo")) {
-      validPasswords.push("Admin@2026");
-    }
-
     const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));
 
     const isCorrect = uniqueValidPasswords.some(
