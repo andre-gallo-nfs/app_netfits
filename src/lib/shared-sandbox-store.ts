@@ -106,8 +106,27 @@ export interface SandboxInteraction {
 }
 
 const STORAGE_KEY = "netfits_production_db_v2";
-const DEVICE_SESSION_KEY = "netfits_production_active_user_v1";
+const DEVICE_SESSION_KEY = "netfits_production_session_v2";
 const SYNC_CHANNEL = "netfits_production_sync_channel";
+
+// Purgar de forma permanente a chave legada anterior que contaminava sessões entre dispositivos
+if (typeof window !== "undefined") {
+  try {
+    localStorage.removeItem("netfits_production_active_user_v1");
+  } catch {}
+}
+
+export const ANONYMOUS_GUEST_USER: SandboxUser = {
+  id: "",
+  identifier: "",
+  fullName: "Visitante",
+  email: "",
+  type: "associado",
+  nfsBalance: 0,
+  referralCode: "",
+  registeredAt: "",
+  sports: [],
+};
 
 export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T {
   // Desativado: preserva integralmente os dados informados pelos usuários (CPF, telefone, endereço, etc.)
@@ -673,7 +692,7 @@ class HomologationSandboxStore {
         });
         stored.interactions = (stored.interactions || []).filter((i) => !i.id.startsWith("int-00"));
         if (!stored.activeUserId) {
-          stored.activeUserId = "usr_andre";
+          stored.activeUserId = "";
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
         return stored;
@@ -689,7 +708,7 @@ class HomologationSandboxStore {
       tickets: INITIAL_TICKETS,
       orders: INITIAL_ORDERS,
       interactions: INITIAL_INTERACTIONS,
-      activeUserId: "usr_andre",
+      activeUserId: "",
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState));
@@ -771,12 +790,12 @@ class HomologationSandboxStore {
         if (found) return found;
       }
     }
-    const fallback =
-      this.state.users.find((u) => u.id === this.state.activeUserId) ||
-      this.state.users.find((u) => u.id === "usr_andre") ||
-      this.state.users[0] ||
-      INITIAL_USERS[0];
-    return fallback;
+    if (this.state.activeUserId) {
+      const found = this.state.users.find((u) => u.id === this.state.activeUserId);
+      if (found) return found;
+    }
+    // Em Go-Live NUNCA dar fallback para outro usuário se não houver sessão ativa
+    return ANONYMOUS_GUEST_USER;
   }
 
   public useActiveUser(): SandboxUser {
@@ -784,7 +803,7 @@ class HomologationSandboxStore {
     return useSyncExternalStore(
       (fn) => this.subscribe(fn),
       () => this.getActiveUser(),
-      () => INITIAL_USERS[0]
+      () => ANONYMOUS_GUEST_USER
     );
   }
 
@@ -1199,7 +1218,7 @@ class HomologationSandboxStore {
 
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(DEVICE_SESSION_KEY, "usr_andre");
+        localStorage.removeItem(DEVICE_SESSION_KEY);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
       } catch (e) {
         console.error("Erro ao salvar storage padrao no reset:", e);

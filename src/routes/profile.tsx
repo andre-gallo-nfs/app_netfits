@@ -146,13 +146,17 @@ function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!sharedSandboxStore.hasActiveSession()) {
+      navigate({ to: "/auth" });
+      return;
+    }
     const unsubscribe = sharedSandboxStore.subscribe(() => {
       setActiveUser(sharedSandboxStore.getActiveUser());
     });
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

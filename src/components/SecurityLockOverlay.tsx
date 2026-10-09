@@ -22,6 +22,15 @@ export function SecurityLockOverlay() {
   const [isAuthenticatingBio, setIsAuthenticatingBio] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Se não houver usuário autenticado no dispositivo, nunca exibir overlay de bloqueio.
+  // Redireciona imediatamente para a tela limpa de login
+  if (!activeUser || !activeUser.id) {
+    if (typeof window !== "undefined") {
+      window.location.replace("/auth");
+    }
+    return null;
+  }
+
   const handleBiometricUnlock = async () => {
     setErrorMessage(null);
     setIsAuthenticatingBio(true);
