@@ -165,7 +165,7 @@ function saveStoredUsers(users: StoredUser[]) {
 }
 
 const storedUsers: StoredUser[] = loadStoredUsers();
-let currentUser: StoredUser | null = storedUsers[0] || EXISTING_DATABASE_USERS[0];
+let currentUser: StoredUser | null = null;
 
 type AuthState = {
   currentUser: StoredUser | null;
@@ -173,7 +173,7 @@ type AuthState = {
 };
 
 let authState: AuthState = {
-  currentUser,
+  currentUser: null,
   usersCount: storedUsers.length,
 };
 
@@ -202,8 +202,11 @@ const SERVER_AUTH_STATE: AuthState = {
 const getServerSnapshot = () => SERVER_AUTH_STATE;
 
 export const authStore = {
-  getCurrentUser: (): StoredUser => {
+  getCurrentUser: (): StoredUser | null => {
     const active = sharedSandboxStore.getActiveUser();
+    if (!active || !active.id) {
+      return null;
+    }
     return {
       id: active.id,
       fullName: active.fullName,
@@ -228,8 +231,10 @@ export const authStore = {
       raw === "usr_andre" ||
       digits === "25664730803"
     ) {
-      const andreUser = storedUsers.find((u) => u.id === "usr_andre") || storedUsers[0];
-      return { exists: true, matchedField: digits === "25664730803" ? "cpf" : "email", matchedUser: andreUser };
+      const andreUser = storedUsers.find((u) => u.id === "usr_andre");
+      if (andreUser) {
+        return { exists: true, matchedField: digits === "25664730803" ? "cpf" : "email", matchedUser: andreUser };
+      }
     }
 
     if (
@@ -237,8 +242,10 @@ export const authStore = {
       raw === "usr_carlos_formigari" ||
       digits === "11553412877"
     ) {
-      const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari") || storedUsers[1];
-      return { exists: true, matchedField: digits === "11553412877" ? "cpf" : "email", matchedUser: carlosUser };
+      const carlosUser = storedUsers.find((u) => u.id === "usr_carlos_formigari");
+      if (carlosUser) {
+        return { exists: true, matchedField: digits === "11553412877" ? "cpf" : "email", matchedUser: carlosUser };
+      }
     }
 
     if (
@@ -586,6 +593,7 @@ export const authStore = {
 
   async registerPasskeyForCurrentUser() {
     const user = this.getCurrentUser();
+    if (!user) throw new Error("Usuário não autenticado.");
     return await passkeyService.registerPasskey(user.id, user.fullName, user.email);
   },
 };

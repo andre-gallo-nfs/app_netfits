@@ -108,6 +108,12 @@ class AppLockStore {
    */
   public async unlockWithBiometrics(): Promise<{ success: boolean; error?: string }> {
     const activeUser = sharedSandboxStore.getActiveUser();
+    if (!activeUser || !activeUser.id) {
+      return {
+        success: false,
+        error: "Nenhuma sessão ativa neste aparelho. Acesse com suas credenciais.",
+      };
+    }
 
     // Guardião de Timeout: se qualquer chamada de hardware demorar mais de 6s, aborta
     const withTimeout = <T>(promise: Promise<T>, timeoutMs = 6000): Promise<T> => {
@@ -197,6 +203,9 @@ class AppLockStore {
     }
 
     const activeUser = sharedSandboxStore.getActiveUser();
+    if (!activeUser || !activeUser.id) {
+      return { success: false, error: "Nenhuma sessão ativa neste aparelho. Acesse com suas credenciais." };
+    }
     const storedUsers = authStore.getStoredUsers();
     const userEmail = (activeUser.email || activeUser.identifier || "").toLowerCase();
     const foundStored = storedUsers.find(
