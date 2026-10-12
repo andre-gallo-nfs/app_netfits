@@ -34,6 +34,7 @@ export interface FeedSocialActionsProps {
   showLinkButton?: boolean;
   externalLink?: string;
   isOwnPost?: boolean;
+  postCategory?: "educational" | "sponsored";
   onOpenArticle?: () => void;
 }
 
@@ -44,6 +45,7 @@ export function FeedSocialActions({
   showLinkButton = false,
   externalLink,
   isOwnPost = false,
+  postCategory = "educational",
   onOpenArticle,
 }: FeedSocialActionsProps) {
   const [liked, setLiked] = useState(false);
@@ -55,9 +57,12 @@ export function FeedSocialActions({
   const params = useOperationalParams();
 
   const sharePoints = params.nfsPerShare ?? 1;
-  const viewPoints = params.nfsPerPostView ?? 10;
-  const linkPoints = params.nfsPerLinkClick ?? 10;
-  const likePoints = params.nfsPerLike ?? 10;
+  const viewPoints =
+    postCategory === "sponsored"
+      ? (params.nfsPerSponsoredPostView ?? 10)
+      : (params.nfsPerEducationalPostView ?? 5);
+  const linkPoints = params.nfsPerLinkClick ?? 0;
+  const likePoints = params.nfsPerLike ?? 0;
 
   const postUrl = typeof window !== "undefined" ? `${window.location.origin}/feed#${id}` : `https://www.netfits.com.br/feed#${id}`;
   const shareText = `Confira no Netfits: ${title} — ${postUrl}`;
@@ -77,16 +82,19 @@ export function FeedSocialActions({
       return;
     }
 
-    const validation = feedAntifraud.validateAction("like", id, { isOwnPost });
-    if (!validation.allowed) {
-      toast.warning(validation.reason || "Ação não pontuada pelas regras antifraude.");
-      return;
-    }
-
     setLiked(true);
-    sharedSandboxStore.rewardEngagement("like", title, likePoints);
-    feedAntifraud.recordAction("like", id, likePoints);
-    toast.success(`+${likePoints} nfs acumulados por curtir post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+    if (likePoints > 0) {
+      const validation = feedAntifraud.validateAction("like", id, { isOwnPost });
+      if (!validation.allowed) {
+        toast.warning(validation.reason || "Ação não pontuada pelas regras antifraude.");
+        return;
+      }
+      sharedSandboxStore.rewardEngagement("like", title, likePoints);
+      feedAntifraud.recordAction("like", id, likePoints);
+      toast.success(`+${likePoints} nfs acumulados por curtir post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+    } else {
+      toast.success("Publicação curtida!");
+    }
   };
 
   const handleSave = () => {
@@ -132,6 +140,11 @@ export function FeedSocialActions({
   };
 
   const handleLinkClick = () => {
+    if (linkPoints <= 0) {
+      if (externalLink) window.open(externalLink, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     if (linkClicked) {
       if (externalLink) window.open(externalLink, "_blank", "noopener,noreferrer");
       toast.info("Você já recebeu a bonificação deste link.");
@@ -238,7 +251,7 @@ export function FeedSocialActions({
         {showLinkButton && (
           <button
             onClick={handleLinkClick}
-            aria-label={linkClicked ? "Link do parceiro acessado" : "Acessar link do parceiro e ganhar pontos"}
+            aria-label={linkClicked ? "Link do parceiro acessado" : "Acessar link externo"}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 cursor-pointer ${
               linkClicked
                 ? "bg-emerald-600 text-white ring-emerald-600 shadow-sm"
@@ -247,7 +260,9 @@ export function FeedSocialActions({
             title="Acessar link externo / parceiro recomendado"
           >
             <ExternalLink className="size-4" />
-            {linkClicked ? `Link Aberto (+${linkPoints} nfs)` : `Ver Link (+${linkPoints} nfs)`}
+            {linkPoints > 0
+              ? (linkClicked ? `Link Aberto (+${linkPoints} nfs)` : `Ver Link (+${linkPoints} nfs)`)
+              : "Ver Link"}
           </button>
         )}
 

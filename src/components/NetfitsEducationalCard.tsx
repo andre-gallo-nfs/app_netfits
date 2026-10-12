@@ -59,6 +59,7 @@ export function NetfitsEducationalCard() {
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -75,6 +76,8 @@ export function NetfitsEducationalCard() {
   useEffect(() => {
     let timer: any = null;
     if (articleOpen && !readClaimed) {
+      setHasScrolledToBottom(false);
+      setDwellTimeSeconds(0);
       timer = setInterval(() => {
         setDwellTimeSeconds((prev) => prev + 1);
       }, 1000);
@@ -83,6 +86,13 @@ export function NetfitsEducationalCard() {
       if (timer) clearInterval(timer);
     };
   }, [articleOpen, readClaimed]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 30) {
+      setHasScrolledToBottom(true);
+    }
+  };
 
   const handleSubmit = () => {
     if (hasSubmitted) {
@@ -118,25 +128,29 @@ export function NetfitsEducationalCard() {
       return;
     }
 
-    const minDwell = feedAntifraud.getRules().minDwellTimeSeconds;
     const validation = feedAntifraud.validateAction("read", ARTICLE_POST_ID, {
       dwellTimeSeconds,
+      hasScrolledToBottom,
+      postCategory: "educational",
     });
 
     if (!validation.allowed) {
-      toast.warning(validation.reason || "Tempo mínimo de retenção não atingido.");
+      toast.warning(validation.reason || "Requisitos de leitura e rolagem não atingidos.");
       return;
     }
 
     setReadClaimed(true);
-    const points = feedAntifraud.getRules().pointsPerView; // 10 nfs
+    const points = feedAntifraud.getRules().pointsPerEducationalView; // 5 nfs oficiais
     wallet.earn(points, "Leitura: O Propósito Netfits — Longevidade, Saúde & Bem-Estar");
     feedAntifraud.recordAction("read", ARTICLE_POST_ID, points);
-    toast.success(`👏 Leitura validada por Dwell Time! (+${points} nfs creditados na sua carteira)`);
+    toast.success(`👏 Leitura e rolagem validadas com sucesso! (+${points} nfs creditados na sua carteira)`);
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
+  const requireScroll = feedAntifraud.getRules().requireScrollToBottom;
   const isDwellQualified = dwellTimeSeconds >= minDwellRequired;
+  const isScrollQualified = !requireScroll || hasScrolledToBottom;
+  const canClaim = isDwellQualified && isScrollQualified;
 
   return (
     <>
@@ -348,10 +362,13 @@ export function NetfitsEducationalCard() {
         />
       </article>
 
-      {/* MODAL DE LEITURA COMPLETA COM AUDITORIA DWELL TIME */}
+      {/* MODAL DE LEITURA COMPLETA COM AUDITORIA DWELL TIME E SCROLL TOTAL */}
       {articleOpen && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-purple-500/30 rounded-3xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95">
+          <div 
+            onScroll={handleScroll}
+            className="bg-zinc-950 border border-purple-500/30 rounded-3xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95"
+          >
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="size-5 text-lime-400" />
@@ -399,45 +416,51 @@ export function NetfitsEducationalCard() {
               </p>
             </div>
 
-            {/* Painel de Recompensa de Leitura (Dwell Time) */}
+            {/* Painel de Recompensa de Leitura (Dwell Time & Scroll Total) */}
             <div className="pt-2 border-t border-zinc-800 space-y-3">
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="size-3.5 text-purple-400" />
-                  <span>Dwell Time auditado: {dwellTimeSeconds}s (Mínimo: {minDwellRequired}s)</span>
-                </span>
-                {isDwellQualified ? (
-                  <span className="text-lime-400 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="size-3" />
-                    <span>Leitura Qualificada</span>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-400">
+                <div className="bg-zinc-900 p-2 rounded-xl border border-zinc-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Clock className="size-3 text-purple-400" />
+                    <span>Dwell Time:</span>
                   </span>
-                ) : (
-                  <span className="text-amber-400 font-medium">
-                    Permaneça lendo por mais {Math.max(0, minDwellRequired - dwellTimeSeconds)}s
+                  <span className={isDwellQualified ? "text-lime-400 font-bold" : "text-amber-400 font-mono"}>
+                    {dwellTimeSeconds}s / {minDwellRequired}s {isDwellQualified ? "✔" : ""}
                   </span>
-                )}
+                </div>
+                <div className="bg-zinc-900 p-2 rounded-xl border border-zinc-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <ArrowRight className="size-3 text-purple-400 rotate-90" />
+                    <span>Rolagem:</span>
+                  </span>
+                  <span className={isScrollQualified ? "text-lime-400 font-bold" : "text-amber-400 font-medium"}>
+                    {hasScrolledToBottom ? "Fim do texto ✔" : "Role até o fim ⬇"}
+                  </span>
+                </div>
               </div>
 
               {readClaimed ? (
                 <div className="p-3 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold text-center">
-                  ✅ Você já resgatou os 10 nfs desta leitura de manifesto!
+                  ✅ Você já resgatou os {feedAntifraud.getRules().pointsPerEducationalView} nfs desta leitura de manifesto!
                 </div>
               ) : (
                 <button
                   type="button"
-                  disabled={!isDwellQualified}
+                  disabled={!canClaim}
                   onClick={handleClaimRead}
                   className={`w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
-                    isDwellQualified
-                      ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg"
+                    canClaim
+                      ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg active:scale-98"
                       : "bg-zinc-800 text-zinc-500 cursor-not-allowed opacity-70"
                   }`}
                 >
                   <BookOpen className="size-4" />
                   <span>
-                    {isDwellQualified
-                      ? "Confirmar Leitura e Conquistar 10 NFs"
-                      : `Aguarde ${Math.max(0, minDwellRequired - dwellTimeSeconds)}s de leitura`}
+                    {!isDwellQualified
+                      ? `Aguarde ${Math.max(0, minDwellRequired - dwellTimeSeconds)}s de leitura`
+                      : !isScrollQualified
+                      ? "Role o texto até o final para validar a leitura ⬇"
+                      : `Confirmar Leitura e Conquistar +${feedAntifraud.getRules().pointsPerEducationalView} nfs`}
                   </span>
                 </button>
               )}

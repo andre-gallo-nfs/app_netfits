@@ -262,7 +262,7 @@ function FeedCard({ item }: { item: FeedItem }) {
         />
         <h2 className="text-lg font-semibold leading-tight text-balance mb-1">{item.title}</h2>
         <p className="text-sm text-muted-foreground text-pretty mb-3">{item.excerpt}</p>
-        <SocialActions id={item.id} title={item.title} />
+        <SocialActions id={item.id} title={item.title} postCategory="educational" />
       </article>
     );
   }
@@ -277,7 +277,7 @@ function FeedCard({ item }: { item: FeedItem }) {
       <article className="px-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Parceiro · Clínica médica
+            Parceiro Patrocinado · Clínica médica
           </span>
         </div>
         <img
@@ -298,7 +298,7 @@ function FeedCard({ item }: { item: FeedItem }) {
             <span className="block text-[10px] text-muted-foreground">Ganhe Netfits em consultas</span>
           </div>
         </div>
-        <SocialActions id={item.id} title={item.title} />
+        <SocialActions id={item.id} title={item.title} postCategory="sponsored" />
       </article>
     );
   }
@@ -317,7 +317,7 @@ function FeedCard({ item }: { item: FeedItem }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-bold text-brand uppercase tracking-widest">
-              Profissional verificado
+              Profissional verificado · Patrocinado
             </p>
             <h3 className="text-base font-semibold leading-tight">{item.name}</h3>
             <p className="text-xs text-muted-foreground mb-2">{item.role}</p>
@@ -333,7 +333,7 @@ function FeedCard({ item }: { item: FeedItem }) {
             </div>
           </div>
         </div>
-        <SocialActions id={item.id} title={item.name} />
+        <SocialActions id={item.id} title={item.name} postCategory="sponsored" />
       </div>
     </article>
   );
@@ -479,7 +479,7 @@ function VideoFeedCard({
 
       if (validation.allowed) {
         setRewarded(true);
-        const points = feedAntifraud.getRules().pointsPerVideo;
+        const points = feedAntifraud.getRules().pointsPerEducationalView;
         sharedSandboxStore.rewardEngagement("view", item.title, points);
         feedAntifraud.recordAction("video_view", item.id, points);
         toast.success(`🎉 Retenção mínima de 90% atingida! +${points} nfs creditados na sua carteira! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
@@ -498,6 +498,8 @@ function VideoFeedCard({
     setIsPlayingModalOpen(false);
     setProgress(0);
   };
+
+  const videoPoints = params.nfsPerEducationalPostView || 5;
 
   return (
     <>
@@ -533,16 +535,16 @@ function VideoFeedCard({
         {rewarded ? (
           <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center gap-2">
             <Check className="size-4 shrink-0" />
-            <span>Vídeo assistido (90%+ de retenção) — +{params.nfsPerPostView || 10} nfs creditados</span>
+            <span>Vídeo assistido (90%+ de retenção) — +{videoPoints} nfs creditados</span>
           </div>
         ) : (
           <div className="mb-3 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-medium flex items-center gap-2">
             <ShieldCheck className="size-4 text-lime-400 shrink-0" />
-            <span>Regra Antifraude: Assista ao menos 90% do vídeo ({item.duration}) para receber +{params.nfsPerPostView || 10} nfs</span>
+            <span>Regra Antifraude: Assista ao menos 90% do vídeo ({item.duration}) para receber +{videoPoints} nfs</span>
           </div>
         )}
 
-        <SocialActions id={item.id} title={item.title} />
+        <SocialActions id={item.id} title={item.title} postCategory="educational" />
       </article>
 
       {/* MODAL PLAYER DE VÍDEO COM ANTIFRAUDE 90% RETENÇÃO */}
@@ -594,7 +596,7 @@ function VideoFeedCard({
                 </p>
               ) : (
                 <p className="text-[11px] text-lime-400 bg-lime-950/40 border border-lime-500/30 rounded-xl p-2.5 leading-snug font-bold">
-                  🎉 Vídeo assistido (90%+ concluído)! +{params.nfsPerPostView || 10} nfs creditados com sucesso na sua carteira!
+                  🎉 Vídeo assistido (90%+ concluído)! +{videoPoints} nfs creditados com sucesso na sua carteira!
                 </p>
               )}
             </div>
@@ -635,12 +637,23 @@ function CardHeader({
   );
 }
 
-function SocialActions({ id, title, isOwnPost = false }: { id: string; title: string; isOwnPost?: boolean }) {
+function SocialActions({
+  id,
+  title,
+  isOwnPost = false,
+  postCategory = "educational",
+}: {
+  id: string;
+  title: string;
+  isOwnPost?: boolean;
+  postCategory?: "educational" | "sponsored";
+}) {
   return (
     <FeedSocialActions
       id={id}
       title={title}
       isOwnPost={isOwnPost}
+      postCategory={postCategory}
       showViewButton={true}
       showLinkButton={true}
     />

@@ -1,26 +1,33 @@
 import { useSyncExternalStore } from "react";
 
 export type OperationalParams = {
-  // Feed Rewards & Regras Oficiais (Nova Tabela)
-  nfsPerOwnPost: number; // nfs por Post Próprio (vídeo, foto ou texto) - 10 nfs
+  // Feed Rewards & Categorias Oficiais
+  nfsPerOwnPost: number; // nfs por Post Próprio publicado pelo usuário - 10 nfs
   dailyRewardedPostLimit: number; // Limite diário de posts próprios pontuáveis - 1
   weeklyRewardedPostLimit: number; // Limite semanal de posts próprios pontuáveis - 7
-  nfsPerPostView: number; // nfs por view de posts - 10 nfs
-  nfsPerLinkClick: number; // nfs por click em link de posts - 10 nfs
+
+  // Categorias de Visualização / Leitura de Posts:
+  nfsPerEducationalPostView: number; // Posts próprios Netfits & Fibios (Educacionais/Saúde): 5 nfs
+  nfsPerSponsoredPostView: number;   // Posts patrocinados de marcas e parceiros: 10 nfs
+  nfsPerPostView: number;            // Legado/Base (sincronizado com educacional - 5 nfs)
+
+  // Ações sociais no Feed:
+  nfsPerQuiz: number;      // Desafios / Quizzes Eletrônicos: 5 nfs (trava de 1/dia)
+  nfsPerLinkClick: number; // Clicar no link do post: 0 nfs (sem premiação)
+  nfsPerLike: number;      // Curtida: 0 nfs (sem premiação)
+  nfsPerShare: number;     // Compartilhamento externo: 1 nf por rede social
+  nfsPerSave?: number;     // Salvar post: 0 nfs
   dailyThirdPartyInteractionsLimit: number; // limite máximo de interações com posts de terceiros - 10
 
   // Parâmetros legados mantidos para compatibilidade com componentes existentes
   nfsPerVideoPost?: number;
   nfsPerTextPost?: number;
-  nfsPerLike?: number;
-  nfsPerSave?: number;
-  nfsPerShare?: number;
-  nfsPerQuiz?: number; // nfs por resposta correta em Desafio/Quiz diário (5 nfs homologado Fibios)
   dailyMaxPointsThirdPartyInteractions?: number;
 
   // Travas de Segurança Antifraude & Moderação
   blockSelfEngagementRewards: boolean; // Antifraude: Bloqueia acúmulo de nfs por agir sobre o próprio post
-  minDwellTimeSecondsForView: number;   // Tempo mínimo de retenção para posts estáticos (3s)
+  minDwellTimeSecondsForView: number;   // Tempo mínimo de retenção para posts estáticos (aumentado para 10s)
+  requireScrollToBottomForRead: boolean; // Exige scroll down total da janela de texto para validar leitura
   minVideoCompletionPct: number;       // Antifraude Vídeos: Percentual mínimo de retenção (90%) para atribuição de nfs
   requireFullVideoCompletionForReward?: boolean; // Legado mantido para compatibilidade
   maxInteractionsPerMinute: number;     // Rate limit contra robôs/scripts (ex: máx 10 interações/min)
@@ -115,27 +122,33 @@ export function deductPointsFEFO(
 }
 
 export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
-  // Feed Rewards - Nova Tabela Oficial (10 nfs unificado)
+  // Feed Rewards - Categorias Oficiais
   nfsPerOwnPost: 10,
   dailyRewardedPostLimit: 1, // Limite diário de posts próprios pontuáveis
   weeklyRewardedPostLimit: 7, // Limite semanal de posts próprios pontuáveis
 
-  nfsPerPostView: 10, // nfs por view de posts
-  nfsPerLinkClick: 10, // nfs por click em link de posts
-  dailyThirdPartyInteractionsLimit: 10, // limite máximo de interações com posts de terceiros
+  // Categorias de Visualização / Leitura de Posts:
+  nfsPerEducationalPostView: 5, // Posts próprios Netfits & Fibios (Educacionais/Saúde): 5 nfs
+  nfsPerSponsoredPostView: 10,  // Posts patrocinados (Marcas e Parceiros): 10 nfs
+  nfsPerPostView: 5,            // Sincronizado com educacional
 
-  // Campos legados sincronizados
-  nfsPerVideoPost: 10,
-  nfsPerTextPost: 10,
-  nfsPerLike: 10,
-  nfsPerSave: 10,
-  nfsPerShare: 1, // 1 nf por compartilhamento em rede social (Homologado Fibios/Carlos Formigari)
-  nfsPerQuiz: 5, // 5 nfs por acerto no Desafio/Quiz diário (Homologado Fibios/Carlos Formigari)
+  // Ações sociais no Feed:
+  nfsPerQuiz: 5,       // Desafio/Quiz diário: 5 nfs (com trava estrita de 1/dia)
+  nfsPerLinkClick: 0,  // Clicar no link: 0 nfs (sem premiação)
+  nfsPerLike: 0,       // Curtida: 0 nfs (sem premiação)
+  nfsPerShare: 1,      // 1 nf por compartilhamento em rede social
+  nfsPerSave: 0,
+  dailyThirdPartyInteractionsLimit: 10, // limite máximo de interações com posts de terceiros
   dailyMaxPointsThirdPartyInteractions: 100,
 
+  // Campos legados sincronizados
+  nfsPerVideoPost: 5,
+  nfsPerTextPost: 5,
+
   blockSelfEngagementRewards: true, // Auto-engajamento sempre bloqueado
-  minDwellTimeSecondsForView: 3,
-  minVideoCompletionPct: 90, // Antifraude Vídeos: 90% de retenção mínima do vídeo
+  minDwellTimeSecondsForView: 10,   // Dwell time aumentado para 10s
+  requireScrollToBottomForRead: true, // Exige scroll down total da janela de texto
+  minVideoCompletionPct: 90,        // Antifraude Vídeos: 90% de retenção mínima do vídeo
   requireFullVideoCompletionForReward: true, // Legado mantido para compatibilidade
   maxInteractionsPerMinute: 10,
   duplicateMediaFilterActive: true,

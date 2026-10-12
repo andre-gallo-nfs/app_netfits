@@ -65,6 +65,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -81,6 +82,8 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
   useEffect(() => {
     let timer: any = null;
     if (articleOpen && !readClaimed) {
+      setHasScrolledToBottom(false);
+      setDwellTimeSeconds(0);
       timer = setInterval(() => {
         setDwellTimeSeconds((prev) => prev + 1);
       }, 1000);
@@ -89,6 +92,13 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       if (timer) clearInterval(timer);
     };
   }, [articleOpen, readClaimed]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 30) {
+      setHasScrolledToBottom(true);
+    }
+  };
 
   const handleSubmit = () => {
     if (hasSubmitted) {
@@ -124,25 +134,29 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       return;
     }
 
-    const minDwell = feedAntifraud.getRules().minDwellTimeSeconds;
     const validation = feedAntifraud.validateAction("read", ARTICLE_POST_ID, {
       dwellTimeSeconds,
+      hasScrolledToBottom,
+      postCategory: "educational",
     });
 
     if (!validation.allowed) {
-      toast.warning(validation.reason || "Tempo mínimo de retenção não atingido.");
+      toast.warning(validation.reason || "Requisitos de leitura e rolagem não atingidos.");
       return;
     }
 
     setReadClaimed(true);
-    const points = feedAntifraud.getRules().pointsPerView; // 10 nfs oficiais
+    const points = feedAntifraud.getRules().pointsPerEducationalView; // 5 nfs oficiais
     wallet.earn(points, "Leitura Completa de Artigo: Biomarcadores & Sono (Dra. Isabella Formigari)");
     feedAntifraud.recordAction("read", ARTICLE_POST_ID, points);
-    toast.success(`👏 Leitura validada por Dwell Time! (+${points} nfs creditados na sua carteira)`);
+    toast.success(`👏 Leitura e rolagem validadas com sucesso! (+${points} nfs creditados na sua carteira)`);
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
+  const requireScroll = feedAntifraud.getRules().requireScrollToBottom;
   const isDwellQualified = dwellTimeSeconds >= minDwellRequired;
+  const isScrollQualified = !requireScroll || hasScrolledToBottom;
+  const canClaim = isDwellQualified && isScrollQualified;
 
   return (
     <>
@@ -405,6 +419,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           aria-modal="true"
         >
           <div
+            onScroll={handleScroll}
             className="w-full max-w-lg bg-white text-zinc-900 rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto shadow-2xl border border-zinc-200 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
@@ -436,15 +451,20 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
               </div>
             </div>
 
-            {/* Trava Antifraude de Dwell Time no Header do Modal */}
-            <div className="px-5 py-2.5 bg-zinc-100 border-b border-zinc-200 flex items-center justify-between text-xs">
+            {/* Trava Antifraude de Dwell Time e Scroll no Header do Modal */}
+            <div className="px-5 py-2.5 bg-zinc-100 border-b border-zinc-200 flex items-center justify-between text-xs flex-wrap gap-2">
               <span className="flex items-center gap-1.5 text-zinc-700 font-medium">
                 <ShieldCheck className="size-4 text-lime-600" />
-                <span>Auditoria Antifraude de Leitura (Dwell Time):</span>
+                <span>Auditoria Antifraude de Leitura:</span>
               </span>
-              <span className="font-mono font-bold text-purple-700">
-                {dwellTimeSeconds}s / {minDwellRequired}s {isDwellQualified ? "✔" : ""}
-              </span>
+              <div className="flex items-center gap-3 font-mono font-bold text-[11px]">
+                <span className={isDwellQualified ? "text-lime-700" : "text-purple-700"}>
+                  Dwell: {dwellTimeSeconds}s / {minDwellRequired}s {isDwellQualified ? "✔" : ""}
+                </span>
+                <span className={hasScrolledToBottom ? "text-lime-700 font-sans" : "text-amber-700 font-sans"}>
+                  {hasScrolledToBottom ? "Rolagem: 100% ✔" : "Role até o fim ⬇"}
+                </span>
+              </div>
             </div>
 
             {/* Corpo do Artigo */}
@@ -463,7 +483,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                     <Clock className="size-3.5" /> 3 min
                   </span>
                   <span className="text-purple-700 font-bold font-mono">
-                    +10 nfs leitura
+                    +{feedAntifraud.getRules().pointsPerEducationalView} nfs leitura
                   </span>
                 </div>
               </div>
@@ -508,24 +528,26 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                   <button
                     type="button"
                     onClick={handleClaimRead}
-                    disabled={!isDwellQualified}
+                    disabled={!canClaim}
                     className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition cursor-pointer ${
-                      isDwellQualified
+                      canClaim
                         ? "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-600/20 active:scale-[0.99]"
                         : "bg-zinc-200 text-zinc-500 cursor-not-allowed"
                     }`}
                   >
                     <BookOpen className="size-4" />
                     <span>
-                      {isDwellQualified
-                        ? "Concluir Leitura (+10 nfs de recompensa)"
-                        : `Aguarde ${minDwellRequired - dwellTimeSeconds}s para validar leitura`}
+                      {!isDwellQualified
+                        ? `Aguarde ${Math.max(0, minDwellRequired - dwellTimeSeconds)}s para validar leitura`
+                        : !isScrollQualified
+                        ? "Role o texto até o final para validar a leitura ⬇"
+                        : `Concluir Leitura (+${feedAntifraud.getRules().pointsPerEducationalView} nfs de recompensa)`}
                     </span>
                   </button>
                 ) : (
                   <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center justify-center gap-2 text-xs font-bold">
                     <CheckCircle2 className="size-4 text-lime-600" />
-                    <span>Leitura auditada e confirmada (+10 nfs acumulados)</span>
+                    <span>Leitura auditada e confirmada (+{feedAntifraud.getRules().pointsPerEducationalView} nfs acumulados)</span>
                   </div>
                 )}
               </div>
