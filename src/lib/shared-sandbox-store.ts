@@ -522,20 +522,23 @@ class HomologationSandboxStore {
     return this.state.users;
   }
 
-  public async syncToCloud(): Promise<void> {
-    if (typeof window !== "undefined") return;
+  public async syncToCloud(specificUser?: SandboxUser): Promise<void> {
     try {
       this.saveToStorageLocally();
       this.broadcastChannel?.postMessage("sync");
 
       // Transmite cadastro, atualização de saldos E extrato completo de ações para o servidor global assincronamente
+      const payload = specificUser
+        ? { user: specificUser, transactions: this.state.transactions.slice(0, 10) }
+        : {
+            users: this.state.users,
+            transactions: this.state.transactions,
+          };
+
       await fetch("/api/users-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          users: this.state.users,
-          transactions: this.state.transactions,
-        }),
+        body: JSON.stringify(payload),
       });
     } catch (err) {
       console.warn("[CloudSync Push Warning]", err);
@@ -1025,6 +1028,7 @@ class HomologationSandboxStore {
 
     this.saveToStorage();
     this.setActiveUser(newUser.id);
+    this.syncToCloud(newUser);
     return { success: true, user: newUser };
   }
 
@@ -1056,6 +1060,7 @@ class HomologationSandboxStore {
     this.state.users.push(newAssociado);
     this.state.activeUserId = newAssociado.id;
     this.saveToStorage();
+    this.syncToCloud(newAssociado);
     toast.success(`✅ Novo Associado Cadastrado com Sucesso! Código: ${refCode}`);
     return { success: true, user: newAssociado };
   }
