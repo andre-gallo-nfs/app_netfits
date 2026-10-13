@@ -156,6 +156,34 @@ const DEFAULT_PRESEEDED_USERS = [
     registeredAt: "2026-10-07T10:55:30.242Z",
     passwordHash: "Kite@1970",
   },
+  {
+    id: "user-1791568907378",
+    identifier: "edsonsilvafilho@gmail.com",
+    email: "edsonsilvafilho@gmail.com",
+    fullName: "Edson Silva Filho",
+    phone: "(81) 98541-0874",
+    cpf: "04905769400",
+    birthDate: "18/04/1983",
+    address: "Rua Tertuliano Francisco Feitosa, 140 (Apto 602) - Casa Caiada, Olinda · PE",
+    street: "Rua Tertuliano Francisco Feitosa",
+    number: "140",
+    complement: "Apto 602",
+    neighborhood: "Casa Caiada",
+    city: "Olinda",
+    state: "Pernambuco",
+    shortState: "PE",
+    zipcode: "53130330",
+    sports: [],
+    healthPlan: "",
+    gym: "",
+    wearable: "",
+    nfsBalance: 50,
+    userCategory: "atleta",
+    type: "athlete",
+    referralCode: "NET-1431",
+    registeredAt: "2026-10-09T18:01:47.378Z",
+    passwordHash: "C6yK]rh5,~j_\"Mt",
+  },
 ];
 
 // Higienização de dados descontinuada: preserva integralmente todos os dados reais dos usuários
@@ -300,6 +328,15 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
     description: "📱 Engajamento no Feed Social",
     category: "view",
     timestamp: "2026-10-07T11:35:40Z",
+  },
+  {
+    id: "tx-1791568907385-welcome",
+    userId: "user-1791568907378",
+    userName: "Edson Silva Filho",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+    category: "welcome",
+    timestamp: "2026-10-09T18:01:47.385Z",
   },
 ];
 
@@ -1471,17 +1508,7 @@ export default {
       try {
         const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
         if (cloudData && Array.isArray(cloudData.users) && cloudData.users.length > 0) {
-          const userMap = new Map<string, any>();
-          for (const u of globalServerUsers) {
-            if (u && u.id) userMap.set(u.id, u);
-          }
-          for (const cu of cloudData.users) {
-            if (cu && cu.id) {
-              const existing = userMap.get(cu.id) || {};
-              userMap.set(cu.id, { ...existing, ...cu });
-            }
-          }
-          globalServerUsers = Array.from(userMap.values());
+          globalServerUsers = cloudData.users;
           if (cloudData.transactions && cloudData.transactions.length > 0) {
             globalServerTransactions = cloudData.transactions;
           }
