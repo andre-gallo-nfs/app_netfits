@@ -26,9 +26,9 @@ Todos os posts foram fundamentados em pesquisas empíricas revisadas por pares (
 4. **The Lancet / Global Burden of Disease** (2019) — *Health effects of dietary risks in 195 countries: a systematic analysis* (GBD 2017 Diet Collaborators).
 5. **Annals of Internal Medicine** (2011) — *Low Health Literacy and Health Outcomes: An Updated Systematic Review* (Dr. Nancy D. Berkman et al.).
 6. **The New England Journal of Medicine - NEJM** (2007) — *The Spread of Obesity in a Large Social Network over 32 Years* (Prof. Nicholas A. Christakis & James H. Fowler) & *Nature Communications* (Aral & Nicolaides, 2017).
-7. **Nature Reviews Endocrinology** (2012) — *Muscles, exercise and obesity: skeletal muscle as a secretory organ* (Prof. Bente Klarlund Pedersen & Mark A. Febbraio).
-8. **Science** (2013) — *Sleep Drives Metabolite Clearance from the Adult Brain - The Glymphatic System* (Dr. Maiken Nedergaard, Lulu Xie et al.).
-9. **JAMA Network Open** (2018) — *Association of Cardiorespiratory Fitness With Long-term Mortality Among Adults Undergoing Exercise Treadmill Testing* (Dr. Kyle Mandsager et al.).
+7. **Nature Medicine** (2022) — *Association of wearable device-measured vigorous intermittent lifestyle physical activity (VILPA) with mortality* (Prof. Emmanuel Stamatakis et al., UK Biobank).
+8. **Journal of Orthopaedic & Sports Physical Therapy - JOSPT** (2017) & **BJSM** — *The Association of Recreational and Competitive Running With Hip and Knee Osteoarthritis: A Systematic Review and Meta-analysis* (Dr. Eduard Alentorn-Geli et al.).
+9. **European Journal of Preventive Cardiology** (2014/2025) & **ACSM** — *Ability to sit and rise from the floor as a predictor of all-cause mortality* (Dr. Claudio Gil Araújo et al. & American College of Sports Medicine).
 
 ---
 
@@ -231,118 +231,118 @@ Todos os posts foram fundamentados em pesquisas empíricas revisadas por pares (
 
 ---
 
-### POST 7 | O Músculo como Órgão Endócrino: Sua Farmácia Biológica Antienvelhecimento
-* **Categoria no Feed**: Educacional Científico (Categoria: `educational`)
+#### POST 7 | Duração Mínima & Snacks de Movimento: Por Que 20 Minutos Diários Mudam o Jogo
+* **Categoria no Feed**: Educacional Prático (Categoria: `educational`)
 * **Remuneração de Leitura**: **+5 nfs** (Auditado com Dwell Time $\ge$ 10s + 100% de Rolagem)
-* **Público**: Praticantes de Força, Longevidade e Reabilitação
+* **Público**: Iniciantes, Profissionais Ocupados e Praticantes de Hábitos Diários
 
-* **Título do Banner (Hook)**: *Você sabia que os seus músculos funcionam como uma fábrica de remédios antienvelhecimento?*
-* **Linha de Apoio (Subtítulo)**: *Descubra o papel das miocinas e por que a força muscular é a garantia da sua imunidade e cérebro jovem.*
+* **Título do Banner (Hook)**: *Sem tempo para treinar 1 hora? A ciência comprova: 20 minutos (ou 3 blocos de 2 minutos) já transformam sua saúde.*
+* **Linha de Apoio (Subtítulo)**: *Descubra a dose mínima eficaz de movimento diário e como pequenos estímulos previnem o adoecimento precoce.*
 * **Texto Completo do Artigo (Leitura no Modal)**:
-  > Por décadas, a medicina tradicional enxergou o músculo esquelético apenas como uma estrutura mecânica responsável pela locomoção e sustentação do corpo. No entanto, descobertas recentes lideradas por cientistas europeus revolucionaram a fisiologia: **o músculo é o maior órgão endócrino do corpo humano**.  
+  > Uma das maiores barreiras para começar a se movimentar é a ilusão de que só vale a pena se você passar 60 a 90 minutos suando dentro de uma academia. A ciência contemporânea da atividade física derrubou de vez esse mito.  
   > 
-  > Quando um músculo se contrai de forma ativa durante uma caminhada, uma pedalada ou uma sessão de musculação, ele produz e secreta centenas de peptídeos bioativos chamados **miocinas**.  
+  > Pesquisas revolucionárias analisando dados de dezenas de milhares de pessoas comprovaram o poder do que os cientistas chamam de **VILPA (Atividade Física Vigorosa e Intermitente no Estilo de Vida)** — os famosos 'snacks de movimento'.  
   > 
-  > Essas moléculas viajam pela corrente sanguínea e realizam uma verdadeira faxina biológica: diminuem a inflamação crônica nas artérias, estimulam a queima de gordura no fígado, otimizam a sensibilidade à insulina e induzem a liberação de BDNF no cérebro — um fator essencial para a memória e prevenção de demências.  
+  > Apenas 3 a 4 rajadas de 1 a 2 minutos de esforço vigoroso espalhadas pelo seu dia — como subir lances de escada acelerando o passo, caminhar com vigor entre compromissos ou carregar as sacolas de compras com firmeza — reduzem a mortalidade precoce e cardiovascular em até 40%.  
   > 
-  > Preservar e estimular sua musculatura é o melhor plano de saúde que você pode assinar.
+  > Além disso, caminhar 20 minutos diários de forma contínua já atinge a meta mínima global de 150 minutos semanais. O corpo humano responde à intenção e à quebra do sedentarismo, não à duração extrema.
 
 * **🔬 Fundamentação Científica de Base**:
-  * **Periódico**: *Nature Reviews Endocrinology* (Vol. 8, Ed. 8, p. 457–465, 2012) & *Physiological Reviews* (2020).
-  * **Artigo**: *"Muscles, exercise and obesity: skeletal muscle as a secretory organ"*.
-  * **Autores**: Prof. Bente Klarlund Pedersen & Mark A. Febbraio (Universidade de Copenhague).
-  * **Conclusão Clínica**: A pesquisa pioneira estabeleceu que a contração do músculo esquelético libera a miocina Interleucina-6 (IL-6 miocina), que diferentemente da IL-6 inflamatória produzida pelo sistema imune em infecções, exerce efeitos anti-inflamatórios potentes, inibe a TNF-alfa e atua diretamente no tecido adiposo e no sistema nervoso central para promover homeostase metabólica e neuroproteção.
+  * **Periódico**: *Nature Medicine* (Vol. 28, p. 2521–2528, 2022).
+  * **Artigo**: *"Association of wearable device-measured vigorous intermittent lifestyle physical activity with mortality"*.
+  * **Autores**: Prof. Emmanuel Stamatakis, Matthew N. Ahmadi, et al. (Charles Perkins Centre, University of Sydney / Estudo com 25.241 indivíduos da UK Biobank).
+  * **Conclusão Clínica**: Breves picos esporádicos de atividade física vigorosa no cotidiano (VILPA de 1 a 2 minutos cada, totalizando apenas 4 a 5 minutos diários) replicam os benefícios metabólicos do HIIT, promovendo expressiva proteção contra doenças cardiovasculares e câncer em indivíduos que não realizavam exercícios físicos estruturados.
 
 * **❓ Desafio Netfits Diário (+5 nfs)**:
-  * **Pergunta**: O que a ciência moderna descobriu sobre a função endócrina do músculo esquelético quando submetido à contração física?
-  * **Opção A (Correta)**: O músculo libera miocinas na corrente sanguínea, substâncias que combatem a inflamação, protegem o cérebro e regulam a glicose.
-  * **Opção B**: O músculo apenas serve para armazenar gordura e não tem relação com hormônios.
-  * **Opção C**: A contração muscular enfraquece a memória e acelera o envelhecimento dos tecidos.
-  * **Feedback da Resposta Certa**: *Perfeito! Seus músculos secretam miocinas protetoras toda vez que você se movimenta com consistência.*
+  * **Pergunta**: De acordo com a pesquisa publicada na Nature Medicine sobre "snacks de movimento" (VILPA), o que é necessário para colher benefícios cardiovasculares significativos no dia a dia?
+  * **Opção A (Correta)**: Pequenos estímulos de 1 a 2 minutos de esforço vigoroso no cotidiano (como subir escadas com agilidade) já proporcionam forte proteção metabólica.
+  * **Opção B**: Apenas treinos contínuos com duração superior a 2 horas sem interrupção têm valor biológico.
+  * **Opção C**: Passar o dia sentado e correr apenas uma vez por mês até a exaustão.
+  * **Feedback da Resposta Certa**: *Perfeito! Não deixe o ótimo ser inimigo do bom: pequenas doses diárias de movimento consciente protegem sua saúde de forma real.*
 
-* **💡 Pílula de Sabedoria**: *"Cada contração muscular consciente é uma dose de medicamento rejuvenescedor que seu próprio corpo administra a si mesmo."*
+* **💡 Pílula de Sabedoria**: *"Não é sobre ter tempo de sobra; é sobre dar vida ao tempo que você já tem com pequenas decisões de movimento."*
 
 ---
 
-### POST 8 | A Arquitetura do Sono: O Sistema Glinfático e a Faxina Cerebral Noturna
-* **Categoria no Feed**: Educacional Científico (Categoria: `educational`)
+### POST 8 | Movimento com Baixo Impacto: Vitalidade Sem Destruir suas Articulações
+* **Categoria no Feed**: Educacional Prático (Categoria: `educational`)
 * **Remuneração de Leitura**: **+5 nfs** (Auditado com Dwell Time $\ge$ 10s + 100% de Rolagem)
-* **Público**: Todos os Usuários, Produtividade e Recuperação
+* **Público**: Pessoas com Dores Articulares, Acima do Peso, Idosos e Iniciantes
 
-* **Título do Banner (Hook)**: *Treinar e comer bem sem dormir o suficiente é como construir uma casa sobre areia movediça.*
-* **Linha de Apoio (Subtítulo)**: *Como o sistema glinfático limpa as toxinas do seu cérebro durante o sono profundo e protege sua mente.*
+* **Título do Banner (Hook)**: *Tem medo de dor nos joelhos ou quadris? Conheça as melhores atividades de baixo impacto para proteger suas articulações.*
+* **Linha de Apoio (Subtítulo)**: *Como caminhada rápida, natação e ciclismo nutrem suas cartilagens e mantêm você ativo por toda a vida.*
 * **Texto Completo do Artigo (Leitura no Modal)**:
-  > Muitos acreditam que o sono é um período passivo em que o corpo simplesmente 'desliga' para economizar energia. A neurociência contemporânea provou o contrário: o sono profundo é o momento de maior atividade metabólica de reparação do organismo.  
+  > Quando surge qualquer incômodo nos joelhos, tornozelos ou coluna, a reação mais comum é parar completamente de se mover com medo de piorar o desgaste. Mas o repouso absoluto é, na verdade, um dos maiores inimigos da saúde articular.  
   > 
-  > Enquanto você atinge as fases mais restauradoras do sono (ondas lentas), o cérebro ativa o chamado **sistema glinfático**.  
+  > A cartilagem que reveste as nossas articulações não possui vasos sanguíneos próprios. Isso significa que ela só consegue absorver nutrientes e oxigênio quando é comprimida e liberada suavemente durante o movimento, permitindo que o líquido sinovial circule e a lubrifique.  
   > 
-  > Os espaços entre os neurônios se expandem em até 60%, permitindo que o líquido cefalorraquidiano flua em ondas, lavando e removendo subprodutos metabólicos acumulados durante o dia — incluindo as placas de proteína beta-amiloide, associadas ao Alzheimer e ao declínio cognitivo.  
+  > Atividades de **baixo impacto articular** — como caminhada com calçado amortecido, bicicleta ergométrica, natação, hidroginástica e elíptico — proporcionam todo o estímulo cardiovascular e muscular de que seu corpo precisa, com sobrecarga mecânica quase nula nas juntas.  
   > 
-  > Além disso, é durante esse repouso que ocorre a consolidação das memórias e o equilíbrio entre o cortisol e os hormônios anabólicos de recuperação. Sem sono restaurador, a longevidade biológica não se sustenta.
+  > Estudos de ponta comprovam que praticantes regulares de exercícios moderados têm menos osteoartrite do que pessoas sedentárias. O movimento consciente é o melhor óleo lubrificante que suas articulações podem receber.
 
 * **🔬 Fundamentação Científica de Base**:
-  * **Periódico**: *Science* (Vol. 342, Ed. 6156, p. 373–377, 2013).
-  * **Artigo**: *"Sleep Drives Metabolite Clearance from the Adult Brain"*.
-  * **Autores**: Lulu Xie, Hongyi Kang, Qiwu Xu, Michael J. Chen, Maiken Nedergaard et al. (University of Rochester Medical Center).
-  * **Conclusão Clínica**: Os pesquisadores demonstraram experimentalmente que o fluxo de líquido cefalorraquidiano pelo sistema glinfático aumenta vertiginosamente durante o sono, sendo responsável pela depuração de substâncias neurotóxicas que causam neurodegeneração. A privação crônica de sono acelera o envelhecimento cerebral e neutraliza os benefícios adaptativos do exercício físico.
+  * **Periódico**: *Journal of Orthopaedic & Sports Physical Therapy (JOSPT)* (Vol. 47, Ed. 6, p. 373–390, 2017) & *British Journal of Sports Medicine (BJSM)*.
+  * **Artigo**: *"The Association of Recreational and Competitive Running With Hip and Knee Osteoarthritis: A Systematic Review and Meta-analysis"*.
+  * **Autores**: Eduard Alentorn-Geli, Kristian Samuelsson, Volker Musahl, et al.
+  * **Conclusão Clínica**: A meta-análise comprovou que indivíduos praticantes de atividades recreativas moderadas apresentam incidência de osteoartrite de joelho e quadril de apenas 3,5%, em comparação com 10,2% em controles sedentários. O movimento cíclico moderado mantém o trofismo cartilaginoso e estimula a síntese de proteoglicanos no líquido sinovial, desmistificando o receio de desgaste articular em atividades de impacto controlado.
 
 * **❓ Desafio Netfits Diário (+5 nfs)**:
-  * **Pergunta**: Qual é a função vital realizada pelo sistema glinfático no cérebro humano durante as fases de sono profundo?
-  * **Opção A (Correta)**: Promover uma faxina biológica através do líquido cefalorraquidiano, eliminando toxinas metabólicas associadas a doenças neurodegenerativas.
-  * **Opção B**: Desligar permanentemente a atividade neuronal para impedir o gasto calórico.
-  * **Opção C**: Bloquear a recuperação muscular para priorizar a digestão de alimentos pesados.
-  * **Feedback da Resposta Certa**: *Corretíssimo! O sono profundo atua como um sistema de purificação e regeneração cerebral indispensável para a sua longevidade.*
+  * **Pergunta**: Por que atividades físicas de baixo impacto (como caminhada, natação ou ciclismo) são benéficas para articulações com dor ou desgaste?
+  * **Opção A (Correta)**: Porque o movimento suave estimula o fluxo de líquido sinovial que nutre a cartilagem, preservando a mobilidade sem choques mecânicos excessivos.
+  * **Opção B**: Porque o repouso absoluto na cama é a única forma conhecida de regenerar meniscos.
+  * **Opção C**: Porque atividades de baixo impacto servem apenas para gastar tempo sem gerar benefícios ao coração.
+  * **Feedback da Resposta Certa**: *Corretíssimo! A cartilagem depende do movimento consciente para se nutrir e permanecer flexível por décadas.*
 
-* **💡 Pílula de Sabedoria**: *"Dormir com qualidade não é perda de tempo produtivo; é o alicerce biológico onde a sua vitalidade é reconstruída."*
+* **💡 Pílula de Sabedoria**: *"Suas articulações são como engrenagens biológicas: a imobilidade as enferruja, mas o movimento suave é o lubrificante que as preserva."*
 
 ---
 
-### POST 9 | VO2 Máximo: O Biomarcador Clínico Mais Poderoso de Sobrevivência
-* **Categoria no Feed**: Educacional Científico (Categoria: `educational`)
+### POST 9 | Força Sem Equipamentos: O Peso Corporal como Sua Melhor Academia
+* **Categoria no Feed**: Educacional Prático (Categoria: `educational`)
 * **Remuneração de Leitura**: **+5 nfs** (Auditado com Dwell Time $\ge$ 10s + 100% de Rolagem)
-* **Público**: Entusiastas de Esporte, Medicina Preventiva e Dados
+* **Público**: Praticantes em Casa, Iniciantes e Foco em Autonomia Funcional
 
-* **Título do Banner (Hook)**: *Existe um número que prevê com precisão seus próximos 20 anos de vida: o seu VO2 Máximo.*
-* **Linha de Apoio (Subtítulo)**: *Por que a capacidade cardiorrespiratória se tornou o biomarcador de longevidade mais respeitado da medicina moderna.*
+* **Título do Banner (Hook)**: *Sem pesos, sem aparelhos caros: como usar o próprio corpo para construir força e autonomia funcional.*
+* **Linha de Apoio (Subtítulo)**: *Descubra movimentos simples de calistenia que você pode fazer na sala de casa em apenas 10 minutos.*
 * **Texto Completo do Artigo (Leitura no Modal)**:
-  > Quando fazemos exames médicos de rotina, costumamos prestar atenção ao colesterol, à glicose e à pressão arterial. Todos são importantes. No entanto, uma das maiores investigações epidemiológicas da história da cardiologia revelou que existe um indicador ainda mais determinante para a sua expectativa de vida: a sua **Aptidão Cardiorrespiratória (mensurada pelo VO2 Máximo)**.  
+  > Você não precisa pagar mensalidades caras nem comprar equipamentos sofisticados para construir um corpo forte, resistente e equilibrado. A melhor academia do mundo já viaja com você em tempo integral: **o seu próprio peso corporal**.  
   > 
-  > O VO2 Máximo mede a capacidade máxima do seu coração, pulmões, vasos sanguíneos e mitocôndrias musculares de captar, transportar e utilizar o oxigênio durante o movimento.  
+  > A calistenia básica utiliza a gravidade e as alavancas do corpo para recrutar múltiplos grupos musculares ao mesmo tempo, desenvolvendo exatamente a força que você precisa na vida real.  
   > 
-  > A literatura médica comprovou que indivíduos com níveis moderados ou elevados de condicionamento cardiorrespiratório apresentam uma redução de risco de morte por qualquer causa até 5 vezes maior quando comparados aos mais sedentários — uma proteção superior a qualquer medicamento isolado existente no mercado.  
+  > Movimentos fundamentais como sentar e levantar do sofá sem impulso, agachamentos livres, apoios de braço na parede ou na bancada da pia, elevação de panturrilhas enquanto escova os dentes e prancha no tapete fortalecem as pernas, a lombar e a postura.  
   > 
-  > Cuidar do seu fôlego hoje é o seguro biológico mais valioso que você pode ter.
+  > Um teste médico consagrado mundialmente — a capacidade de sentar e se levantar do chão com o mínimo de apoios manuais — é um dos maiores preditores de longevidade e autonomia na vida adulta. Praticar 10 minutos desses movimentos na sala de casa é o investimento mais acessível e eficaz para nunca perder sua independência.
 
 * **🔬 Fundamentação Científica de Base**:
-  * **Periódico**: *JAMA Network Open* (Vol. 1, Ed. 6, Art. e183605, 2018).
-  * **Artigo**: *"Association of Cardiorespiratory Fitness With Long-term Mortality Among Adults Undergoing Exercise Treadmill Testing"*.
-  * **Autores**: Kyle Mandsager, Serge Harb, Paul Cremer, Dennis Phelan, Steven E. Nissen, Wael Jaber (Cleveland Clinic Foundation).
-  * **Conclusão Clínica**: Estudo prospectivo com 122.007 pacientes submetidos a testes ergométricos demonstrou que a aptidão cardiorrespiratória (CRF) é um indicador inversamente e linearmente associado à mortalidade por todas as causas. Níveis baixos de VO2 máx apresentaram risco de mortalidade comparável ou superior a tabagismo, diabetes e doença arterial coronariana comprovada.
+  * **Periódico**: *European Journal of Preventive Cardiology* (Vol. 21, Ed. 7, p. 892–898, 2014 & validação longitudinal 2025).
+  * **Artigo**: *"Ability to sit and rise from the floor as a predictor of all-cause mortality"*.
+  * **Autores**: Dr. Claudio Gil Araújo, Leonardo A. de Brito, et al.
+  * **Conclusão Clínica**: O estudo comprovou que o escore no Teste de Sentar e Levantar (Sitting-Rising Test - SRT), que avalia força muscular de membros inferiores, flexibilidade, composição corporal e equilíbrio sem qualquer equipamento, é um preditor clínico independente de mortalidade por todas as causas e sobrevivência funcional em adultos e idosos.
 
 * **❓ Desafio Netfits Diário (+5 nfs)**:
-  * **Pergunta**: O que o estudo de referência da Cleveland Clinic publicado no JAMA Network Open concluiu sobre a relação entre o VO2 Máximo e a longevidade?
-  * **Opção A (Correta)**: Que uma boa capacidade cardiorrespiratória reduz o risco de mortalidade por qualquer causa, sendo um preditor mais potente que o próprio colesterol ou tabagismo.
-  * **Opção B**: Que ter bom fôlego só interessa a maratonistas profissionais e não afeta pessoas comuns.
-  * **Opção C**: Que o condicionamento físico alto enfraquece o coração a longo prazo.
-  * **Feedback da Resposta Certa**: *Exato! O condicionamento cardiorrespiratório é o mais robusto biomarcador de sobrevivência e autonomia já documentado pela ciência.*
+  * **Pergunta**: Qual a principal vantagem de realizar exercícios funcionais com o peso corporal (como sentar e levantar da cadeira ou agachamentos livres) no dia a dia?
+  * **Opção A (Correta)**: Desenvolver força funcional, estabilidade de equilíbrio e autonomia física para a vida cotidiana sem necessidade de nenhum aparelho.
+  * **Opção B**: Substituir totalmente a ingestão de água e a alimentação saudável.
+  * **Opção C**: Forçar o corpo a um cansaço excessivo para que a pessoa não consiga se levantar no dia seguinte.
+  * **Feedback da Resposta Certa**: *Excelente! Dominar seu próprio corpo contra a gravidade é o segredo mais simples e poderoso da independência física.*
 
-* **💡 Pílula de Sabedoria**: *"O seu fôlego é o reflexo da eficiência das suas células; treinar seu coração é proteger o futuro dos seus dias."*
+* **💡 Pílula de Sabedoria**: *"A sua melhor academia é a sua própria gravidade; aprender a dominar seu corpo é o primeiro passo para a sua liberdade."*
 
 ---
 
 ## 📊 Tabela-Resumo Operacional para o Admin Netfits
 
 | ID | Tema do Post | Categoria | Dwell Time Mínimo | Rolagem Obrigatória | Pontos Leitura | Pontos Quiz | Compartilhamento |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **01** | *A Origem da Netfits (Ironman / T1D)* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
 | **02** | *O Propósito: Healthspan vs. Lifespan* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
 | **03** | *Consistência sem Burnout (Anti-Choque)* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
 | **04** | *Como Ganhar Pontos no Shop Netfits* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
 | **05** | *Aprendizado que Pontua: Feed & Quizzes* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
 | **06** | *Member Get Member: Indicação (+50 nfs)* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
-| **07** | *O Músculo como Órgão Endócrino (Miocinas)* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
-| **08** | *A Arquitetura do Sono (Sistema Glinfático)* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
-| **09** | *VO2 Máximo: O Biomarcador Supremo* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
+| **07** | *Duração Mínima & Snacks de Movimento* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
+| **08** | *Movimento com Baixo Impacto Articular* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
+| **09** | *Força Sem Equipamentos (Peso Corporal)* | Educacional | 10s | 100% Scroll | +5 nfs | +5 nfs | +1 nf |
 
 ---
 *Compilado e homologado pelo Squad de Arquitetura e Conteúdo da Netfits Plataforma.*
