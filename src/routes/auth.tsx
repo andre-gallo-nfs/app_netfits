@@ -362,6 +362,13 @@ function AuthPage() {
         registeredAt: res.user.registeredAt,
       });
       passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
+
+      // Sincronização imediata garantida do novo usuário no servidor de produção
+      fetch("/api/users-sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: res.user }),
+      }).catch((err) => console.warn("[Register Cloud Sync Warning]", err));
     }
 
     // Disparo imediato do E-mail Oficial de Boas-Vindas (+50 nfs) via Resend

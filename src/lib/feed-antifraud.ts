@@ -68,11 +68,17 @@ export const feedAntifraud = {
     const params = operationalParamsStore.getParams();
     return {
       dailyInteractionLimit: params.dailyThirdPartyInteractionsLimit ?? 10,
-      pointsPerView: params.nfsPerPostView ?? 10,
-      pointsPerVideo: params.nfsPerPostView ?? 10,
-      pointsPerLinkClick: params.nfsPerLinkClick ?? 10,
+      pointsPerEducationalView: params.nfsPerEducationalPostView ?? 5, // 5 nfs para posts próprios Netfits e Fibios
+      pointsPerSponsoredView: params.nfsPerSponsoredPostView ?? 10,   // 10 nfs para patrocinados de marcas/parceiros
+      pointsPerView: params.nfsPerEducationalPostView ?? 5,
+      pointsPerVideo: params.nfsPerEducationalPostView ?? 5,
+      pointsPerLinkClick: params.nfsPerLinkClick ?? 0, // 0 nfs - sem premiação
+      pointsPerLike: params.nfsPerLike ?? 0,           // 0 nfs - sem premiação
+      pointsPerQuiz: params.nfsPerQuiz ?? 5,           // 5 nfs por acerto em quiz diário
+      pointsPerShare: params.nfsPerShare ?? 1,         // 1 nf por compartilhamento em rede social
       minVideoCompletionPct: params.minVideoCompletionPct ?? 90, // Regra oficial: 90% de retenção mínima do vídeo
-      minDwellTimeSeconds: params.minDwellTimeSecondsForView ?? 3,
+      minDwellTimeSeconds: params.minDwellTimeSecondsForView ?? 10, // Dwell time aumentado para 10s
+      requireScrollToBottom: params.requireScrollToBottomForRead ?? true, // Exige scroll down total
       maxInteractionsPerMinute: params.maxInteractionsPerMinute ?? 10,
       blockSelfEngagement: params.blockSelfEngagementRewards ?? true,
     };
@@ -127,7 +133,13 @@ export const feedAntifraud = {
   validateAction(
     action: FeedActionType,
     postId: string,
-    extraContext?: { dwellTimeSeconds?: number; videoProgressPct?: number; isOwnPost?: boolean }
+    extraContext?: {
+      dwellTimeSeconds?: number;
+      videoProgressPct?: number;
+      isOwnPost?: boolean;
+      postCategory?: "educational" | "sponsored";
+      hasScrolledToBottom?: boolean;
+    }
   ): FeedActionValidation {
     const rules = this.getRules();
     const dailyCount = this.getTodayInteractionsCount();
@@ -137,6 +149,24 @@ export const feedAntifraud = {
       return {
         allowed: false,
         reason: "🔒 Antifraude: Auto-engajamento em publicações próprias não gera pontos nfs.",
+        dailyCount,
+        dailyLimit: rules.dailyInteractionLimit,
+      };
+    }
+
+    // 1b. Ações com pontuação desativada (0 nfs)
+    if (action === "like" && rules.pointsPerLike <= 0) {
+      return {
+        allowed: false,
+        reason: "Curtidas não geram pontuação em nfs conforme a política atual.",
+        dailyCount,
+        dailyLimit: rules.dailyInteractionLimit,
+      };
+    }
+    if (action === "link_click" && rules.pointsPerLinkClick <= 0) {
+      return {
+        allowed: false,
+        reason: "Cliques em links não geram pontuação em nfs conforme a política atual.",
         dailyCount,
         dailyLimit: rules.dailyInteractionLimit,
       };
@@ -162,7 +192,34 @@ export const feedAntifraud = {
       };
     }
 
-    // 4. Trava de Dwell Time em Leitura
+    // 4. Trava de Quiz Diário (Limite estrito de 1 desafio/quiz premiado por dia)
+    if (action === "quiz") {
+      const today = getTodayString();
+      const log = loadActionLog();
+      const todayQuizCount = log.filter((item) => item.action === "quiz" && item.timestamp.startsWith(today)).length;
+      if (todayQuizCount >= 1) {
+        return {
+          allowed: false,
+          reason: "🔒 Antifraude: Limite de 1 quiz premiado por dia atingido. O Desafio Netfits é diário. Volte amanhã para o novo desafio!",
+          dailyCount,
+          dailyLimit: rules.dailyInteractionLimit,
+        };
+      }
+    }
+
+    // 5. Trava de Scroll Down Total do Texto em Leitura (Similar a Janela de Termos de Uso)
+    if (action === "read" && rules.requireScrollToBottom) {
+      if (extraContext?.hasScrolledToBottom === false) {
+        return {
+          allowed: false,
+          reason: "📜 Antifraude: Role o texto até o final para confirmar a leitura completa do artigo.",
+          dailyCount,
+          dailyLimit: rules.dailyInteractionLimit,
+        };
+      }
+    }
+
+    // 5b. Trava de Dwell Time em Leitura
     if (action === "read" && typeof extraContext?.dwellTimeSeconds === "number") {
       if (extraContext.dwellTimeSeconds < rules.minDwellTimeSeconds) {
         return {
@@ -174,7 +231,7 @@ export const feedAntifraud = {
       }
     }
 
-    // 5. Trava de Retenção em Vídeo (Mínimo de 90%)
+    // 6. Trava de Retenção em Vídeo (Mínimo de 90%)
     if (action === "video_view" && typeof extraContext?.videoProgressPct === "number") {
       if (extraContext.videoProgressPct < rules.minVideoCompletionPct) {
         return {
@@ -186,7 +243,7 @@ export const feedAntifraud = {
       }
     }
 
-    // 6. Trava de Teto Diário de Interações com Terceiros (máx 10 interações = 100 nfs/dia)
+    // 7. Trava de Teto Diário de Interações com Terceiros (máx 10 interações = 100 nfs/dia)
     if (dailyCount >= rules.dailyInteractionLimit) {
       return {
         allowed: false,

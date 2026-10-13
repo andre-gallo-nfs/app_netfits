@@ -4,4 +4,10 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      host: true,
+      allowedHosts: true,
+    },
+  },
 });

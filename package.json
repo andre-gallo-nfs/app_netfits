@@ -4,7 +4,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "vite dev --mode staging --port 3000",
+    "staging": "vite dev --mode staging --port 3000",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate-routes.cjs && tsc --noEmit",
     "qa:check": "node scripts/validate-routes.cjs && tsc --noEmit && vite build",
@@ -111,5 +112,9 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1"
+  },
+  "optionalDependencies": {
+    "@oxc-parser/binding-wasm32-wasi": "0.120.0",
+    "@oxc-parser/binding-win32-x64-msvc": "0.120.0"
   }
 }
