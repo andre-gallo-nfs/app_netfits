@@ -478,6 +478,21 @@ class HomologationSandboxStore {
             }
           }
           this.saveToStorageLocally();
+
+          // Auto-recuperação resiliente: Se o usuário ativo deste dispositivo ainda não consta
+          // no servidor central (caso de cadastros prévios à liberação do sync), envia automaticamente
+          const localActive = this.getActiveUser();
+          if (
+            localActive &&
+            localActive.email &&
+            !serverUsers.some(
+              (su) =>
+                (su.email && su.email.trim().toLowerCase() === localActive.email?.trim().toLowerCase()) ||
+                su.id === localActive.id
+            )
+          ) {
+            this.syncToCloud(localActive);
+          }
         }
 
         // 3. Sincronização em tempo real de extrato de transações e histórico de ações
