@@ -66,5 +66,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>O Netfits utiliza o Face ID para autenticar seu acesso e proteger seus pontos de forma rápida e segura.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>O Netfits necessita de acesso à câmera para captura da sua foto de perfil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O Netfits necessita de acesso à sua galeria de fotos para você escolher sua foto de perfil.</string>
 </dict>
 </plist>
