@@ -511,11 +511,28 @@ class HomologationSandboxStore {
               this.state.users.push(su);
             }
           }
+
+          // Alinha a lista de usuários local estritamente com os usuários válidos do servidor
+          // removendo personas legadas que foram expurgadas da nuvem permanente
+          const validServerIds = new Set(serverUsers.map((su) => su.id));
+          const validServerEmails = new Set(
+            serverUsers.map((su) => su.email?.trim().toLowerCase()).filter(Boolean)
+          );
+          const localActive = this.getActiveUser();
+          this.state.users = this.state.users.filter((u) => {
+            if (validServerIds.has(u.id)) return true;
+            if (u.email && validServerEmails.has(u.email.trim().toLowerCase())) return true;
+            // Preserva se for um novo usuário local ativo aguardando sincronização
+            if (localActive && (localActive.id === u.id || (localActive.email && localActive.email === u.email))) {
+              return true;
+            }
+            return false;
+          });
+
           this.saveToStorageLocally();
 
           // Auto-recuperação resiliente: Se o usuário ativo deste dispositivo ainda não consta
           // no servidor central (caso de cadastros prévios à liberação do sync), envia automaticamente
-          const localActive = this.getActiveUser();
           if (
             localActive &&
             localActive.email &&
