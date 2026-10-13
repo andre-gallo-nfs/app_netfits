@@ -502,12 +502,43 @@ export const authStore = {
       try {
         localStorage.removeItem("netfits_production_active_user_v1");
         localStorage.removeItem("netfits_last_authenticated_user_id");
+        localStorage.removeItem("netfits_session_unlocked_v2");
+        localStorage.removeItem("netfits_app_explicitly_locked");
         sessionStorage.removeItem("netfits_session_unlocked_v1");
       } catch {}
     }
     sharedSandboxStore.clearActiveSession();
     toast.info("Você saiu da sua conta Netfits.");
     emit();
+  },
+
+  deleteAccount(userId?: string) {
+    const targetId = userId || currentUser?.id;
+    if (targetId) {
+      const idx = storedUsers.findIndex((u) => u.id === targetId);
+      if (idx !== -1) {
+        storedUsers.splice(idx, 1);
+        saveStoredUsers(storedUsers);
+        authState.usersCount = storedUsers.length;
+      }
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem(`netfits_profile_saved_${targetId}`);
+        } catch {}
+      }
+    }
+    currentUser = null;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("netfits_production_active_user_v1");
+        localStorage.removeItem("netfits_last_authenticated_user_id");
+        sessionStorage.removeItem("netfits_session_unlocked_v1");
+      } catch {}
+    }
+    sharedSandboxStore.clearActiveSession();
+    toast.success("Sua conta e seus dados foram excluídos e anonimizados com sucesso.");
+    emit();
+    return { success: true };
   },
 
   async loginWithPasskey(expectedUserId?: string) {

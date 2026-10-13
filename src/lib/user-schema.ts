@@ -24,8 +24,10 @@ export const UserSignupSchema = z.object({
   // Dados do Ecossistema Esportivo
   sports: z.array(z.string()).min(1, "Selecione ao menos 1 esporte de preferência"),
   healthPlan: z.string().default("Sem plano"),
+  otherHealthPlan: z.string().optional(),
   gym: z.string().default("Não frequento"),
   wearable: z.string().default("Não uso"),
+  otherWearable: z.string().optional(),
   coaching: z.string().optional(),
 
   // Programas de Fidelidade Declarados (Etapa 1 - Business Plan Sessão 6)

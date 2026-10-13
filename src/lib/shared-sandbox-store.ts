@@ -31,9 +31,11 @@ export interface SandboxUser {
   sports?: string[];
   otherSport?: string;
   healthPlan?: string;
+  otherHealthPlan?: string;
   gym?: string;
   coaching?: string;
   wearable?: string;
+  otherWearable?: string;
   loyaltyPrograms?: string[];
   loyaltyPointsEstimate?: string;
   gender?: string | null;

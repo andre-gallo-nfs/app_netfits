@@ -8,10 +8,10 @@ sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
 PROJECT_DIR = r"C:\Users\aacga\Projetos\app_netfits"
-BACKUP_NAME = "Netfits_Backup_v1.2.0_Dual_Deploy_Segregacao_Bancos_20261008.zip"
+BACKUP_NAME = "Netfits_Backup_v1.2.2_Pre_AppStore_GooglePlay_Unified_Compliance_20261013.zip"
 DEST_LOCAL = os.path.join(PROJECT_DIR, "backups", BACKUP_NAME)
 DEST_ONEDRIVE = os.path.join(r"c:\Users\aacga\OneDrive\netfits\backups", BACKUP_NAME)
-DEST_ARTIFACTS = os.path.join(r"C:\Users\aacga\.gemini\antigravity\brain\0c50996a-827d-4c1d-b276-5ffdfd4f7f85", BACKUP_NAME)
+DEST_ARTIFACTS = os.path.join(r"C:\Users\aacga\.gemini\antigravity\brain\6ce46e95-9381-4e2d-8124-f5bf8af1c6f8", BACKUP_NAME)
 
 EXCLUDE_DIRS = {".git", "node_modules", "dist", ".output", "backups", ".wrangler"}
 EXCLUDE_EXTS = {".zip"}
@@ -20,6 +20,7 @@ print(f"📦 Criando Snapshot ZIP de Ponto de Recuperação: {BACKUP_NAME}...")
 
 os.makedirs(os.path.join(PROJECT_DIR, "backups"), exist_ok=True)
 os.makedirs(r"c:\Users\aacga\OneDrive\netfits\backups", exist_ok=True)
+os.makedirs(os.path.dirname(DEST_ARTIFACTS), exist_ok=True)
 
 files_added = 0
 total_uncompressed_bytes = 0

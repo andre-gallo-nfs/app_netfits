@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogIn, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield, Building2
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield, Building2,
+  FileText, AlertTriangle, ExternalLink, Download
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
@@ -56,6 +57,7 @@ const HEALTH_PLANS = [
   "Allianz Saúde",
   "Care Plus",
   "Omint",
+  "Outro",
 ];
 
 const GYMS = [
@@ -143,6 +145,10 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showLegalModal, setShowLegalModal] = useState<"terms" | "privacy" | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -245,9 +251,11 @@ function ProfilePage() {
       sports: ((Array.isArray(activeUser.sports) && activeUser.sports.length > 0) ? activeUser.sports : (backup.sports || [])) as string[],
       otherSport: activeUser.otherSport || backup.otherSport || "",
       healthPlan: activeUser.healthPlan || backup.healthPlan || "Sem plano",
+      otherHealthPlan: activeUser.otherHealthPlan || backup.otherHealthPlan || "",
       gym: activeUser.gym || backup.gym || "Não frequento",
       coaching: activeUser.coaching || backup.coaching || "",
       wearable: activeUser.wearable || backup.wearable || "Não uso",
+      otherWearable: activeUser.otherWearable || backup.otherWearable || "",
     };
   };
 
@@ -281,9 +289,11 @@ function ProfilePage() {
         sports: (Array.isArray(activeUser.sports) && activeUser.sports.length > 0 ? activeUser.sports : (prev.sports.length > 0 ? prev.sports : (backup.sports || []))) as string[],
         otherSport: activeUser.otherSport || prev.otherSport || backup.otherSport || "",
         healthPlan: activeUser.healthPlan || prev.healthPlan || backup.healthPlan || "Sem plano",
+        otherHealthPlan: activeUser.otherHealthPlan || prev.otherHealthPlan || backup.otherHealthPlan || "",
         gym: activeUser.gym || prev.gym || backup.gym || "Não frequento",
         coaching: activeUser.coaching || prev.coaching || backup.coaching || "",
         wearable: activeUser.wearable || prev.wearable || backup.wearable || "Não uso",
+        otherWearable: activeUser.otherWearable || prev.otherWearable || backup.otherWearable || "",
       };
     });
   }, [activeUser.id, activeUser.address, activeUser.street, activeUser.number, activeUser.zipcode, activeUser.cpf, activeUser.phone, activeUser.birthDate]);
@@ -437,9 +447,11 @@ function ProfilePage() {
           sports: form.sports,
           otherSport: form.otherSport.trim(),
           healthPlan: form.healthPlan,
+          otherHealthPlan: form.otherHealthPlan.trim(),
           gym: form.gym,
           coaching: form.coaching.trim(),
           wearable: form.wearable,
+          otherWearable: form.otherWearable.trim(),
         };
         localStorage.setItem(`netfits_profile_saved_${targetUserId}`, JSON.stringify(payloadToSave));
         localStorage.setItem("netfits_production_session_v2", targetUserId);
@@ -467,9 +479,11 @@ function ProfilePage() {
       sports: form.sports,
       otherSport: form.otherSport.trim(),
       healthPlan: form.healthPlan,
+      otherHealthPlan: form.otherHealthPlan.trim(),
       gym: form.gym,
       coaching: form.coaching.trim(),
       wearable: form.wearable,
+      otherWearable: form.otherWearable.trim(),
     });
 
     // Atualiza imediatamente o estado de activeUser no componente para evitar descompasso de renderização
@@ -539,14 +553,7 @@ function ProfilePage() {
             <User className="size-4 text-brand" />
             <h1 className="text-sm font-bold tracking-tight">Meu Perfil Netfits</h1>
           </div>
-          <Link
-            to="/auth"
-            aria-label="Gerenciar ou alternar sessão"
-            className="text-xs font-bold bg-brand text-brand-foreground px-3 py-1.5 rounded-full hover:opacity-90 transition flex items-center gap-1"
-          >
-            <LogIn className="size-3" />
-            Sessão / Trocar
-          </Link>
+          <div className="size-9" aria-hidden="true" />
         </div>
       </header>
 
@@ -1045,6 +1052,17 @@ function ProfilePage() {
             value={form.healthPlan}
             onChange={(v) => setForm({ ...form, healthPlan: v })}
           />
+          {form.healthPlan === "Outro" && (
+            <Field label="Nome do seu plano de saúde" icon={Plus}>
+              <input
+                type="text"
+                value={form.otherHealthPlan}
+                onChange={(e) => setForm({ ...form, otherHealthPlan: e.target.value })}
+                placeholder="Ex.: GNDI, Santa Helena, Seguros Unimed..."
+                className={inputClass}
+              />
+            </Field>
+          )}
         </Card>
 
         {/* Gym */}
@@ -1063,6 +1081,17 @@ function ProfilePage() {
             value={form.wearable}
             onChange={(v) => setForm({ ...form, wearable: v })}
           />
+          {form.wearable === "Outro" && (
+            <Field label="Qual dispositivo ou wearable você utiliza?" icon={Plus}>
+              <input
+                type="text"
+                value={form.otherWearable}
+                onChange={(e) => setForm({ ...form, otherWearable: e.target.value })}
+                placeholder="Ex.: Whoop, Oura Ring, Huawei Watch, Polar Vantage..."
+                className={inputClass}
+              />
+            </Field>
+          )}
         </Card>
 
         {/* Coaching */}
@@ -1078,11 +1107,31 @@ function ProfilePage() {
           </Field>
         </Card>
 
+        {/* Salvar Perfil — Logo abaixo da assessoria esportiva */}
+        <div className="pt-1">
+          <button
+            type="submit"
+            className="w-full bg-foreground text-background text-sm font-bold py-3.5 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-foreground/20 cursor-pointer active:scale-98 transition"
+          >
+            {saved ? (
+              <>
+                <Check className="size-4" />
+                Salvo!
+              </>
+            ) : (
+              <>
+                <Save className="size-4" />
+                Salvar perfil
+              </>
+            )}
+          </button>
+        </div>
+
         {/* Segurança e Bloqueio do Aplicativo */}
         <Card title="Segurança & Bloqueio do App" icon={Shield}>
           <div className="space-y-3">
             <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
-              O Netfits nunca abre automaticamente sem autorização. Ao abrir ou reabrir o app, você sempre precisará autenticar via biometria (Touch ID / Face ID) ou sua senha cadastrada.
+              Seus dados de acesso e sessão permanecem salvos com segurança neste dispositivo para que você não precise digitar sua senha ou autenticar a todo momento. Se desejar proteger o app imediatamente (por exemplo, ao emprestar o celular), utilize a opção abaixo.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
               <button
@@ -1121,25 +1170,71 @@ function ProfilePage() {
           </div>
         </Card>
 
-        {/* Save */}
-        <div className="sticky bottom-24 pt-2">
-          <button
-            type="submit"
-            className="w-full bg-foreground text-background text-sm font-bold py-3.5 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-foreground/20"
-          >
-            {saved ? (
-              <>
-                <Check className="size-4" />
-                Salvo!
-              </>
-            ) : (
-              <>
-                <Save className="size-4" />
-                Salvar perfil
-              </>
-            )}
-          </button>
-        </div>
+        {/* Privacidade, Termos & LGPD (Conformidade Unificada Apple / Google / Brasil) */}
+        <Card title="Privacidade, Termos & LGPD" icon={Shield}>
+          <div className="space-y-3">
+            <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
+              A Netfits assegura total transparência e conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018) e com as diretrizes globais da Apple Store e Google Play.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowLegalModal("terms")}
+                className="bg-card hover:bg-muted text-foreground border border-border/80 text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-between transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="size-3.5 text-lime-500" />
+                  <span>Termos de Uso</span>
+                </div>
+                <ExternalLink className="size-3 text-muted-foreground" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLegalModal("privacy")}
+                className="bg-card hover:bg-muted text-foreground border border-border/80 text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-between transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Shield className="size-3.5 text-purple-500" />
+                  <span>Política de Privacidade</span>
+                </div>
+                <ExternalLink className="size-3 text-muted-foreground" />
+              </button>
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border/40">
+              <span>Encarregado de Dados (DPO): dpo@netfits.com.br</span>
+              <a
+                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+              >
+                <Download className="size-3" />
+                <span>PDF Oficial</span>
+              </a>
+            </div>
+          </div>
+        </Card>
+
+        {/* Exclusão de Conta & Anonimização (Mandatório Apple Guideline 5.1.1(v) e Google Play) */}
+        <Card title="Gestão de Conta & Zona de Privacidade" icon={Trash2}>
+          <div className="space-y-3">
+            <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
+              Você pode solicitar a qualquer momento a exclusão definitiva da sua conta e a anonimização de todos os seus dados cadastrais e de telemetria esportiva.
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteConfirmText("");
+                  setShowDeleteModal(true);
+                }}
+                className="w-full bg-red-500/5 hover:bg-red-500/15 text-red-600 dark:text-red-400 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-red-500/20 transition cursor-pointer active:scale-98"
+              >
+                <Trash2 className="size-4" />
+                <span>Excluir Minha Conta e Dados Pessoais</span>
+              </button>
+            </div>
+          </div>
+        </Card>
       </form>
       {/* Modal de Escolha / Upload de Avatar */}
       {showAvatarModal && (
@@ -1221,6 +1316,186 @@ function ProfilePage() {
                 <span>Remover Foto (Usar Iniciais)</span>
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Exclusão de Conta & Anonimização (Mandatório Apple Guideline 5.1.1(v) e Google Play) */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-red-500/30 text-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full bg-zinc-800/50"
+            >
+              <X className="size-5" />
+            </button>
+
+            <div className="text-center space-y-2">
+              <div className="size-12 rounded-full bg-red-500/20 text-red-400 mx-auto grid place-items-center mb-1">
+                <AlertTriangle className="size-6 text-red-500" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Excluir Conta & Dados Pessoais</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Esta ação é irreversível e atende ao Artigo 18 da LGPD (Lei nº 13.709/2018) e às diretrizes obrigatórias da Apple Store e Google Play.
+              </p>
+            </div>
+
+            <div className="bg-zinc-950/70 border border-zinc-800 rounded-2xl p-3.5 space-y-2 text-[11px] text-zinc-300">
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 font-bold">•</span>
+                <span><b>Remoção Imediata:</b> Seu perfil, preferências, foto e credenciais biométricas serão permanentemente apagados deste e de qualquer aparelho.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 font-bold">•</span>
+                <span><b>Cancelamento de Saldo:</b> Quaisquer pontos <b>nfs</b> e conquistas associadas a esta conta serão cancelados sem direito a resgate posterior.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-zinc-400 font-bold">•</span>
+                <span><b>Preservação Legal / Fiscal:</b> Registros de compras físicas já faturadas no Marketplace serão mantidos pelo prazo estritamente legal para cumprimento de obrigações tributárias (Art. 16 da LGPD).</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                Digite <strong className="text-red-400">EXCLUIR</strong> para confirmar:
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="EXCLUIR"
+                className="w-full bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-600 rounded-xl px-3.5 py-2.5 text-xs font-mono tracking-wider focus:outline-none focus:border-red-500 transition"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs py-3 rounded-xl transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={deleteConfirmText.trim().toUpperCase() !== "EXCLUIR" || isDeleting}
+                onClick={() => {
+                  if (deleteConfirmText.trim().toUpperCase() !== "EXCLUIR") return;
+                  setIsDeleting(true);
+                  try {
+                    authStore.deleteAccount(activeUser.id);
+                    appLockStore.setUnlocked(false);
+                    setShowDeleteModal(false);
+                    navigate({ to: "/auth" });
+                  } catch (e) {
+                    toast.error("Erro ao excluir conta. Tente novamente.");
+                    setIsDeleting(false);
+                  }
+                }}
+                className={`flex-1 font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer ${
+                  deleteConfirmText.trim().toUpperCase() === "EXCLUIR" && !isDeleting
+                    ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/30"
+                    : "bg-red-600/30 text-zinc-500 cursor-not-allowed"
+                }`}
+              >
+                <Trash2 className="size-3.5" />
+                <span>{isDeleting ? "Excluindo..." : "Confirmar Exclusão"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Unificado de Termos de Uso e Política de Privacidade LGPD */}
+      {showLegalModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-zinc-900 border border-zinc-800 text-white rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowLegalModal(null)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full bg-zinc-800/50"
+            >
+              <X className="size-5" />
+            </button>
+
+            {/* Cabeçalho das Abas Legais */}
+            <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 mb-4">
+              <button
+                type="button"
+                onClick={() => setShowLegalModal("terms")}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
+                  showLegalModal === "terms"
+                    ? "bg-lime-500/20 text-lime-400 border border-lime-500/30"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Termos de Uso
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLegalModal("privacy")}
+                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
+                  showLegalModal === "privacy"
+                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Privacidade & LGPD
+              </button>
+            </div>
+
+            {/* Conteúdo com rolagem */}
+            <div className="overflow-y-auto space-y-4 pr-1 text-xs text-zinc-300 leading-relaxed">
+              {showLegalModal === "terms" ? (
+                <>
+                  <div className="space-y-1">
+                    <h4 className="font-extrabold text-sm text-white">Regulamento Oficial do Programa Netfits</h4>
+                    <p className="text-[11px] text-zinc-400">Versão 2.0 — Atualizada para Plataformas Mobile (iOS / Android)</p>
+                  </div>
+                  <div className="space-y-2 text-[11px] text-zinc-300">
+                    <p><b>1. Objeto:</b> O Programa Netfits é um ecossistema digital voltado à longevidade ativa, promoção do esporte e fidelidade com recompensas na moeda <b>nfs</b>.</p>
+                    <p><b>2. Pontos nfs & Validade Atuarial:</b> Os pontos acumulados por treinos validados e compras no marketplace seguem a regra atuarial FEFO (First-Expired, First-Out), com validade padrão de 24 meses.</p>
+                    <p><b>3. Shop Netfits & Marketplace:</b> A venda e entrega de produtos físicos (suplementos, tênis, vestuário) é operada em parceria com sellers homologados e integrada de ponta a ponta com emissão de nota fiscal direta de mercadorias.</p>
+                    <p><b>4. Políticas Antifraude:</b> Treinos e interações com vídeos/quizzes exigem tempo de visualização mínimo auditado (dwell time). Suspeitas de spoofing de GPS ou automação fraudulenta implicam bloqueio da conta.</p>
+                    <p><b>5. Disposições Finais:</b> O regulamento integral pode ser baixado em PDF ou consultado na íntegra a qualquer momento através do nosso portal oficial.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-1">
+                    <h4 className="font-extrabold text-sm text-white">Política de Privacidade & Proteção de Dados (LGPD)</h4>
+                    <p className="text-[11px] text-zinc-400">Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018)</p>
+                  </div>
+                  <div className="space-y-2 text-[11px] text-zinc-300">
+                    <p><b>1. Controladora dos Dados:</b> Netfits Fidelidade Ltda., CNPJ nº 68.930.455/0001-40, com sede em Santana de Parnaíba/SP.</p>
+                    <p><b>2. Dados Tratados:</b> Coletamos dados cadastrais (nome, CPF, telefone, e-mail, data de nascimento), dados de saúde esportiva voluntariamente fornecidos e telemetria de treinos para pontuação.</p>
+                    <p><b>3. Finalidade e Base Legal:</b> Execução do contrato do programa de benefícios, prevenção a fraudes e cumprimento de obrigações legais (Art. 7º, V e IX da LGPD).</p>
+                    <p><b>4. Direitos do Titular (Art. 18 LGPD):</b> Você pode acessar, corrigir, anonimizar, bloquear ou excluir seus dados pessoais a qualquer tempo diretamente pelo app ou pelo canal do DPO.</p>
+                    <p><b>5. Encarregado de Proteção de Dados (DPO):</b> Para esclarecimentos e solicitações formais sobre dados, contate: <span className="text-lime-400 font-mono">dpo@netfits.com.br</span>.</p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Rodapé do Modal */}
+            <div className="border-t border-zinc-800 pt-3 mt-4 flex items-center justify-between">
+              <a
+                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition"
+              >
+                <Download className="size-3.5 text-lime-400" />
+                <span>Baixar Documento Consolidado (PDF)</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowLegalModal(null)}
+                className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs py-2 px-4 rounded-xl transition cursor-pointer"
+              >
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       )}

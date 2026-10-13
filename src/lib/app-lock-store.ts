@@ -7,39 +7,88 @@ import { nativeBridge } from "./native-bridge";
 import { Capacitor } from "@capacitor/core";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
-const SESSION_UNLOCKED_KEY = "netfits_session_unlocked_v1";
+const SESSION_UNLOCKED_KEY = "netfits_session_unlocked_v2";
+const APP_EXPLICITLY_LOCKED_KEY = "netfits_app_explicitly_locked";
+const APP_LAST_ACTIVITY_KEY = "netfits_last_activity_timestamp";
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutos sem uso (300 segundos)
+const CHECKOUT_INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutos em checkout
 
 class AppLockStore {
-  private unlocked: boolean = false;
+  private unlocked: boolean = true;
   private listeners = new Set<() => void>();
 
-  constructor() {
-    this.unlocked = false;
-
+  private recordActivity() {
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
+        localStorage.setItem(APP_LAST_ACTIVITY_KEY, String(Date.now()));
       } catch {}
+    }
+  }
 
-      // Ao suspender/minimizar o app por mais de 5 minutos (300s), volta a bloquear.
-      // Se o usuário estiver na jornada de checkout (/market ou flag ativa), tolera até 10 minutos para copiar dados do cartão no banco sem re-bloqueio.
+  constructor() {
+    if (typeof window !== "undefined") {
+      try {
+        const explicitlyLocked = localStorage.getItem(APP_EXPLICITLY_LOCKED_KEY) === "true";
+        const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
+        const now = Date.now();
+        const isCheckout =
+          window.location.pathname.includes("/market") ||
+          (window as any).__netfits_in_checkout === true;
+        const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
+
+        if (explicitlyLocked) {
+          this.unlocked = false;
+        } else if (lastActivity > 0 && now - lastActivity > allowedTimeout) {
+          // Mais de 5 minutos sem uso: exige nova autenticação biométrica ou por senha por segurança
+          this.unlocked = false;
+        } else {
+          // Dentro dos 5 minutos: mantém desbloqueado e fluido
+          this.unlocked = true;
+          this.recordActivity();
+        }
+      } catch {
+        this.unlocked = true;
+      }
+
+      // Ao suspender/minimizar o app ou alternar telas:
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
-          (window as any).__netfits_bg_time = Date.now();
+          // Quando o app é minimizado ou a tela apaga, carimba o momento exato
+          this.recordActivity();
         } else {
-          const bgTime = (window as any).__netfits_bg_time || 0;
-          const elapsed = Date.now() - bgTime;
+          // Ao retornar para o app, verifica se ultrapassou o timer de 5 minutos de inatividade
+          const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
+          const now = Date.now();
           const isCheckout =
             typeof window !== "undefined" &&
             (window.location.pathname.includes("/market") ||
               (window as any).__netfits_in_checkout === true);
-          const maxAllowedTime = isCheckout ? 600000 : 300000; // 10 min em checkout, 5 min geral
+          const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
 
-          if (elapsed > maxAllowedTime) {
+          if (lastActivity > 0 && now - lastActivity > allowedTimeout) {
             this.setUnlocked(false);
+          } else {
+            this.recordActivity();
           }
         }
       });
+
+      // Atualiza o carimbo de atividade durante a interação natural do usuário (throttled a cada 15s)
+      let lastThrottle = 0;
+      const onInteraction = () => {
+        const now = Date.now();
+        if (now - lastThrottle > 15000) {
+          lastThrottle = now;
+          this.recordActivity();
+        }
+      };
+
+      window.addEventListener("touchstart", onInteraction, { passive: true });
+      window.addEventListener("mousedown", onInteraction, { passive: true });
+      window.addEventListener("keydown", onInteraction, { passive: true });
+      window.addEventListener("scroll", onInteraction, { passive: true });
+    } else {
+      this.unlocked = true;
     }
   }
 
@@ -61,26 +110,31 @@ class AppLockStore {
   };
 
   public getServerSnapshot = (): boolean => {
-    return false;
+    return true;
   };
 
   /**
-   * Desbloqueia a sessão ativa do usuário
+   * Desbloqueia a sessão ativa do usuário e persiste o acesso no dispositivo
    */
   public setUnlocked(unlocked: boolean) {
     this.unlocked = unlocked;
     if (typeof window !== "undefined") {
-      if (unlocked) {
-        sessionStorage.setItem(SESSION_UNLOCKED_KEY, "true");
-      } else {
-        sessionStorage.removeItem(SESSION_UNLOCKED_KEY);
-      }
+      try {
+        if (unlocked) {
+          localStorage.removeItem(APP_EXPLICITLY_LOCKED_KEY);
+          localStorage.setItem(SESSION_UNLOCKED_KEY, "true");
+          this.recordActivity();
+        } else {
+          localStorage.setItem(APP_EXPLICITLY_LOCKED_KEY, "true");
+          localStorage.removeItem(SESSION_UNLOCKED_KEY);
+        }
+      } catch {}
     }
     this.notify();
   }
 
   /**
-   * Bloqueia o aplicativo imediatamente
+   * Bloqueia o aplicativo apenas por ação intencional do usuário
    */
   public lock() {
     this.setUnlocked(false);
