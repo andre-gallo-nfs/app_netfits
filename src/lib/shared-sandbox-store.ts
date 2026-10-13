@@ -212,6 +212,31 @@ const INITIAL_USERS: SandboxUser[] = [
     registeredAt: "2026-10-07T10:55:30.242Z",
     passwordHash: "Kite@1970",
   },
+  {
+    id: "user-1791568907378",
+    identifier: "edsonsilvafilho@gmail.com",
+    email: "edsonsilvafilho@gmail.com",
+    phone: "(81) 98541-0874",
+    cpf: "04905769400",
+    birthDate: "18/04/1983",
+    fullName: "Edson Silva Filho",
+    zipcode: "53130330",
+    street: "Rua Tertuliano Francisco Feitosa",
+    number: "140",
+    complement: "Apto 602",
+    neighborhood: "Casa Caiada",
+    city: "Olinda",
+    state: "Pernambuco",
+    shortState: "PE",
+    address: "Rua Tertuliano Francisco Feitosa, 140 (Apto 602) - Casa Caiada, Olinda · PE",
+    type: "athlete",
+    nfsBalance: 50,
+    referralCode: "NET-1431",
+    registeredAt: "2026-10-09T18:01:47.378Z",
+    passwordHash: "C6yK]rh5,~j_\"Mt",
+    loyaltyPrograms: ["esfera", "iupp"],
+    loyaltyPointsEstimate: "10.000 a 50.000 pts",
+  },
 ];
 
 const INITIAL_PARTNERS: SandboxPartner[] = [];
@@ -351,6 +376,15 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     description: "📱 Engajamento no Feed Social",
     category: "view",
     timestamp: "2026-10-07T11:35:40Z",
+  },
+  {
+    id: "tx-1791568907385-welcome",
+    userId: "user-1791568907378",
+    userName: "Edson Silva Filho",
+    amount: 50,
+    description: "🎉 Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+    category: "welcome",
+    timestamp: "2026-10-09T18:01:47.385Z",
   },
 ];
 
