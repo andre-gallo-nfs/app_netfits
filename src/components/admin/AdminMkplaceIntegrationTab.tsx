@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useOperationalParams } from "@/lib/operational-params-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 interface DecodedJwt {
   header: {
@@ -66,10 +67,23 @@ const TEST_PERSONAS = [
 
 export function AdminMkplaceIntegrationTab() {
   const params = useOperationalParams();
+  const realUsers = sharedSandboxStore.getUsers();
+  const personas = realUsers.length > 0
+    ? realUsers.map((u) => ({
+        id: u.id,
+        name: u.fullName,
+        email: u.email || `${u.identifier}@netfits.com.br`,
+        cpf: u.cpf || "",
+        phone: u.phone || "",
+        role: u.type === "admin" ? "Fundador Netfits" : u.type === "associado" ? "Associado Netfits" : "Atleta",
+        tier: u.type === "admin" ? "Administrador Master" : "Atleta Oficial",
+        balance: u.nfsBalance || 0,
+      }))
+    : TEST_PERSONAS;
 
   // Active persona
-  const [selectedUserId, setSelectedUserId] = useState("usr_andre");
-  const activeUser = TEST_PERSONAS.find((u) => u.id === selectedUserId) || TEST_PERSONAS[0];
+  const [selectedUserId, setSelectedUserId] = useState(() => personas[0]?.id || "usr_andre");
+  const activeUser = personas.find((u) => u.id === selectedUserId) || personas[0] || TEST_PERSONAS[0];
 
   // Token simulator
   const [jwtToken, setJwtToken] = useState("");
@@ -523,8 +537,8 @@ export function AdminMkplaceIntegrationTab() {
               <label className="text-xs font-semibold text-zinc-400 mb-1.5 block">
                 Selecione o Usuário para Simulação:
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                {TEST_PERSONAS.map((user) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {personas.map((user) => {
                   const isSelected = user.id === selectedUserId;
                   return (
                     <button

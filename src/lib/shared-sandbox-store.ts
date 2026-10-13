@@ -84,9 +84,13 @@ export interface SandboxOrder {
   userId: string;
   userName: string;
   productName: string;
+  amountBrl?: number;
   pointsPaid: number;
-  status: "processando" | "enviado" | "entregue";
+  status: "processando" | "enviado" | "entregue" | "PAID" | "PENDING" | string;
   createdAt: string;
+  paidAt?: string;
+  summary?: any;
+  customer?: any;
 }
 
 export interface SandboxInteraction {
@@ -576,6 +580,27 @@ class HomologationSandboxStore {
             }
           }
 
+          this.saveToStorageLocally();
+        }
+
+        // 4. Sincronização em tempo real de pedidos reais do Marketplace (Rock Encantech)
+        const serverOrders = json?.orders || [];
+        if (Array.isArray(serverOrders) && serverOrders.length > 0) {
+          const mappedOrders: SandboxOrder[] = serverOrders.map((ord: any) => ({
+            id: ord._id || ord.orderRef,
+            orderNumber: ord.orderRef || ord._id,
+            userId: ord.customer?.ref || "",
+            userName: ord.customer?.name || "Cliente Netfits",
+            productName: `Pedido Mkplace ${ord.orderRef || ord._id}`,
+            amountBrl: Number(ord.summary?.finalPrice ?? ord.summary?.total ?? 0),
+            pointsPaid: Number(ord.summary?.points?.amount ?? 0),
+            status: ord.status || "PAID",
+            createdAt: ord.paidAt || ord.createdAt || new Date().toISOString(),
+            paidAt: ord.paidAt,
+            summary: ord.summary,
+            customer: ord.customer,
+          }));
+          this.state.orders = mappedOrders;
           this.saveToStorageLocally();
         }
       }

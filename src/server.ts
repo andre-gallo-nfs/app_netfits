@@ -1504,7 +1504,8 @@ export default {
         }
       }
 
-      // GET: Retornar todos os usuários e extrato de transações sincronizados na nuvem permanente
+      // GET: Retornar todos os usuários, extrato de transações e pedidos reais sincronizados na nuvem permanente
+      let persistentOrders: any[] = [];
       try {
         const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
         if (cloudData && Array.isArray(cloudData.users) && cloudData.users.length > 0) {
@@ -1520,6 +1521,29 @@ export default {
         console.warn("[GET users-sync] Cloud hydration warning:", err);
       }
 
+      try {
+        persistentOrders = await fetchPersistentOrders();
+      } catch (err) {
+        console.warn("[GET users-sync] Orders hydration warning:", err);
+      }
+
+      const sanitizedOrders = (persistentOrders || []).map((ord: any) => ({
+        _id: ord._id || ord.orderRef,
+        orderRef: ord.orderRef || ord._id,
+        type: ord.type || "ORDER",
+        status: ord.status || "PAID",
+        paymentStatus: ord.paymentStatus || "PAID",
+        summary: ord.summary,
+        customer: ord.customer
+          ? {
+              ref: ord.customer.ref,
+              name: ord.customer.name,
+            }
+          : undefined,
+        createdAt: ord.createdAt,
+        paidAt: ord.paidAt,
+      }));
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -1527,6 +1551,8 @@ export default {
           users: globalServerUsers,
           transactions: globalServerTransactions,
           transactionsCount: globalServerTransactions.length,
+          orders: sanitizedOrders,
+          ordersCount: sanitizedOrders.length,
           updatedAt: lastSyncTimestamp,
         }),
         { status: 200, headers: corsHeaders }
