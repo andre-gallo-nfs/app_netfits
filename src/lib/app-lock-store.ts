@@ -14,7 +14,7 @@ const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutos sem uso (300 segundos)
 const CHECKOUT_INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutos em checkout
 
 class AppLockStore {
-  private unlocked: boolean = true;
+  private unlocked: boolean = false;
   private listeners = new Set<() => void>();
 
   private recordActivity() {
@@ -29,34 +29,39 @@ class AppLockStore {
     if (typeof window !== "undefined") {
       try {
         const explicitlyLocked = localStorage.getItem(APP_EXPLICITLY_LOCKED_KEY) === "true";
-        const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
+        const sessionUnlocked = localStorage.getItem(SESSION_UNLOCKED_KEY) === "true";
+        const lastActivityRaw = localStorage.getItem(APP_LAST_ACTIVITY_KEY);
+        const lastActivity = Number(lastActivityRaw || 0);
         const now = Date.now();
         const isCheckout =
           window.location.pathname.includes("/market") ||
           (window as any).__netfits_in_checkout === true;
         const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
 
-        if (explicitlyLocked) {
+        // Se bloqueado explicitamente, sem sessão desbloqueada, sem carimbo prévio ou se inativo > 5 min:
+        if (explicitlyLocked || !sessionUnlocked || !lastActivityRaw || lastActivity === 0) {
           this.unlocked = false;
-        } else if (lastActivity > 0 && now - lastActivity > allowedTimeout) {
-          // Mais de 5 minutos sem uso: exige nova autenticação biométrica ou por senha por segurança
+        } else if (now - lastActivity > allowedTimeout) {
+          // Mais de 5 minutos sem uso: exige autenticação biométrica ou por senha
           this.unlocked = false;
         } else {
-          // Dentro dos 5 minutos: mantém desbloqueado e fluido
+          // Dentro dos 5 minutos E com autenticação prévia válida: mantém fluido
           this.unlocked = true;
           this.recordActivity();
         }
       } catch {
-        this.unlocked = true;
+        this.unlocked = false;
       }
 
-      // Ao suspender/minimizar o app ou alternar telas:
+      // Ao suspender/minimizar o app ou alternar telas/abas:
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
-          // Quando o app é minimizado ou a tela apaga, carimba o momento exato
-          this.recordActivity();
+          // Quando o app é minimizado ou a tela apaga, carimba o momento exato se estiver desbloqueado
+          if (this.unlocked) {
+            this.recordActivity();
+          }
         } else {
-          // Ao retornar para o app, verifica se ultrapassou o timer de 5 minutos de inatividade
+          // Ao retornar para o app, verifica se ultrapassou o timer de inatividade de 5 minutos
           const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
           const now = Date.now();
           const isCheckout =
@@ -65,7 +70,7 @@ class AppLockStore {
               (window as any).__netfits_in_checkout === true);
           const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
 
-          if (lastActivity > 0 && now - lastActivity > allowedTimeout) {
+          if (lastActivity === 0 || now - lastActivity > allowedTimeout) {
             this.setUnlocked(false);
           } else {
             this.recordActivity();
@@ -73,11 +78,30 @@ class AppLockStore {
         }
       });
 
-      // Atualiza o carimbo de atividade durante a interação natural do usuário (throttled a cada 15s)
+      // Heartbeat contínuo de inatividade em tempo real (mesmo com a tela aberta sem minimizar)
+      // Se o usuário ficar 5 minutos sem qualquer interação, bloqueia automaticamente na tela
+      setInterval(() => {
+        if (this.unlocked) {
+          const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
+          const now = Date.now();
+          const isCheckout =
+            typeof window !== "undefined" &&
+            (window.location.pathname.includes("/market") ||
+              (window as any).__netfits_in_checkout === true);
+          const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
+
+          if (lastActivity === 0 || now - lastActivity > allowedTimeout) {
+            this.setUnlocked(false);
+          }
+        }
+      }, 5000);
+
+      // Atualiza o carimbo de atividade durante a interação natural do usuário (throttled a cada 10s)
       let lastThrottle = 0;
       const onInteraction = () => {
+        if (!this.unlocked) return; // Se estiver bloqueado, toques não contam como atividade de sessão
         const now = Date.now();
-        if (now - lastThrottle > 15000) {
+        if (now - lastThrottle > 10000) {
           lastThrottle = now;
           this.recordActivity();
         }

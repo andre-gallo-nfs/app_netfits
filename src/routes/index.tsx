@@ -23,13 +23,11 @@ function RootIndexRoute() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Se estiver rodando no app nativo móvel (Capacitor iOS ou Android):
-    if (nativeBridge.isNativePlatform() || window.location.search.includes("app=true")) {
-      if (sharedSandboxStore.hasActiveSession()) {
-        navigate({ to: "/feed", replace: true });
-      } else {
-        navigate({ to: "/auth", replace: true });
-      }
+    // Se o dispositivo já possui uma conta/sessão ativa autenticada, direciona diretamente para o app (/feed)
+    if (sharedSandboxStore.hasActiveSession()) {
+      navigate({ to: "/feed", replace: true });
+    } else if (nativeBridge.isNativePlatform() || window.location.search.includes("app=true")) {
+      navigate({ to: "/auth", replace: true });
     }
   }, [navigate]);
 
