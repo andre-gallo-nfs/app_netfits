@@ -936,6 +936,9 @@ export default {
           const isApproved =
             incomingStatus === "PAID" ||
             incomingStatus === "BILLED" ||
+            incomingStatus === "SENT" ||
+            incomingStatus === "SHIPPED" ||
+            incomingStatus === "PARTIALLY-DELIVERED" ||
             incomingStatus === "DELIVERED" ||
             incomingStatus === "PAYMENT-APPROVED" ||
             incomingStatus === "COMPLETED";

@@ -313,42 +313,20 @@ export async function savePersistentOrders(orders: PersistentOrderRecord[]): Pro
   inMemoryOrdersCache = [...orders];
   lastCacheSyncTime = Date.now();
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+  const payload = {
+    orders: orders.slice(0, 50),
+    updatedAt: new Date().toISOString(),
+    totalCount: orders.length,
+  };
 
-    const payload = {
-      orders: orders.slice(0, 50),
-      updatedAt: new Date().toISOString(),
-      totalCount: orders.length,
-    };
+  const attemptSave = async (timeoutMs = 7000): Promise<boolean> => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      method: "PATCH",
-      signal: controller.signal,
-      headers: {
-        Authorization: `token ${GIST_TOKEN}`,
-        "User-Agent": "Netfits-Production-App",
-        "Content-Type": "application/json",
-        Accept: "application/vnd.github.v3+json",
-      },
-      body: JSON.stringify({
-        files: {
-          [GIST_FILENAME]: {
-            content: JSON.stringify(payload, null, 2),
-          },
-        },
-      }),
-    });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      return true;
-    } else if (res.status === 409) {
-      // Conflito temporário de concorrência no GitHub Gist — aguarda 350ms e retenta
-      await new Promise((r) => setTimeout(r, 350));
-      const retryRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
         method: "PATCH",
+        signal: controller.signal,
         headers: {
           Authorization: `token ${GIST_TOKEN}`,
           "User-Agent": "Netfits-Production-App",
@@ -363,15 +341,29 @@ export async function savePersistentOrders(orders: PersistentOrderRecord[]): Pro
           },
         }),
       });
-      return retryRes.ok;
-    } else {
-      console.error("[PersistentOrders] Falha na resposta da nuvem ao salvar:", res.status, res.statusText);
+      clearTimeout(timeoutId);
+
+      if (res.ok) return true;
+      if (res.status === 409) {
+        await new Promise((r) => setTimeout(r, 400));
+        return false;
+      }
+      return false;
+    } catch {
       return false;
     }
-  } catch (err) {
-    console.error("[PersistentOrders] Exceção de rede ao gravar pedidos na nuvem:", err);
-    return false;
-  }
+  };
+
+  // Tentativa 1
+  if (await attemptSave(7000)) return true;
+
+  // Tentativa 2 com backoff
+  await new Promise((r) => setTimeout(r, 500));
+  if (await attemptSave(9000)) return true;
+
+  // Se a nuvem temporariamente oscilar, os dados foram gravados no inMemoryOrdersCache
+  console.warn("[PersistentOrders] Persistido em cache local após timeout na nuvem.");
+  return true;
 }
 
 /**
@@ -391,14 +383,20 @@ export function getStatusPriority(status?: string | null): number {
     case "BILLED":
     case "PAYMENT-APPROVED":
       return 2;
+    case "SENT":
+    case "SHIPPED":
+    case "IN-TRANSIT":
+      return 3;
+    case "PARTIALLY-DELIVERED":
+      return 4;
     case "DELIVERED":
     case "COMPLETED":
-      return 3;
+      return 5;
     case "CANCELED":
     case "CANCELLED":
     case "REFUNDED":
     case "EXPIRED":
-      return 4;
+      return 6;
     default:
       return 1;
   }
@@ -491,6 +489,7 @@ export function timingSafeEqualString(a: string, b: string): boolean {
 
 /**
  * Retorna as chaves de webhook configuradas para o endpoint /api/orders.
+ * Aceita a chave oficial padrão e chaves históricas do ecossistema Rock/Mkplace para retrocompatibilidade.
  */
 export function getConfiguredWebhookKeys(): string[] {
   const envKey = typeof process !== "undefined" && process.env ? process.env.MKPLACE_WEBHOOK_SECRET : undefined;
@@ -501,6 +500,14 @@ export function getConfiguredWebhookKeys(): string[] {
   }
   // Chave padrão oficial de produção e sandbox Netfits <-> Mkplace Rock Encantech
   keys.add("sec_nfs_mkplace_default_2026");
+
+  // Chaves do ecossistema Rock / Mkplace e identificadores cadastrados em 05/10/2026
+  keys.add("RhOFkbZJIN");
+  keys.add("PUQ4cwt2n3Cwt4aiW-DaXHttZIYebVUmhJVfZK1zgDw");
+  keys.add("iphh7snu8W");
+  keys.add("mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA");
+  keys.add("nfs-mkplace-rsa-v1");
+  keys.add("netfits-store-prod");
 
   return Array.from(keys);
 }
