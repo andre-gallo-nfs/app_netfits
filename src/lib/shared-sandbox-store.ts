@@ -48,7 +48,7 @@ export interface SandboxTransaction {
   userName: string;
   amount: number; // positive for gain, negative for spent
   description: string;
-  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post";
+  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post" | "badge" | "feed";
   timestamp: string;
 }
 
@@ -300,7 +300,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 25,
     description: "🏆 Selo Conquistado: Pioneiro Netfits",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T00:00:00Z",
   },
   {
@@ -309,7 +309,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 30,
     description: "🏆 Selo Conquistado: Perfil Verificado",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T00:00:00Z",
   },
   {
@@ -318,7 +318,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 20,
     description: "🏆 Selo Conquistado: Colecionador de Pontos",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T00:00:00Z",
   },
   {
@@ -327,7 +327,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 30,
     description: "🏆 Selo Conquistado: Atleta de Alta Performance",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T00:00:00Z",
   },
   {
@@ -336,7 +336,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 10,
     description: "🏆 Selo Conquistado: Explorador do Shop",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T22:00:00Z",
   },
   {
@@ -345,7 +345,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 40,
     description: "🏆 Selo Conquistado: Primeira Compra Pontuada",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T22:38:35Z",
   },
   {
@@ -354,7 +354,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userName: "André Gallo",
     amount: 25,
     description: "🏆 Selo Conquistado: Voz da Tribo",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-07T23:18:55.742Z",
   },
   {
@@ -876,16 +876,28 @@ class HomologationSandboxStore {
             }
           }
 
-          // Sanitização contábil: converte qualquer lançamento de 40 nfs para o selo oficial Primeira Compra Pontuada
+          // Sanitização e segregação contábil oficial de badges, feed e treinos
           for (const tx of txMap.values()) {
-            if (
+            const desc = tx.description || "";
+            const isPrimeiraCompra =
               tx.id.includes("primeira_compra") ||
-              /primeiro cashback/i.test(tx.description || "") ||
-              (tx.amount === 40 && !tx.description?.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(tx.description || ""))
-            ) {
+              /primeiro cashback/i.test(desc) ||
+              (tx.amount === 40 && !desc.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(desc));
+
+            if (isPrimeiraCompra) {
               tx.id = `tx-badge-${tx.userId}-primeira_compra`;
               tx.description = "🏆 Selo Conquistado: Primeira Compra Pontuada";
-              tx.category = "workout";
+              tx.category = "badge";
+            } else if (tx.id.startsWith("tx-badge-") || tx.id.includes("badge") || /selo|conquista/i.test(desc)) {
+              tx.category = "badge";
+            } else if (
+              ["view", "click", "like", "share"].includes(tx.category) ||
+              /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc) ||
+              tx.id.includes("feed")
+            ) {
+              if (tx.category === "workout" || !tx.category) {
+                tx.category = "feed";
+              }
             }
           }
 
@@ -1056,16 +1068,28 @@ class HomologationSandboxStore {
           }
         }
 
-        // Sanitização e migração contábil de selos no carregamento local:
+        // Sanitização e segregação contábil oficial de badges, feed e treinos no carregamento local:
         for (const tx of stored.transactions) {
-          if (
+          const desc = tx.description || "";
+          const isPrimeiraCompra =
             tx.id.includes("primeira_compra") ||
-            /primeiro cashback/i.test(tx.description || "") ||
-            (tx.amount === 40 && !tx.description?.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(tx.description || ""))
-          ) {
+            /primeiro cashback/i.test(desc) ||
+            (tx.amount === 40 && !desc.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(desc));
+
+          if (isPrimeiraCompra) {
             tx.id = `tx-badge-${tx.userId}-primeira_compra`;
             tx.description = "🏆 Selo Conquistado: Primeira Compra Pontuada";
-            tx.category = "workout";
+            tx.category = "badge";
+          } else if (tx.id.startsWith("tx-badge-") || tx.id.includes("badge") || /selo|conquista/i.test(desc)) {
+            tx.category = "badge";
+          } else if (
+            ["view", "click", "like", "share"].includes(tx.category) ||
+            /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc) ||
+            tx.id.includes("feed")
+          ) {
+            if (tx.category === "workout" || !tx.category) {
+              tx.category = "feed";
+            }
           }
         }
 

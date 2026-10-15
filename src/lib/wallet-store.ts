@@ -58,6 +58,7 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
     (t.amount === 40 && !desc.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(desc));
 
   const isGenericBadge =
+    t.category === "badge" ||
     t.id.startsWith("tx-badge-") ||
     t.id.includes("badge") ||
     /selo|conquista/i.test(desc);
@@ -179,8 +180,17 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
       ? `Pontuação creditada pela visualização do conteúdo "${contentTitle}" no Feed.`
       : "Pontuação creditada por engajamento e visualização de conteúdo no Feed Netfits.";
   }
+  // 10.5. CONTEÚDO EDITORIAL & FEED
+  else if (t.category === "feed") {
+    displayCategory = "Conteúdo & Feed";
+    title = "Incentivo Feed & Mídia";
+    eventDescription = "Pontuação de incentivo à longevidade e aprendizado creditada por interação, leitura ou resposta de quiz no Feed Netfits.";
+  }
   // 11. TREINO / ATIVIDADE FÍSICA
-  else if (t.category === "workout" || /treino|corrida|pedal|caminhada|exercício/i.test(desc)) {
+  else if (
+    (t.category === "workout" && !isGenericBadge && !isPrimeiraCompraBadge) ||
+    /treino|corrida|pedal|caminhada|exercício/i.test(desc)
+  ) {
     displayCategory = "Atividade Física";
     title = "Treino Sincronizado";
     eventDescription = "Pontuação creditada pela realização de atividade física auditada e sincronizada através de seus dispositivos de saúde (Garmin / Apple Watch / Strava).";
@@ -248,7 +258,7 @@ export const wallet = {
   },
 
   /** Credita nfs (cashback) e registra a movimentação. Aplica multiplicador do nível. */
-  earn(amount: number, title: string, category: SandboxTransaction["category"] = "workout") {
+  earn(amount: number, title: string, category: SandboxTransaction["category"] = "feed") {
     if (amount <= 0) return;
     const active = sharedSandboxStore.getActiveUser();
     const multiplier = levelStore.getMultiplier();

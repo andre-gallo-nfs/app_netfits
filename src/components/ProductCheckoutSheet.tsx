@@ -82,7 +82,7 @@ export function ProductCheckoutSheet({
       sharedSandboxStore.buyShopProduct(product.title, Math.ceil(priceNum / NFS_RATE));
     }
     if (cashbackNfs > 0) {
-      wallet.earn(cashbackNfs, `Ganhe Netfits na compra ${product.title}`);
+      wallet.earn(cashbackNfs, `Ganhe Netfits na compra ${product.title}`, "shop");
     }
     setConfirmed(true);
   }

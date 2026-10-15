@@ -458,7 +458,7 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
           userName: activeUser.fullName || "Atleta Netfits",
           amount: badge.rewardNfs,
           description: `🏆 Selo Conquistado: ${badge.title}`,
-          category: "workout",
+          category: "badge",
           timestamp: new Date().toISOString(),
         });
         hasChanged = true;
@@ -517,7 +517,7 @@ export const badgesStore = {
             userName: activeUser.fullName,
             amount: item.rewardNfs,
             description: `🏆 Selo Conquistado: ${item.title}`,
-            category: "workout",
+            category: "badge",
           });
         }
       } catch {}
@@ -606,7 +606,7 @@ export const badgesStore = {
           userName: activeUser.fullName,
           amount: item.rewardNfs,
           description: `🏆 Selo Conquistado: ${item.title}`,
-          category: "workout",
+          category: "badge",
         });
       }
       toast.success(`🎉 Selo Desbloqueado: "${item.title}"! (+${item.rewardNfs} nfs creditados)`);

@@ -378,7 +378,7 @@ export const authStore = {
     sharedSandboxStore.setActiveUser(regResult.user.id);
     emit();
 
-    wallet.earn(50, "Bônus de Boas-Vindas");
+    wallet.earn(50, "Bônus de Boas-Vindas", "welcome");
     if (referralCode) {
       toast.success(`🎉 Cadastro realizado! Indicação "${referralCode.toUpperCase()}" vinculada (+50 nfs bônus).`);
     } else {
