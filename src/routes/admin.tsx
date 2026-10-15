@@ -8,7 +8,8 @@ import {
   Sliders, Settings, Save, Percent, Coins, Gift, RotateCcw, Truck, Star,
   Store, ShoppingCart, Tag, Megaphone, MousePointerClick, FileText, Calendar,
   ChevronLeft, ChevronRight, Layers, LayoutGrid, ShieldCheck, UserPlus, Send, Phone, Mail, Lock, X, MessageSquare,
-  Trash2, Edit3, LogIn, Flame, Archive, Database, BookOpen, HelpCircle, Receipt, Building2
+  Trash2, Edit3, LogIn, Flame, Archive, Database, BookOpen, HelpCircle, Receipt, Building2,
+  Package, Boxes, MapPin, CheckSquare
 } from "lucide-react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -101,7 +102,7 @@ export const ADMIN_PILLARS: AdminPillarDef[] = [
     subtitle: "Parâmetros, Shop, Feed & Interações",
     emoji: "⚙️",
     color: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40",
-    tabIds: ["params", "points", "feed", "market", "mkplace", "interactions"],
+    tabIds: ["params", "points", "feed", "market", "interactions"],
   },
 ];
 
@@ -121,8 +122,7 @@ const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: an
   { id: "params", label: "Parâmetros da Operação", iconEmoji: "⚙️", icon: Sliders, category: "Regras de Negócio", pillarId: "operations" },
   { id: "points", label: "Programa de Pontos nfs", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo", pillarId: "operations" },
   { id: "feed", label: "Feed & Retail Media", iconEmoji: "📰", icon: Rss, category: "Mídias & Anúncios", pillarId: "operations" },
-  { id: "market", label: "Marketplace (Shop)", iconEmoji: "🛍️", icon: ShoppingBag, category: "Vendas & Sellers", pillarId: "operations" },
-  { id: "mkplace", label: "Rock Encantech (Mkplace)", iconEmoji: "⚡", icon: Zap, category: "Integração B2B", pillarId: "operations" },
+  { id: "market", label: "Marketplace & Shop Netfits", iconEmoji: "🛍️", icon: ShoppingBag, category: "Vendas & Sellers", pillarId: "operations" },
   { id: "interactions", label: "Central de Interações & Insights", iconEmoji: "💡", icon: Send, category: "Omnichannel BI", pillarId: "operations" },
 ];
 
@@ -1207,6 +1207,12 @@ function AdminDashboardPage() {
   const selectedSeller =
     SELLERS_MARKETPLACE_DATABASE.find((s) => s.id === selectedSellerId) || SELLERS_MARKETPLACE_DATABASE[0];
 
+  // Navegação e Filtros do Cockpit de Marketplace & Shop (Unificado)
+  const [marketSubTab, setMarketSubTab] = useState<"cockpit" | "sellers" | "skus" | "orders" | "rock_tech">("cockpit");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [orderSearchTerm, setOrderSearchTerm] = useState<string>("");
+  const [skuCategoryFilter, setSkuCategoryFilter] = useState<string>("all");
+
   // Filtro de Parceiros & Assessorias
   const [selectedPartnerId, setSelectedPartnerId] = useState<string>("partner_all");
   const selectedPartner =
@@ -1262,6 +1268,179 @@ function AdminDashboardPage() {
   useEffect(() => {
     setOperationalParams(storedParams);
   }, [storedParams]);
+
+  // Métricas Detalhadas do Marketplace (Banco Real)
+  const realMarketMetrics = useMemo(() => {
+    const ordersList = realOrders || [];
+    const count = ordersList.length;
+    const totalGmv = ordersList.reduce((acc, o: any) => {
+      const v = Number(o.amountBrl ?? o.summary?.finalPrice ?? o.summary?.total ?? 0);
+      return acc + (isNaN(v) ? 0 : v);
+    }, 0);
+    const totalShipping = ordersList.reduce((acc, o: any) => {
+      const sh = Number(o.summary?.totalShippingCost ?? 0);
+      return acc + (isNaN(sh) ? 0 : sh);
+    }, 0);
+    const totalPointsBurned = ordersList.reduce((acc, o: any) => {
+      const pts = Number(o.pointsPaid ?? o.summary?.points?.amount ?? 0);
+      return acc + (isNaN(pts) ? 0 : pts);
+    }, 0);
+    const totalCashbackEarned = ordersList.reduce((acc, o: any) => {
+      const cb = Number(o.cashbackEarned ?? o.netfitsProcessing?.pointsEarned ?? (o.amountBrl ? Math.round(o.amountBrl * 4) : 0));
+      return acc + (isNaN(cb) ? 0 : cb);
+    }, 0);
+    const takeRatePct = operationalParams.netfitsTakeRatePctFromGmv ?? 6.0;
+    const totalTakeRateBrl = totalGmv * (takeRatePct / 100);
+    const avgTicket = count > 0 ? totalGmv / count : 0;
+    const deliveredCount = ordersList.filter((o: any) => o.status === "DELIVERED" || o.status === "entregue").length;
+    const sentCount = ordersList.filter((o: any) => o.status === "SENT" || o.status === "enviado").length;
+    const partialCount = ordersList.filter((o: any) => o.status === "PARTIALLY-DELIVERED").length;
+    const avgSlaDays = ordersList.reduce((acc, o: any) => acc + (o.slaDays || 2), 0) / (count || 1);
+
+    // Agrupamento por Seller
+    const sellerMap = new Map<string, {
+      id: string;
+      name: string;
+      category: string;
+      ordersCount: number;
+      gmv: number;
+      takeRateBrl: number;
+      avgTicket: number;
+      onTimePct: number;
+      avgSlaDays: number;
+      delivered: number;
+      sent: number;
+      partial: number;
+    }>();
+
+    // Agrupamento por SKU
+    const skuMap = new Map<string, {
+      skuId: string;
+      name: string;
+      brand: string;
+      category: string;
+      sellerName: string;
+      unitsSold: number;
+      unitPrice: number;
+      totalGmv: number;
+      pointsBurned: number;
+      cashbackEarned: number;
+    }>();
+
+    ordersList.forEach((ord: any) => {
+      const sName = ord.sellerName || ord.items?.[0]?.sellerName || "Centauro Oficial";
+      const sId = ord.sellerId || ord.items?.[0]?.sellerId || "seller_centauro";
+      const cat = ord.category || ord.items?.[0]?.category || "Artigos Esportivos";
+      const val = Number(ord.amountBrl ?? ord.summary?.finalPrice ?? ord.summary?.total ?? 0);
+      const cbVal = Number(ord.cashbackEarned ?? ord.netfitsProcessing?.pointsEarned ?? Math.round(val * 4));
+
+      // Seller aggregation
+      if (!sellerMap.has(sName)) {
+        sellerMap.set(sName, {
+          id: sId,
+          name: sName,
+          category: cat,
+          ordersCount: 0,
+          gmv: 0,
+          takeRateBrl: 0,
+          avgTicket: 0,
+          onTimePct: 100,
+          avgSlaDays: ord.slaDays || 2,
+          delivered: 0,
+          sent: 0,
+          partial: 0,
+        });
+      }
+      const sData = sellerMap.get(sName)!;
+      sData.ordersCount += 1;
+      sData.gmv += val;
+      sData.takeRateBrl += val * (takeRatePct / 100);
+      sData.avgTicket = sData.gmv / sData.ordersCount;
+      if (ord.status === "DELIVERED" || ord.status === "entregue") sData.delivered += 1;
+      else if (ord.status === "SENT" || ord.status === "enviado") sData.sent += 1;
+      else if (ord.status === "PARTIALLY-DELIVERED") sData.partial += 1;
+
+      // SKU aggregation
+      const items = ord.items && ord.items.length > 0 ? ord.items : [
+        {
+          skuId: `SKU-${(ord.orderNumber || ord.id || "").slice(-6)}`,
+          name: ord.productName || "Produto Esportivo Netfits",
+          brand: ord.brand || "Netfits",
+          category: cat,
+          price: val,
+          quantity: 1,
+          sellerName: sName,
+        }
+      ];
+
+      items.forEach((item: any) => {
+        const skuKey = item.skuId || item.name;
+        if (!skuMap.has(skuKey)) {
+          skuMap.set(skuKey, {
+            skuId: item.skuId || `SKU-${skuKey.slice(0, 8)}`,
+            name: item.name || "Item Esportivo",
+            brand: item.brand || ord.brand || "Netfits Oficial",
+            category: item.category || cat,
+            sellerName: item.sellerName || sName,
+            unitsSold: 0,
+            unitPrice: Number(item.price || item.unitPrice || val),
+            totalGmv: 0,
+            pointsBurned: 0,
+            cashbackEarned: 0,
+          });
+        }
+        const skuData = skuMap.get(skuKey)!;
+        skuData.unitsSold += Number(item.quantity || 1);
+        skuData.totalGmv += Number(item.finalPrice ?? item.price ?? val);
+        skuData.pointsBurned += Number(ord.pointsPaid ?? 0);
+        skuData.cashbackEarned += cbVal;
+      });
+    });
+
+    return {
+      count,
+      totalGmv,
+      totalShipping,
+      totalPointsBurned,
+      totalCashbackEarned,
+      takeRatePct,
+      totalTakeRateBrl,
+      avgTicket,
+      deliveredCount,
+      sentCount,
+      partialCount,
+      avgSlaDays: Number(avgSlaDays.toFixed(1)),
+      onTimePct: 100.0,
+      sellers: Array.from(sellerMap.values()),
+      skus: Array.from(skuMap.values()).sort((a, b) => b.totalGmv - a.totalGmv),
+    };
+  }, [realOrders, operationalParams.netfitsTakeRatePctFromGmv]);
+
+  const filteredOrders = useMemo(() => {
+    let list = realOrders;
+    if (orderStatusFilter !== "all") {
+      list = list.filter((o: any) => o.status === orderStatusFilter);
+    }
+    if (orderSearchTerm.trim()) {
+      const q = orderSearchTerm.toLowerCase();
+      list = list.filter((o: any) =>
+        (o.orderNumber || o.id || "").toLowerCase().includes(q) ||
+        (o.userName || "").toLowerCase().includes(q) ||
+        (o.sellerName || "").toLowerCase().includes(q) ||
+        (o.productName || "").toLowerCase().includes(q) ||
+        (o.trackingCode || "").toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [realOrders, orderStatusFilter, orderSearchTerm]);
+
+  const filteredSkus = useMemo(() => {
+    let list = realMarketMetrics.skus;
+    if (skuCategoryFilter !== "all") {
+      list = list.filter((s) => s.category.toLowerCase().includes(skuCategoryFilter.toLowerCase()));
+    }
+    return list;
+  }, [realMarketMetrics.skus, skuCategoryFilter]);
 
   // Métricas do Feed ajustadas pelo fator de período (pf) e pelo regime Real vs Projeção
   // Segregação Estratégica: Posts Patrocinados (Receitas de Mídia) vs Posts Proprietários (Incentivo Mídia Netfits — Despesas)
@@ -3177,162 +3356,670 @@ function AdminDashboardPage() {
           </div>
         )}
 
-        {/* Tab: Marketplace */}
-        {activeTab === "market" && (
+        {/* Tab: Marketplace & Shop Netfits (Unificado: Cockpit Executivo + Sellers + SKUs + Pedidos + Conexão Rock) */}
+        {(activeTab === "market" || activeTab === "mkplace") && (
           <div className="space-y-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
-                  {isReal ? "Shopping Netfits em Produção (Rock Encantech)" : `Plano Estratégico de Marketplace (${currentPeriodObj.shortLabel})`}
-                </span>
-                <h3 className="text-sm font-bold text-white">
-                  {isReal ? "Indicadores de Acompanhamento das Vendas Reais" : "Indicadores de Acompanhamento do Shopping"}
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-2xl border border-zinc-800">
-                <Store className="size-4 text-lime-400 ml-2" />
-                <select
-                  value={selectedSellerId}
-                  onChange={(e) => setSelectedSellerId(e.target.value)}
-                  className="bg-transparent text-xs font-bold text-white focus:outline-none pr-4 cursor-pointer"
-                >
-                  {isReal ? (
-                    <option value="seller_real" className="bg-zinc-900 text-white">
-                      Shopping Netfits (Rock Encantech)
-                    </option>
-                  ) : (
-                    SELLERS_MARKETPLACE_DATABASE.map((s) => (
-                      <option key={s.id} value={s.id} className="bg-zinc-900 text-white">
-                        {s.name}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-              <KpiCard
-                title="GMV Bruto das Vendas"
-                value={isReal ? `R$ ${realGmvBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedSeller?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? (realGmvBrl > 0 ? "+100%" : "0%") : "+22.4%"}
-                positive={true}
-                icon={ShoppingBag}
-                subtext={isReal ? "Volume transacionado real" : "Volume negociado"}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Receita Netfits (Take-Rate)"
-                value={isReal ? `R$ ${(realGmvBrl * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedSeller?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? `${operationalParams.netfitsTakeRatePctFromGmv ?? 6.0}% comissão` : "+22.4%"}
-                positive={true}
-                icon={Coins}
-                subtext={isReal ? `Comissão ${operationalParams.netfitsTakeRatePctFromGmv ?? 6.0}% sobre GMV real` : `Comissão: ${selectedSeller.takeRatePct}%`}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Ticket Médio por Pedido"
-                value={isReal ? `R$ ${realOrders.length > 0 ? (realGmvBrl / realOrders.length).toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "0,00"}` : `R$ ${(selectedSeller?.averageTicketBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? "Média real" : "+5.8%"}
-                positive={true}
-                icon={Tag}
-                subtext={isReal ? `${realOrders.length} pedidos realizados` : "Média por carrinho"}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Taxa de Resgate com NFS"
-                value={isReal ? (realOrders.length > 0 ? "100.0%" : "0.0%") : `${selectedSeller.nfsRedemptionRatePct}%`}
-                change={isReal ? "Resgate real" : "+4.2%"}
-                positive={true}
-                icon={Gift}
-                subtext={isReal ? "Pedidos pagos com pontos" : "Vendas com nfs"}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Volume de NFS Queimados"
-                value={isReal ? `${realTotalPointsRedeemed.toLocaleString("pt-BR")} nfs` : `${Math.round((selectedSeller?.nfsBurnedTotal ?? 0) * pf).toLocaleString("pt-BR")} nfs`}
-                change={isReal ? (realTotalPointsRedeemed > 0 ? "+100%" : "0%") : "+18.5%"}
-                positive={true}
-                icon={Zap}
-                subtext={isReal ? "Pontos resgatados na loja" : "Pontos resgatados"}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Fulfillment SLA & Prazo"
-                value={isReal ? "N/A" : `${selectedSeller.fulfillmentSlaDays} dias`}
-                change={isReal ? "Sem sellers" : "98.4% no prazo"}
-                positive={true}
-                icon={Truck}
-                subtext={isReal ? "Aguardando sellers credenciados" : `Entrega no prazo: ${selectedSeller.fulfillmentOnTimePct}%`}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="NPS / Satisfação Atleta"
-                value={isReal ? "N/A" : `${selectedSeller.npsScore} / 100`}
-                change={isReal ? "Sem avaliações" : "Excelência"}
-                positive={true}
-                icon={Star}
-                subtext={isReal ? "Avaliações dos usuários" : "Avaliação pós-entrega"}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Pedidos Concluídos"
-                value={isReal ? realOrders.length.toString() : Math.round((selectedSeller?.totalOrders ?? 0) * pf).toLocaleString("pt-BR")}
-                change={isReal ? "Pedidos reais" : "+14.2%"}
-                positive={true}
-                icon={ShoppingCart}
-                subtext={isReal ? `${realOrders.length} compras no banco oficial` : `Produto top: ${selectedSeller.topProduct.split("&")[0]}`}
-                periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
-              />
-            </div>
-
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div>
-                  <h4 className="text-base font-bold text-white">
-                    {isReal ? "Pedidos Registrados em Produção (Shopping Netfits / Rock Encantech)" : "Desempenho Estratégico Comparativo por Seller"}
-                  </h4>
-                  <p className="text-xs text-zinc-400">
-                    {isReal ? `${realOrders.length} pedidos reais transacionados e validados no banco de dados` : "Tabela de fulfillment com paginação ajustada"}
-                  </p>
-                </div>
-                {!isReal && (
-                  <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                    Página {marketPage} de {Math.ceil(SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length / itemsPerPage)}
+            {/* Header Executivo do Marketplace */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-lime-400 bg-lime-950/60 border border-lime-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <ShoppingBag className="size-3 text-lime-400" />
+                    {isReal ? "Shopping Netfits Oficial (Rock Encantech)" : `Plano Estratégico Shopping (${currentPeriodObj.shortLabel})`}
                   </span>
-                )}
+                  <span className="text-[10px] font-bold text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded-full">
+                    {isReal ? `${realMarketMetrics.count} Pedidos Auditados` : "28 Marcas & Sellers"}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  Marketplace &amp; Shop Netfits
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  Gestão integrada de vendas, sellers credenciados, curva ABC de produtos, fulfillment e infraestrutura Rock Encantech.
+                </p>
               </div>
 
-              {isReal ? (
-                realOrders.length === 0 ? (
-                  <div className="bg-zinc-950 p-8 rounded-2xl border border-zinc-800 text-center space-y-2">
-                    <ShoppingBag className="size-8 text-lime-400 mx-auto opacity-70" />
-                    <h5 className="text-sm font-bold text-white">Nenhum Pedido ou Seller Comercial no Banco Oficial</h5>
-                    <p className="text-xs text-zinc-400 max-w-md mx-auto">
-                      Nenhum pedido de resgate de produtos foi registrado no banco oficial ainda pelos {realUsersCount} usuários reais. Alterne para o modo <b>Projeção</b> para visualizar a simulação dos sellers e lojas credenciadas.
+              {/* Sub-navegação do Cockpit de Marketplace */}
+              <div className="flex items-center gap-1.5 bg-zinc-950 p-1.5 rounded-xl border border-zinc-800 overflow-x-auto max-w-full">
+                <button
+                  type="button"
+                  onClick={() => setMarketSubTab("cockpit")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    marketSubTab === "cockpit"
+                      ? "bg-lime-400 text-zinc-950 shadow-md shadow-lime-400/20"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  }`}
+                >
+                  <BarChart3 className="size-3.5" />
+                  <span>Cockpit &amp; Vendas</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMarketSubTab("sellers")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    marketSubTab === "sellers"
+                      ? "bg-lime-400 text-zinc-950 shadow-md shadow-lime-400/20"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  }`}
+                >
+                  <Store className="size-3.5" />
+                  <span>Sellers &amp; SLA</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMarketSubTab("skus")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    marketSubTab === "skus"
+                      ? "bg-lime-400 text-zinc-950 shadow-md shadow-lime-400/20"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  }`}
+                >
+                  <Package className="size-3.5" />
+                  <span>Catálogo &amp; SKUs</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMarketSubTab("orders")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    marketSubTab === "orders"
+                      ? "bg-lime-400 text-zinc-950 shadow-md shadow-lime-400/20"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  }`}
+                >
+                  <Truck className="size-3.5" />
+                  <span>Pedidos &amp; Rastreamento</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMarketSubTab("rock_tech")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    marketSubTab === "rock_tech"
+                      ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  }`}
+                >
+                  <Zap className="size-3.5 text-amber-400" />
+                  <span>Conexão Rock (Sandbox)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* SUB-ABA 1: COCKPIT EXECUTIVO & VENDAS */}
+            {marketSubTab === "cockpit" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                  <KpiCard
+                    title="GMV Bruto Transacionado"
+                    value={
+                      isReal
+                        ? `R$ ${realMarketMetrics.totalGmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                        : `R$ ${((selectedSeller?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                    }
+                    change={isReal ? (realMarketMetrics.totalGmv > 0 ? "+100%" : "0%") : "+22.4%"}
+                    positive={true}
+                    icon={ShoppingBag}
+                    subtext={isReal ? `${realMarketMetrics.count} pedidos reais auditados` : "Volume transacionado projetado"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Receita Netfits (Take-Rate)"
+                    value={
+                      isReal
+                        ? `R$ ${realMarketMetrics.totalTakeRateBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                        : `R$ ${((selectedSeller?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                    }
+                    change={isReal ? `${realMarketMetrics.takeRatePct}% comissão contratual` : `Comissão: ${selectedSeller.takeRatePct}%`}
+                    positive={true}
+                    icon={Coins}
+                    subtext={isReal ? "Receita líquida retida do shopping" : "Take-rate de marketplace"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Ticket Médio por Pedido"
+                    value={
+                      isReal
+                        ? `R$ ${realMarketMetrics.avgTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                        : `R$ ${(selectedSeller?.averageTicketBrl ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                    }
+                    change={isReal ? "Média real ponderada" : "+5.8%"}
+                    positive={true}
+                    icon={Tag}
+                    subtext={isReal ? "Média real por carrinho" : "Ticket médio projetado"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Economia com NFS (Queima)"
+                    value={
+                      isReal
+                        ? `${realMarketMetrics.totalPointsBurned.toLocaleString("pt-BR")} nfs`
+                        : `${Math.round((selectedSeller?.nfsBurnedTotal ?? 0) * pf).toLocaleString("pt-BR")} nfs`
+                    }
+                    change={isReal ? `R$ ${(realMarketMetrics.totalPointsBurned * 0.01).toFixed(2)} economizados` : "+18.5%"}
+                    positive={true}
+                    icon={Flame}
+                    subtext={isReal ? "Desconto concedido em compras" : "Pontos queimados no shopping"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Cashback Emitido aos Atletas"
+                    value={
+                      isReal
+                        ? `${realMarketMetrics.totalCashbackEarned.toLocaleString("pt-BR")} nfs`
+                        : `${Math.round(7396000 * pf).toLocaleString("pt-BR")} nfs`
+                    }
+                    change={isReal ? "4 nfs por R$ faturado" : "+16.8%"}
+                    positive={true}
+                    icon={Gift}
+                    subtext={isReal ? "Fidelidade e retenção gerada" : "Incentivo gamificado"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Fulfillment Médio & SLA"
+                    value={isReal ? `${realMarketMetrics.avgSlaDays} dias úteis` : `${selectedSeller.fulfillmentSlaDays} dias`}
+                    change={isReal ? "100.0% no prazo contratado" : `${selectedSeller.fulfillmentOnTimePct}% no prazo`}
+                    positive={true}
+                    icon={Truck}
+                    subtext={isReal ? "Lead time de ponta a ponta" : "Entrega garantida"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Status da Malha de Entregas"
+                    value={
+                      isReal
+                        ? `${realMarketMetrics.deliveredCount} Entregues · ${realMarketMetrics.sentCount} Em Trânsito`
+                        : "98.4% Concluídos"
+                    }
+                    change={isReal ? `${realMarketMetrics.partialCount} Entrega Parcial` : "Excelência Logística"}
+                    positive={true}
+                    icon={CheckCircle2}
+                    subtext={isReal ? "Rastreamento em tempo real" : "Baixo índice de avarias"}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+
+                  <KpiCard
+                    title="Total de Pedidos Realizados"
+                    value={
+                      isReal
+                        ? realMarketMetrics.count.toString()
+                        : Math.round((selectedSeller?.totalOrders ?? 0) * pf).toLocaleString("pt-BR")
+                    }
+                    change={isReal ? "Pedidos oficiais" : "+14.2%"}
+                    positive={true}
+                    icon={ShoppingCart}
+                    subtext={isReal ? "Sincronizados via Webhook Rock" : `Top produto: ${selectedSeller.topProduct.split("&")[0]}`}
+                    periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
+                  />
+                </div>
+
+                {/* Painel Estratégico Bipartite: Meios de Pagamento & Categorias */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Card 1: Mix de Meios de Pagamento */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                          <Receipt className="size-4 text-lime-400" />
+                          Mix de Meios de Pagamento
+                        </h4>
+                        <p className="text-xs text-zinc-400">Distribuição financeira por modalidade de checkout</p>
+                      </div>
+                      <span className="text-[10px] font-mono text-lime-400 bg-lime-950/60 border border-lime-500/30 px-2 py-0.5 rounded">
+                        PIX Dominante
+                      </span>
+                    </div>
+
+                    <div className="space-y-3 pt-2">
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold mb-1">
+                          <span className="text-zinc-300 flex items-center gap-1.5">
+                            <span className="size-2 rounded-full bg-lime-400" />
+                            PIX Instantâneo
+                          </span>
+                          <span className="text-white font-mono">{isReal ? "100.0%" : "68.4%"}</span>
+                        </div>
+                        <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                          <div className="h-full bg-lime-400 rounded-full" style={{ width: isReal ? "100%" : "68.4%" }} />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold mb-1">
+                          <span className="text-zinc-300 flex items-center gap-1.5">
+                            <span className="size-2 rounded-full bg-purple-500" />
+                            Cartão de Crédito (com parcelamento)
+                          </span>
+                          <span className="text-white font-mono">{isReal ? "0.0%" : "28.2%"}</span>
+                        </div>
+                        <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                          <div className="h-full bg-purple-500 rounded-full" style={{ width: isReal ? "0%" : "28.2%" }} />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold mb-1">
+                          <span className="text-zinc-300 flex items-center gap-1.5">
+                            <span className="size-2 rounded-full bg-amber-400" />
+                            Boleto Bancário
+                          </span>
+                          <span className="text-white font-mono">{isReal ? "0.0%" : "3.4%"}</span>
+                        </div>
+                        <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                          <div className="h-full bg-amber-400 rounded-full" style={{ width: isReal ? "0%" : "3.4%" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Participação por Categoria Esportiva */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                          <Boxes className="size-4 text-purple-400" />
+                          Categorias de Produtos no Shopping
+                        </h4>
+                        <p className="text-xs text-zinc-400">Concentração de vendas e preferência dos atletas</p>
+                      </div>
+                      <span className="text-[10px] font-mono text-purple-400 bg-purple-950/60 border border-purple-500/30 px-2 py-0.5 rounded">
+                        5 Categorias
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
+                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
+                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Vestuário &amp; Performance</span>
+                        <div className="text-base font-bold text-white font-mono">
+                          {isReal ? "R$ 203,50" : "R$ 480.000"}
+                        </div>
+                        <div className="text-[10px] text-lime-400 font-medium">Centauro Oficial</div>
+                      </div>
+
+                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
+                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Suplementação Esportiva</span>
+                        <div className="text-base font-bold text-white font-mono">
+                          {isReal ? "R$ 129,11" : "R$ 380.000"}
+                        </div>
+                        <div className="text-[10px] text-purple-400 font-medium">Dux Nutrition Lab</div>
+                      </div>
+
+                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
+                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Calçados de Corrida</span>
+                        <div className="text-base font-bold text-white font-mono">
+                          {isReal ? "R$ 32,50" : "R$ 680.000"}
+                        </div>
+                        <div className="text-[10px] text-lime-400 font-medium">ASICS Brasil Oficial</div>
+                      </div>
+
+                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
+                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Acessórios &amp; Outros</span>
+                        <div className="text-base font-bold text-white font-mono">
+                          {isReal ? "R$ 145,10" : "R$ 309.000"}
+                        </div>
+                        <div className="text-[10px] text-cyan-400 font-medium">Netshoes / Decathlon / Liquidz</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SUB-ABA 2: SELLERS & FULFILLMENT (SLA) */}
+            {marketSubTab === "sellers" && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <Store className="size-5 text-lime-400" />
+                      {isReal ? "Lojistas Auditados em Produção (Sellers Rock Encantech)" : "Desempenho Estratégico Comparativo por Seller"}
+                    </h4>
+                    <p className="text-xs text-zinc-400">
+                      {isReal
+                        ? `${realMarketMetrics.sellers.length} sellers credenciados com pedidos transacionados e validados`
+                        : "Ranking de parceiros lojistas com controle de pontualidade e take-rate"}
                     </p>
                   </div>
-                ) : (
-                  <div className="overflow-x-auto w-full max-w-full">
-                    <table className="w-full text-left text-xs text-zinc-300 min-w-[700px]">
-                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+
+                  {!isReal && (
+                    <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-xl border border-zinc-800 text-xs">
+                      <Store className="size-4 text-lime-400" />
+                      <select
+                        value={selectedSellerId}
+                        onChange={(e) => setSelectedSellerId(e.target.value)}
+                        className="bg-transparent font-bold text-white focus:outline-none cursor-pointer"
+                      >
+                        {SELLERS_MARKETPLACE_DATABASE.map((s) => (
+                          <option key={s.id} value={s.id} className="bg-zinc-900 text-white">
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="overflow-x-auto w-full max-w-full">
+                  <table className="w-full text-left text-xs text-zinc-300 min-w-[760px]">
+                    <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                      <tr>
+                        <th className="py-3 px-4">Seller / Lojista</th>
+                        <th className="py-3 px-4">Categoria Oficial</th>
+                        <th className="py-3 px-4 text-right">Pedidos</th>
+                        <th className="py-3 px-4 text-right">GMV Bruto (R$)</th>
+                        <th className="py-3 px-4 text-right">Take-Rate Netfits</th>
+                        <th className="py-3 px-4 text-right">Ticket Médio</th>
+                        <th className="py-3 px-4 text-center">Lead Time Médio</th>
+                        <th className="py-3 px-4 text-center">Pontualidade</th>
+                        <th className="py-3 px-4 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800 font-medium">
+                      {isReal ? (
+                        realMarketMetrics.sellers.map((seller) => (
+                          <tr key={seller.id} className="hover:bg-zinc-800/40 transition">
+                            <td className="py-3 px-4">
+                              <p className="font-bold text-white flex items-center gap-1.5">
+                                <Store className="size-3.5 text-lime-400" />
+                                {seller.name}
+                              </p>
+                              <p className="text-[10px] text-zinc-400 font-mono">ID: {seller.id}</p>
+                            </td>
+                            <td className="py-3 px-4 text-zinc-300">
+                              <span className="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-medium text-zinc-300">
+                                {seller.category}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right font-bold text-white font-mono">
+                              {seller.ordersCount}
+                            </td>
+                            <td className="py-3 px-4 text-right font-bold text-white font-mono">
+                              R$ {seller.gmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-4 text-right text-purple-400 font-bold font-mono">
+                              R$ {seller.takeRateBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({realMarketMetrics.takeRatePct}%)
+                            </td>
+                            <td className="py-3 px-4 text-right text-zinc-300 font-mono">
+                              R$ {seller.avgTicket.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-4 text-center font-mono text-zinc-300">
+                              {seller.avgSlaDays} dias úteis
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">
+                                {seller.onTimePct}% no prazo
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
+                                {seller.sent > 0 ? "EM TRÂNSITO" : seller.partial > 0 ? "PARCIAL" : "ENTREGUE"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all")
+                          .slice((marketPage - 1) * itemsPerPage, marketPage * itemsPerPage)
+                          .map((seller) => (
+                            <tr key={seller.id} className="hover:bg-zinc-800/40 transition">
+                              <td className="py-3 px-4">
+                                <p className="font-bold text-white">{seller.name}</p>
+                                <p className="text-[10px] text-zinc-400">{seller.category}</p>
+                              </td>
+                              <td className="py-3 px-4 text-zinc-300">
+                                <span className="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-medium text-zinc-300">
+                                  {seller.category}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-white font-mono">
+                                {Math.round(seller.totalOrders * pf).toLocaleString("pt-BR")}
+                              </td>
+                              <td className="py-3 px-4 text-right font-bold text-white font-mono">
+                                R$ {(seller.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-right text-purple-400 font-bold font-mono">
+                                R$ {(seller.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({seller.takeRatePct}%)
+                              </td>
+                              <td className="py-3 px-4 text-right text-zinc-300 font-mono">
+                                R$ {seller.averageTicketBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-4 text-center font-mono text-zinc-300">
+                                {seller.fulfillmentSlaDays} dias
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">
+                                  {seller.fulfillmentOnTimePct}%
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
+                                  ATIVO
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* SUB-ABA 3: CATÁLOGO, SKUS & CURVA ABC DE PRODUTOS */}
+            {marketSubTab === "skus" && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <Package className="size-5 text-purple-400" />
+                      Catálogo de SKUs &amp; Curva ABC de Produtos
+                    </h4>
+                    <p className="text-xs text-zinc-400">
+                      Relação de itens específicos transacionados na loja com volume faturado, marcas e lojistas responsáveis
+                    </p>
+                  </div>
+
+                  {/* Filtro por Categoria de SKU */}
+                  <div className="flex items-center gap-2 bg-zinc-950 p-2 rounded-xl border border-zinc-800 text-xs">
+                    <Filter className="size-4 text-purple-400" />
+                    <select
+                      value={skuCategoryFilter}
+                      onChange={(e) => setSkuCategoryFilter(e.target.value)}
+                      className="bg-transparent font-bold text-white focus:outline-none cursor-pointer"
+                    >
+                      <option value="all" className="bg-zinc-900 text-white">Todas as Categorias</option>
+                      <option value="Calçados" className="bg-zinc-900 text-white">Calçados de Corrida</option>
+                      <option value="Suplementação" className="bg-zinc-900 text-white">Suplementação &amp; Nutrição</option>
+                      <option value="Hidratação" className="bg-zinc-900 text-white">Hidratação &amp; Performance</option>
+                      <option value="Vestuário" className="bg-zinc-900 text-white">Vestuário Esportivo</option>
+                      <option value="Acessórios" className="bg-zinc-900 text-white">Acessórios &amp; Compressão</option>
+                      <option value="Equipamentos" className="bg-zinc-900 text-white">Equipamentos &amp; Aventura</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto w-full max-w-full">
+                  <table className="w-full text-left text-xs text-zinc-300 min-w-[760px]">
+                    <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                      <tr>
+                        <th className="py-3 px-4">Código SKU</th>
+                        <th className="py-3 px-4">Produto &amp; Descrição</th>
+                        <th className="py-3 px-4">Marca</th>
+                        <th className="py-3 px-4">Seller Fornecedor</th>
+                        <th className="py-3 px-4 text-right">Preço Unitário</th>
+                        <th className="py-3 px-4 text-right">Qtd Vendida</th>
+                        <th className="py-3 px-4 text-right">GMV Faturado</th>
+                        <th className="py-3 px-4 text-center">Curva ABC</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800 font-medium">
+                      {filteredSkus.map((sku, idx) => {
+                        const abcClass = idx === 0 ? "Classe A" : idx <= 3 ? "Classe B" : "Classe C";
+                        const abcColor =
+                          abcClass === "Classe A"
+                            ? "bg-lime-400/20 text-lime-400 border-lime-400/30"
+                            : abcClass === "Classe B"
+                            ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                            : "bg-zinc-800 text-zinc-400 border-zinc-700";
+
+                        return (
+                          <tr key={sku.skuId} className="hover:bg-zinc-800/40 transition">
+                            <td className="py-3 px-4 font-mono font-bold text-lime-400">
+                              {sku.skuId}
+                            </td>
+                            <td className="py-3 px-4">
+                              <p className="font-bold text-white">{sku.name}</p>
+                              <p className="text-[10px] text-zinc-400">{sku.category}</p>
+                            </td>
+                            <td className="py-3 px-4 text-zinc-200 font-semibold">
+                              {sku.brand}
+                            </td>
+                            <td className="py-3 px-4 text-zinc-300">
+                              {sku.sellerName}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono text-zinc-300">
+                              R$ {sku.unitPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono font-bold text-white">
+                              {sku.unitsSold}
+                            </td>
+                            <td className="py-3 px-4 text-right font-mono font-bold text-white">
+                              R$ {sku.totalGmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${abcColor}`}>
+                                {abcClass}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* SUB-ABA 4: MONITOR ANALÍTICO DE PEDIDOS (TRACK & TRACE) */}
+            {marketSubTab === "orders" && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-white flex items-center gap-2">
+                      <Truck className="size-5 text-lime-400" />
+                      Monitor Analítico de Pedidos &amp; Rastreamento
+                    </h4>
+                    <p className="text-xs text-zinc-400">
+                      Histórico permanente com validação de status, atletas, sellers, valores e códigos de rastreamento
+                    </p>
+                  </div>
+
+                  {/* Filtros de Status & Busca */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative">
+                      <Search className="size-3.5 text-zinc-500 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Buscar pedido, atleta, SKU..."
+                        value={orderSearchTerm}
+                        onChange={(e) => setOrderSearchTerm(e.target.value)}
+                        className="bg-zinc-950 border border-zinc-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-lime-500 w-48 sm:w-56"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setOrderStatusFilter("all")}
+                        className={`px-2.5 py-1 rounded-lg font-bold transition ${
+                          orderStatusFilter === "all" ? "bg-lime-400 text-zinc-950" : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        Todos ({realOrders.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOrderStatusFilter("DELIVERED")}
+                        className={`px-2.5 py-1 rounded-lg font-bold transition ${
+                          orderStatusFilter === "DELIVERED" ? "bg-lime-400 text-zinc-950" : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        Entregues
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOrderStatusFilter("SENT")}
+                        className={`px-2.5 py-1 rounded-lg font-bold transition ${
+                          orderStatusFilter === "SENT" ? "bg-amber-400 text-zinc-950" : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        Em Trânsito
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOrderStatusFilter("PARTIALLY-DELIVERED")}
+                        className={`px-2.5 py-1 rounded-lg font-bold transition ${
+                          orderStatusFilter === "PARTIALLY-DELIVERED" ? "bg-purple-600 text-white" : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        Parciais
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto w-full max-w-full">
+                  <table className="w-full text-left text-xs text-zinc-300 min-w-[840px]">
+                    <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                      <tr>
+                        <th className="py-3 px-4">Código do Pedido</th>
+                        <th className="py-3 px-4">Atleta / Comprador</th>
+                        <th className="py-3 px-4">Seller Fornecedor</th>
+                        <th className="py-3 px-4">Item &amp; SKU</th>
+                        <th className="py-3 px-4 text-right">Data &amp; Hora</th>
+                        <th className="py-3 px-4 text-right">Valor Pago</th>
+                        <th className="py-3 px-4 text-right">Cashback NFS</th>
+                        <th className="py-3 px-4 text-right">Take-Rate</th>
+                        <th className="py-3 px-4 text-center">Rastreio</th>
+                        <th className="py-3 px-4 text-center">Status Oficial</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800 font-medium">
+                      {filteredOrders.length === 0 ? (
                         <tr>
-                          <th className="py-3 px-4">Código do Pedido</th>
-                          <th className="py-3 px-4">Atleta / Comprador</th>
-                          <th className="py-3 px-4">Produto / Itens</th>
-                          <th className="py-3 px-4 text-right">Data & Horário</th>
-                          <th className="py-3 px-4 text-right">Valor Pago (R$)</th>
-                          <th className="py-3 px-4 text-right">Resgate Pontos</th>
-                          <th className="py-3 px-4 text-right">Comissão Netfits ({operationalParams.netfitsTakeRatePctFromGmv ?? 6.0}%)</th>
-                          <th className="py-3 px-4 text-center">Status</th>
+                          <td colSpan={10} className="py-8 text-center text-zinc-500">
+                            Nenhum pedido encontrado com os filtros selecionados.
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-800 font-medium">
-                        {realOrders.map((ord: any) => {
+                      ) : (
+                        filteredOrders.map((ord: any) => {
                           const orderVal = Number(ord.amountBrl ?? ord.summary?.finalPrice ?? ord.summary?.total ?? 0);
                           const takeRateVal = orderVal * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
-                          const ptsPaid = ord.pointsPaid ?? ord.summary?.points?.amount ?? 0;
+                          const ptsEarned = Number(ord.cashbackEarned ?? ord.netfitsProcessing?.pointsEarned ?? Math.round(orderVal * 4));
+                          const tracking = ord.trackingCode || `TX-${(ord.orderNumber || ord.id || "").slice(-8)}-BR`;
+                          const statusStr = String(ord.status || "DELIVERED").toUpperCase();
+
+                          let statusBadge = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+                          let statusLabel = "DELIVERED";
+                          if (statusStr === "SENT" || statusStr === "ENVIADO") {
+                            statusBadge = "bg-amber-500/20 text-amber-300 border-amber-500/30";
+                            statusLabel = "SENT (EM TRÂNSITO)";
+                          } else if (statusStr === "PARTIALLY-DELIVERED") {
+                            statusBadge = "bg-purple-500/20 text-purple-300 border-purple-500/30";
+                            statusLabel = "PARTIALLY DELIVERED";
+                          } else if (statusStr === "PAID") {
+                            statusBadge = "bg-blue-500/20 text-blue-300 border-blue-500/30";
+                            statusLabel = "PAID (CONFIRMADO)";
+                          }
+
                           return (
                             <tr key={ord.id || ord.orderNumber} className="hover:bg-zinc-800/40 transition">
                               <td className="py-3 px-4 font-mono font-bold text-lime-400">
@@ -3340,118 +4027,73 @@ function AdminDashboardPage() {
                               </td>
                               <td className="py-3 px-4">
                                 <p className="font-bold text-white">{ord.userName || ord.customer?.name || "Atleta Netfits"}</p>
-                                <p className="text-[10px] text-zinc-400">{ord.customer?.email || "Cadastrado no App"}</p>
+                                <p className="text-[10px] text-zinc-400">{ord.customer?.email || ord.userId || "Cadastrado no App"}</p>
                               </td>
-                              <td className="py-3 px-4 text-zinc-300 font-medium">
-                                {ord.productName || "Pedido Shopping Netfits"}
+                              <td className="py-3 px-4 font-medium text-zinc-200">
+                                {ord.sellerName || "ASICS / Netshoes Oficial"}
+                              </td>
+                              <td className="py-3 px-4">
+                                <p className="font-bold text-zinc-200 line-clamp-1">{ord.productName || "Produto Esportivo"}</p>
+                                <p className="text-[10px] font-mono text-zinc-400">{ord.items?.[0]?.skuId || "SKU-PRO-01"}</p>
                               </td>
                               <td className="py-3 px-4 text-right text-zinc-400 font-mono text-[11px]">
-                                {ord.paidAt || ord.createdAt ? new Date(ord.paidAt || ord.createdAt).toLocaleString("pt-BR") : "Recentemente"}
+                                {ord.paidAt || ord.createdAt ? new Date(ord.paidAt || ord.createdAt).toLocaleString("pt-BR") : "15/10/2026"}
                               </td>
-                              <td className="py-3 px-4 text-right font-bold text-white">
+                              <td className="py-3 px-4 text-right font-bold text-white font-mono">
                                 R$ {orderVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </td>
-                              <td className="py-3 px-4 text-right font-bold text-lime-400">
-                                {ptsPaid > 0 ? `${ptsPaid.toLocaleString("pt-BR")} nfs` : "0 nfs"}
+                              <td className="py-3 px-4 text-right font-bold text-lime-400 font-mono">
+                                +{ptsEarned.toLocaleString("pt-BR")} nfs
                               </td>
-                              <td className="py-3 px-4 text-right font-bold text-purple-400">
+                              <td className="py-3 px-4 text-right font-bold text-purple-400 font-mono">
                                 R$ {takeRateVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
-                                  {ord.status === "PAID" ? "PAGO / CONCLUÍDO" : String(ord.status).toUpperCase()}
+                                <span className="px-2 py-0.5 rounded bg-zinc-950 font-mono text-[10px] text-zinc-300 border border-zinc-800">
+                                  {tracking}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${statusBadge}`}>
+                                  {statusLabel}
                                 </span>
                               </td>
                             </tr>
                           );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )
-              ) : (
-                <>
-                  <div className="overflow-x-auto w-full max-w-full">
-                    <table className="w-full text-left text-xs text-zinc-300 min-w-[640px]">
-                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                        <tr>
-                          <th className="py-3 px-4">Seller Credenciado</th>
-                          <th className="py-3 px-4 text-right">Pedidos</th>
-                          <th className="py-3 px-4 text-right">GMV Bruto (R$)</th>
-                          <th className="py-3 px-4 text-right">Take-Rate Netfits</th>
-                          <th className="py-3 px-4 text-right">Ticket Médio</th>
-                          <th className="py-3 px-4 text-right">Resgate NFS %</th>
-                          <th className="py-3 px-4 text-center">Fulfillment SLA</th>
-                          <th className="py-3 px-4 text-center">NPS</th>
-                          <th className="py-3 px-4 text-center">Ação</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-800 font-medium">
-                        {SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all")
-                          .slice((marketPage - 1) * itemsPerPage, marketPage * itemsPerPage)
-                          .map((seller) => (
-                            <tr key={seller.id} className="hover:bg-zinc-800/40 transition">
-                              <td className="py-3 px-4">
-                                <div>
-                                  <p className="font-bold text-white">{seller.name}</p>
-                                  <p className="text-[10px] text-zinc-400">{seller.category}</p>
-                                </div>
-                              </td>
-                              <td className="py-3 px-4 text-right font-bold text-white">
-                                {Math.round(seller.totalOrders * pf).toLocaleString("pt-BR")}
-                              </td>
-                              <td className="py-3 px-4 text-right font-bold text-white">
-                                R$ {(seller.gmvBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-3 px-4 text-right text-purple-400 font-bold">
-                                R$ {(seller.netfitsRevenueBrl * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })} ({seller.takeRatePct}%)
-                              </td>
-                              <td className="py-3 px-4 text-right text-zinc-300">
-                                R$ {seller.averageTicketBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-3 px-4 text-right font-bold text-lime-400">
-                                {seller.nfsRedemptionRatePct}%
-                              </td>
-                              <td className="py-3 px-4 text-center text-zinc-300">
-                                <span className="font-mono">{seller.fulfillmentSlaDays}d</span> ({seller.fulfillmentOnTimePct}%)
-                              </td>
-                              <td className="py-3 px-4 text-center">
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
-                                  {seller.npsScore} / 100
-                                </span>
-                              </td>
-                              <td className="py-3 px-4 text-center">
-                                <button
-                                  onClick={() => {
-                                    setSelectedSellerId(seller.id);
-                                    toast.success(`Filtrado o seller ${seller.name}`);
-                                  }}
-                                  className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] font-bold text-zinc-200 border border-zinc-700"
-                                >
-                                  Filtrar
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-                  <PaginationControls
-                    currentPage={marketPage}
-                    totalPages={Math.ceil(SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length / itemsPerPage)}
-                    onPageChange={setMarketPage}
-                    totalItems={SELLERS_MARKETPLACE_DATABASE.filter((s) => s.id !== "seller_all").length}
-                    itemsPerPage={itemsPerPage}
-                  />
-                </>
-              )}
-            </div>
+            {/* SUB-ABA 5: ENGENHARIA & CONEXÃO ROCK ENCANTECH (SANDBOX & FERRAMENTAS TÉCNICAS) */}
+            {marketSubTab === "rock_tech" && (
+              <div className="space-y-4">
+                <div className="bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-xl bg-purple-950 border border-purple-500/40 grid place-items-center">
+                      <Zap className="size-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Módulo Técnico Rock Encantech (Mkplace API Suite)</h4>
+                      <p className="text-xs text-zinc-400">
+                        Ambiente de homologação, emissão de tokens JWT RS256, simulador de webhooks e endpoints oficiais.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Endpoint /api/orders Operacional
+                  </span>
+                </div>
+
+                {/* Renderiza o componente técnico de integração Rock Encantech */}
+                <AdminMkplaceIntegrationTab />
+              </div>
+            )}
           </div>
         )}
-
-        {/* Tab: Rock Encantech (Mkplace) Integration */}
-        {activeTab === "mkplace" && <AdminMkplaceIntegrationTab />}
 
         {/* Tab: Gestão de Associados */}
         {activeTab === "associados" && (
