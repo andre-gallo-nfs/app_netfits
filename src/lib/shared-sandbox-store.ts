@@ -1086,6 +1086,33 @@ class HomologationSandboxStore {
     return newTx;
   }
 
+  public removeTransaction(txId: string): boolean {
+    const idx = this.state.transactions.findIndex((t) => t.id === txId);
+    if (idx >= 0) {
+      const removed = this.state.transactions.splice(idx, 1)[0];
+      const targetUser = this.state.users.find((u) => u.id === removed.userId);
+      if (targetUser) {
+        targetUser.nfsBalance = Math.max(0, (targetUser.nfsBalance || 0) - removed.amount);
+      }
+      this.saveToStorage();
+      return true;
+    }
+    return false;
+  }
+
+  public recalculateUserBalance(userId: string): number {
+    const targetUser = this.state.users.find((u) => u.id === userId);
+    if (targetUser) {
+      const sum = this.state.transactions
+        .filter((t) => t.userId === userId)
+        .reduce((acc, t) => acc + (t.amount || 0), 0);
+      targetUser.nfsBalance = Math.max(0, sum);
+      this.saveToStorage();
+      return targetUser.nfsBalance;
+    }
+    return 0;
+  }
+
   // 3. Cadastro de Novo Atleta (Campos Obrigatórios: Nome, E-mail, Celular, CPF, Data de Nascimento e Endereço Completo)
   public registerAthlete(data: {
     fullName: string;

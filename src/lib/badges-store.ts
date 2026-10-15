@@ -28,10 +28,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Pioneiro Netfits",
     description: "Criou sua conta e ingressou na comunidade de longevidade ativa.",
     icon: "🌟",
-    unlocked: true,
-    unlockedAt: "2026-10-05T00:00:00Z",
+    unlocked: false,
     rewardNfs: 25,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Completar o cadastro inicial no Netfits",
   },
@@ -41,10 +40,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Perfil Verificado",
     description: "Preencheu todos os dados cadastrais (nome, CPF, e-mail, data de nascimento e endereço completo) e concordou com a LGPD.",
     icon: "🛡️",
-    unlocked: true,
-    unlockedAt: "2026-10-05T00:00:00Z",
+    unlocked: false,
     rewardNfs: 30,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Preencher dados cadastrais completos no perfil",
   },
@@ -54,10 +52,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Colecionador de Pontos",
     description: "Declarou seus programas de fidelidade e bancos parceiros no perfil.",
     icon: "💳",
-    unlocked: true,
-    unlockedAt: "2026-10-05T00:00:00Z",
+    unlocked: false,
     rewardNfs: 20,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Declarar programas de pontos no perfil",
   },
@@ -67,10 +64,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Atleta de Alta Performance",
     description: "Completou seu perfil de modalidades esportivas e hábitos saudáveis.",
     icon: "🏃",
-    unlocked: true,
-    unlockedAt: "2026-10-05T00:00:00Z",
+    unlocked: false,
     rewardNfs: 30,
-    currentProgress: 4,
+    currentProgress: 0,
     maxProgress: 4,
     taskInstruction: "Selecionar modalidades esportivas no seu perfil",
   },
@@ -80,10 +76,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Explorador do Shop",
     description: "Navegou pelo marketplace e conheceu as ofertas e marcas parceiras.",
     icon: "🛍️",
-    unlocked: true,
-    unlockedAt: "2026-10-05T22:00:00Z",
+    unlocked: false,
     rewardNfs: 10,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Visitar a aba Shop do Netfits",
   },
@@ -93,10 +88,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Primeiro Cashback",
     description: "Realizou sua primeira compra confirmada em um lojista parceiro do Netfits Shop.",
     icon: "🏷️",
-    unlocked: true,
-    unlockedAt: "2026-10-05T22:38:35Z",
+    unlocked: false,
     rewardNfs: 40,
-    currentProgress: 1,
+    currentProgress: 0,
     maxProgress: 1,
     taskInstruction: "Realizar uma compra em lojas parceiras do Shop",
   },
@@ -118,10 +112,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     title: "Voz da Tribo",
     description: "Compartilhou conteúdos do Feed ou link de convite com amigos ou grupos.",
     icon: "📢",
-    unlocked: true,
-    unlockedAt: "2026-10-07T23:18:55.742Z",
+    unlocked: false,
     rewardNfs: 25,
-    currentProgress: 3,
+    currentProgress: 0,
     maxProgress: 3,
     taskInstruction: "Compartilhar no WhatsApp ou redes",
   },
@@ -187,22 +180,27 @@ function getBadgesStorageKey(userId?: string): string {
 }
 
 function loadBadges(userId?: string): BadgeItem[] {
+  const uid =
+    userId ||
+    (typeof window !== "undefined"
+      ? localStorage.getItem("netfits_production_session_v2") || "anon"
+      : "anon");
+
   if (typeof window !== "undefined") {
     try {
-      const key = getBadgesStorageKey(userId);
+      const key = getBadgesStorageKey(uid);
       const raw = localStorage.getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Atualiza as recompensas proporcionais mantendo o progresso e estado desbloqueado
           return INITIAL_BADGES.map((initBadge) => {
             const found = parsed.find((b: any) => b.id === initBadge.id);
             if (found) {
               return {
                 ...initBadge,
                 unlocked: Boolean(found.unlocked),
-                unlockedAt: found.unlockedAt || initBadge.unlockedAt,
-                currentProgress: typeof found.currentProgress === "number" ? found.currentProgress : initBadge.currentProgress,
+                unlockedAt: found.unlockedAt || undefined,
+                currentProgress: typeof found.currentProgress === "number" ? found.currentProgress : 0,
               };
             }
             return { ...initBadge };
@@ -211,6 +209,26 @@ function loadBadges(userId?: string): BadgeItem[] {
       }
     } catch {}
   }
+
+  // Se for o André (fundador) em inicialização limpa, preserva seus selos originais
+  if (uid === "usr_andre") {
+    const ANDRE_UNLOCKED_IDS = new Set([
+      "pioneiro",
+      "perfil_verificado",
+      "colecionador_pontos",
+      "atleta_conectado",
+      "explorador_shop",
+      "primeira_compra",
+      "voz_da_tribo",
+    ]);
+    return INITIAL_BADGES.map((b) => ({
+      ...b,
+      unlocked: ANDRE_UNLOCKED_IDS.has(b.id),
+      unlockedAt: ANDRE_UNLOCKED_IDS.has(b.id) ? "05/10/2026" : undefined,
+      currentProgress: ANDRE_UNLOCKED_IDS.has(b.id) ? b.maxProgress : 0,
+    }));
+  }
+
   return INITIAL_BADGES.map((b) => ({ ...b }));
 }
 
@@ -227,7 +245,8 @@ const getSnapshot = () => badgesList;
 
 /**
  * Motor de Apuração de Conquistas em Tempo Real
- * Inspeciona o usuário logado, seus dados cadastrais, histórico de compras e transações
+ * Inspeciona o usuário logado, seus dados cadastrais, histórico de compras e transações.
+ * Garante que os selos só sejam desbloqueados quando as ações forem genuinamente executadas.
  */
 export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[] {
   const activeUser = user || (typeof window !== "undefined" ? sharedSandboxStore.getActiveUser() : null);
@@ -243,25 +262,24 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   let hasChanged = false;
   const nowStr = new Date().toLocaleDateString("pt-BR");
 
-  // 1. Pioneiro: usuário tem conta criada no ecossistema
-  const isPioneiro = Boolean(activeUser.id);
+  // 1. Pioneiro: Concedido ao fundador André ou a usuários com atividade esportiva/treino iniciada
+  const hasWorkoutActivity = txs.some(
+    (t: any) => t.category === "workout" && !t.id.startsWith("tx-badge")
+  );
+  const isPioneiro = activeUser.id === "usr_andre" || hasWorkoutActivity;
 
-  // 2. Perfil Verificado: dados cadastrais preenchidos e validados
+  // 2. Perfil Verificado: Dados cadastrais completos preenchidos e salvos no perfil
   const hasName = Boolean(activeUser.fullName && activeUser.fullName.trim().length >= 3);
   const hasEmail = Boolean(activeUser.email && activeUser.email.includes("@"));
-  const hasCpf = Boolean(activeUser.cpf && activeUser.cpf.replace(/\D/g, "").length === 11);
-  const hasAdditionalData = Boolean(
-    activeUser.birthDate ||
-    activeUser.phone ||
-    activeUser.city ||
-    activeUser.address ||
-    activeUser.street ||
-    activeUser.zipcode
+  const cleanCpf = (activeUser.cpf || "").replace(/\D/g, "");
+  const hasValidCpf = cleanCpf.length === 11 && !/^(\d)\1{10}$/.test(cleanCpf);
+  const hasValidAddress = Boolean(
+    (activeUser.address && activeUser.address.trim().length > 5) ||
+    (activeUser.street && activeUser.street.trim().length > 2 && activeUser.city && activeUser.city.trim().length > 2)
   );
-  // Se preencheu nome, e-mail e CPF e dados complementares, ou possui confirmação de cadastro
-  const isPerfilVerificado = hasName && (hasEmail || hasCpf) && (hasCpf || hasAdditionalData);
+  const isPerfilVerificado = hasName && hasEmail && hasValidCpf && hasValidAddress;
 
-  // 3. Colecionador de Pontos: programas parceiros declarados
+  // 3. Colecionador de Pontos: Programas parceiros declarados e salvos
   const hasLoyalty = Boolean(
     (activeUser.loyaltyPrograms &&
       Array.isArray(activeUser.loyaltyPrograms) &&
@@ -269,11 +287,11 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
     activeUser.id === "usr_andre"
   );
 
-  // 4. Atleta de Alta Performance: modalidades esportivas
+  // 4. Atleta de Alta Performance: Modalidades esportivas selecionadas
   const sportsCount = Array.isArray(activeUser.sports) ? activeUser.sports.length : 0;
   const isAtleta = sportsCount >= 1;
 
-  // 5. Primeira Compra e Mestre do Cashback: apurado pelas compras reais no shop
+  // 5. Primeira Compra e Mestre do Cashback: Apurado por compras reais no Shop
   const shopPurchases = txs.filter((t: any) =>
     t.category === "shop" ||
     (t.description && /compra|cashback|pedido|mkplace/i.test(t.description))
@@ -282,7 +300,15 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   const isPrimeiraCompra = purchasesCount >= 1;
   const isMestreCashback = purchasesCount >= 3;
 
-  // 6. Engajamento e Compartilhamento (isolado por ID de usuário e refletido nas transações)
+  // 6. Explorador do Shop: Visita real à aba Shop registrada
+  const hasVisitedShop =
+    (typeof window !== "undefined" &&
+      localStorage.getItem(`netfits_shop_visited_${activeUser.id}`) === "true") ||
+    isPrimeiraCompra ||
+    activeUser.id === "usr_andre";
+  const isExploradorShop = Boolean(hasVisitedShop);
+
+  // 7. Engajamento no Feed (Compartilhamentos, Leituras e Curtidas)
   let shareCount = 0;
   let feedLikeCount = 0;
   let feedReadCount = 0;
@@ -315,7 +341,7 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   const isLeitor = totalReads >= 5;
   const isSuperCurtidor = totalLikes >= 10;
 
-  // 7. Indicações (Embaixador & Associado VIP)
+  // 8. Indicações (Embaixador & Associado VIP)
   const referralTxs = txs.filter((t: any) =>
     t.category === "referral" ||
     (t.description && /indica|amigo|indicado/i.test(t.description))
@@ -324,74 +350,85 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   const isEmbaixador = referralCount >= 1;
   const isAssociadoVip = referralCount >= 10;
 
+  // Validação selo por selo
   badgesList = badgesList.map((badge) => {
-    let shouldUnlock = badge.unlocked;
-    let newProgress = badge.currentProgress;
+    let meetsCriteria = false;
+    let newProgress = 0;
 
     switch (badge.id) {
       case "pioneiro":
-        if (isPioneiro) {
-          shouldUnlock = true;
-          newProgress = 1;
-        }
+        meetsCriteria = isPioneiro;
+        newProgress = isPioneiro ? 1 : 0;
         break;
       case "perfil_verificado":
-        if (isPerfilVerificado) {
-          shouldUnlock = true;
-          newProgress = 1;
-        }
+        meetsCriteria = isPerfilVerificado;
+        newProgress = isPerfilVerificado ? 1 : 0;
         break;
       case "colecionador_pontos":
-        if (hasLoyalty) {
-          shouldUnlock = true;
-          newProgress = 1;
-        }
+        meetsCriteria = hasLoyalty;
+        newProgress = hasLoyalty ? 1 : 0;
         break;
       case "atleta_conectado":
         newProgress = Math.min(badge.maxProgress, sportsCount);
-        if (isAtleta) shouldUnlock = true;
+        meetsCriteria = isAtleta;
         break;
       case "primeira_compra":
-        if (isPrimeiraCompra) {
-          shouldUnlock = true;
-          newProgress = 1;
-        }
+        meetsCriteria = isPrimeiraCompra;
+        newProgress = isPrimeiraCompra ? 1 : 0;
         break;
       case "mestre_cashback":
         newProgress = Math.min(badge.maxProgress, purchasesCount);
-        if (isMestreCashback) shouldUnlock = true;
+        meetsCriteria = isMestreCashback;
         break;
       case "explorador_shop":
-        if (
-          (typeof window !== "undefined" &&
-          localStorage.getItem(`netfits_shop_visited_${activeUser.id}`) === "true") ||
-          isPrimeiraCompra ||
-          activeUser.id === "usr_andre"
-        ) {
-          shouldUnlock = true;
-          newProgress = 1;
-        }
+        meetsCriteria = isExploradorShop;
+        newProgress = isExploradorShop ? 1 : 0;
         break;
       case "voz_da_tribo":
         newProgress = Math.min(badge.maxProgress, totalShares);
-        if (isVozDaTribo) shouldUnlock = true;
+        meetsCriteria = isVozDaTribo;
         break;
       case "leitor_assiduo":
         newProgress = Math.min(badge.maxProgress, totalReads);
-        if (isLeitor) shouldUnlock = true;
+        meetsCriteria = isLeitor;
         break;
       case "super_likes":
         newProgress = Math.min(badge.maxProgress, totalLikes);
-        if (isSuperCurtidor) shouldUnlock = true;
+        meetsCriteria = isSuperCurtidor;
         break;
       case "embaixador_netfits":
         newProgress = Math.min(badge.maxProgress, referralCount);
-        if (isEmbaixador) shouldUnlock = true;
+        meetsCriteria = isEmbaixador;
         break;
       case "associado_vip":
         newProgress = Math.min(badge.maxProgress, referralCount);
-        if (isAssociadoVip) shouldUnlock = true;
+        meetsCriteria = isAssociadoVip;
         break;
+    }
+
+    const isAndreLegit =
+      activeUser.id === "usr_andre" &&
+      [
+        "pioneiro",
+        "perfil_verificado",
+        "colecionador_pontos",
+        "atleta_conectado",
+        "explorador_shop",
+        "primeira_compra",
+        "voz_da_tribo",
+      ].includes(badge.id);
+
+    const shouldUnlock = meetsCriteria || isAndreLegit;
+    const badgeTxId = `tx-badge-${activeUser.id}-${badge.id}`;
+
+    // Auto-correção (Self-healing): se o usuário tinha uma transação indevida de um selo
+    // que não cumpre os critérios, expurga a transação
+    if (!shouldUnlock && activeUser.id !== "usr_andre") {
+      const phantomTx = txs.find((t: any) => t.id === badgeTxId);
+      if (phantomTx) {
+        sharedSandboxStore.removeTransaction(badgeTxId);
+        hasChanged = true;
+      }
     }
 
     if (shouldUnlock !== badge.unlocked || newProgress !== badge.currentProgress) {
@@ -404,10 +441,8 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
       };
     }
 
-    // Se o selo foi conquistado (ou já estava desbloqueado), garante que a pontuação correspondente
-    // foi lançada no extrato do usuário com idempotência absoluta
+    // Se o selo foi conquistado legitimamente, lança o crédito no extrato com idempotência
     if (shouldUnlock && activeUser && activeUser.id) {
-      const badgeTxId = `tx-badge-${activeUser.id}-${badge.id}`;
       const hasTx = txs.some(
         (t: any) =>
           t.id === badgeTxId ||
@@ -424,6 +459,9 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
           timestamp: new Date().toISOString(),
         });
         hasChanged = true;
+        if (typeof window !== "undefined") {
+          toast.success(`🏆 Selo Conquistado: "${badge.title}"! (+${badge.rewardNfs} nfs creditados)`);
+        }
       }
     }
 
@@ -431,6 +469,9 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   });
 
   if (hasChanged) {
+    if (activeUser.id !== "usr_andre") {
+      sharedSandboxStore.recalculateUserBalance(activeUser.id);
+    }
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(getBadgesStorageKey(activeUser.id), JSON.stringify(badgesList));
@@ -500,6 +541,30 @@ export const badgesStore = {
         const activeUser = sharedSandboxStore.getActiveUser();
         const uid = activeUser?.id || "anon";
         localStorage.setItem(`netfits_shop_visited_${uid}`, "true");
+      } catch {}
+    }
+    evaluateRealtimeBadges();
+  },
+  recordLike() {
+    if (typeof window !== "undefined") {
+      try {
+        const activeUser = sharedSandboxStore.getActiveUser();
+        const uid = activeUser?.id || "anon";
+        const key = `netfits_likes_count_${uid}`;
+        const count = parseInt(localStorage.getItem(key) || "0", 10) + 1;
+        localStorage.setItem(key, String(count));
+      } catch {}
+    }
+    evaluateRealtimeBadges();
+  },
+  recordRead() {
+    if (typeof window !== "undefined") {
+      try {
+        const activeUser = sharedSandboxStore.getActiveUser();
+        const uid = activeUser?.id || "anon";
+        const key = `netfits_reads_count_${uid}`;
+        const count = parseInt(localStorage.getItem(key) || "0", 10) + 1;
+        localStorage.setItem(key, String(count));
       } catch {}
     }
     evaluateRealtimeBadges();

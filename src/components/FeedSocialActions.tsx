@@ -83,6 +83,7 @@ export function FeedSocialActions({
     }
 
     setLiked(true);
+    badgesStore.recordLike();
     if (likePoints > 0) {
       const validation = feedAntifraud.validateAction("like", id, { isOwnPost });
       if (!validation.allowed) {
@@ -114,6 +115,7 @@ export function FeedSocialActions({
   };
 
   const handleCompleteView = () => {
+    badgesStore.recordRead();
     if (onOpenArticle) {
       onOpenArticle();
       return;
