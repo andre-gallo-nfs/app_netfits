@@ -17,6 +17,15 @@ export type WalletTx = {
   category: SandboxTransaction["category"];
   orderRef?: string;
   orderTotalBrl?: string;
+  orderProductName?: string;
+  orderItems?: Array<{
+    name: string;
+    quantity?: number;
+    price?: number;
+    sellerName?: string;
+    brand?: string;
+  }>;
+  friendName?: string;
   badgeName?: string;
   contentTitle?: string;
 };
@@ -47,6 +56,15 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
   let displayCategory = "Atividade";
   let orderRef: string | undefined;
   let orderTotalBrl: string | undefined;
+  let orderProductName: string | undefined;
+  let orderItems: Array<{
+    name: string;
+    quantity?: number;
+    price?: number;
+    sellerName?: string;
+    brand?: string;
+  }> | undefined;
+  let friendName: string | undefined;
   let badgeName: string | undefined;
   let contentTitle: string | undefined;
   let eventDescription = "";
@@ -83,47 +101,108 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
     displayCategory = "Boas-Vindas";
     eventDescription = "Bônus comemorativo de boas-vindas creditado pela ativação da sua conta no Netfits. Bem-vindo à sua jornada de longevidade ativa e saúde integral!";
   }
-  // 3. INDICAÇÃO / MGM
-  else if (t.category === "referral" || /indica|convid|amigo/i.test(desc)) {
+  // 3. INDICAÇÃO / MGM (Tribo)
+  else if (t.category === "referral" || /indica|convid|amigo|tribo/i.test(desc)) {
     title = "Indicação de Amigo";
     displayCategory = "Tribo & Amigos";
-    eventDescription = "Bônus de indicação creditado pela entrada de um novo membro convidado por você na plataforma Netfits.";
+
+    // Extrair o nome do amigo indicado
+    const friendMatch = desc.match(/\(([^)]+)\)/);
+    if (friendMatch) {
+      friendName = friendMatch[1].trim();
+    } else {
+      const matchName = desc.match(/indicar\s+(?:novo\s+usu[áa]rio\s+)?([A-Za-zÀ-ÿ\s]+)/i);
+      if (matchName) {
+        friendName = matchName[1].trim();
+      } else {
+        try {
+          const active = sharedSandboxStore.getActiveUser();
+          const referredUser = sharedSandboxStore.getUsers().find((u) => u.referredBy === active.referralCode);
+          if (referredUser) {
+            friendName = referredUser.fullName;
+          }
+        } catch {}
+      }
+    }
+
+    if (friendName) {
+      eventDescription = `Bônus de indicação creditado! Seu amigo(a) ${friendName} acabou de se cadastrar no app Netfits e foi adicionado(a) à sua Tribo. Continue convidando amigos para expandir sua comunidade e acumular mais pontos!`;
+    } else {
+      eventDescription = "Bônus de indicação creditado pela entrada de um novo membro convidado por você na plataforma Netfits e adicionado com sucesso à sua Tribo.";
+    }
   }
-  // 4. SHOPPING / RESGATE / COMPRA
-  else if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate/i.test(desc)) {
-    displayCategory = "Shopping";
+  // 4. SHOP / RESGATE / COMPRA
+  else if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate|shop/i.test(desc)) {
+    displayCategory = "Shop";
     const orderMatch = desc.match(/#([a-zA-Z0-9_\-]+)/);
+    let foundOrder: any = null;
     if (orderMatch) {
       orderRef = `#${orderMatch[1]}`;
+      try {
+        foundOrder = sharedSandboxStore.getOrders().find(
+          (o) => o.orderNumber === orderMatch[1] || o.id === orderMatch[1]
+        );
+      } catch {}
+    } else {
+      try {
+        const orderIdCandidate = (t as any).orderId || (t as any).orderNumber;
+        if (orderIdCandidate) {
+          foundOrder = sharedSandboxStore.getOrders().find(
+            (o) => o.orderNumber === orderIdCandidate || o.id === orderIdCandidate
+          );
+          if (foundOrder) {
+            orderRef = `#${foundOrder.orderNumber || foundOrder.id}`;
+          }
+        }
+      } catch {}
     }
 
     const priceMatch = desc.match(/R\$\s*([\d.,]+)/i);
     if (priceMatch) {
       orderTotalBrl = priceMatch[1];
-    } else if (orderMatch) {
-      try {
-        const foundOrder = sharedSandboxStore.getOrders().find(
-          (o) => o.orderNumber === orderMatch[1] || o.id === orderMatch[1]
-        );
-        if (foundOrder && typeof foundOrder.amountBrl === "number") {
-          orderTotalBrl = foundOrder.amountBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-      } catch {}
+    } else if (foundOrder && typeof foundOrder.amountBrl === "number") {
+      orderTotalBrl = foundOrder.amountBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    if (foundOrder) {
+      if (foundOrder.items && foundOrder.items.length > 0) {
+        const mappedItems = foundOrder.items.map((i: any) => ({
+          name: i.name || "Item do pedido",
+          quantity: i.quantity || 1,
+          price: i.price,
+          sellerName: i.sellerName || foundOrder.sellerName,
+          brand: i.brand || foundOrder.brand,
+        }));
+        orderItems = mappedItems;
+        orderProductName = mappedItems.map((i: any) => `${i.name}${i.quantity && i.quantity > 1 ? ` (${i.quantity}x)` : ""}`).join(", ");
+      } else if (foundOrder.productName) {
+        orderProductName = foundOrder.productName;
+        orderItems = [
+          {
+            name: foundOrder.productName,
+            quantity: 1,
+            sellerName: foundOrder.sellerName,
+            brand: foundOrder.brand,
+          }
+        ];
+      }
+    }
+
+    const itemsText = orderProductName ? ` Produto(s): ${orderProductName}.` : "";
+
     if (t.amount < 0 || /resgate/i.test(desc)) {
-      title = "Resgate no Shopping";
+      title = "Resgate no Shop";
       eventDescription = orderRef
-        ? `Resgate de produto realizado no Shopping Netfits (Pedido ${orderRef}). A pontuação foi utilizada como pagamento e debitada do seu saldo.`
-        : "Resgate de produto realizado no Shopping Netfits utilizando seu saldo de pontos.";
+        ? `Resgate de produto realizado no Shop Netfits (Pedido ${orderRef}).${itemsText} A pontuação foi utilizada como pagamento e debitada do seu saldo.`
+        : `Resgate de produto realizado no Shop Netfits utilizando seu saldo de pontos.${itemsText}`;
     } else {
-      title = "Compra no Shopping";
+      title = "Compra no Shop";
       const orderPart = orderRef
         ? ` (Pedido ${orderRef}${orderTotalBrl ? ` no valor de R$ ${orderTotalBrl}` : ""})`
         : orderTotalBrl
         ? ` (Valor: R$ ${orderTotalBrl})`
         : "";
-      eventDescription = `Compra confirmada no Shopping Netfits${orderPart}. A pontuação recebida pelo pedido foi creditada diretamente na sua carteira de pontos.`;
+      eventDescription = `Compra confirmada no Shop Netfits${orderPart}.${itemsText} A pontuação recebida pelo pedido foi creditada diretamente na sua carteira de pontos.`;
     }
   }
   // 5. ARTIGOS & LEITURAS
@@ -226,6 +305,9 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
     category: t.category,
     orderRef,
     orderTotalBrl,
+    orderProductName,
+    orderItems,
+    friendName,
     badgeName,
     contentTitle,
   };

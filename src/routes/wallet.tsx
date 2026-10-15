@@ -329,7 +329,7 @@ function WalletPage() {
               </p>
             </div>
 
-            {/* Detalhes Específicos para Pedidos de Compra no Shopping (Número e Valor em Reais) */}
+            {/* Detalhes Específicos para Pedidos de Compra no Shop (Número e Valor em Reais) */}
             {(selectedTx.orderRef || selectedTx.orderTotalBrl) && (
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {selectedTx.orderRef && (
@@ -352,6 +352,57 @@ function WalletPage() {
                     </p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Detalhes dos Produtos Comprados no Shop */}
+            {selectedTx.orderItems && selectedTx.orderItems.length > 0 ? (
+              <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-3.5 space-y-2 text-xs">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-purple-400 flex items-center gap-1.5">
+                  <ShoppingBag className="size-3.5 text-purple-400" />
+                  {selectedTx.orderItems.length > 1 ? "Produtos Comprados no Shop" : "Produto Comprado no Shop"}
+                </span>
+                <div className="space-y-2 divide-y divide-zinc-800/60">
+                  {selectedTx.orderItems.map((item, idx) => (
+                    <div key={idx} className="pt-2 first:pt-0 flex items-start justify-between gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <p className="font-bold text-white text-xs leading-snug">{item.name}</p>
+                        {item.sellerName && (
+                          <p className="text-[10px] text-zinc-400">
+                            Loja / Seller: <span className="text-zinc-200 font-semibold">{item.sellerName}</span>
+                          </p>
+                        )}
+                      </div>
+                      {item.quantity && item.quantity > 1 && (
+                        <span className="text-[10px] font-mono font-bold bg-zinc-800 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded shrink-0">
+                          {item.quantity}x
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : selectedTx.orderProductName ? (
+              <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-3.5 space-y-1 text-xs">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-purple-400 flex items-center gap-1.5">
+                  <ShoppingBag className="size-3.5 text-purple-400" /> Produto Comprado no Shop
+                </span>
+                <p className="font-bold text-white text-xs">{selectedTx.orderProductName}</p>
+              </div>
+            ) : null}
+
+            {/* Amigo Indicado / Adicionado à Tribo */}
+            {selectedTx.friendName && (
+              <div className="bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-3.5 space-y-1.5 text-xs">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-purple-400 flex items-center gap-1.5">
+                  <Users className="size-3.5 text-purple-400" /> Amigo Adicionado à Tribo
+                </span>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-extrabold text-sm text-white">{selectedTx.friendName}</p>
+                  <span className="text-[9px] bg-lime-400/10 text-lime-400 border border-lime-400/20 px-2 py-0.5 rounded-full font-bold">
+                    Novo Membro da Tribo
+                  </span>
+                </div>
               </div>
             )}
 
