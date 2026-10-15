@@ -30,7 +30,13 @@ function ActivitiesPage() {
   // Obtém exclusivamente as atividades reais registradas para o usuário ativo (zero dados mockados)
   const userWorkoutTxs = sharedSandboxStore
     .getUserTransactions(activeUser.id)
-    .filter((tx) => tx.category === "workout");
+    .filter((tx) => {
+      if (tx.category !== "workout") return false;
+      const desc = tx.description || "";
+      const isBadge = tx.id.startsWith("tx-badge-") || /selo|conquista/i.test(desc);
+      const isFeed = /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc);
+      return !isBadge && !isFeed;
+    });
 
   const currentWeekWorkouts = userWorkoutTxs.length;
   const maxWeeklyWorkouts = params.weeklyMaxRewardedWorkouts || 5;

@@ -892,7 +892,13 @@ function AdminDashboardPage() {
   const realTotalPointsRedeemed = realOrders.reduce((acc, o: any) => acc + (o.pointsPaid ?? o.summary?.points?.amount ?? 0), 0);
   const realTransactions = sharedSandboxStore.getTransactions();
   const realPartners = sharedSandboxStore.getPartners();
-  const realWorkoutTransactions = realTransactions.filter((t) => t.category === "workout");
+  const realWorkoutTransactions = realTransactions.filter((t) => {
+    if (t.category !== "workout") return false;
+    const desc = t.description || "";
+    const isBadge = t.id.startsWith("tx-badge-") || t.id.includes("badge") || /selo|conquista/i.test(desc);
+    const isFeed = /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc);
+    return !isBadge && !isFeed;
+  });
   const realWorkoutCount = realWorkoutTransactions.length;
   const realWorkoutPoints = realWorkoutTransactions.reduce((acc, t) => acc + (t.amount || 0), 0);
   const declaredLoyaltyUsers = sandboxUsersList.filter(u => u.loyaltyPrograms && u.loyaltyPrograms.length > 0);
@@ -911,7 +917,7 @@ function AdminDashboardPage() {
       const isBadge = t.id.startsWith("tx-badge-") || /selo|conquista/i.test(desc);
       if (isBadge) return false;
       return (
-        ["view", "click", "like", "share"].includes(t.category) ||
+        ["view", "click", "like", "share", "feed"].includes(t.category) ||
         /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc) ||
         t.id.includes("feed")
       );
