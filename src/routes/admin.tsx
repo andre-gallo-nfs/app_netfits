@@ -1334,62 +1334,67 @@ function AdminDashboardPage() {
     }>();
 
     ordersList.forEach((ord: any) => {
-      const sName = ord.sellerName || ord.items?.[0]?.sellerName || "Centauro Oficial";
-      const sId = ord.sellerId || ord.items?.[0]?.sellerId || "seller_centauro";
-      const cat = ord.category || ord.items?.[0]?.category || "Artigos Esportivos";
-      const val = Number(ord.amountBrl ?? ord.summary?.finalPrice ?? ord.summary?.total ?? 0);
-      const cbVal = Number(ord.cashbackEarned ?? ord.netfitsProcessing?.pointsEarned ?? Math.round(val * 4));
-
-      // Seller aggregation
-      if (!sellerMap.has(sName)) {
-        sellerMap.set(sName, {
-          id: sId,
-          name: sName,
-          category: cat,
-          ordersCount: 0,
-          gmv: 0,
-          takeRateBrl: 0,
-          avgTicket: 0,
-          onTimePct: 100,
-          avgSlaDays: ord.slaDays || 2,
-          delivered: 0,
-          sent: 0,
-          partial: 0,
-        });
-      }
-      const sData = sellerMap.get(sName)!;
-      sData.ordersCount += 1;
-      sData.gmv += val;
-      sData.takeRateBrl += val * (takeRatePct / 100);
-      sData.avgTicket = sData.gmv / sData.ordersCount;
-      if (ord.status === "DELIVERED" || ord.status === "entregue") sData.delivered += 1;
-      else if (ord.status === "SENT" || ord.status === "enviado") sData.sent += 1;
-      else if (ord.status === "PARTIALLY-DELIVERED") sData.partial += 1;
-
-      // SKU aggregation
       const items = ord.items && ord.items.length > 0 ? ord.items : [
         {
-          skuId: `SKU-${(ord.orderNumber || ord.id || "").slice(-6)}`,
-          name: ord.productName || "Produto Esportivo Netfits",
-          brand: ord.brand || "Netfits",
-          category: cat,
-          price: val,
+          name: ord.productName || "Produto Esportivo",
+          price: Number(ord.amountBrl ?? ord.summary?.finalPrice ?? 0),
           quantity: 1,
-          sellerName: sName,
+          sellerName: ord.sellerName || "Netshoes",
+          brand: ord.brand || "Netshoes",
+          category: ord.category || "Artigos Esportivos",
         }
       ];
 
       items.forEach((item: any) => {
-        const skuKey = item.skuId || item.name;
+        const rawSeller = item.sellerName || ord.sellerName || "Netshoes";
+        let cleanSeller = rawSeller;
+        if (/netshoes/i.test(rawSeller)) cleanSeller = "Netshoes";
+        else if (/webcontinental/i.test(rawSeller)) cleanSeller = "Webcontinental";
+        else if (/centauro/i.test(rawSeller)) cleanSeller = "Centauro";
+        else if (/fila/i.test(rawSeller)) cleanSeller = "Fila";
+        else if (/new balance|newbalance/i.test(rawSeller)) cleanSeller = "New Balance";
+
+        const itemVal = Number(item.finalPrice ?? item.price ?? (Number(ord.amountBrl ?? ord.summary?.finalPrice ?? 0) / items.length));
+        const itemCat = item.category || ord.category || "Artigos Esportivos";
+
+        // Seller aggregation por loja oficial parceira
+        if (!sellerMap.has(cleanSeller)) {
+          sellerMap.set(cleanSeller, {
+            id: `seller_${cleanSeller.toLowerCase().replace(/\s+/g, '_')}`,
+            name: cleanSeller,
+            category: itemCat,
+            ordersCount: 0,
+            gmv: 0,
+            takeRateBrl: 0,
+            avgTicket: 0,
+            onTimePct: 100,
+            avgSlaDays: ord.slaDays || 2,
+            delivered: 0,
+            sent: 0,
+            partial: 0,
+          });
+        }
+        const sData = sellerMap.get(cleanSeller)!;
+        sData.ordersCount += 1;
+        sData.gmv += itemVal;
+        sData.takeRateBrl += itemVal * (takeRatePct / 100);
+        sData.avgTicket = sData.gmv / sData.ordersCount;
+        if (ord.status === "DELIVERED" || ord.status === "entregue") sData.delivered += 1;
+        else if (ord.status === "SENT" || ord.status === "enviado") sData.sent += 1;
+        else if (ord.status === "PARTIALLY-DELIVERED") sData.partial += 1;
+
+        // SKU / Produto aggregation com nome comercial descritivo em vez de códigos
+        const prodName = item.name || item.productName || ord.productName || "Produto Esportivo";
+        const skuKey = prodName;
         if (!skuMap.has(skuKey)) {
           skuMap.set(skuKey, {
             skuId: item.skuId || `SKU-${skuKey.slice(0, 8)}`,
-            name: item.name || "Item Esportivo",
-            brand: item.brand || ord.brand || "Netfits Oficial",
-            category: item.category || cat,
-            sellerName: item.sellerName || sName,
+            name: prodName,
+            brand: item.brand || ord.brand || cleanSeller,
+            category: itemCat,
+            sellerName: cleanSeller,
             unitsSold: 0,
-            unitPrice: Number(item.price || item.unitPrice || val),
+            unitPrice: Number(item.price || item.unitPrice || itemVal),
             totalGmv: 0,
             pointsBurned: 0,
             cashbackEarned: 0,
@@ -1397,9 +1402,9 @@ function AdminDashboardPage() {
         }
         const skuData = skuMap.get(skuKey)!;
         skuData.unitsSold += Number(item.quantity || 1);
-        skuData.totalGmv += Number(item.finalPrice ?? item.price ?? val);
+        skuData.totalGmv += itemVal;
         skuData.pointsBurned += Number(ord.pointsPaid ?? 0);
-        skuData.cashbackEarned += cbVal;
+        skuData.cashbackEarned += Math.round(itemVal * 4);
       });
     });
 
@@ -3856,10 +3861,9 @@ function AdminDashboardPage() {
                   <table className="w-full text-left text-xs text-zinc-300 min-w-[760px]">
                     <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
                       <tr>
-                        <th className="py-3 px-4">Código SKU</th>
                         <th className="py-3 px-4">Produto &amp; Descrição</th>
+                        <th className="py-3 px-4">Lojista Parceiro (Loja)</th>
                         <th className="py-3 px-4">Marca</th>
-                        <th className="py-3 px-4">Seller Fornecedor</th>
                         <th className="py-3 px-4 text-right">Preço Unitário</th>
                         <th className="py-3 px-4 text-right">Qtd Vendida</th>
                         <th className="py-3 px-4 text-right">GMV Faturado</th>
@@ -3878,18 +3882,18 @@ function AdminDashboardPage() {
 
                         return (
                           <tr key={sku.skuId} className="hover:bg-zinc-800/40 transition">
-                            <td className="py-3 px-4 font-mono font-bold text-lime-400">
-                              {sku.skuId}
+                            <td className="py-3 px-4">
+                              <p className="font-bold text-white text-xs">{sku.name}</p>
+                              <p className="text-[10px] text-zinc-400">{sku.category}</p>
                             </td>
                             <td className="py-3 px-4">
-                              <p className="font-bold text-white">{sku.name}</p>
-                              <p className="text-[10px] text-zinc-400">{sku.category}</p>
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-200 border border-zinc-700">
+                                <Store className="size-3 text-lime-400" />
+                                {sku.sellerName}
+                              </span>
                             </td>
                             <td className="py-3 px-4 text-zinc-200 font-semibold">
                               {sku.brand}
-                            </td>
-                            <td className="py-3 px-4 text-zinc-300">
-                              {sku.sellerName}
                             </td>
                             <td className="py-3 px-4 text-right font-mono text-zinc-300">
                               R$ {sku.unitPrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -3986,22 +3990,21 @@ function AdminDashboardPage() {
                   <table className="w-full text-left text-xs text-zinc-300 min-w-[840px]">
                     <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
                       <tr>
-                        <th className="py-3 px-4">Código do Pedido</th>
+                        <th className="py-3 px-4">Produto &amp; Item Adquirido</th>
+                        <th className="py-3 px-4">Lojista Parceiro (Loja)</th>
                         <th className="py-3 px-4">Atleta / Comprador</th>
-                        <th className="py-3 px-4">Seller Fornecedor</th>
-                        <th className="py-3 px-4">Item &amp; SKU</th>
                         <th className="py-3 px-4 text-right">Data &amp; Hora</th>
                         <th className="py-3 px-4 text-right">Valor Pago</th>
                         <th className="py-3 px-4 text-right">Cashback NFS</th>
                         <th className="py-3 px-4 text-right">Take-Rate</th>
-                        <th className="py-3 px-4 text-center">Rastreio</th>
+                        <th className="py-3 px-4 text-center">Rastreio &amp; Envio</th>
                         <th className="py-3 px-4 text-center">Status Oficial</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-800 font-medium">
                       {filteredOrders.length === 0 ? (
                         <tr>
-                          <td colSpan={10} className="py-8 text-center text-zinc-500">
+                          <td colSpan={9} className="py-8 text-center text-zinc-500">
                             Nenhum pedido encontrado com os filtros selecionados.
                           </td>
                         </tr>
@@ -4026,39 +4029,94 @@ function AdminDashboardPage() {
                             statusLabel = "PAID (CONFIRMADO)";
                           }
 
+                          // Resolução limpa e confiável do Lojista Parceiro (Loja real)
+                          const rawSeller = ord.sellerName || ord.items?.[0]?.sellerName || ord.storeId || "Netshoes";
+                          let storeName = rawSeller;
+                          if (/netshoes/i.test(rawSeller)) storeName = "Netshoes";
+                          else if (/webcontinental/i.test(rawSeller)) storeName = "Webcontinental";
+                          else if (/centauro/i.test(rawSeller)) storeName = "Centauro";
+                          else if (/fila/i.test(rawSeller)) storeName = "Fila";
+                          else if (/new balance|newbalance/i.test(rawSeller)) storeName = "New Balance";
+
+                          let storeBadgeStyle = "bg-blue-500/20 text-blue-300 border-blue-500/30";
+                          if (storeName === "Netshoes") storeBadgeStyle = "bg-amber-500/20 text-amber-300 border-amber-500/30";
+                          else if (storeName === "Webcontinental") storeBadgeStyle = "bg-purple-500/20 text-purple-300 border-purple-500/30";
+                          else if (storeName === "Centauro") storeBadgeStyle = "bg-red-500/20 text-red-300 border-red-500/30";
+                          else if (storeName === "Fila") storeBadgeStyle = "bg-sky-500/20 text-sky-300 border-sky-500/30";
+                          else if (storeName === "New Balance") storeBadgeStyle = "bg-rose-500/20 text-rose-300 border-rose-500/30";
+
+                          // Nome do produto limpo e legível
+                          const itemName = ord.productName || ord.items?.[0]?.name || "Produto Esportivo Netfits";
+                          const itemBrand = ord.brand || ord.items?.[0]?.brand;
+                          const itemCat = ord.category || ord.items?.[0]?.category;
+
                           return (
                             <tr key={ord.id || ord.orderNumber} className="hover:bg-zinc-800/40 transition">
-                              <td className="py-3 px-4 font-mono font-bold text-lime-400">
-                                {ord.orderNumber || ord.id}
+                              {/* 1. Produto & Descrição do Item (Foco Principal) */}
+                              <td className="py-3 px-4 max-w-[280px]">
+                                <p className="font-bold text-white text-xs line-clamp-1">{itemName}</p>
+                                <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-zinc-400">
+                                  <span className="font-mono text-lime-400 font-semibold">#{ord.orderNumber || ord.id}</span>
+                                  {itemBrand && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-zinc-300 font-medium">{itemBrand}</span>
+                                    </>
+                                  )}
+                                  {itemCat && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-zinc-500">{itemCat}</span>
+                                    </>
+                                  )}
+                                </div>
                               </td>
+
+                              {/* 2. Lojista Parceiro (Loja Oficial onde a compra foi feita) */}
+                              <td className="py-3 px-4">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border ${storeBadgeStyle}`}>
+                                  <Store className="size-3" />
+                                  {storeName}
+                                </span>
+                              </td>
+
+                              {/* 3. Atleta / Comprador */}
                               <td className="py-3 px-4">
                                 <p className="font-bold text-white">{ord.userName || ord.customer?.name || "Atleta Netfits"}</p>
                                 <p className="text-[10px] text-zinc-400">{ord.customer?.email || ord.userId || "Cadastrado no App"}</p>
                               </td>
-                              <td className="py-3 px-4 font-medium text-zinc-200">
-                                {ord.sellerName || "ASICS / Netshoes Oficial"}
-                              </td>
-                              <td className="py-3 px-4">
-                                <p className="font-bold text-zinc-200 line-clamp-1">{ord.productName || "Produto Esportivo"}</p>
-                                <p className="text-[10px] font-mono text-zinc-400">{ord.items?.[0]?.skuId || "SKU-PRO-01"}</p>
-                              </td>
+
+                              {/* 4. Data & Hora */}
                               <td className="py-3 px-4 text-right text-zinc-400 font-mono text-[11px]">
                                 {ord.paidAt || ord.createdAt ? new Date(ord.paidAt || ord.createdAt).toLocaleString("pt-BR") : "15/10/2026"}
                               </td>
+
+                              {/* 5. Valor Pago */}
                               <td className="py-3 px-4 text-right font-bold text-white font-mono">
                                 R$ {orderVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </td>
+
+                              {/* 6. Cashback NFS */}
                               <td className="py-3 px-4 text-right font-bold text-lime-400 font-mono">
                                 +{ptsEarned.toLocaleString("pt-BR")} nfs
                               </td>
+
+                              {/* 7. Take-Rate */}
                               <td className="py-3 px-4 text-right font-bold text-purple-400 font-mono">
                                 R$ {takeRateVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </td>
+
+                              {/* 8. Rastreio & Envio */}
                               <td className="py-3 px-4 text-center">
-                                <span className="px-2 py-0.5 rounded bg-zinc-950 font-mono text-[10px] text-zinc-300 border border-zinc-800">
-                                  {tracking}
-                                </span>
+                                <div className="flex flex-col items-center gap-0.5">
+                                  <span className="px-2 py-0.5 rounded bg-zinc-950 font-mono text-[10px] text-zinc-300 border border-zinc-800">
+                                    {tracking}
+                                  </span>
+                                  {ord.carrier && <span className="text-[9px] text-zinc-500">{ord.carrier}</span>}
+                                </div>
                               </td>
+
+                              {/* 9. Status Oficial */}
                               <td className="py-3 px-4 text-center">
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${statusBadge}`}>
                                   {statusLabel}
