@@ -51,8 +51,28 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
   let contentTitle: string | undefined;
   let eventDescription = "";
 
-  // 1. SHOPPING / RESGATE / COMPRA
-  if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate/i.test(desc)) {
+  // 1. SELOS & CONQUISTAS (Avaliados primeiro para evitar que selos como "Primeiro Cashback" sejam confundidos com compras)
+  if (t.id.startsWith("tx-badge-") || /selo|conquista/i.test(desc)) {
+    displayCategory = "Conquistas";
+    const cleanedBadge = desc.replace(/^.*(?:Selo Conquistado|Selo Desbloqueado|Conquista):\s*/i, "").trim();
+    badgeName = cleanedBadge || "Selo Netfits";
+    title = `Selo: ${badgeName}`;
+    eventDescription = `Recompensa pelo desbloqueio e conquista do selo oficial "${badgeName}" na plataforma Netfits. Parabéns pela consistência e dedicação à sua longevidade!`;
+  }
+  // 2. BOAS-VINDAS
+  else if (t.category === "welcome" || /boas-vindas|cadastramento|novo cadastro/i.test(desc)) {
+    title = "Bônus de Boas-Vindas";
+    displayCategory = "Boas-Vindas";
+    eventDescription = "Bônus comemorativo de boas-vindas creditado pela ativação da sua conta no Netfits. Bem-vindo à sua jornada de longevidade ativa e saúde integral!";
+  }
+  // 3. INDICAÇÃO / MGM
+  else if (t.category === "referral" || /indica|convid|amigo/i.test(desc)) {
+    title = "Indicação de Amigo";
+    displayCategory = "Tribo & Amigos";
+    eventDescription = "Bônus de indicação creditado pela entrada de um novo membro convidado por você na plataforma Netfits.";
+  }
+  // 4. SHOPPING / RESGATE / COMPRA
+  else if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate/i.test(desc)) {
     displayCategory = "Shopping";
     const orderMatch = desc.match(/#([a-zA-Z0-9_\-]+)/);
     if (orderMatch) {
@@ -87,26 +107,6 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
         : "";
       eventDescription = `Compra confirmada no Shopping Netfits${orderPart}. A pontuação recebida pelo pedido foi creditada diretamente na sua carteira de pontos.`;
     }
-  }
-  // 2. BOAS-VINDAS
-  else if (t.category === "welcome" || /boas-vindas|cadastramento|novo cadastro/i.test(desc)) {
-    title = "Bônus de Boas-Vindas";
-    displayCategory = "Boas-Vindas";
-    eventDescription = "Bônus comemorativo de boas-vindas creditado pela ativação da sua conta no Netfits. Bem-vindo à sua jornada de longevidade ativa e saúde integral!";
-  }
-  // 3. INDICAÇÃO / MGM
-  else if (t.category === "referral" || /indica|convid|amigo/i.test(desc)) {
-    title = "Indicação de Amigo";
-    displayCategory = "Tribo & Amigos";
-    eventDescription = "Bônus de indicação creditado pela entrada de um novo membro convidado por você na plataforma Netfits.";
-  }
-  // 4. SELOS & CONQUISTAS
-  else if (/selo|conquista/i.test(desc)) {
-    displayCategory = "Conquistas";
-    const cleanedBadge = desc.replace(/^.*(?:Selo Conquistado|Selo Desbloqueado|Conquista):\s*/i, "").trim();
-    badgeName = cleanedBadge || "Selo Netfits";
-    title = `Selo: ${badgeName}`;
-    eventDescription = `Recompensa pelo desbloqueio e conquista do selo oficial "${badgeName}" na plataforma Netfits. Parabéns pela consistência e dedicação à sua longevidade!`;
   }
   // 5. ARTIGOS & LEITURAS
   else if (/leitura|artigo/i.test(desc)) {
