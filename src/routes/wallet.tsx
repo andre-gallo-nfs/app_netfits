@@ -268,21 +268,31 @@ function WalletPage() {
         )}
       </section>
 
-      {/* Modal Pop-up de Detalhamento do Lançamento */}
+      {/* Modal Pop-up de Detalhamento do Lançamento (Bottom Sheet no celular, Card centralizado no desktop) */}
       {selectedTx && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-tx-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setSelectedTx(null)}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
         >
+          {/* Backdrop escuro */}
           <div
-            className="bg-card text-card-foreground border border-border rounded-3xl p-6 w-full max-w-sm shadow-2xl relative space-y-5"
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setSelectedTx(null)}
+          />
+
+          {/* Caixa do Modal */}
+          <div
+            className="relative w-full max-w-md bg-card text-card-foreground border-t sm:border border-border rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Puxador tátil (Handle) no topo para visual de Bottom Sheet nativo no celular */}
+            <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
+
             {/* Botão Fechar (X) */}
             <button
+              type="button"
               onClick={() => setSelectedTx(null)}
               aria-label="Fechar detalhamento"
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
@@ -317,24 +327,18 @@ function WalletPage() {
               >
                 {selectedTx.amount}
               </div>
-              <p className="text-xs text-muted-foreground">
-                ≈ {Math.abs(selectedTx.amountNum * params.cppResgateBrl).toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })} em poder de resgate
-              </p>
             </div>
 
             {/* Linhas de Detalhamento Técnico & Transparência */}
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between py-1 border-b border-border/40">
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between py-1.5 border-b border-border/40">
                 <span className="text-muted-foreground flex items-center gap-1.5">
                   <Calendar className="size-3.5" /> Data e Horário
                 </span>
                 <span className="font-semibold text-foreground">{selectedTx.fullDate}</span>
               </div>
 
-              <div className="flex items-center justify-between py-1 border-b border-border/40">
+              <div className="flex items-center justify-between py-1.5 border-b border-border/40">
                 <span className="text-muted-foreground flex items-center gap-1.5">
                   <Receipt className="size-3.5" /> Tipo da Operação
                 </span>
@@ -344,7 +348,7 @@ function WalletPage() {
               </div>
 
               {selectedTx.orderRef && (
-                <div className="flex items-center justify-between py-1 border-b border-border/40">
+                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
                   <span className="text-muted-foreground flex items-center gap-1.5">
                     <ShoppingBag className="size-3.5" /> Pedido Shop
                   </span>
@@ -355,14 +359,14 @@ function WalletPage() {
               )}
 
               {selectedTx.orderTotalBrl && (
-                <div className="flex items-center justify-between py-1 border-b border-border/40">
+                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
                   <span className="text-muted-foreground">Valor Total da Compra</span>
                   <span className="font-semibold text-foreground">R$ {selectedTx.orderTotalBrl}</span>
                 </div>
               )}
 
               {selectedTx.badgeName && (
-                <div className="flex items-center justify-between py-1 border-b border-border/40">
+                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
                   <span className="text-muted-foreground flex items-center gap-1.5">
                     <Award className="size-3.5" /> Selo Desbloqueado
                   </span>
@@ -371,7 +375,7 @@ function WalletPage() {
               )}
 
               {selectedTx.contentTitle && (
-                <div className="flex items-center justify-between py-1 border-b border-border/40">
+                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
                   <span className="text-muted-foreground flex items-center gap-1.5">
                     <BookOpen className="size-3.5" /> Conteúdo
                   </span>
@@ -396,6 +400,7 @@ function WalletPage() {
 
             {/* Botão de Fechar */}
             <button
+              type="button"
               onClick={() => setSelectedTx(null)}
               className="w-full bg-foreground text-background text-xs font-bold py-3.5 rounded-full hover:opacity-90 active:scale-95 transition cursor-pointer shadow-md"
             >
