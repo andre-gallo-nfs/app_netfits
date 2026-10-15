@@ -62,6 +62,15 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
     const priceMatch = desc.match(/R\$\s*([\d.,]+)/i);
     if (priceMatch) {
       orderTotalBrl = priceMatch[1];
+    } else if (orderMatch) {
+      try {
+        const foundOrder = sharedSandboxStore.getOrders().find(
+          (o) => o.orderNumber === orderMatch[1] || o.id === orderMatch[1]
+        );
+        if (foundOrder && typeof foundOrder.amountBrl === "number") {
+          orderTotalBrl = foundOrder.amountBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+      } catch {}
     }
 
     if (t.amount < 0 || /resgate/i.test(desc)) {
@@ -71,8 +80,11 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
         : "Resgate de produto realizado no Shopping Netfits utilizando seu saldo de pontos.";
     } else {
       title = "Compra no Shopping";
-      const totalPart = orderTotalBrl ? ` no valor total de R$ ${orderTotalBrl}` : "";
-      const orderPart = orderRef ? ` (Pedido ${orderRef}${totalPart})` : totalPart;
+      const orderPart = orderRef
+        ? ` (Pedido ${orderRef}${orderTotalBrl ? ` no valor de R$ ${orderTotalBrl}` : ""})`
+        : orderTotalBrl
+        ? ` (Valor: R$ ${orderTotalBrl})`
+        : "";
       eventDescription = `Compra confirmada no Shopping Netfits${orderPart}. O cashback gerado pelo pedido foi creditado diretamente na sua carteira de pontos.`;
     }
   }

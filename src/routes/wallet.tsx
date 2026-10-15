@@ -329,36 +329,49 @@ function WalletPage() {
               </p>
             </div>
 
-            {/* Bloco de Descrição Completa do Evento */}
-            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
-              <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-purple-300">
-                <Sparkles className="size-3.5 text-lime-400" />
-                <span>Descrição Completa do Evento</span>
+            {/* Detalhes Específicos para Pedidos de Compra no Shopping (Número e Valor em Reais) */}
+            {(selectedTx.orderRef || selectedTx.orderTotalBrl) && (
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {selectedTx.orderRef && (
+                  <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-3.5 space-y-1">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 flex items-center gap-1.5">
+                      <ShoppingBag className="size-3.5 text-purple-400" /> Número do Pedido
+                    </span>
+                    <p className="font-mono font-extrabold text-sm text-purple-300">
+                      {selectedTx.orderRef}
+                    </p>
+                  </div>
+                )}
+                {selectedTx.orderTotalBrl && (
+                  <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-3.5 space-y-1">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 flex items-center gap-1.5">
+                      <Receipt className="size-3.5 text-lime-400" /> Valor do Pedido
+                    </span>
+                    <p className="font-mono font-extrabold text-sm text-lime-400">
+                      R$ {selectedTx.orderTotalBrl}
+                    </p>
+                  </div>
+                )}
               </div>
+            )}
+
+            {/* Selo Conquistado (se aplicável) */}
+            {selectedTx.badgeName && (
+              <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-3.5 flex items-center justify-between">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 flex items-center gap-1.5">
+                  <Award className="size-3.5 text-lime-400" /> Selo Oficial
+                </span>
+                <span className="font-bold text-xs text-lime-300">
+                  {selectedTx.badgeName}
+                </span>
+              </div>
+            )}
+
+            {/* Bloco de Descrição do Evento (sem título conforme solicitado) */}
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4">
               <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed">
                 {selectedTx.eventDescription}
               </p>
-
-              {/* Informações adicionais de apoio (Pedido, Valor, Selo) */}
-              {(selectedTx.orderRef || selectedTx.badgeName) && (
-                <div className="pt-2 border-t border-zinc-800 flex flex-wrap items-center gap-2 text-[11px]">
-                  {selectedTx.orderRef && (
-                    <span className="bg-zinc-800/90 text-purple-300 px-2.5 py-1 rounded-lg font-mono font-bold flex items-center gap-1 border border-zinc-700/50">
-                      <ShoppingBag className="size-3 text-purple-400" /> Pedido {selectedTx.orderRef}
-                    </span>
-                  )}
-                  {selectedTx.orderTotalBrl && (
-                    <span className="bg-zinc-800/90 text-zinc-300 px-2.5 py-1 rounded-lg font-medium border border-zinc-700/50">
-                      Total: R$ {selectedTx.orderTotalBrl}
-                    </span>
-                  )}
-                  {selectedTx.badgeName && (
-                    <span className="bg-zinc-800/90 text-lime-300 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 border border-zinc-700/50">
-                      <Award className="size-3 text-lime-400" /> Selo Oficial
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Botão de Fechar */}
