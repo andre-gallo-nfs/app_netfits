@@ -5,13 +5,203 @@ import { levelStore } from "@/lib/level-store";
 export type WalletTx = {
   id: string;
   title: string;
+  displayCategory: string;
+  rawDescription: string;
+  eventDescription: string;
   date: string;
+  fullDate: string;
+  timestamp: string;
   amount: string; // e.g. "+199 nfs" / "-1.290 nfs"
+  amountNum: number;
   positive: boolean;
+  category: SandboxTransaction["category"];
+  orderRef?: string;
+  orderTotalBrl?: string;
+  badgeName?: string;
+  contentTitle?: string;
 };
 
 function formatNfs(n: number) {
   return n.toLocaleString("pt-BR");
+}
+
+function formatFullDate(isoString: string): string {
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return "Data não informada";
+
+  const dateFormatted = d.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+  const timeFormatted = d.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${dateFormatted} às ${timeFormatted}`;
+}
+
+export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
+  const desc = t.description || "";
+  let title = "Atividade Netfits";
+  let displayCategory = "Atividade";
+  let orderRef: string | undefined;
+  let orderTotalBrl: string | undefined;
+  let badgeName: string | undefined;
+  let contentTitle: string | undefined;
+  let eventDescription = "";
+
+  // 1. SHOPPING / RESGATE / COMPRA
+  if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate/i.test(desc)) {
+    displayCategory = "Shopping";
+    const orderMatch = desc.match(/#([a-zA-Z0-9_\-]+)/);
+    if (orderMatch) {
+      orderRef = `#${orderMatch[1]}`;
+    }
+
+    const priceMatch = desc.match(/R\$\s*([\d.,]+)/i);
+    if (priceMatch) {
+      orderTotalBrl = priceMatch[1];
+    } else if (orderMatch) {
+      try {
+        const foundOrder = sharedSandboxStore.getOrders().find(
+          (o) => o.orderNumber === orderMatch[1] || o.id === orderMatch[1]
+        );
+        if (foundOrder && typeof foundOrder.amountBrl === "number") {
+          orderTotalBrl = foundOrder.amountBrl.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+      } catch {}
+    }
+
+    if (t.amount < 0 || /resgate/i.test(desc)) {
+      title = "Resgate no Shopping";
+      eventDescription = orderRef
+        ? `Resgate de produto realizado no Shopping Netfits (Pedido ${orderRef}). A pontuação foi utilizada como pagamento e debitada do seu saldo.`
+        : "Resgate de produto realizado no Shopping Netfits utilizando seu saldo de pontos.";
+    } else {
+      title = "Compra no Shopping";
+      const orderPart = orderRef
+        ? ` (Pedido ${orderRef}${orderTotalBrl ? ` no valor de R$ ${orderTotalBrl}` : ""})`
+        : orderTotalBrl
+        ? ` (Valor: R$ ${orderTotalBrl})`
+        : "";
+      eventDescription = `Compra confirmada no Shopping Netfits${orderPart}. A pontuação recebida pelo pedido foi creditada diretamente na sua carteira de pontos.`;
+    }
+  }
+  // 2. BOAS-VINDAS
+  else if (t.category === "welcome" || /boas-vindas|cadastramento|novo cadastro/i.test(desc)) {
+    title = "Bônus de Boas-Vindas";
+    displayCategory = "Boas-Vindas";
+    eventDescription = "Bônus comemorativo de boas-vindas creditado pela ativação da sua conta no Netfits. Bem-vindo à sua jornada de longevidade ativa e saúde integral!";
+  }
+  // 3. INDICAÇÃO / MGM
+  else if (t.category === "referral" || /indica|convid|amigo/i.test(desc)) {
+    title = "Indicação de Amigo";
+    displayCategory = "Tribo & Amigos";
+    eventDescription = "Bônus de indicação creditado pela entrada de um novo membro convidado por você na plataforma Netfits.";
+  }
+  // 4. SELOS & CONQUISTAS
+  else if (/selo|conquista/i.test(desc)) {
+    displayCategory = "Conquistas";
+    const cleanedBadge = desc.replace(/^.*(?:Selo Conquistado|Selo Desbloqueado|Conquista):\s*/i, "").trim();
+    badgeName = cleanedBadge || "Selo Netfits";
+    title = `Selo: ${badgeName}`;
+    eventDescription = `Recompensa pelo desbloqueio e conquista do selo oficial "${badgeName}" na plataforma Netfits. Parabéns pela consistência e dedicação à sua longevidade!`;
+  }
+  // 5. ARTIGOS & LEITURAS
+  else if (/leitura|artigo/i.test(desc)) {
+    displayCategory = "Conteúdo & Feed";
+    title = "Leitura de Artigo";
+    contentTitle = desc.replace(/^.*(?:Leitura Completa de Artigo:\s*|Artigo:\s*)/i, "").trim();
+    eventDescription = contentTitle
+      ? `Pontuação creditada pela leitura do artigo editorial "${contentTitle}" no Feed Netfits com validação de leitura e tempo de tela.`
+      : "Pontuação creditada pela leitura e validação de artigo editorial no Feed Netfits.";
+  }
+  // 6. COMPARTILHAMENTO
+  else if (t.category === "share" || /compartilhamento/i.test(desc)) {
+    displayCategory = "Comunidade";
+    title = "Compartilhamento";
+    contentTitle = desc.replace(/^.*(?:Compartilhamento pós-visualização:\s*|Compartilhamento:\s*)/i, "").trim();
+    eventDescription = contentTitle
+      ? `Recompensa pelo compartilhamento do conteúdo editorial "${contentTitle}" com a sua rede.`
+      : "Recompensa pelo compartilhamento de conteúdo editorial e científico com a sua rede.";
+  }
+  // 7. VÍDEO EDUCATIVO
+  else if (/vídeo|video/i.test(desc)) {
+    displayCategory = "Conteúdo & Feed";
+    title = "Vídeo Educativo";
+    contentTitle = desc.replace(/^.*(?:Visualização de Vídeo[^:]*:\s*)/i, "").trim();
+    eventDescription = contentTitle
+      ? `Pontuação creditada pela visualização e engajamento com o vídeo "${contentTitle}" no Feed.`
+      : "Pontuação creditada pela visualização de vídeo educativo sobre saúde e bem-estar no Feed.";
+  }
+  // 8. CURTIDAS / INTERAÇÕES
+  else if (t.category === "like" || /curtida/i.test(desc)) {
+    displayCategory = "Comunidade";
+    title = "Curtida no Feed";
+    contentTitle = desc.replace(/^.*(?:Curtida no conteúdo:\s*)/i, "").trim();
+    eventDescription = contentTitle
+      ? `Pontuação de engajamento social creditada por curtir o conteúdo "${contentTitle}" no Feed.`
+      : "Pontuação de engajamento creditada por curtir uma publicação oficial no Feed da comunidade.";
+  }
+  // 9. DESAFIOS
+  else if (/desafio/i.test(desc)) {
+    displayCategory = "Saúde & Longevidade";
+    title = "Desafio Concluído";
+    contentTitle = desc.replace(/^.*(?:Desafio Netfits:\s*)/i, "").trim();
+    eventDescription = contentTitle
+      ? `Pontuação conquistada pela participação e resposta correta no "${contentTitle}" no Feed.`
+      : "Pontuação conquistada pela participação e acerto no Desafio de Bem-Estar e Longevidade no Feed.";
+  }
+  // 10. VISUALIZAÇÕES GERAIS
+  else if (t.category === "view" || /visualização|engajamento/i.test(desc)) {
+    displayCategory = "Conteúdo & Feed";
+    title = "Engajamento no Feed";
+    contentTitle = desc.replace(/^.*(?:Visualização completa:\s*)/i, "").trim();
+    eventDescription = contentTitle
+      ? `Pontuação creditada pela visualização do conteúdo "${contentTitle}" no Feed.`
+      : "Pontuação creditada por engajamento e visualização de conteúdo no Feed Netfits.";
+  }
+  // 11. TREINO / ATIVIDADE FÍSICA
+  else if (t.category === "workout" || /treino|corrida|pedal|caminhada|exercício/i.test(desc)) {
+    displayCategory = "Atividade Física";
+    title = "Treino Sincronizado";
+    eventDescription = "Pontuação creditada pela realização de atividade física auditada e sincronizada através de seus dispositivos de saúde (Garmin / Apple Watch / Strava).";
+  }
+  // 12. BÔNUS DE ASSOCIADO
+  else if (t.category === "associado_bonus" || /associado/i.test(desc)) {
+    displayCategory = "Associação";
+    title = "Bônus de Associado";
+    eventDescription = "Bônus comemorativo creditado pelo seu plano de associado na plataforma Netfits.";
+  } else {
+    title = desc.replace(/^[^\w\s]+/g, "").trim() || "Atividade Netfits";
+    eventDescription = t.amount >= 0
+      ? `Pontuação de atividade creditada na sua carteira Netfits: ${desc}.`
+      : `Pontuação utilizada em operações na plataforma Netfits: ${desc}.`;
+  }
+
+  const txDate = new Date(t.timestamp);
+  const dateStr = !isNaN(txDate.getTime()) ? txDate.toLocaleDateString("pt-BR") : "Data indisponível";
+  const fullDateStr = formatFullDate(t.timestamp);
+
+  return {
+    id: t.id,
+    title,
+    displayCategory,
+    rawDescription: desc,
+    eventDescription,
+    date: dateStr,
+    fullDate: fullDateStr,
+    timestamp: t.timestamp || new Date().toISOString(),
+    amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
+    amountNum: t.amount,
+    positive: t.amount >= 0,
+    category: t.category,
+    orderRef,
+    orderTotalBrl,
+    badgeName,
+    contentTitle,
+  };
 }
 
 export const wallet = {
@@ -22,13 +212,7 @@ export const wallet = {
   getTransactions: (): WalletTx[] => {
     const active = sharedSandboxStore.getActiveUser();
     const sandboxTxs = sharedSandboxStore.getUserTransactions(active.id);
-    return sandboxTxs.map((t) => ({
-      id: t.id,
-      title: t.description,
-      date: new Date(t.timestamp).toLocaleDateString("pt-BR"),
-      amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
-      positive: t.amount >= 0,
-    }));
+    return sandboxTxs.map(formatFriendlyTx);
   },
 
   /** Debita nfs (gasto numa compra) e registra a movimentação. */
@@ -107,13 +291,7 @@ function getSnapshot(): WalletSnapshot {
   lastTxsCount = sandboxTxs.length;
   lastTxId = topTxId;
 
-  const formattedTxs: WalletTx[] = sandboxTxs.map((t) => ({
-    id: t.id,
-    title: t.description,
-    date: new Date(t.timestamp).toLocaleDateString("pt-BR"),
-    amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
-    positive: t.amount >= 0,
-  }));
+  const formattedTxs: WalletTx[] = sandboxTxs.map(formatFriendlyTx);
 
   cachedSnapshot = {
     balance: activeUser.nfsBalance,
@@ -124,7 +302,16 @@ function getSnapshot(): WalletSnapshot {
 }
 
 function getServerSnapshot(): WalletSnapshot {
-  return SERVER_SNAPSHOT;
+  try {
+    const activeUser = sharedSandboxStore.getActiveUser();
+    const sandboxTxs = sharedSandboxStore.getUserTransactions(activeUser.id);
+    return {
+      balance: activeUser.nfsBalance,
+      txs: sandboxTxs.map(formatFriendlyTx),
+    };
+  } catch {
+    return SERVER_SNAPSHOT;
+  }
 }
 
 export function useWallet() {
