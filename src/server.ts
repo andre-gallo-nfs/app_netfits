@@ -845,6 +845,19 @@ export default {
                 name: ord.customer.name,
               }
             : undefined,
+          items: ord.items || [],
+          metadata: ord.metadata || {},
+          paymentMethod: ord.metadata?.paymentMethod || ord.paymentMethod,
+          shipping: ord.shipping || {},
+          carrier: ord.shipping?.carrier || ord.carrier,
+          trackingCode: ord.shipping?.trackingCode || ord.trackingCode,
+          slaDays: ord.shipping?.slaDays || ord.slaDays,
+          sellerName: ord.sellerName || ord.items?.[0]?.sellerName,
+          sellerId: ord.sellerId || ord.items?.[0]?.sellerId,
+          productName: ord.productName || ord.items?.[0]?.name,
+          brand: ord.brand || ord.items?.[0]?.brand,
+          category: ord.category || ord.items?.[0]?.category,
+          cashbackEarned: ord.cashbackEarned || ord.netfitsProcessing?.pointsEarned,
           createdAt: ord.createdAt,
           updatedAt: ord.updatedAt,
           paidAt: ord.paidAt,
@@ -1545,6 +1558,7 @@ export default {
         type: ord.type || "ORDER",
         status: ord.status || "PAID",
         paymentStatus: ord.paymentStatus || "PAID",
+        substatus: ord.substatus,
         summary: ord.summary,
         customer: ord.customer
           ? {
@@ -1552,7 +1566,28 @@ export default {
               name: ord.customer.name,
             }
           : undefined,
+        items: ord.items || [],
+        metadata: ord.metadata || {},
+        paymentMethod: ord.metadata?.paymentMethod || ord.paymentMethod,
+        shipping: ord.shipping || {},
+        carrier: ord.shipping?.carrier || ord.carrier,
+        trackingCode: ord.shipping?.trackingCode || ord.trackingCode,
+        slaDays: ord.shipping?.slaDays || ord.slaDays,
+        sellerName: ord.sellerName || ord.items?.[0]?.sellerName,
+        sellerId: ord.sellerId || ord.items?.[0]?.sellerId,
+        productName: ord.productName || ord.items?.[0]?.name,
+        brand: ord.brand || ord.items?.[0]?.brand,
+        category: ord.category || ord.items?.[0]?.category,
+        cashbackEarned: ord.cashbackEarned || ord.netfitsProcessing?.pointsEarned,
+        netfitsProcessing: ord.netfitsProcessing
+          ? {
+              pointsUsed: ord.netfitsProcessing.pointsUsed,
+              pointsEarned: ord.netfitsProcessing.pointsEarned,
+              cashbackCredited: ord.netfitsProcessing.cashbackCredited,
+            }
+          : undefined,
         createdAt: ord.createdAt,
+        updatedAt: ord.updatedAt,
         paidAt: ord.paidAt,
       }));
 

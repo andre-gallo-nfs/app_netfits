@@ -28,6 +28,15 @@ export interface PersistentOrderRecord {
   updatedAt?: string;
   paidAt?: string;
   metadata?: any;
+  paymentMethod?: string;
+  sellerName?: string;
+  productName?: string;
+  brand?: string;
+  category?: string;
+  carrier?: string;
+  trackingCode?: string;
+  slaDays?: number;
+  cashbackEarned?: number;
   summary?: {
     items?: number;
     total?: number;
@@ -106,7 +115,8 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-10T18:18:00.000Z",
     updatedAt: "2026-10-15T13:20:00.000Z",
     paidAt: "2026-10-10T18:18:56.355Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 1,
       total: 32.62,
@@ -168,7 +178,8 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-07T11:04:42.340Z",
     paidAt: "2026-10-07T11:05:33.866Z",
     updatedAt: "2026-10-15T13:20:00.000Z",
-    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
+    paymentMethod: "PIX",
+    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 1,
       total: 109.9,
@@ -231,6 +242,7 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-09T18:36:05.980Z",
     updatedAt: "2026-10-14T17:26:27.894Z",
     paidAt: "2026-10-09T18:36:45.818Z",
+    paymentMethod: "Cartão de Crédito",
     metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 2,
@@ -304,7 +316,8 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-09T18:28:00.000Z",
     updatedAt: "2026-10-15T13:20:00.000Z",
     paidAt: "2026-10-09T18:28:47.515Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 1,
       total: 9.99,
@@ -365,7 +378,8 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-09T18:21:00.000Z",
     updatedAt: "2026-10-15T13:20:00.000Z",
     paidAt: "2026-10-09T18:22:15.584Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 1,
       total: 9.99,

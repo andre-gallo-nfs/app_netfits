@@ -492,6 +492,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "DELIVERED",
     createdAt: "2026-10-10T18:18:00.000Z",
     paidAt: "2026-10-10T18:18:56.355Z",
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     sellerName: "Netshoes",
     sellerId: "51rrnR3ToE",
     brand: "Puma",
@@ -524,6 +526,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "DELIVERED",
     createdAt: "2026-10-07T11:04:42.340Z",
     paidAt: "2026-10-07T11:05:33.866Z",
+    paymentMethod: "PIX",
+    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
     sellerName: "Webcontinental",
     sellerId: "Jahjp6EsHf",
     brand: "Black Skull",
@@ -556,6 +560,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "PARTIALLY-DELIVERED",
     createdAt: "2026-10-09T18:36:05.980Z",
     paidAt: "2026-10-09T18:36:45.818Z",
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     sellerName: "Webcontinental / Netshoes",
     sellerId: "seller_webcont",
     brand: "Atlântica / Puma",
@@ -597,6 +603,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "DELIVERED",
     createdAt: "2026-10-09T18:28:00.000Z",
     paidAt: "2026-10-09T18:28:47.515Z",
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     sellerName: "Netshoes",
     sellerId: "51rrnR3ToE",
     brand: "Disney / Marvel",
@@ -629,6 +637,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "SENT",
     createdAt: "2026-10-09T18:21:00.000Z",
     paidAt: "2026-10-09T18:22:15.584Z",
+    paymentMethod: "Cartão de Crédito",
+    metadata: { paymentMethod: "CREDITCARD", platform: "WEB", installments: 1, origem: "netfits" },
     sellerName: "Netshoes",
     sellerId: "51rrnR3ToE",
     brand: "Sport Recife / Umbro",
@@ -661,6 +671,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "PAID",
     createdAt: "2026-10-05T22:37:00.000Z",
     paidAt: "2026-10-05T22:38:00.000Z",
+    paymentMethod: "-",
+    metadata: undefined,
     sellerName: "Aguardando Rock",
     sellerId: "RhOFkbZJIN",
     brand: "-",
@@ -683,6 +695,8 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     status: "PAID",
     createdAt: "2026-10-06T10:44:00.000Z",
     paidAt: "2026-10-06T10:45:00.000Z",
+    paymentMethod: "-",
+    metadata: undefined,
     sellerName: "Aguardando Rock",
     sellerId: "RhOFkbZJIN",
     brand: "-",
@@ -920,28 +934,35 @@ class HomologationSandboxStore {
             else if (/centauro/i.test(rawSeller)) cleanSeller = "Centauro";
             else if (/fila/i.test(rawSeller)) cleanSeller = "Fila";
             else if (/new balance|newbalance/i.test(rawSeller)) cleanSeller = "New Balance";
-            else if (!cleanSeller) cleanSeller = "Aguardando Rock";
+            else if (!cleanSeller || cleanSeller === "RhOFkbZJIN") cleanSeller = "Aguardando Rock";
+
+            if (ord.items && ord.items.length > 1) {
+              const distinctSellers = Array.from(new Set(ord.items.map((it: any) => it.sellerName).filter(Boolean)));
+              if (distinctSellers.length > 1) {
+                cleanSeller = distinctSellers.join(" / ");
+              }
+            }
 
             const pName = ord.productName || (ord.items && ord.items.length > 0
               ? (ord.items.length === 1 ? (ord.items[0].name || ord.items[0].productName) : `${ord.items[0].name || ord.items[0].productName} (+${ord.items.length - 1} item)`)
-              : `Item não detalhado pela Rock (1 item)`);
+              : (cleanSeller === "Aguardando Rock" ? `Item não detalhado pela Rock (1 item)` : `Produto Esportivo Netfits`));
 
             const ptsEarned = Number(ord.cashbackEarned ?? ord.netfitsProcessing?.pointsEarned ?? Math.round(Number(ord.summary?.finalPrice ?? ord.summary?.total ?? 0) * 4));
 
-            const rawPaymentMethod = ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || ord.paymentMethod;
+            const rawPaymentMethod = ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod;
             let cleanPaymentMethod = "-";
-            if (rawPaymentMethod === "CREDITCARD" || rawPaymentMethod === "CREDIT_CARD") cleanPaymentMethod = "Cartão de Crédito";
+            if (rawPaymentMethod === "CREDITCARD" || rawPaymentMethod === "CREDIT_CARD" || rawPaymentMethod === "Cartão de Crédito") cleanPaymentMethod = "Cartão de Crédito";
             else if (rawPaymentMethod === "PIX") cleanPaymentMethod = "PIX";
-            else if (rawPaymentMethod) cleanPaymentMethod = String(rawPaymentMethod);
+            else if (rawPaymentMethod && rawPaymentMethod !== "-") cleanPaymentMethod = String(rawPaymentMethod);
 
             return {
               id: ord._id || ord.orderRef,
               orderNumber: ord.orderRef || ord._id,
-              userId: ord.customer?.ref || "",
-              userName: ord.customer?.name || "Cliente Netfits",
+              userId: ord.customer?.ref || ord.userId || "",
+              userName: ord.customer?.name || ord.userName || "Cliente Netfits",
               productName: pName,
-              amountBrl: Number(ord.summary?.finalPrice ?? ord.summary?.total ?? 0),
-              pointsPaid: Number(ord.summary?.points?.amount ?? 0),
+              amountBrl: Number(ord.summary?.finalPrice ?? ord.summary?.total ?? ord.amountBrl ?? 0),
+              pointsPaid: Number(ord.summary?.points?.amount ?? ord.pointsPaid ?? 0),
               status: ord.status || "PAID",
               createdAt: ord.paidAt || ord.createdAt || new Date().toISOString(),
               paidAt: ord.paidAt,
@@ -951,12 +972,12 @@ class HomologationSandboxStore {
               metadata: ord.metadata || ord.rawPayload?.metadata,
               paymentMethod: cleanPaymentMethod,
               sellerName: cleanSeller,
-              sellerId: ord.items?.[0]?.sellerId || ord.storeId || "RhOFkbZJIN",
+              sellerId: ord.items?.[0]?.sellerId || ord.sellerId || ord.storeId || "RhOFkbZJIN",
               brand: ord.items?.[0]?.brand || ord.brand || "-",
               category: ord.items?.[0]?.category || ord.category || (cleanSeller === "Aguardando Rock" ? "Aguardando Rock" : "Artigos Esportivos"),
-              carrier: ord.shipping?.carrier || "-",
-              slaDays: ord.shipping?.slaDays || 0,
-              trackingCode: ord.shipping?.trackingCode || "-",
+              carrier: ord.shipping?.carrier || ord.carrier || "-",
+              slaDays: ord.shipping?.slaDays || ord.slaDays || 0,
+              trackingCode: ord.shipping?.trackingCode || ord.trackingCode || "-",
               cashbackEarned: ptsEarned,
             };
           });
@@ -1133,6 +1154,46 @@ class HomologationSandboxStore {
         }
 
         stored.users = mergedUsers;
+
+        // Reabilitar e fundir pedidos com INITIAL_ORDERS (garantindo que itens, sellers e meios de pagamento oficiais não sejam perdidos por caches legados)
+        if (!stored.orders || stored.orders.length === 0) {
+          stored.orders = [...INITIAL_ORDERS];
+        } else {
+          stored.orders = stored.orders.map((so) => {
+            const initMatch = INITIAL_ORDERS.find((io) => io.id === so.id || io.orderNumber === so.orderNumber);
+            if (initMatch) {
+              const needsHeal = !so.items || so.items.length === 0 || !so.sellerName || so.sellerName === "Aguardando Rock" || !so.paymentMethod || so.paymentMethod === "-";
+              if (needsHeal && initMatch.sellerName !== "Aguardando Rock") {
+                return {
+                  ...initMatch,
+                  ...so,
+                  items: (so.items && so.items.length > 0) ? so.items : initMatch.items,
+                  sellerName: (so.sellerName && so.sellerName !== "Aguardando Rock") ? so.sellerName : initMatch.sellerName,
+                  sellerId: so.sellerId || initMatch.sellerId,
+                  brand: (so.brand && so.brand !== "-") ? so.brand : initMatch.brand,
+                  category: (so.category && so.category !== "Aguardando Rock") ? so.category : initMatch.category,
+                  productName: (so.productName && !so.productName.includes("Item não detalhado")) ? so.productName : initMatch.productName,
+                  paymentMethod: (so.paymentMethod && so.paymentMethod !== "-") ? so.paymentMethod : initMatch.paymentMethod,
+                  carrier: (so.carrier && so.carrier !== "-") ? so.carrier : initMatch.carrier,
+                  trackingCode: (so.trackingCode && so.trackingCode !== "-") ? so.trackingCode : initMatch.trackingCode,
+                  slaDays: so.slaDays || initMatch.slaDays,
+                  metadata: so.metadata || initMatch.metadata,
+                };
+              }
+            }
+            return so;
+          });
+
+          // Garantir que nenhum pedido de INITIAL_ORDERS falte no stored.orders
+          const storedOrderIds = new Set(stored.orders.map((o) => o.id || o.orderNumber));
+          for (const initOrd of INITIAL_ORDERS) {
+            if (!storedOrderIds.has(initOrd.id) && !storedOrderIds.has(initOrd.orderNumber)) {
+              stored.orders.push(initOrd);
+              storedOrderIds.add(initOrd.id);
+            }
+          }
+        }
+
         stored.interactions = (stored.interactions || []).filter((i) => !i.id.startsWith("int-00"));
         if (!stored.activeUserId) {
           stored.activeUserId = "";

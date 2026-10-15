@@ -4153,9 +4153,16 @@ function AdminDashboardPage() {
                           else if (/new balance|newbalance/i.test(rawSeller)) storeName = "New Balance";
                           else if (!storeName || storeName === "RhOFkbZJIN") storeName = "Aguardando Rock";
 
+                          if (ord.items && ord.items.length > 1) {
+                            const distinctSellers = Array.from(new Set(ord.items.map((it: any) => it.sellerName).filter(Boolean)));
+                            if (distinctSellers.length > 1) {
+                              storeName = distinctSellers.join(" / ");
+                            }
+                          }
+
                           let storeBadgeStyle = "bg-zinc-800 text-zinc-400 border-zinc-700";
-                          if (storeName === "Netshoes") storeBadgeStyle = "bg-amber-500/20 text-amber-300 border-amber-500/30";
-                          else if (storeName === "Webcontinental") storeBadgeStyle = "bg-purple-500/20 text-purple-300 border-purple-500/30";
+                          if (storeName === "Netshoes" || storeName.includes("Netshoes")) storeBadgeStyle = "bg-amber-500/20 text-amber-300 border-amber-500/30";
+                          else if (storeName === "Webcontinental" || storeName.includes("Webcontinental")) storeBadgeStyle = "bg-purple-500/20 text-purple-300 border-purple-500/30";
                           else if (storeName === "Centauro") storeBadgeStyle = "bg-red-500/20 text-red-300 border-red-500/30";
                           else if (storeName === "Fila") storeBadgeStyle = "bg-sky-500/20 text-sky-300 border-sky-500/30";
                           else if (storeName === "New Balance") storeBadgeStyle = "bg-rose-500/20 text-rose-300 border-rose-500/30";
@@ -4163,17 +4170,24 @@ function AdminDashboardPage() {
                           // Meio de pagamento oficial
                           const rawPm = (ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || "").toUpperCase();
                           let pmBadge = "bg-zinc-800 text-zinc-500 border-zinc-700";
-                          let pmLabel = "Não informado";
+                          let pmLabel = storeName === "Aguardando Rock" ? "Aguardando Rock" : "Não informado";
                           if (rawPm.includes("CREDIT") || rawPm.includes("CARTAO") || rawPm.includes("CARD")) {
                             pmBadge = "bg-purple-500/20 text-purple-300 border-purple-500/30";
                             pmLabel = "Cartão de Crédito";
                           } else if (rawPm.includes("PIX")) {
                             pmBadge = "bg-lime-400/20 text-lime-400 border-lime-400/30";
                             pmLabel = "PIX";
+                          } else if (rawPm && rawPm !== "-" && storeName !== "Aguardando Rock") {
+                            pmLabel = String(rawPm);
                           }
 
                           // Nome do produto limpo e legível
-                          const itemName = ord.productName || ord.items?.[0]?.name || (storeName === "Aguardando Rock" ? "Item não detalhado pela Rock (1 item)" : "Produto Esportivo Netfits");
+                          let itemName = ord.productName || ord.items?.[0]?.name;
+                          if (!itemName || (itemName.includes("Item não detalhado") && ord.items && ord.items.length > 0)) {
+                            itemName = ord.items.length === 1 ? ord.items[0].name : `${ord.items[0].name} (+${ord.items.length - 1} item)`;
+                          } else if (!itemName) {
+                            itemName = storeName === "Aguardando Rock" ? "Item não detalhado pela Rock (1 item)" : "Produto Esportivo Netfits";
+                          }
                           const itemBrand = ord.brand && ord.brand !== "-" ? ord.brand : ord.items?.[0]?.brand;
                           const itemCat = ord.category && ord.category !== "Aguardando Rock" ? ord.category : ord.items?.[0]?.category;
 
