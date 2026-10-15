@@ -85,7 +85,7 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
         : orderTotalBrl
         ? ` (Valor: R$ ${orderTotalBrl})`
         : "";
-      eventDescription = `Compra confirmada no Shopping Netfits${orderPart}. O cashback gerado pelo pedido foi creditado diretamente na sua carteira de pontos.`;
+      eventDescription = `Compra confirmada no Shopping Netfits${orderPart}. A pontuação recebida pelo pedido foi creditada diretamente na sua carteira de pontos.`;
     }
   }
   // 2. BOAS-VINDAS
