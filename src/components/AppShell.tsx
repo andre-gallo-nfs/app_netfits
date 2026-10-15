@@ -66,23 +66,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   // 2. Se o dispositivo NÃO possui conta autenticada (primeiro acesso de novos usuários):
-  // no app nativo ou em rotas privadas, redireciona diretamente para a tela de boas-vindas/cadastro (/auth)
+  // no app nativo, redireciona diretamente para a tela de boas-vindas/cadastro (/auth)
   const hasSession = sharedSandboxStore.hasActiveSession();
-  if (!hasSession) {
-    if (nativeBridge.isNativePlatform() || !isPublicRoute) {
-      if (typeof window !== "undefined" && path !== "/auth") {
-        window.location.replace("/auth");
-        return null;
-      }
+  if (!hasSession && nativeBridge.isNativePlatform()) {
+    if (typeof window !== "undefined" && path !== "/auth") {
+      window.location.replace("/auth");
+      return null;
     }
   }
 
   // 3. Se o dispositivo JÁ possui conta autenticada e o app estiver bloqueado:
-  // EXIGE BIOMETRIA REAL OU SENHA DO PRÓPRIO USUÁRIO LOGADO
-  if (!isUnlocked) {
-    if (nativeBridge.isNativePlatform() || !isPublicRoute) {
-      return <SecurityLockOverlay />;
-    }
+  // EXIGE BIOMETRIA REAL OU SENHA DO PRÓPRIO USUÁRIO LOGADO NO APP NATIVO
+  if (!isUnlocked && nativeBridge.isNativePlatform()) {
+    return <SecurityLockOverlay />;
   }
 
   // 4. Rotas públicas no navegador web (landing page, FAQ, parceiros, etc.)
@@ -177,15 +173,6 @@ function TopBar() {
             <span className="text-[7px] font-extrabold text-white">nfs</span>
           </div>
           <span className="text-[11px] font-mono font-extrabold tracking-wider text-purple-700">{balance.toLocaleString("pt-BR")}</span>
-        </Link>
-
-        <Link
-          to="/levels"
-          aria-label={`Galeria de Selos: ${unlockedCount} de ${totalCount} badges`}
-          className="bg-purple-50 text-purple-700 rounded-full px-2.5 py-1 min-h-[36px] flex items-center gap-1 ring-1 ring-purple-200 font-bold hover:bg-purple-100 active:scale-95 transition-all text-[9.5px]"
-        >
-          <Award className="size-3.5 text-purple-600 shrink-0" aria-hidden="true" />
-          <span className="font-extrabold">{unlockedCount}/{totalCount} Badges</span>
         </Link>
 
         <button

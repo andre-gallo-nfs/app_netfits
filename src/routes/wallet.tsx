@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect, useMemo } from "react";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -17,6 +16,7 @@ import {
   Info,
   Calendar,
   Receipt,
+  Filter,
 } from "lucide-react";
 import { useWallet, type WalletTx } from "@/lib/wallet-store";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -38,15 +38,16 @@ export const Route = createFileRoute("/wallet")({
   component: WalletPage,
 });
 
+type PeriodFilter = "last5" | "today" | "week" | "month" | "all";
+
 function WalletPage() {
   const { balance, txs } = useWallet();
   const params = useOperationalParams();
   const activeUser = sharedSandboxStore.useActiveUser();
   const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [filterPeriod, setFilterPeriod] = useState<PeriodFilter>("last5");
 
   useEffect(() => {
-    setIsMounted(true);
     badgesStore.evaluate();
   }, []);
 
@@ -65,22 +66,40 @@ function WalletPage() {
     }
   }, [selectedTx]);
 
-  const balanceBRL = (balance * params.cppResgateBrl).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
+  const displayedTxs = useMemo(() => {
+    if (filterPeriod === "last5") {
+      return txs.slice(0, 5);
+    }
+    const now = Date.now();
+    return txs.filter((t) => {
+      if (filterPeriod === "all") return true;
+      const txTime = new Date(t.timestamp).getTime();
+      if (isNaN(txTime)) return true;
+      const diffMs = now - txTime;
+      if (filterPeriod === "today") {
+        return diffMs <= 24 * 60 * 60 * 1000;
+      }
+      if (filterPeriod === "week") {
+        return diffMs <= 7 * 24 * 60 * 60 * 1000;
+      }
+      if (filterPeriod === "month") {
+        return diffMs <= 30 * 24 * 60 * 60 * 1000;
+      }
+      return true;
+    });
+  }, [txs, filterPeriod]);
 
   return (
     <div className="pb-8">
-      {/* Cards de Saldo Netfits */}
-      <section className="px-4 pt-6">
-        <div className="bg-foreground text-background rounded-[20px] p-6 relative overflow-hidden shadow-xl">
+      {/* Cards de Saldo Netfits - Altura compacta e sem equivalência financeira */}
+      <section className="px-4 pt-4">
+        <div className="bg-foreground text-background rounded-[20px] p-5 relative overflow-hidden shadow-xl">
           <img
             src={netfitsMark}
             alt=""
             className="absolute top-4 right-4 w-8 h-8 object-contain rounded-md bg-background/10 p-0.5 opacity-70 pointer-events-none"
           />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2 flex items-center justify-between">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5 flex items-center justify-between">
             <span>Saldo netfits</span>
             <span className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-medium">
               {activeUser.fullName || "Atleta Netfits"}
@@ -90,14 +109,11 @@ function WalletPage() {
             <span className="text-4xl font-bold tracking-tight">{balance.toLocaleString("pt-BR")}</span>
             <span className="text-brand font-semibold">nfs</span>
           </div>
-          <p className="text-xs text-zinc-400 mt-1">
-            ≈ {balanceBRL} em resgates
-          </p>
-          <div className="mt-5 relative z-10">
+          <div className="mt-4 relative z-10">
             <Link
               to="/market"
               aria-label="Usar pontos Netfits no Shop Oficial"
-              className="w-full bg-brand text-brand-foreground text-xs font-bold py-3 rounded-full hover:brightness-110 active:scale-95 transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-brand text-brand-foreground text-xs font-bold py-2.5 rounded-full hover:brightness-110 active:scale-95 transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
               <ShoppingBag className="size-4" />
               <span>Use seus Netfits no Shop</span>
@@ -157,82 +173,108 @@ function WalletPage() {
 
       {/* Histórico de Movimentações */}
       <section className="px-4 mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            Extrato de Movimentações
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+            <Receipt className="size-3.5" /> Extrato de Movimentações
           </h2>
-          <span className="text-[11px] text-muted-foreground">
-            {txs.length} {txs.length === 1 ? "lançamento" : "lançamentos"}
+          <span className="text-[11px] text-muted-foreground font-mono">
+            {displayedTxs.length} de {txs.length}
           </span>
         </div>
 
-        {txs.length === 0 ? (
+        {/* Filtros Rápidos de Período */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-1 no-scrollbar">
+          {[
+            { id: "last5", label: "Últimos 5" },
+            { id: "today", label: "Hoje" },
+            { id: "week", label: "7 Dias" },
+            { id: "month", label: "30 Dias" },
+            { id: "all", label: "Todos" },
+          ].map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setFilterPeriod(f.id as PeriodFilter)}
+              className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition cursor-pointer ${
+                filterPeriod === f.id
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {displayedTxs.length === 0 ? (
           <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 text-center space-y-2">
             <div className="size-10 rounded-full bg-zinc-800 text-zinc-400 mx-auto grid place-items-center font-bold text-base">
               📊
             </div>
-            <p className="text-xs font-bold text-white">Nenhuma movimentação registrada ainda</p>
+            <p className="text-xs font-bold text-white">Nenhuma movimentação neste período</p>
             <p className="text-[11px] text-zinc-400 max-w-[32ch] mx-auto leading-relaxed">
-              Sua carteira está zerada e pronta para o seu primeiro uso real no Netfits.
+              Tente selecionar outro filtro acima para visualizar movimentações anteriores.
             </p>
           </div>
         ) : (
-          <ul className="space-y-2">
-            {txs.map((t) => (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedTx(t)}
-                  className="w-full text-left bg-card rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/5 shadow-sm cursor-pointer hover:bg-muted/40 transition active:scale-[0.98] group focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  <div
-                    className={`size-9 rounded-full grid place-items-center shrink-0 ${
-                      t.positive ? "bg-purple-600 text-white" : "bg-muted text-foreground"
-                    }`}
+          <div className="max-h-[380px] overflow-y-auto space-y-2 pr-1 rounded-xl">
+            <ul className="space-y-2">
+              {displayedTxs.map((t) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTx(t)}
+                    className="w-full text-left bg-card rounded-xl p-3.5 flex items-center gap-3 ring-1 ring-black/5 shadow-sm cursor-pointer hover:bg-muted/40 transition active:scale-[0.98] group focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    {t.positive ? (
-                      <ArrowDownLeft className="size-4" />
-                    ) : (
-                      <ArrowUpRight className="size-4" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold truncate text-foreground group-hover:text-purple-600 dark:group-hover:text-lime-400 transition">
-                        {t.title}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-muted-foreground">{t.date}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">
-                        {t.displayCategory}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span
-                      className={`text-sm font-bold font-mono ${
-                        t.positive ? "text-purple-600 dark:text-lime-400" : "text-muted-foreground"
+                    <div
+                      className={`size-9 rounded-full grid place-items-center shrink-0 ${
+                        t.positive ? "bg-purple-600 text-white" : "bg-muted text-foreground"
                       }`}
                     >
-                      {t.amount}
-                    </span>
-                    <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-foreground transition" />
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
+                      {t.positive ? (
+                        <ArrowDownLeft className="size-4" />
+                      ) : (
+                        <ArrowUpRight className="size-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold truncate text-foreground group-hover:text-purple-600 dark:group-hover:text-lime-400 transition">
+                          {t.title}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-muted-foreground">{t.date}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">
+                          {t.displayCategory}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className={`text-sm font-bold font-mono ${
+                          t.positive ? "text-purple-600 dark:text-lime-400" : "text-muted-foreground"
+                        }`}
+                      >
+                        {t.amount}
+                      </span>
+                      <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-foreground transition" />
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
 
       {/* Modal Pop-up de Detalhamento do Lançamento */}
-      {selectedTx && isMounted && typeof document !== "undefined" && createPortal(
+      {selectedTx && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-tx-title"
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={() => setSelectedTx(null)}
         >
           <div
@@ -360,8 +402,7 @@ function WalletPage() {
               Fechar Detalhamento
             </button>
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );

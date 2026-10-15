@@ -9,6 +9,7 @@ export type WalletTx = {
   rawDescription: string;
   date: string;
   fullDate: string;
+  timestamp: string;
   amount: string; // e.g. "+199 nfs" / "-1.290 nfs"
   amountNum: number;
   positive: boolean;
@@ -121,6 +122,7 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
     rawDescription: desc,
     date: dateStr,
     fullDate: fullDateStr,
+    timestamp: t.timestamp || new Date().toISOString(),
     amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
     amountNum: t.amount,
     positive: t.amount >= 0,

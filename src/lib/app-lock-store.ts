@@ -28,29 +28,42 @@ class AppLockStore {
   constructor() {
     if (typeof window !== "undefined") {
       try {
-        const explicitlyLocked = localStorage.getItem(APP_EXPLICITLY_LOCKED_KEY) === "true";
-        const sessionUnlocked = localStorage.getItem(SESSION_UNLOCKED_KEY) === "true";
-        const lastActivityRaw = localStorage.getItem(APP_LAST_ACTIVITY_KEY);
-        const lastActivity = Number(lastActivityRaw || 0);
-        const now = Date.now();
-        const isCheckout =
-          window.location.pathname.includes("/market") ||
-          (window as any).__netfits_in_checkout === true;
-        const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
+        const isWeb = !nativeBridge.isNativePlatform();
+        const hostname = window.location.hostname || "";
+        const isStaging =
+          hostname.includes("lhr.life") ||
+          hostname.includes("localhost") ||
+          hostname.includes("staging") ||
+          window.location.port === "3000";
 
-        // Se bloqueado explicitamente, sem sessão desbloqueada, sem carimbo prévio ou se inativo > 5 min:
-        if (explicitlyLocked || !sessionUnlocked || !lastActivityRaw || lastActivity === 0) {
-          this.unlocked = false;
-        } else if (now - lastActivity > allowedTimeout) {
-          // Mais de 5 minutos sem uso: exige autenticação biométrica ou por senha
-          this.unlocked = false;
-        } else {
-          // Dentro dos 5 minutos E com autenticação prévia válida: mantém fluido
+        if (isWeb || isStaging) {
           this.unlocked = true;
           this.recordActivity();
+        } else {
+          const explicitlyLocked = localStorage.getItem(APP_EXPLICITLY_LOCKED_KEY) === "true";
+          const sessionUnlocked = localStorage.getItem(SESSION_UNLOCKED_KEY) === "true";
+          const lastActivityRaw = localStorage.getItem(APP_LAST_ACTIVITY_KEY);
+          const lastActivity = Number(lastActivityRaw || 0);
+          const now = Date.now();
+          const isCheckout =
+            window.location.pathname.includes("/market") ||
+            (window as any).__netfits_in_checkout === true;
+          const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
+
+          // Se bloqueado explicitamente, sem sessão desbloqueada, sem carimbo prévio ou se inativo > 5 min:
+          if (explicitlyLocked || !sessionUnlocked || !lastActivityRaw || lastActivity === 0) {
+            this.unlocked = false;
+          } else if (now - lastActivity > allowedTimeout) {
+            // Mais de 5 minutos sem uso: exige autenticação biométrica ou por senha
+            this.unlocked = false;
+          } else {
+            // Dentro dos 5 minutos E com autenticação prévia válida: mantém fluido
+            this.unlocked = true;
+            this.recordActivity();
+          }
         }
       } catch {
-        this.unlocked = false;
+        this.unlocked = true;
       }
 
       // Ao suspender/minimizar o app ou alternar telas/abas:
