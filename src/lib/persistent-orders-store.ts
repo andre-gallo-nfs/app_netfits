@@ -425,7 +425,6 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-05T22:37:00.000Z",
     updatedAt: "2026-10-15T13:20:00.000Z",
     paidAt: "2026-10-05T22:38:00.000Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 1,
       total: 176.4,
@@ -440,27 +439,6 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
       name: "André Gallo",
       email: "aacgallo@hotmail.com",
       type: "associado",
-    },
-    items: [
-      {
-        _id: "itm_whey_gtj_01",
-        skuId: "SKU-WHEY-PROT-01",
-        name: "Pote de Whey Protein (Nutrição Esportiva)",
-        quantity: 1,
-        price: 176.4,
-        finalPrice: 176.4,
-        brand: "Nutrição Esportiva",
-        category: "Suplementação & Nutrição",
-        sellerName: "Netshoes",
-        sellerId: "51rrnR3ToE",
-      },
-    ],
-    shipping: {
-      carrier: "Correios SEDEX",
-      slaDays: 3,
-      trackingCode: "SEDEX-GTJ0522372-BR",
-      shippedAt: "2026-10-08T11:00:00.000Z",
-      statusText: "Pedido Confirmado",
     },
     netfitsProcessing: {
       processedAt: "2026-10-05T22:40:00.000Z",
@@ -485,7 +463,6 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
     createdAt: "2026-10-06T10:44:00.000Z",
     updatedAt: "2026-10-15T13:20:00.000Z",
     paidAt: "2026-10-06T10:45:00.000Z",
-    metadata: { paymentMethod: "PIX", platform: "WEB", installments: 1, origem: "netfits" },
     summary: {
       items: 1,
       total: 44.1,
@@ -500,26 +477,6 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
       name: "André Gallo",
       email: "aacgallo@hotmail.com",
       type: "associado",
-    },
-    items: [
-      {
-        _id: "itm_creatina_pfm_01",
-        skuId: "SKU-CREAT-INT-350",
-        name: "Creatina Hardcore Integralmédica com Sabor 350g",
-        quantity: 1,
-        price: 44.1,
-        finalPrice: 44.1,
-        brand: "Integralmédica",
-        category: "Suplementação & Nutrição",
-        sellerName: "Centauro",
-        sellerId: "seller_centauro",
-      },
-    ],
-    shipping: {
-      carrier: "Total Express",
-      slaDays: 2,
-      trackingCode: "TX-PFM0610443-BR",
-      statusText: "Pedido Confirmado",
     },
     netfitsProcessing: {
       processedAt: "2026-10-06T10:50:00.000Z",
