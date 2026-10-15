@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -42,10 +43,27 @@ function WalletPage() {
   const params = useOperationalParams();
   const activeUser = sharedSandboxStore.useActiveUser();
   const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     badgesStore.evaluate();
   }, []);
+
+  useEffect(() => {
+    if (selectedTx) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") setSelectedTx(null);
+      };
+      window.addEventListener("keydown", onKeyDown);
+      return () => {
+        document.body.style.overflow = prev;
+        window.removeEventListener("keydown", onKeyDown);
+      };
+    }
+  }, [selectedTx]);
 
   const balanceBRL = (balance * params.cppResgateBrl).toLocaleString("pt-BR", {
     style: "currency",
@@ -161,45 +179,47 @@ function WalletPage() {
         ) : (
           <ul className="space-y-2">
             {txs.map((t) => (
-              <li
-                key={t.id}
-                onClick={() => setSelectedTx(t)}
-                className="bg-card rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/5 shadow-sm cursor-pointer hover:bg-muted/40 transition active:scale-[0.99] group"
-              >
-                <div
-                  className={`size-9 rounded-full grid place-items-center shrink-0 ${
-                    t.positive ? "bg-purple-600 text-white" : "bg-muted text-foreground"
-                  }`}
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedTx(t)}
+                  className="w-full text-left bg-card rounded-xl p-4 flex items-center gap-3 ring-1 ring-black/5 shadow-sm cursor-pointer hover:bg-muted/40 transition active:scale-[0.98] group focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  {t.positive ? (
-                    <ArrowDownLeft className="size-4" />
-                  ) : (
-                    <ArrowUpRight className="size-4" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-semibold truncate text-foreground group-hover:text-purple-600 dark:group-hover:text-lime-400 transition">
-                      {t.title}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-muted-foreground">{t.date}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">
-                      {t.displayCategory}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span
-                    className={`text-sm font-bold font-mono ${
-                      t.positive ? "text-purple-600 dark:text-lime-400" : "text-muted-foreground"
+                  <div
+                    className={`size-9 rounded-full grid place-items-center shrink-0 ${
+                      t.positive ? "bg-purple-600 text-white" : "bg-muted text-foreground"
                     }`}
                   >
-                    {t.amount}
-                  </span>
-                  <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-foreground transition" />
-                </div>
+                    {t.positive ? (
+                      <ArrowDownLeft className="size-4" />
+                    ) : (
+                      <ArrowUpRight className="size-4" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold truncate text-foreground group-hover:text-purple-600 dark:group-hover:text-lime-400 transition">
+                        {t.title}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-muted-foreground">{t.date}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">
+                        {t.displayCategory}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-sm font-bold font-mono ${
+                        t.positive ? "text-purple-600 dark:text-lime-400" : "text-muted-foreground"
+                      }`}
+                    >
+                      {t.amount}
+                    </span>
+                    <ChevronRight className="size-4 text-muted-foreground/40 group-hover:text-foreground transition" />
+                  </div>
+                </button>
               </li>
             ))}
           </ul>
@@ -207,16 +227,16 @@ function WalletPage() {
       </section>
 
       {/* Modal Pop-up de Detalhamento do Lançamento */}
-      {selectedTx && (
+      {selectedTx && isMounted && typeof document !== "undefined" && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-tx-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={() => setSelectedTx(null)}
         >
           <div
-            className="bg-card text-card-foreground border border-border rounded-3xl p-6 w-full max-w-sm shadow-2xl relative space-y-5 animate-in zoom-in-95 duration-200"
+            className="bg-card text-card-foreground border border-border rounded-3xl p-6 w-full max-w-sm shadow-2xl relative space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Botão Fechar (X) */}
@@ -340,7 +360,8 @@ function WalletPage() {
               Fechar Detalhamento
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
