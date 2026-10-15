@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { getMkplaceStoreUrl, launchMkplaceShop } from "@/lib/integrations/mkplace-client";
+import { badgesStore } from "@/lib/badges-store";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -34,11 +35,14 @@ function MarketEmbeddedPage() {
 
   const isPlaceholderUrl = false;
 
-  // Carrega a URL com o token SSO assim que a tela abre
+  // Carrega a URL com o token SSO assim que a tela abre e registra a visita para o selo de explorador
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
     setHasError(false);
+
+    // Registra a visita no Shop para desbloquear o selo Explorador do Shop
+    badgesStore.recordShopVisit();
 
     getMkplaceStoreUrl(activeUser.id)
       .then((url) => {
