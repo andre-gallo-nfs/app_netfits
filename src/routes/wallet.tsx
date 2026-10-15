@@ -268,143 +268,106 @@ function WalletPage() {
         )}
       </section>
 
-      {/* Modal Pop-up de Detalhamento do Lançamento (Bottom Sheet no celular, Card centralizado no desktop) */}
+      {/* Modal Pop-up de Detalhamento do Lançamento — Padrão Feed Card Netfits */}
       {selectedTx && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-tx-title"
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+          onClick={() => setSelectedTx(null)}
         >
-          {/* Backdrop escuro */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-            onClick={() => setSelectedTx(null)}
-          />
-
-          {/* Caixa do Modal */}
-          <div
-            className="relative w-full max-w-md bg-card text-card-foreground border-t sm:border border-border rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto space-y-4"
+            className="relative w-full max-w-sm sm:max-w-md bg-zinc-950 text-white border border-purple-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-left animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Puxador tátil (Handle) no topo para visual de Bottom Sheet nativo no celular */}
-            <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full mx-auto sm:hidden -mt-2 mb-2" />
-
-            {/* Botão Fechar (X) */}
-            <button
-              type="button"
-              onClick={() => setSelectedTx(null)}
-              aria-label="Fechar detalhamento"
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
-            >
-              <X className="size-5" />
-            </button>
-
-            {/* Cabeçalho do Modal */}
-            <div className="space-y-1">
+            {/* Topo: Categoria + Status + Botão Fechar X */}
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-300 border border-purple-500/20">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   {selectedTx.displayCategory}
                 </span>
-                <span className="text-[11px] text-emerald-500 font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="size-3.5" /> Confirmado
+                <span className="text-[10px] text-lime-400 font-semibold flex items-center gap-1 bg-lime-400/10 px-2.5 py-0.5 rounded-full border border-lime-400/20">
+                  <CheckCircle2 className="size-3 text-lime-400" /> Confirmado
                 </span>
               </div>
-              <h3 id="modal-tx-title" className="text-xl font-bold text-foreground pt-1">
-                {selectedTx.title}
-              </h3>
+              <button
+                type="button"
+                onClick={() => setSelectedTx(null)}
+                aria-label="Fechar detalhamento"
+                className="size-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
             </div>
 
-            {/* Bloco de Destaque de Pontuação */}
-            <div className="bg-muted/40 border border-border/60 rounded-2xl p-4 text-center space-y-1">
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-                {selectedTx.positive ? "Pontos Recebidos" : "Pontos Utilizados"}
+            {/* Título do Evento & Data */}
+            <div className="space-y-1">
+              <h3 id="modal-tx-title" className="text-lg sm:text-xl font-extrabold text-white leading-snug">
+                {selectedTx.title}
+              </h3>
+              <p className="text-xs text-zinc-400 flex items-center gap-1.5 pt-0.5">
+                <Calendar className="size-3.5 text-purple-400 shrink-0" />
+                <span>{selectedTx.fullDate}</span>
+              </p>
+            </div>
+
+            {/* Bloco de Destaque da Pontuação Recebida ou Utilizada */}
+            <div className="bg-gradient-to-br from-zinc-900 via-purple-950/40 to-zinc-900 border border-purple-500/25 rounded-2xl p-4 text-center space-y-1">
+              <p className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
+                {selectedTx.positive ? "Pontuação Recebida" : "Pontuação Utilizada"}
               </p>
               <div
-                className={`text-3xl font-extrabold font-mono tracking-tight ${
-                  selectedTx.positive ? "text-purple-600 dark:text-lime-400" : "text-foreground"
+                className={`text-3xl sm:text-4xl font-black font-mono tracking-tight ${
+                  selectedTx.positive ? "text-lime-400" : "text-amber-400"
                 }`}
               >
                 {selectedTx.amount}
               </div>
+              <p className="text-[10px] text-zinc-500 font-medium">
+                {selectedTx.positive ? "Crédito direto na sua carteira" : "Débito efetuado no saldo da carteira"}
+              </p>
             </div>
 
-            {/* Linhas de Detalhamento Técnico & Transparência */}
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-                <span className="text-muted-foreground flex items-center gap-1.5">
-                  <Calendar className="size-3.5" /> Data e Horário
-                </span>
-                <span className="font-semibold text-foreground">{selectedTx.fullDate}</span>
+            {/* Bloco de Descrição Completa do Evento */}
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 space-y-2">
+              <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-purple-300">
+                <Sparkles className="size-3.5 text-lime-400" />
+                <span>Descrição Completa do Evento</span>
               </div>
+              <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed">
+                {selectedTx.eventDescription}
+              </p>
 
-              <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-                <span className="text-muted-foreground flex items-center gap-1.5">
-                  <Receipt className="size-3.5" /> Tipo da Operação
-                </span>
-                <span className="font-semibold text-foreground">
-                  {selectedTx.positive ? "Crédito (Acúmulo)" : "Débito (Resgate)"}
-                </span>
-              </div>
-
-              {selectedTx.orderRef && (
-                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <ShoppingBag className="size-3.5" /> Pedido Shop
-                  </span>
-                  <span className="font-mono font-bold text-purple-600 dark:text-lime-400">
-                    {selectedTx.orderRef}
-                  </span>
+              {/* Informações adicionais de apoio (Pedido, Valor, Selo) */}
+              {(selectedTx.orderRef || selectedTx.badgeName) && (
+                <div className="pt-2 border-t border-zinc-800 flex flex-wrap items-center gap-2 text-[11px]">
+                  {selectedTx.orderRef && (
+                    <span className="bg-zinc-800/90 text-purple-300 px-2.5 py-1 rounded-lg font-mono font-bold flex items-center gap-1 border border-zinc-700/50">
+                      <ShoppingBag className="size-3 text-purple-400" /> Pedido {selectedTx.orderRef}
+                    </span>
+                  )}
+                  {selectedTx.orderTotalBrl && (
+                    <span className="bg-zinc-800/90 text-zinc-300 px-2.5 py-1 rounded-lg font-medium border border-zinc-700/50">
+                      Total: R$ {selectedTx.orderTotalBrl}
+                    </span>
+                  )}
+                  {selectedTx.badgeName && (
+                    <span className="bg-zinc-800/90 text-lime-300 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 border border-zinc-700/50">
+                      <Award className="size-3 text-lime-400" /> Selo Oficial
+                    </span>
+                  )}
                 </div>
               )}
-
-              {selectedTx.orderTotalBrl && (
-                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-                  <span className="text-muted-foreground">Valor Total da Compra</span>
-                  <span className="font-semibold text-foreground">R$ {selectedTx.orderTotalBrl}</span>
-                </div>
-              )}
-
-              {selectedTx.badgeName && (
-                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Award className="size-3.5" /> Selo Desbloqueado
-                  </span>
-                  <span className="font-semibold text-foreground">{selectedTx.badgeName}</span>
-                </div>
-              )}
-
-              {selectedTx.contentTitle && (
-                <div className="flex items-center justify-between py-1.5 border-b border-border/40">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <BookOpen className="size-3.5" /> Conteúdo
-                  </span>
-                  <span className="font-semibold text-foreground truncate max-w-[20ch]">
-                    {selectedTx.contentTitle}
-                  </span>
-                </div>
-              )}
-
-              <div className="pt-1">
-                <span className="text-[10px] text-muted-foreground block mb-0.5">Descrição Registrada:</span>
-                <p className="text-[11px] text-foreground/80 bg-muted/60 p-2.5 rounded-xl border border-border/40 leading-relaxed">
-                  {selectedTx.rawDescription}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1">
-                <span>ID do Lançamento:</span>
-                <span className="font-mono truncate max-w-[22ch]">{selectedTx.id}</span>
-              </div>
             </div>
 
             {/* Botão de Fechar */}
             <button
               type="button"
               onClick={() => setSelectedTx(null)}
-              className="w-full bg-foreground text-background text-xs font-bold py-3.5 rounded-full hover:opacity-90 active:scale-95 transition cursor-pointer shadow-md"
+              className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition-all active:scale-[0.99] cursor-pointer"
             >
-              Fechar Detalhamento
+              <span>Fechar</span>
             </button>
           </div>
         </div>
