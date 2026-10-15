@@ -501,10 +501,8 @@ export function getConfiguredWebhookKeys(): string[] {
   // Chave padrão oficial de produção e sandbox Netfits <-> Mkplace Rock Encantech
   keys.add("sec_nfs_mkplace_default_2026");
 
-  // Chaves do ecossistema Rock / Mkplace e identificadores cadastrados em 05/10/2026
-  keys.add("RhOFkbZJIN");
+  // Tokens secretos de alta entropia cadastrados para a integração Rock Encantech
   keys.add("PUQ4cwt2n3Cwt4aiW-DaXHttZIYebVUmhJVfZK1zgDw");
-  keys.add("iphh7snu8W");
   keys.add("mulOAaj5iTIAWtzvYBstH24efBhTbD7tISvBTVJCvBA");
   keys.add("nfs-mkplace-rsa-v1");
   keys.add("netfits-store-prod");
