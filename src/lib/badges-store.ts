@@ -85,7 +85,7 @@ export const INITIAL_BADGES: BadgeItem[] = [
   {
     id: "primeira_compra",
     category: "shop",
-    title: "Primeiro Cashback",
+    title: "Primeira Compra Pontuada",
     description: "Realizou sua primeira compra confirmada em um lojista parceiro do Netfits Shop.",
     icon: "🏷️",
     unlocked: false,
@@ -446,7 +446,10 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
       const hasTx = txs.some(
         (t: any) =>
           t.id === badgeTxId ||
-          (t.description && t.description.includes(badge.title))
+          (t.description && (
+            t.description.includes(badge.title) ||
+            (badge.id === "primeira_compra" && (t.description.includes("Primeiro Cashback") || t.description.includes("Primeira Compra Pontuada")))
+          ))
       );
       if (!hasTx) {
         sharedSandboxStore.addTransaction({

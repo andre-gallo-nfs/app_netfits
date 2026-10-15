@@ -204,13 +204,13 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
     timestamp: "2026-10-05T00:00:00Z",
   },
   {
-    id: "tx-mkp-earn-PFM0610443019",
+    id: "tx-badge-usr_andre-primeira_compra",
     userId: "usr_andre",
     userName: "André Gallo",
-    amount: 227,
-    description: "✨ Cashback compra Mkplace Pedido #PFM0610443019 (R$ 56,85)",
-    category: "shop",
-    timestamp: "2026-10-06T10:45:38Z",
+    amount: 40,
+    description: "🏆 Selo Conquistado: Primeira Compra Pontuada",
+    category: "workout",
+    timestamp: "2026-10-05T22:38:35Z",
   },
   {
     id: "tx-mkp-earn-AHK0918295258",
