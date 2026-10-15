@@ -19,10 +19,18 @@ console.log("Soma de todas as transações:", totalPoints, "nfs");
 const badgeTx = txs.find((t) => t.id === "tx-badge-usr_andre-primeira_compra");
 const ahkTx = txs.find((t) => t.id === "tx-mkp-earn-AHK0918295258");
 
+import { formatFriendlyTx } from "../src/lib/wallet-store.ts";
+
 console.log("\n--- TESTE DO BADGE 40 NFS ---");
 console.log("Descrição:", badgeTx?.description);
+if (badgeTx) {
+  console.log("Formatado:", formatFriendlyTx(badgeTx));
+}
 
 console.log("\n--- TESTE DO PEDIDO EDINHO (AHK) ---");
 console.log("Descrição:", ahkTx?.description);
 console.log("Valor:", ahkTx?.amount);
+if (ahkTx) {
+  console.log("Formatado:", formatFriendlyTx(ahkTx));
+}
 

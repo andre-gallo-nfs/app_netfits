@@ -77,7 +77,7 @@ if (!hasLoyalty) {
 }
 console.log("✔ Passo 4: Adicionar fidelidade desbloqueou com sucesso o selo 'Colecionador de Pontos' (+20 NFS).");
 
-// 6. Simula compra no Shop (Primeiro Cashback)
+// 6. Simula compra no Shop (Primeira Compra Pontuada)
 const txsWithPurchase = [
   ...initialTxs,
   {
@@ -96,7 +96,7 @@ if (!hasPurchase) {
   console.error("ERRO: Selo primeira_compra deveria ter sido desbloqueado!");
   process.exit(1);
 }
-console.log("✔ Passo 5: Compra no marketplace desbloqueou com sucesso o selo 'Primeiro Cashback' (+40 NFS).");
+console.log("✔ Passo 5: Compra no marketplace desbloqueou com sucesso o selo 'Primeira Compra Pontuada' (+40 NFS).");
 
 // 7. Validação do André (fundador): deve manter seus 7 selos originais
 const mockAndre = {
@@ -111,7 +111,7 @@ const evaluatedAndre = evaluateRealtimeBadges(mockAndre, [
   { id: "tx-badge-usr_andre-colecionador_pontos", userId: "usr_andre", amount: 20, description: "🏆 Selo Conquistado: Colecionador de Pontos", category: "workout" },
   { id: "tx-badge-usr_andre-atleta_conectado", userId: "usr_andre", amount: 30, description: "🏆 Selo Conquistado: Atleta de Alta Performance", category: "workout" },
   { id: "tx-badge-usr_andre-explorador_shop", userId: "usr_andre", amount: 10, description: "🏆 Selo Conquistado: Explorador do Shop", category: "workout" },
-  { id: "tx-badge-usr_andre-primeira_compra", userId: "usr_andre", amount: 40, description: "🏆 Selo Conquistado: Primeiro Cashback", category: "workout" },
+  { id: "tx-badge-usr_andre-primeira_compra", userId: "usr_andre", amount: 40, description: "🏆 Selo Conquistado: Primeira Compra Pontuada", category: "workout" },
   { id: "tx-badge-usr_andre-voz_da_tribo", userId: "usr_andre", amount: 25, description: "🏆 Selo Conquistado: Voz da Tribo", category: "workout" },
 ]);
 const andreUnlockedCount = evaluatedAndre.filter(b => b.unlocked).length;

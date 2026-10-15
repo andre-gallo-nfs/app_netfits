@@ -51,11 +51,28 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
   let contentTitle: string | undefined;
   let eventDescription = "";
 
-  // 1. SELOS & CONQUISTAS (Avaliados primeiro para evitar que selos como "Primeiro Cashback" sejam confundidos com compras)
-  if (t.id.startsWith("tx-badge-") || /selo|conquista/i.test(desc)) {
+  // 1. SELOS & CONQUISTAS (Avaliados com máxima prioridade para garantir que selos nunca sejam rotulados como compras)
+  const isPrimeiraCompraBadge =
+    t.id.includes("primeira_compra") ||
+    /primeir[ao] (?:compra|cashback)|primeira compra pontuada/i.test(desc) ||
+    (t.amount === 40 && !desc.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(desc));
+
+  const isGenericBadge =
+    t.id.startsWith("tx-badge-") ||
+    t.id.includes("badge") ||
+    /selo|conquista/i.test(desc);
+
+  if (isPrimeiraCompraBadge || isGenericBadge) {
     displayCategory = "Conquistas";
-    const cleanedBadge = desc.replace(/^.*(?:Selo Conquistado|Selo Desbloqueado|Conquista):\s*/i, "").trim();
-    badgeName = cleanedBadge || "Selo Netfits";
+    if (isPrimeiraCompraBadge) {
+      badgeName = "Primeira Compra Pontuada";
+    } else {
+      const cleanedBadge = desc.replace(/^.*(?:Selo Conquistado|Selo Desbloqueado|Conquista):\s*/i, "").trim();
+      badgeName = cleanedBadge || "Selo Netfits";
+      if (/primeiro cashback/i.test(badgeName)) {
+        badgeName = "Primeira Compra Pontuada";
+      }
+    }
     title = `Selo: ${badgeName}`;
     eventDescription = `Recompensa pelo desbloqueio e conquista do selo oficial "${badgeName}" na plataforma Netfits. Parabéns pela consistência e dedicação à sua longevidade!`;
   }

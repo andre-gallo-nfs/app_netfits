@@ -335,7 +335,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     userId: "usr_andre",
     userName: "André Gallo",
     amount: 40,
-    description: "🏆 Selo Conquistado: Primeiro Cashback",
+    description: "🏆 Selo Conquistado: Primeira Compra Pontuada",
     category: "workout",
     timestamp: "2026-10-05T22:38:35Z",
   },
@@ -636,11 +636,25 @@ class HomologationSandboxStore {
           }
           let hasNewTx = false;
           for (const stx of serverTxs) {
-            if (stx && stx.id && stx.amount !== 1080 && !stx.description?.includes("1080") && !txMap.has(stx.id)) {
+            if (stx && stx.id && stx.amount !== 1080 && !stx.description?.includes("1080")) {
               txMap.set(stx.id, stx);
               hasNewTx = true;
             }
           }
+
+          // Sanitização contábil: converte qualquer lançamento de 40 nfs para o selo oficial Primeira Compra Pontuada
+          for (const tx of txMap.values()) {
+            if (
+              tx.id.includes("primeira_compra") ||
+              /primeiro cashback/i.test(tx.description || "") ||
+              (tx.amount === 40 && !tx.description?.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(tx.description || ""))
+            ) {
+              tx.id = `tx-badge-${tx.userId}-primeira_compra`;
+              tx.description = "🏆 Selo Conquistado: Primeira Compra Pontuada";
+              tx.category = "workout";
+            }
+          }
+
           this.state.transactions = Array.from(txMap.values()).sort(
             (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
           );
@@ -796,6 +810,19 @@ class HomologationSandboxStore {
           if (!existingTxIds.has(initTx.id)) {
             stored.transactions.push(initTx);
             existingTxIds.add(initTx.id);
+          }
+        }
+
+        // Sanitização e migração contábil de selos no carregamento local:
+        for (const tx of stored.transactions) {
+          if (
+            tx.id.includes("primeira_compra") ||
+            /primeiro cashback/i.test(tx.description || "") ||
+            (tx.amount === 40 && !tx.description?.includes("#") && !/gtj|ahk|pfm|sop|doj|wqb|sxz/i.test(tx.description || ""))
+          ) {
+            tx.id = `tx-badge-${tx.userId}-primeira_compra`;
+            tx.description = "🏆 Selo Conquistado: Primeira Compra Pontuada";
+            tx.category = "workout";
           }
         }
 
