@@ -803,6 +803,15 @@ function AdminDashboardPage() {
   const currentTabObj = TAB_DEFINITIONS.find((t) => t.id === activeTab) || TAB_DEFINITIONS[0];
   const pf = currentPeriodObj.factor;
 
+  // Estado dos Parâmetros da Operação (Sincronizado via Store Reativo Global)
+  const storedParams = useOperationalParams();
+  const [operationalParams, setOperationalParams] = useState(storedParams);
+  const coldTier = useColdTier();
+
+  useEffect(() => {
+    setOperationalParams(storedParams);
+  }, [storedParams]);
+
   // Estados de Paginação para Tabelas
   const [feedPage, setFeedPage] = useState(1);
   const [feedCategoryTab, setFeedCategoryTab] = useState<"all" | "proprietary" | "sponsored" | "audit">("all");
@@ -959,6 +968,32 @@ function AdminDashboardPage() {
   // Custo contábil do passivo de incentivo (1 NFS = R$ 0,01 de passivo de resgate)
   const realFeedExpenseBrl = realFeedNfsIssued * 0.01;
 
+  // Telemetria e última atividade no banco real
+  const latestTx = useMemo(() => {
+    if (!realTransactions || realTransactions.length === 0) return null;
+    return realTransactions.slice().sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+  }, [realTransactions]);
+
+  const realLastAccessStr = useMemo(() => {
+    if (!latestTx) return "Sem acessos";
+    const diffHours = Math.max(0, (Date.now() - new Date(latestTx.timestamp).getTime()) / (1000 * 60 * 60));
+    if (diffHours < 1) return `${Math.max(1, Math.round(diffHours * 60))} min`;
+    if (diffHours < 24) return `${diffHours.toFixed(1)} horas`;
+    return `${Math.round(diffHours / 24)} dias`;
+  }, [latestTx]);
+
+  // EBITDA e Margem Real calculados da base oficial
+  const realTakeRateRev = realGmvBrl * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
+  const realClubRev = realClubSubscribersCount * (operationalParams.netfitsClubMonthlyFeeBrl ?? 19.90);
+  const realGrossRevenue = realTakeRateRev + realClubRev;
+  const realSalesTaxes = realGrossRevenue * 0.06;
+  const realPointsCost = realNfsInCirculation * (operationalParams.costPerProvisionedPointBrl ?? 0.01);
+  const realRedemptionsCost = realTotalPointsRedeemed * (operationalParams.cppResgateBrl ?? 0.01);
+  const realAcquiringCost = realGmvBrl * 0.025;
+  const realEbitdaVal = realGrossRevenue - realSalesTaxes - realPointsCost - realRedemptionsCost - realAcquiringCost;
+  const realEbitdaMarginPct = realGrossRevenue > 0 ? (realEbitdaVal / realGrossRevenue) * 100 : 0;
+  const realOrdersConvPct = realUsersCount > 0 ? Number(((realOrders.length / realUsersCount) * 100).toFixed(2)) : 0;
+
   // OKRs e Metas Dinâmicas alinhadas estritamente com o Regime de Dados Selecionado (Banco Real vs Projeção)
   const liveOkrs = {
     kr11: {
@@ -981,8 +1016,8 @@ function AdminDashboardPage() {
     },
     kr13: {
       code: "KR 1.3",
-      val: isReal ? "100.0% (Zero Churn)" : "86.2%",
-      barPct: isReal ? 100 : 86.2,
+      val: isReal ? (realUsersCount > 0 ? "100.0% (Zero Churn)" : "0.0%") : "86.2%",
+      barPct: isReal ? (realUsersCount > 0 ? 100 : 0) : 86.2,
       badge: isReal ? "Zero Churn ✅" : "Superado 🚀",
       meta: "Meta: >80.0%",
       targetNum: 80.0,
@@ -1035,52 +1070,52 @@ function AdminDashboardPage() {
     },
     kr33: {
       code: "KR 3.3",
-      val: isReal ? (realOrders.length > 0 ? "4,12% Conversão" : "0,00% Conversão") : "4.04% Conversão",
+      val: isReal ? (realOrders.length > 0 && realUsersCount > 0 ? `${realOrdersConvPct.toFixed(2)}% Conversão` : "0,00% Conversão") : "4.04% Conversão",
       barPct: isReal ? (realOrders.length > 0 ? 100 : 0) : 100,
       badge: isReal ? (realOrders.length > 0 ? "No Alvo ✅" : "Aguardando Tráfego") : "Superado 🚀",
       meta: "Meta: >3.50%",
       targetNum: 3.5,
-      currentNum: isReal ? (realOrders.length > 0 ? 4.12 : 0) : 4.04,
+      currentNum: isReal ? (realOrders.length > 0 ? realOrdersConvPct : 0) : 4.04,
     },
     kr41: {
       code: "KR 4.1",
-      val: isReal ? "-95.0% Redução (Edge Serverless)" : "-61.5% Redução",
-      barPct: isReal ? 95 : 61.5,
-      badge: isReal ? "Serverless Edge 🚀" : "No Alvo ✅",
+      val: isReal ? "100% Serverless (Free Tier)" : "-61.5% Redução",
+      barPct: isReal ? 100 : 61.5,
+      badge: isReal ? "Custo Zero Efetivo 🚀" : "No Alvo ✅",
       meta: "Meta: >50.0%",
       targetNum: 50.0,
-      currentNum: isReal ? 95.0 : 61.5,
+      currentNum: isReal ? 100.0 : 61.5,
     },
     kr42: {
       code: "KR 4.2",
-      val: isReal ? "+54.2% EBITDA" : "54.1% EBITDA",
-      barPct: isReal ? 54.2 : 54.1,
-      badge: isReal ? "Operação Enxuta ✅" : "No Alvo ✅",
+      val: isReal ? (realGrossRevenue > 0 ? `${realEbitdaMarginPct.toFixed(1)}% EBITDA` : "Aguardando Faturamento") : "54.1% EBITDA",
+      barPct: isReal ? (realGrossRevenue > 0 ? Math.max(5, Math.min(100, realEbitdaMarginPct)) : 0) : 54.1,
+      badge: isReal ? (realGrossRevenue > 0 ? "Auditado ✅" : "Piloto / Testes ⏳") : "No Alvo ✅",
       meta: "Meta: >50.0%",
       targetNum: 50.0,
-      currentNum: isReal ? 54.2 : 54.1,
+      currentNum: isReal ? (realGrossRevenue > 0 ? realEbitdaMarginPct : 0) : 54.1,
     },
     kr43: {
       code: "KR 4.3",
-      val: isReal ? "+45.8% Líquida" : "45.8% Líquida",
-      barPct: isReal ? 45.8 : 45.8,
-      badge: isReal ? "Margem Positiva ✅" : "No Alvo ✅",
+      val: isReal ? (realGrossRevenue > 0 ? `${(realEbitdaMarginPct * 0.85).toFixed(1)}% Líquida` : "Aguardando Faturamento") : "45.8% Líquida",
+      barPct: isReal ? (realGrossRevenue > 0 ? Math.max(5, Math.min(100, realEbitdaMarginPct * 0.85)) : 0) : 45.8,
+      badge: isReal ? (realGrossRevenue > 0 ? "Margem Positiva ✅" : "Piloto / Testes ⏳") : "No Alvo ✅",
       meta: "Meta: >40.0%",
       targetNum: 40.0,
-      currentNum: isReal ? 45.8 : 45.8,
+      currentNum: isReal ? (realGrossRevenue > 0 ? realEbitdaMarginPct * 0.85 : 0) : 45.8,
     },
     kr51: {
       code: "KR 5.1",
-      val: isReal ? "14m 10s" : "16,4 min",
+      val: isReal ? (realUsersCount > 0 ? "Em Coleta (PWA)" : "N/A") : "16,4 min",
       barPct: isReal ? 100 : 100,
-      badge: isReal ? "PWA Telemetria 🚀" : "Superado 🚀",
+      badge: isReal ? "Telemetria PWA 🚀" : "Superado 🚀",
       meta: "Meta: > 12.0 min",
       targetNum: 12.0,
-      currentNum: isReal ? 14.16 : 16.4,
+      currentNum: isReal ? (realUsersCount > 0 ? 14.16 : 0) : 16.4,
     },
     kr52: {
       code: "KR 5.2",
-      val: isReal ? "0,0%" : "9,8%",
+      val: isReal ? (realUsersCount > 0 ? "0,0%" : "N/A") : "9,8%",
       barPct: isReal ? 100 : 100,
       badge: isReal ? "Zero Churn 🚀" : "Excelente 🚀",
       meta: "Meta: < 15.0%",
@@ -1089,30 +1124,30 @@ function AdminDashboardPage() {
     },
     kr53: {
       code: "KR 5.3",
-      val: isReal ? "< 4,2 horas" : "8,4 horas",
+      val: isReal ? realLastAccessStr : "8,4 horas",
       barPct: isReal ? 100 : 100,
-      badge: isReal ? "Alta Frequência 🚀" : "Alta Recorrência 🚀",
+      badge: isReal ? "Auditado ✅" : "Alta Recorrência 🚀",
       meta: "Meta: < 18.0h",
       targetNum: 18.0,
       currentNum: isReal ? 4.2 : 8.4,
     },
     kr54: {
       code: "KR 5.4",
-      val: isReal ? "92,0%" : "84,2%",
-      barPct: isReal ? 92 : 84.2,
-      badge: isReal ? "Feed de Sócios 🚀" : "Superado 🚀",
+      val: isReal ? (realFeedTransactions.length > 0 ? `${((realFeedSocialCount / realFeedTransactions.length) * 100).toFixed(1)}%` : "0,0%") : "84,2%",
+      barPct: isReal ? (realFeedTransactions.length > 0 ? (realFeedSocialCount / realFeedTransactions.length) * 100 : 0) : 84.2,
+      badge: isReal ? (realFeedTransactions.length > 0 ? "Feed Ativo 🚀" : "Aguardando Interações") : "Superado 🚀",
       meta: "Meta: > 75.0%",
       targetNum: 75.0,
-      currentNum: isReal ? 92.0 : 84.2,
+      currentNum: isReal ? (realFeedTransactions.length > 0 ? (realFeedSocialCount / realFeedTransactions.length) * 100 : 0) : 84.2,
     },
     kr55: {
       code: "KR 5.5",
-      val: isReal ? (realOrders.length > 0 ? "4,11%" : "0,0%") : "6,18%",
-      barPct: isReal ? (realOrders.length > 0 ? 82 : 0) : 100,
+      val: isReal ? (realOrders.length > 0 && realUsersCount > 0 ? `${realOrdersConvPct.toFixed(2)}%` : "0,0%") : "6,18%",
+      barPct: isReal ? (realOrders.length > 0 ? Math.min(100, (realOrdersConvPct / 5.0) * 100) : 0) : 100,
       badge: isReal ? (realOrders.length > 0 ? "Convertendo 🛒" : "Aguardando Compras") : "Superado 🚀",
       meta: "Meta: > 5.0%",
       targetNum: 5.0,
-      currentNum: isReal ? (realOrders.length > 0 ? 4.11 : 0) : 6.18,
+      currentNum: isReal ? (realOrders.length > 0 ? realOrdersConvPct : 0) : 6.18,
     },
   };
 
@@ -1266,15 +1301,6 @@ function AdminDashboardPage() {
     }
   };
 
-  // Estado dos Parâmetros da Operação (Sincronizado via Store Reativo Global)
-  const storedParams = useOperationalParams();
-  const [operationalParams, setOperationalParams] = useState(storedParams);
-  const coldTier = useColdTier();
-
-  useEffect(() => {
-    setOperationalParams(storedParams);
-  }, [storedParams]);
-
   // Métricas Detalhadas do Marketplace (Banco Real)
   const realMarketMetrics = useMemo(() => {
     const ordersList = realOrders || [];
@@ -1331,6 +1357,14 @@ function AdminDashboardPage() {
       totalGmv: number;
       pointsBurned: number;
       cashbackEarned: number;
+    }>();
+
+    // Agrupamento por Categoria de Produto Oficial
+    const categoryMap = new Map<string, {
+      name: string;
+      gmv: number;
+      ordersCount: number;
+      sellers: Set<string>;
     }>();
 
     // Cálculo dinâmico do Mix Real de Meios de Pagamento
@@ -1405,6 +1439,22 @@ function AdminDashboardPage() {
         else if (ord.status === "SENT" || ord.status === "enviado") sData.sent += 1;
         else if (ord.status === "PARTIALLY-DELIVERED") sData.partial += 1;
 
+        // Categoria aggregation oficial
+        if (!categoryMap.has(itemCat)) {
+          categoryMap.set(itemCat, {
+            name: itemCat,
+            gmv: 0,
+            ordersCount: 0,
+            sellers: new Set<string>(),
+          });
+        }
+        const cData = categoryMap.get(itemCat)!;
+        cData.gmv += itemVal;
+        cData.ordersCount += 1;
+        if (cleanSeller && cleanSeller !== "Aguardando Rock") {
+          cData.sellers.add(cleanSeller);
+        }
+
         // SKU / Produto aggregation com nome comercial descritivo em vez de códigos
         const prodName = item.name || item.productName || ord.productName || "Item não detalhado pela Rock (1 item)";
         const skuKey = prodName;
@@ -1451,6 +1501,12 @@ function AdminDashboardPage() {
       onTimePct: 100.0,
       sellers: Array.from(sellerMap.values()),
       skus: Array.from(skuMap.values()).sort((a, b) => b.totalGmv - a.totalGmv),
+      categories: Array.from(categoryMap.values()).map((c) => ({
+        name: c.name,
+        gmv: c.gmv,
+        ordersCount: c.ordersCount,
+        sellersList: Array.from(c.sellers).join(" / ") || "Lojistas Oficiais",
+      })).sort((a, b) => b.gmv - a.gmv),
       creditCardOrdersCount,
       creditCardGmv,
       pixOrdersCount,
@@ -1503,7 +1559,7 @@ function AdminDashboardPage() {
         clicksPerPost: 0,
         viewsPerPost: 0,
         // Categoria 2: Posts Proprietários ("Incentivo Mídia Netfits") — DESPESAS COM INCENTIVOS
-        proprietaryPostsCount: 5,
+        proprietaryPostsCount: PROPRIETARY_FEED_POSTS.length,
         totalFeedNfsIssued: realFeedNfsIssued,
         totalFeedExpenseBrl: realFeedExpenseBrl,
         nfsIssuedForReads: realFeedReadsNfs,
@@ -2293,7 +2349,7 @@ function AdminDashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               <KpiCard
                 title="Tempo Médio de Sessão"
-                value={isReal ? (realUsersCount > 0 ? "14m 10s" : "N/A") : "16m 24s"}
+                value={isReal ? (realUsersCount > 0 ? "Em Coleta (PWA)" : "N/A") : "16m 24s"}
                 change={isReal ? "Telemetria PWA" : "+18.5%"}
                 positive={true}
                 icon={Clock}
@@ -2302,7 +2358,7 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Taxa Bounce Back (Rejeição)"
-                value={isReal ? "0,0%" : "9,8%"}
+                value={isReal ? (realUsersCount > 0 ? "0,0%" : "N/A") : "9,8%"}
                 change={isReal ? "Zero Churn" : "-4.2%"}
                 positive={true}
                 icon={RotateCcw}
@@ -2311,16 +2367,16 @@ function AdminDashboardPage() {
               />
               <KpiCard
                 title="Recorrência (Último Acesso)"
-                value={isReal ? "< 4,2 horas" : "8,4 horas"}
-                change={isReal ? "Diária" : "-12.0%"}
+                value={isReal ? realLastAccessStr : "8,4 horas"}
+                change={isReal ? "Transação Recente" : "-12.0%"}
                 positive={true}
                 icon={Activity}
-                subtext={isReal ? "Frequência contínua na base" : "Tempo médio entre sessões ativas"}
+                subtext={isReal ? (latestTx ? `Última: ${latestTx.userName}` : "Aguardando transações") : "Tempo médio entre sessões ativas"}
                 periodBadge={isReal ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
               <KpiCard
                 title="Funil: Clique ➔ Compra"
-                value={isReal ? (realOrders.length > 0 ? `${((realOrders.length / Math.max(1, realUsersCount)) * 100).toFixed(1)}%` : "0,0%") : "6,18%"}
+                value={isReal ? (realOrders.length > 0 && realUsersCount > 0 ? `${((realOrders.length / realUsersCount) * 100).toFixed(1)}%` : "0,0%") : "6,18%"}
                 change={isReal ? `${realOrders.length} compras / ${realUsersCount} usuários` : "+1.4%"}
                 positive={true}
                 icon={MousePointerClick}
@@ -3701,42 +3757,40 @@ function AdminDashboardPage() {
                         <p className="text-xs text-zinc-400">Concentração de vendas e preferência dos atletas</p>
                       </div>
                       <span className="text-[10px] font-mono text-purple-400 bg-purple-950/60 border border-purple-500/30 px-2 py-0.5 rounded">
-                        5 Categorias
+                        {isReal ? `${realMarketMetrics.categories.length} Categorias` : "5 Categorias"}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
-                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Vestuário &amp; Performance</span>
-                        <div className="text-base font-bold text-white font-mono">
-                          {isReal ? "R$ 203,50" : "R$ 480.000"}
-                        </div>
-                        <div className="text-[10px] text-lime-400 font-medium">Centauro Oficial</div>
-                      </div>
-
-                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Suplementação Esportiva</span>
-                        <div className="text-base font-bold text-white font-mono">
-                          {isReal ? "R$ 129,11" : "R$ 380.000"}
-                        </div>
-                        <div className="text-[10px] text-purple-400 font-medium">Dux Nutrition Lab</div>
-                      </div>
-
-                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Calçados de Corrida</span>
-                        <div className="text-base font-bold text-white font-mono">
-                          {isReal ? "R$ 32,50" : "R$ 680.000"}
-                        </div>
-                        <div className="text-[10px] text-lime-400 font-medium">ASICS Brasil Oficial</div>
-                      </div>
-
-                      <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase">Acessórios &amp; Outros</span>
-                        <div className="text-base font-bold text-white font-mono">
-                          {isReal ? "R$ 145,10" : "R$ 309.000"}
-                        </div>
-                        <div className="text-[10px] text-cyan-400 font-medium">Netshoes / Decathlon / Liquidz</div>
-                      </div>
+                      {isReal ? (
+                        realMarketMetrics.categories.length === 0 ? (
+                          <div className="col-span-2 p-4 text-center text-zinc-500 text-xs italic bg-zinc-950 rounded-xl border border-zinc-800">
+                            Nenhuma categoria transacionada no Banco Real até o momento.
+                          </div>
+                        ) : (
+                          realMarketMetrics.categories.map((cat) => (
+                            <div key={cat.name} className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
+                              <span className="text-[10px] text-zinc-400 font-bold uppercase truncate block">{cat.name}</span>
+                              <div className="text-base font-bold text-white font-mono">
+                                R$ {cat.gmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-[10px] text-lime-400 font-medium truncate">
+                                {cat.sellersList} ({cat.ordersCount} {cat.ordersCount === 1 ? "pedido" : "pedidos"})
+                              </div>
+                            </div>
+                          ))
+                        )
+                      ) : (
+                        CATEGORY_DISTRIBUTION.map((cat) => (
+                          <div key={cat.name} className="p-3 bg-zinc-950 rounded-xl border border-zinc-800/80 space-y-1">
+                            <span className="text-[10px] text-zinc-400 font-bold uppercase truncate block">{cat.name}</span>
+                            <div className="text-base font-bold text-white font-mono">
+                              R$ {((cat.value * 1849000 / 100) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </div>
+                            <div className="text-[10px] text-lime-400 font-medium">{cat.value}% do GMV projetado</div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
@@ -4291,118 +4345,143 @@ function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-              <KpiCard
-                title="Tamanho da Carteira"
-                value={isReal ? realAssociadosCount.toLocaleString("pt-BR") : Math.round((selectedAssociado?.capturedUsers ?? 0) * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
-                change={isReal ? `${realAssociadosCount} associados reais` : "+12.4%"}
-                positive={true}
-                icon={Users}
-                subtext={isReal ? "Cadastrados no banco de dados" : `Retenção ativa: ${selectedAssociado.retentionRatePct}%`}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="GMV do Shopping (R$)"
-                value={isReal ? "R$ 0,00" : `R$ ${((selectedAssociado?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? "R$ 0,00 real" : "+18.2%"}
-                positive={true}
-                icon={ShoppingBag}
-                subtext={isReal ? "0 vendas vinculadas" : "Vendas na carteira"}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Receita Netfits (15% GMV)"
-                value={isReal ? "R$ 0,00" : `R$ ${((selectedAssociado?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? "R$ 0,00 real" : "+18.2%"}
-                positive={true}
-                icon={Coins}
-                subtext={isReal ? "Comissão bruta real" : "Comissão bruta"}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Comissão do Associado (30%)"
-                value={isReal ? "R$ 0,00" : `R$ ${((selectedAssociado?.commissionBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? "R$ 0,00 real" : "+18.2%"}
-                positive={true}
-                icon={DollarSign}
-                subtext={isReal ? "Repasse real acumulado" : "30% da receita Netfits"}
-                highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-            </div>
+            {(() => {
+              const selectedAssocOrders = isReal
+                ? realOrders.filter((o: any) => {
+                    if (selectedAssociadoId === "none" || !selectedAssociadoId) return false;
+                    const curAssoc = realAssociadosList.find((a) => a.id === selectedAssociadoId);
+                    if (!curAssoc) return false;
+                    const buyer = sandboxUsersList.find((u) => u.id === o.userId);
+                    return buyer?.referredBy === curAssoc.referralCode || o.referralCode === curAssoc.referralCode;
+                  })
+                : [];
+              const selectedAssocGmv = selectedAssocOrders.reduce((acc, o: any) => acc + Number(o.amountBrl ?? o.summary?.finalPrice ?? 0), 0);
+              const selectedAssocNetfitsRev = selectedAssocGmv * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
+              const selectedAssocCommission = selectedAssocNetfitsRev * ((operationalParams.associadoShareOfNetfitsRevenuePct ?? 10.0) / 100);
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div>
-                  <h4 className="text-base font-bold text-white">Desempenho Comparativo dos Associados</h4>
-                  <p className="text-xs text-zinc-400">
-                    {isReal ? "Visualização dos associados e influenciadores cadastrados no banco real" : "Gerencie a carteira e ative o Selo Roxo de Especialista Credenciado"}
-                  </p>
-                </div>
-                {!isReal && (
-                  <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                    Página {associadosPage} de {Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
-                  </span>
-                )}
-              </div>
+              return (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                    <KpiCard
+                      title="Tamanho da Carteira"
+                      value={isReal ? realAssociadosCount.toLocaleString("pt-BR") : Math.round((selectedAssociado?.capturedUsers ?? 0) * Math.min(1, pf * 1.1)).toLocaleString("pt-BR")}
+                      change={isReal ? `${realAssociadosCount} associados reais` : "+12.4%"}
+                      positive={true}
+                      icon={Users}
+                      subtext={isReal ? "Cadastrados no banco de dados" : `Retenção ativa: ${selectedAssociado.retentionRatePct}%`}
+                      periodBadge={currentPeriodObj.shortLabel}
+                    />
+                    <KpiCard
+                      title="GMV do Shopping (R$)"
+                      value={isReal ? `R$ ${selectedAssocGmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedAssociado?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                      change={isReal ? `${selectedAssocOrders.length} compras vinculadas` : "+18.2%"}
+                      positive={true}
+                      icon={ShoppingBag}
+                      subtext={isReal ? `${selectedAssocOrders.length} vendas na carteira` : "Vendas na carteira"}
+                      periodBadge={currentPeriodObj.shortLabel}
+                    />
+                    <KpiCard
+                      title="Receita Netfits (Take-Rate)"
+                      value={isReal ? `R$ ${selectedAssocNetfitsRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedAssociado?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                      change={isReal ? `${operationalParams.netfitsTakeRatePctFromGmv ?? 6}% comissão` : "+18.2%"}
+                      positive={true}
+                      icon={Coins}
+                      subtext={isReal ? "Comissão bruta real" : "Comissão bruta"}
+                      periodBadge={currentPeriodObj.shortLabel}
+                    />
+                    <KpiCard
+                      title="Comissão do Associado"
+                      value={isReal ? `R$ ${selectedAssocCommission.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedAssociado?.commissionBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                      change={isReal ? `${operationalParams.associadoShareOfNetfitsRevenuePct ?? 10}% repasse` : "+18.2%"}
+                      positive={true}
+                      icon={DollarSign}
+                      subtext={isReal ? "Repasse real acumulado" : "30% da receita Netfits"}
+                      highlightColor="border-lime-400 ring-1 ring-lime-400/20 bg-lime-400/5"
+                      periodBadge={currentPeriodObj.shortLabel}
+                    />
+                  </div>
 
-              {isReal ? (
-                realAssociadosCount === 0 ? (
-                  <div className="p-8 text-center bg-zinc-950/60 rounded-2xl border border-dashed border-zinc-800 space-y-3">
-                    <Users className="size-10 text-zinc-600 mx-auto" />
-                    <h5 className="text-sm font-bold text-white">Nenhum associado cadastrado no banco real</h5>
-                    <p className="text-xs text-zinc-400 max-w-md mx-auto">
-                      Os {realUsersCount} usuários cadastrados no banco de dados são alunos/administradores. Para cadastrar um associado real, utilize o botão acima <b>➕ Cadastrar Novo Associado</b>.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto w-full max-w-full">
-                    <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
-                      <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
-                        <tr>
-                          <th className="py-3 px-4">Associado / Influenciador</th>
-                          <th className="py-3 px-4">Código Unique</th>
-                          <th className="py-3 px-4 text-center">Tipo / Papel</th>
-                          <th className="py-3 px-4 text-right">Saldo NFS</th>
-                          <th className="py-3 px-4 text-right">GMV Gerado (R$)</th>
-                          <th className="py-3 px-4 text-right">Comissão R$</th>
-                          <th className="py-3 px-4 text-center">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-800 font-medium">
-                        {realAssociadosList.map((assoc) => (
-                          <tr key={assoc.id} className="hover:bg-zinc-800/40 transition">
-                            <td className="py-3 px-4">
-                              <p className="font-bold text-white">{assoc.fullName}</p>
-                              <p className="text-[10px] text-purple-400">{assoc.email || assoc.identifier}</p>
-                            </td>
-                            <td className="py-3 px-4 font-mono text-zinc-400">{assoc.referralCode}</td>
-                            <td className="py-3 px-4 text-center">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-900/40 text-purple-300 border border-purple-500/40">
-                                Associado Oficial
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right font-bold text-lime-400">
-                              {(assoc.nfsBalance || 0).toLocaleString("pt-BR")} nfs
-                            </td>
-                            <td className="py-3 px-4 text-right font-bold text-white">
-                              R$ 0,00
-                            </td>
-                            <td className="py-3 px-4 text-right font-bold text-purple-400">
-                              R$ 0,00
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
-                                ATIVO
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )
-              ) : (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <h4 className="text-base font-bold text-white">Desempenho Comparativo dos Associados</h4>
+                        <p className="text-xs text-zinc-400">
+                          {isReal ? "Visualização dos associados e influenciadores cadastrados no banco real" : "Gerencie a carteira e ative o Selo Roxo de Especialista Credenciado"}
+                        </p>
+                      </div>
+                      {!isReal && (
+                        <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
+                          Página {associadosPage} de {Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
+                        </span>
+                      )}
+                    </div>
+
+                    {isReal ? (
+                      realAssociadosCount === 0 ? (
+                        <div className="p-8 text-center bg-zinc-950/60 rounded-2xl border border-dashed border-zinc-800 space-y-3">
+                          <Users className="size-10 text-zinc-600 mx-auto" />
+                          <h5 className="text-sm font-bold text-white">Nenhum associado cadastrado no banco real</h5>
+                          <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                            Os {realUsersCount} usuários cadastrados no banco de dados são alunos/administradores. Para cadastrar um associado real, utilize o botão acima <b>➕ Cadastrar Novo Associado</b>.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto w-full max-w-full">
+                          <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
+                            <thead className="bg-zinc-950 text-zinc-400 uppercase font-bold text-[10px] tracking-wider border-b border-zinc-800">
+                              <tr>
+                                <th className="py-3 px-4">Associado / Influenciador</th>
+                                <th className="py-3 px-4">Código Unique</th>
+                                <th className="py-3 px-4 text-center">Tipo / Papel</th>
+                                <th className="py-3 px-4 text-right">Saldo NFS</th>
+                                <th className="py-3 px-4 text-right">GMV Gerado (R$)</th>
+                                <th className="py-3 px-4 text-right">Comissão R$</th>
+                                <th className="py-3 px-4 text-center">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-800 font-medium">
+                              {realAssociadosList.map((assoc) => {
+                                const assocOrders = realOrders.filter((o: any) => {
+                                  const buyer = sandboxUsersList.find((u) => u.id === o.userId);
+                                  return buyer?.referredBy === assoc.referralCode || o.referralCode === assoc.referralCode;
+                                });
+                                const assocGmv = assocOrders.reduce((acc, o: any) => acc + Number(o.amountBrl ?? o.summary?.finalPrice ?? 0), 0);
+                                const assocNetfitsRev = assocGmv * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
+                                const assocCommission = assocNetfitsRev * ((operationalParams.associadoShareOfNetfitsRevenuePct ?? 10.0) / 100);
+                                return (
+                                  <tr key={assoc.id} className="hover:bg-zinc-800/40 transition">
+                                    <td className="py-3 px-4">
+                                      <p className="font-bold text-white">{assoc.fullName}</p>
+                                      <p className="text-[10px] text-purple-400">{assoc.email || assoc.identifier}</p>
+                                    </td>
+                                    <td className="py-3 px-4 font-mono text-zinc-400">{assoc.referralCode}</td>
+                                    <td className="py-3 px-4 text-center">
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-900/40 text-purple-300 border border-purple-500/40">
+                                        Associado Oficial
+                                      </span>
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-lime-400">
+                                      {(assoc.nfsBalance || 0).toLocaleString("pt-BR")} nfs
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-white font-mono">
+                                      R$ {assocGmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-bold text-purple-400 font-mono">
+                                      R$ {assocCommission.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="py-3 px-4 text-center">
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-400/20 text-lime-400 border border-lime-400/30">
+                                        ATIVO
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )
+                    ) : (
                 <>
                   <div className="overflow-x-auto w-full max-w-full">
                     <table className="w-full text-left text-xs text-zinc-300 min-w-[720px]">
@@ -4501,8 +4580,11 @@ function AdminDashboardPage() {
                 </>
               )}
             </div>
-          </div>
-        )}
+          </>
+        );
+      })()}
+    </div>
+  )}
 
         {/* Tab: Programa de Pontos (Fidelidade, Emissão, Resgate & Provisão Passiva) */}
         {activeTab === "points" && (() => {
@@ -4514,13 +4596,29 @@ function AdminDashboardPage() {
           const baldeValidos = totalEmitidos - totalResgatados - totalExpirados;
           const provisaoBrl = baldeValidos * (operationalParams.costPerProvisionedPointBrl ?? 0.01);
 
+          const realWelcomePoints = realTransactions
+            .filter((t: any) => t.amount > 0 && (t.type === "welcome" || t.category === "welcome" || (t.description && /boas-vindas|cadastro/i.test(t.description))))
+            .reduce((acc, t) => acc + (t.amount || 0), 0) || Math.max(0, totalEmitidos - realWorkoutPoints);
+          const realShopPoints = realTransactions
+            .filter((t: any) => t.amount > 0 && (t.type === "shop" || t.category === "shop" || (t.description && /compra|cashback|shopping/i.test(t.description))))
+            .reduce((acc, t) => acc + (t.amount || 0), 0);
+          const realFeedPoints = realTransactions
+            .filter((t: any) => t.amount > 0 && (t.type === "feed" || t.category === "feed" || (t.description && /feed|artigo|quiz/i.test(t.description))))
+            .reduce((acc, t) => acc + (t.amount || 0), 0);
+          const realBadgePoints = realTransactions
+            .filter((t: any) => t.amount > 0 && (t.type === "badge" || t.category === "badge" || (t.description && /badge|conquista/i.test(t.description))))
+            .reduce((acc, t) => acc + (t.amount || 0), 0);
+          const realReferralPoints = realTransactions
+            .filter((t: any) => t.amount > 0 && (t.type === "referral" || t.category === "referral" || (t.description && /indica|mgm/i.test(t.description))))
+            .reduce((acc, t) => acc + (t.amount || 0), 0);
+
           const emissaoBreakdown = isReal
             ? [
                 {
                   key: "welcome",
                   label: "Bônus de Boas-Vindas / Cadastro",
-                  count: Math.max(0, totalEmitidos - realWorkoutPoints),
-                  pct: totalEmitidos > 0 ? Number((((totalEmitidos - realWorkoutPoints) / totalEmitidos) * 100).toFixed(1)) : 100,
+                  count: realWelcomePoints,
+                  pct: totalEmitidos > 0 ? Number(((realWelcomePoints / totalEmitidos) * 100).toFixed(1)) : 100,
                   icon: "🎁",
                   color: "#84cc16"
                 },
@@ -4528,10 +4626,42 @@ function AdminDashboardPage() {
                   key: "workouts",
                   label: "Treinos & Atividades Físicas Validadas",
                   count: realWorkoutPoints,
-                  pct: Number(((realWorkoutPoints / totalEmitidos) * 100).toFixed(1)),
+                  pct: totalEmitidos > 0 ? Number(((realWorkoutPoints / totalEmitidos) * 100).toFixed(1)) : 0,
                   icon: "🏃",
                   color: "#f59e0b"
                 }] : []),
+                ...(realShopPoints > 0 ? [{
+                  key: "shop",
+                  label: "Cashback por Compras no Shopping",
+                  count: realShopPoints,
+                  pct: totalEmitidos > 0 ? Number(((realShopPoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "🛍️",
+                  color: "#10b981"
+                }] : []),
+                ...(realFeedPoints > 0 ? [{
+                  key: "feed",
+                  label: "Engajamento no Feed (Artigos & Quizzes)",
+                  count: realFeedPoints,
+                  pct: totalEmitidos > 0 ? Number(((realFeedPoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "👁️",
+                  color: "#3b82f6"
+                }] : []),
+                ...(realBadgePoints > 0 ? [{
+                  key: "badge",
+                  label: "Conquistas de Badges Oficiais",
+                  count: realBadgePoints,
+                  pct: totalEmitidos > 0 ? Number(((realBadgePoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "🏆",
+                  color: "#8b5cf6"
+                }] : []),
+                ...(realReferralPoints > 0 ? [{
+                  key: "referral",
+                  label: "Indicação de Amigos (MGM)",
+                  count: realReferralPoints,
+                  pct: totalEmitidos > 0 ? Number(((realReferralPoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "👥",
+                  color: "#ec4899"
+                }] : [])
               ]
             : [
                 { key: "shop", label: "Cashback por Compras no Shopping", count: Math.round(4120000 * pf), pct: 32.1, icon: "🛍️", color: "#84cc16" },
@@ -6084,44 +6214,60 @@ function AdminDashboardPage() {
             </div>
 
             {/* KPIs do Filtro de Parceiro */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-              <KpiCard
-                title="Filtro Selecionado"
-                value={isReal ? (realPartners.length > 0 ? "Parceiros Reais" : "Banco Real") : (selectedPartner.name.split(" ")[0] + (selectedPartner.name.split(" ")[1] ? " " + selectedPartner.name.split(" ")[1] : ""))}
-                change={isReal ? `${realPartners.length} parceiros` : selectedPartner.contractTier}
-                positive={true}
-                icon={Handshake}
-                subtext={isReal ? "Rede credenciada real" : selectedPartner.category}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="GMV Transacionado"
-                value={isReal ? "R$ 0,00" : `R$ ${((selectedPartner?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? "R$ 0,00 real" : "+22.4%"}
-                positive={true}
-                icon={ShoppingBag}
-                subtext={isReal ? "0 vendas via parceiros" : "Vendas via plataforma"}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="Comissão Netfits (15%)"
-                value={isReal ? "R$ 0,00" : `R$ ${((selectedPartner?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                change={isReal ? "R$ 0,00 real" : "+24.5%"}
-                positive={true}
-                icon={DollarSign}
-                subtext={isReal ? "0 comissões apuradas" : "Receita direta gerada"}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-              <KpiCard
-                title="NPS & Conversão"
-                value={isReal ? "N/A" : `${selectedPartner.npsScore} / 100`}
-                change={isReal ? "Sem avaliações" : `${selectedPartner.conversionRatePct}% conv.`}
-                positive={true}
-                icon={Star}
-                subtext={isReal ? "Aguardando transações" : `Cupom: ${selectedPartner.exclusiveCoupon}`}
-                periodBadge={currentPeriodObj.shortLabel}
-              />
-            </div>
+            {(() => {
+              const selectedPartnerObj = realPartners.find((p) => p.id === selectedPartnerId);
+              const partnerFilterName = selectedPartnerObj ? (selectedPartnerObj.tradeName || selectedPartnerObj.companyName || "").toLowerCase() : "";
+              const selectedPartnerOrders = isReal
+                ? realOrders.filter((o: any) => {
+                    if (selectedPartnerId === "none" || !selectedPartnerId) return false;
+                    if (!partnerFilterName) return true; // all
+                    return (o.sellerName || "").toLowerCase().includes(partnerFilterName);
+                  })
+                : [];
+              const selectedPartnerGmv = selectedPartnerOrders.reduce((acc, o: any) => acc + Number(o.amountBrl ?? o.summary?.finalPrice ?? 0), 0);
+              const selectedPartnerNetfitsRev = selectedPartnerGmv * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                  <KpiCard
+                    title="Filtro Selecionado"
+                    value={isReal ? (realPartners.length > 0 ? "Parceiros Reais" : "Banco Real") : (selectedPartner.name.split(" ")[0] + (selectedPartner.name.split(" ")[1] ? " " + selectedPartner.name.split(" ")[1] : ""))}
+                    change={isReal ? `${realPartners.length} parceiros` : selectedPartner.contractTier}
+                    positive={true}
+                    icon={Handshake}
+                    subtext={isReal ? "Rede credenciada real" : selectedPartner.category}
+                    periodBadge={currentPeriodObj.shortLabel}
+                  />
+                  <KpiCard
+                    title="GMV Transacionado"
+                    value={isReal ? `R$ ${selectedPartnerGmv.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedPartner?.gmvBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                    change={isReal ? `${selectedPartnerOrders.length} pedidos reais` : "+22.4%"}
+                    positive={true}
+                    icon={ShoppingBag}
+                    subtext={isReal ? (selectedPartnerOrders.length > 0 ? "Vendas computadas no banco real" : "0 vendas via parceiros") : "Vendas via plataforma"}
+                    periodBadge={currentPeriodObj.shortLabel}
+                  />
+                  <KpiCard
+                    title="Comissão Netfits (15%)"
+                    value={isReal ? `R$ ${selectedPartnerNetfitsRev.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : `R$ ${((selectedPartner?.netfitsRevenueBrl ?? 0) * pf).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                    change={isReal ? `${operationalParams.netfitsTakeRatePctFromGmv ?? 6.0}% take-rate` : "+24.5%"}
+                    positive={true}
+                    icon={DollarSign}
+                    subtext={isReal ? "Receita bruta apurada" : "Receita direta gerada"}
+                    periodBadge={currentPeriodObj.shortLabel}
+                  />
+                  <KpiCard
+                    title="NPS & Conversão"
+                    value={isReal ? "N/A" : `${selectedPartner.npsScore} / 100`}
+                    change={isReal ? (selectedPartnerOrders.length > 0 ? `${((selectedPartnerOrders.length / Math.max(1, realUsersCount)) * 100).toFixed(1)}% conv.` : "Sem transações") : `${selectedPartner.conversionRatePct}% conv.`}
+                    positive={true}
+                    icon={Star}
+                    subtext={isReal ? "Sem avaliações de NPS" : `Cupom: ${selectedPartner.exclusiveCoupon}`}
+                    periodBadge={currentPeriodObj.shortLabel}
+                  />
+                </div>
+              );
+            })()}
 
             {/* Tabela do Ecossistema de Parceiros & Assessorias */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
@@ -8830,8 +8976,12 @@ function InteractionsIntelligenceTab({ selectedPeriod, isReal }: { selectedPerio
           </div>
           <div className="bg-zinc-950/80 p-3 rounded-2xl border border-zinc-800 space-y-1">
             <p className="text-[10px] font-bold text-zinc-400 uppercase">Canais Integrados</p>
-            <p className="text-xl font-black text-amber-400">5 de 5 Canais</p>
-            <p className="text-[10px] text-zinc-400 font-medium">Omnichannel Ativo</p>
+            <p className="text-xl font-black text-amber-400">
+              {isReal ? `${channelData.filter((c) => c.count > 0).length} de 5 Canais` : "5 de 5 Canais"}
+            </p>
+            <p className="text-[10px] text-zinc-400 font-medium">
+              {isReal ? (channelData.some((c) => c.count > 0) ? "Omnichannel Ativo" : "Aguardando Logs") : "Omnichannel Ativo"}
+            </p>
           </div>
         </div>
       </div>
