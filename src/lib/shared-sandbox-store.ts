@@ -102,6 +102,8 @@ export interface SandboxOrder {
   slaDays?: number;
   trackingCode?: string;
   cashbackEarned?: number;
+  paymentMethod?: string;
+  metadata?: any;
 }
 
 export interface SandboxInteraction {
@@ -653,31 +655,21 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     orderNumber: "GTJ0522372096",
     userId: "usr_andre",
     userName: "André Gallo",
-    productName: "Pote de Whey Protein (Nutrição Esportiva)",
+    productName: "Item não detalhado pela Rock (1 item)",
     amountBrl: 203.5,
     pointsPaid: 0,
     status: "PAID",
     createdAt: "2026-10-05T22:37:00.000Z",
     paidAt: "2026-10-05T22:38:00.000Z",
-    sellerName: "Netshoes",
-    sellerId: "51rrnR3ToE",
-    brand: "Nutrição Esportiva",
-    category: "Suplementação & Nutrição",
-    carrier: "Correios SEDEX",
-    slaDays: 3,
-    trackingCode: "SEDEX-GTJ0522372-BR",
+    sellerName: "Aguardando Rock",
+    sellerId: "RhOFkbZJIN",
+    brand: "-",
+    category: "Aguardando Rock",
+    carrier: "-",
+    slaDays: 0,
+    trackingCode: "-",
     cashbackEarned: 814,
-    items: [
-      {
-        skuId: "SKU-WHEY-PROT-01",
-        name: "Pote de Whey Protein (Nutrição Esportiva)",
-        quantity: 1,
-        price: 176.4,
-        brand: "Nutrição Esportiva",
-        category: "Suplementação & Nutrição",
-        sellerName: "Netshoes",
-      },
-    ],
+    items: [],
     summary: { total: 176.4, totalShippingCost: 27.1, finalPrice: 203.5, points: { amount: 0, currencyAmount: 0 } },
   },
   {
@@ -685,31 +677,21 @@ const INITIAL_ORDERS: SandboxOrder[] = [
     orderNumber: "PFM0610443019",
     userId: "usr_andre",
     userName: "André Gallo",
-    productName: "Creatina Hardcore Integralmédica com Sabor 350g",
+    productName: "Item não detalhado pela Rock (1 item)",
     amountBrl: 56.85,
     pointsPaid: 0,
     status: "PAID",
     createdAt: "2026-10-06T10:44:00.000Z",
     paidAt: "2026-10-06T10:45:00.000Z",
-    sellerName: "Centauro",
-    sellerId: "seller_centauro",
-    brand: "Integralmédica",
-    category: "Suplementação & Nutrição",
-    carrier: "Total Express",
-    slaDays: 2,
-    trackingCode: "TX-PFM0610443-BR",
+    sellerName: "Aguardando Rock",
+    sellerId: "RhOFkbZJIN",
+    brand: "-",
+    category: "Aguardando Rock",
+    carrier: "-",
+    slaDays: 0,
+    trackingCode: "-",
     cashbackEarned: 227,
-    items: [
-      {
-        skuId: "SKU-CREAT-INT-350",
-        name: "Creatina Hardcore Integralmédica com Sabor 350g",
-        quantity: 1,
-        price: 44.1,
-        brand: "Integralmédica",
-        category: "Suplementação & Nutrição",
-        sellerName: "Centauro",
-      },
-    ],
+    items: [],
     summary: { total: 44.1, totalShippingCost: 12.75, finalPrice: 56.85, points: { amount: 0, currencyAmount: 0 } },
   },
 ];
@@ -931,19 +913,26 @@ class HomologationSandboxStore {
         const serverOrders = json?.orders || [];
         if (Array.isArray(serverOrders) && serverOrders.length > 0) {
           const mappedOrders: SandboxOrder[] = serverOrders.map((ord: any) => {
-            const rawSeller = ord.sellerName || ord.items?.[0]?.sellerName || ord.storeId || "Netshoes";
+            const rawSeller = ord.sellerName || ord.items?.[0]?.sellerName || "";
             let cleanSeller = rawSeller;
             if (/netshoes/i.test(rawSeller)) cleanSeller = "Netshoes";
             else if (/webcontinental/i.test(rawSeller)) cleanSeller = "Webcontinental";
             else if (/centauro/i.test(rawSeller)) cleanSeller = "Centauro";
             else if (/fila/i.test(rawSeller)) cleanSeller = "Fila";
             else if (/new balance|newbalance/i.test(rawSeller)) cleanSeller = "New Balance";
+            else if (!cleanSeller) cleanSeller = "Aguardando Rock";
 
             const pName = ord.productName || (ord.items && ord.items.length > 0
               ? (ord.items.length === 1 ? (ord.items[0].name || ord.items[0].productName) : `${ord.items[0].name || ord.items[0].productName} (+${ord.items.length - 1} item)`)
-              : `Item Netfits Shop`);
+              : `Item não detalhado pela Rock (1 item)`);
 
             const ptsEarned = Number(ord.cashbackEarned ?? ord.netfitsProcessing?.pointsEarned ?? Math.round(Number(ord.summary?.finalPrice ?? ord.summary?.total ?? 0) * 4));
+
+            const rawPaymentMethod = ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || ord.paymentMethod;
+            let cleanPaymentMethod = "-";
+            if (rawPaymentMethod === "CREDITCARD" || rawPaymentMethod === "CREDIT_CARD") cleanPaymentMethod = "Cartão de Crédito";
+            else if (rawPaymentMethod === "PIX") cleanPaymentMethod = "PIX";
+            else if (rawPaymentMethod) cleanPaymentMethod = String(rawPaymentMethod);
 
             return {
               id: ord._id || ord.orderRef,
@@ -959,13 +948,15 @@ class HomologationSandboxStore {
               summary: ord.summary,
               customer: ord.customer,
               items: ord.items || [],
+              metadata: ord.metadata || ord.rawPayload?.metadata,
+              paymentMethod: cleanPaymentMethod,
               sellerName: cleanSeller,
               sellerId: ord.items?.[0]?.sellerId || ord.storeId || "RhOFkbZJIN",
-              brand: ord.items?.[0]?.brand || ord.brand || cleanSeller,
-              category: ord.items?.[0]?.category || ord.category || "Artigos Esportivos",
-              carrier: ord.shipping?.carrier || "Total Express / Correios",
-              slaDays: ord.shipping?.slaDays || 2,
-              trackingCode: ord.shipping?.trackingCode || `TX-${(ord.orderRef || ord._id).slice(-8)}-BR`,
+              brand: ord.items?.[0]?.brand || ord.brand || "-",
+              category: ord.items?.[0]?.category || ord.category || (cleanSeller === "Aguardando Rock" ? "Aguardando Rock" : "Artigos Esportivos"),
+              carrier: ord.shipping?.carrier || "-",
+              slaDays: ord.shipping?.slaDays || 0,
+              trackingCode: ord.shipping?.trackingCode || "-",
               cashbackEarned: ptsEarned,
             };
           });

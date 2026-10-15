@@ -1333,29 +1333,51 @@ function AdminDashboardPage() {
       cashbackEarned: number;
     }>();
 
+    // Cálculo dinâmico do Mix Real de Meios de Pagamento
+    let creditCardOrdersCount = 0;
+    let creditCardGmv = 0;
+    let pixOrdersCount = 0;
+    let pixGmv = 0;
+    let unspecPaymentCount = 0;
+    let unspecPaymentGmv = 0;
+
     ordersList.forEach((ord: any) => {
+      const pm = (ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || "").toUpperCase();
+      const val = Number(ord.amountBrl ?? ord.summary?.finalPrice ?? 0);
+      if (pm.includes("CREDIT") || pm.includes("CARTAO") || pm.includes("CARD")) {
+        creditCardOrdersCount += 1;
+        creditCardGmv += val;
+      } else if (pm.includes("PIX")) {
+        pixOrdersCount += 1;
+        pixGmv += val;
+      } else {
+        unspecPaymentCount += 1;
+        unspecPaymentGmv += val;
+      }
+
       const items = ord.items && ord.items.length > 0 ? ord.items : [
         {
-          name: ord.productName || "Produto Esportivo",
+          name: ord.productName || "Item não detalhado pela Rock (1 item)",
           price: Number(ord.amountBrl ?? ord.summary?.finalPrice ?? 0),
           quantity: 1,
-          sellerName: ord.sellerName || "Netshoes",
-          brand: ord.brand || "Netshoes",
-          category: ord.category || "Artigos Esportivos",
+          sellerName: ord.sellerName || "Aguardando Rock",
+          brand: ord.brand || "-",
+          category: ord.category || "Aguardando Rock",
         }
       ];
 
       items.forEach((item: any) => {
-        const rawSeller = item.sellerName || ord.sellerName || "Netshoes";
+        const rawSeller = item.sellerName || ord.sellerName || "";
         let cleanSeller = rawSeller;
         if (/netshoes/i.test(rawSeller)) cleanSeller = "Netshoes";
         else if (/webcontinental/i.test(rawSeller)) cleanSeller = "Webcontinental";
         else if (/centauro/i.test(rawSeller)) cleanSeller = "Centauro";
         else if (/fila/i.test(rawSeller)) cleanSeller = "Fila";
         else if (/new balance|newbalance/i.test(rawSeller)) cleanSeller = "New Balance";
+        else if (!cleanSeller) cleanSeller = "Aguardando Rock";
 
         const itemVal = Number(item.finalPrice ?? item.price ?? (Number(ord.amountBrl ?? ord.summary?.finalPrice ?? 0) / items.length));
-        const itemCat = item.category || ord.category || "Artigos Esportivos";
+        const itemCat = item.category || ord.category || (cleanSeller === "Aguardando Rock" ? "Aguardando Rock" : "Artigos Esportivos");
 
         // Seller aggregation por loja oficial parceira
         if (!sellerMap.has(cleanSeller)) {
@@ -1384,13 +1406,13 @@ function AdminDashboardPage() {
         else if (ord.status === "PARTIALLY-DELIVERED") sData.partial += 1;
 
         // SKU / Produto aggregation com nome comercial descritivo em vez de códigos
-        const prodName = item.name || item.productName || ord.productName || "Produto Esportivo";
+        const prodName = item.name || item.productName || ord.productName || "Item não detalhado pela Rock (1 item)";
         const skuKey = prodName;
         if (!skuMap.has(skuKey)) {
           skuMap.set(skuKey, {
             skuId: item.skuId || `SKU-${skuKey.slice(0, 8)}`,
             name: prodName,
-            brand: item.brand || ord.brand || cleanSeller,
+            brand: item.brand || ord.brand || (cleanSeller === "Aguardando Rock" ? "-" : cleanSeller),
             category: itemCat,
             sellerName: cleanSeller,
             unitsSold: 0,
@@ -1408,6 +1430,11 @@ function AdminDashboardPage() {
       });
     });
 
+    const knownPaymentTotal = creditCardGmv + pixGmv;
+    const creditCardPct = knownPaymentTotal > 0 ? Number(((creditCardGmv / knownPaymentTotal) * 100).toFixed(1)) : 0;
+    const pixPct = knownPaymentTotal > 0 ? Number(((pixGmv / knownPaymentTotal) * 100).toFixed(1)) : 0;
+    const dominantPaymentLabel = creditCardOrdersCount >= pixOrdersCount ? "Cartão de Crédito Dominante" : "PIX Dominante";
+
     return {
       count,
       totalGmv,
@@ -1424,6 +1451,15 @@ function AdminDashboardPage() {
       onTimePct: 100.0,
       sellers: Array.from(sellerMap.values()),
       skus: Array.from(skuMap.values()).sort((a, b) => b.totalGmv - a.totalGmv),
+      creditCardOrdersCount,
+      creditCardGmv,
+      pixOrdersCount,
+      pixGmv,
+      unspecPaymentCount,
+      unspecPaymentGmv,
+      creditCardPct,
+      pixPct,
+      dominantPaymentLabel,
     };
   }, [realOrders, operationalParams.netfitsTakeRatePctFromGmv]);
 
@@ -3582,10 +3618,10 @@ function AdminDashboardPage() {
                           <Receipt className="size-4 text-lime-400" />
                           Mix de Meios de Pagamento
                         </h4>
-                        <p className="text-xs text-zinc-400">Distribuição financeira por modalidade de checkout</p>
+                        <p className="text-xs text-zinc-400">Distribuição financeira por modalidade de checkout oficial</p>
                       </div>
-                      <span className="text-[10px] font-mono text-lime-400 bg-lime-950/60 border border-lime-500/30 px-2 py-0.5 rounded">
-                        PIX Dominante
+                      <span className="text-[10px] font-mono text-lime-400 bg-lime-950/60 border border-lime-500/30 px-2 py-0.5 rounded font-bold">
+                        {isReal ? realMarketMetrics.dominantPaymentLabel : "PIX Dominante"}
                       </span>
                     </div>
 
@@ -3593,41 +3629,64 @@ function AdminDashboardPage() {
                       <div>
                         <div className="flex items-center justify-between text-xs font-bold mb-1">
                           <span className="text-zinc-300 flex items-center gap-1.5">
+                            <span className="size-2 rounded-full bg-purple-500" />
+                            Cartão de Crédito
+                          </span>
+                          <span className="text-white font-mono">
+                            {isReal ? `${realMarketMetrics.creditCardPct}% (${realMarketMetrics.creditCardOrdersCount} pedidos)` : "28.2%"}
+                          </span>
+                        </div>
+                        <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                          <div className="h-full bg-purple-500 rounded-full" style={{ width: `${isReal ? realMarketMetrics.creditCardPct : 28.2}%` }} />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-bold mb-1">
+                          <span className="text-zinc-300 flex items-center gap-1.5">
                             <span className="size-2 rounded-full bg-lime-400" />
                             PIX Instantâneo
                           </span>
-                          <span className="text-white font-mono">{isReal ? "100.0%" : "68.4%"}</span>
+                          <span className="text-white font-mono">
+                            {isReal ? `${realMarketMetrics.pixPct}% (${realMarketMetrics.pixOrdersCount} pedidos)` : "68.4%"}
+                          </span>
                         </div>
                         <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
-                          <div className="h-full bg-lime-400 rounded-full" style={{ width: isReal ? "100%" : "68.4%" }} />
+                          <div className="h-full bg-lime-400 rounded-full" style={{ width: `${isReal ? realMarketMetrics.pixPct : 68.4}%` }} />
                         </div>
                       </div>
 
-                      <div>
-                        <div className="flex items-center justify-between text-xs font-bold mb-1">
-                          <span className="text-zinc-300 flex items-center gap-1.5">
-                            <span className="size-2 rounded-full bg-purple-500" />
-                            Cartão de Crédito (com parcelamento)
-                          </span>
-                          <span className="text-white font-mono">{isReal ? "0.0%" : "28.2%"}</span>
+                      {isReal && realMarketMetrics.unspecPaymentCount > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between text-xs font-bold mb-1">
+                            <span className="text-zinc-400 flex items-center gap-1.5">
+                              <span className="size-2 rounded-full bg-zinc-600" />
+                              Não informado pela Rock (Pioneiros)
+                            </span>
+                            <span className="text-zinc-400 font-mono">
+                              {realMarketMetrics.unspecPaymentCount} pedidos (GTJ e PFM)
+                            </span>
+                          </div>
+                          <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                            <div className="h-full bg-zinc-700 rounded-full" style={{ width: `${(realMarketMetrics.unspecPaymentCount / (realMarketMetrics.count || 1)) * 100}%` }} />
+                          </div>
                         </div>
-                        <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
-                          <div className="h-full bg-purple-500 rounded-full" style={{ width: isReal ? "0%" : "28.2%" }} />
-                        </div>
-                      </div>
+                      )}
 
-                      <div>
-                        <div className="flex items-center justify-between text-xs font-bold mb-1">
-                          <span className="text-zinc-300 flex items-center gap-1.5">
-                            <span className="size-2 rounded-full bg-amber-400" />
-                            Boleto Bancário
-                          </span>
-                          <span className="text-white font-mono">{isReal ? "0.0%" : "3.4%"}</span>
+                      {!isReal && (
+                        <div>
+                          <div className="flex items-center justify-between text-xs font-bold mb-1">
+                            <span className="text-zinc-300 flex items-center gap-1.5">
+                              <span className="size-2 rounded-full bg-amber-400" />
+                              Boleto Bancário
+                            </span>
+                            <span className="text-white font-mono">3.4%</span>
+                          </div>
+                          <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
+                            <div className="h-full bg-amber-400 rounded-full" style={{ width: "3.4%" }} />
+                          </div>
                         </div>
-                        <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
-                          <div className="h-full bg-amber-400 rounded-full" style={{ width: isReal ? "0%" : "3.4%" }} />
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 
@@ -3992,6 +4051,7 @@ function AdminDashboardPage() {
                       <tr>
                         <th className="py-3 px-4">Produto &amp; Item Adquirido</th>
                         <th className="py-3 px-4">Lojista Parceiro (Loja)</th>
+                        <th className="py-3 px-4">Meio de Pagamento</th>
                         <th className="py-3 px-4">Atleta / Comprador</th>
                         <th className="py-3 px-4 text-right">Data &amp; Hora</th>
                         <th className="py-3 px-4 text-right">Valor Pago</th>
@@ -4004,7 +4064,7 @@ function AdminDashboardPage() {
                     <tbody className="divide-y divide-zinc-800 font-medium">
                       {filteredOrders.length === 0 ? (
                         <tr>
-                          <td colSpan={9} className="py-8 text-center text-zinc-500">
+                          <td colSpan={10} className="py-8 text-center text-zinc-500">
                             Nenhum pedido encontrado com os filtros selecionados.
                           </td>
                         </tr>
@@ -4013,42 +4073,55 @@ function AdminDashboardPage() {
                           const orderVal = Number(ord.amountBrl ?? ord.summary?.finalPrice ?? ord.summary?.total ?? 0);
                           const takeRateVal = orderVal * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
                           const ptsEarned = Number(ord.cashbackEarned ?? ord.netfitsProcessing?.pointsEarned ?? Math.round(orderVal * 4));
-                          const tracking = ord.trackingCode || `TX-${(ord.orderNumber || ord.id || "").slice(-8)}-BR`;
-                          const statusStr = String(ord.status || "DELIVERED").toUpperCase();
+                          const tracking = ord.trackingCode && ord.trackingCode !== "-" ? ord.trackingCode : "-";
+                          const statusStr = String(ord.status || "PAID").toUpperCase();
 
-                          let statusBadge = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-                          let statusLabel = "DELIVERED";
-                          if (statusStr === "SENT" || statusStr === "ENVIADO") {
+                          let statusBadge = "bg-blue-500/20 text-blue-300 border-blue-500/30";
+                          let statusLabel = "PAID (CONFIRMADO)";
+                          if (statusStr === "DELIVERED" || statusStr === "ENTREGUE") {
+                            statusBadge = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+                            statusLabel = "DELIVERED (ENTREGUE)";
+                          } else if (statusStr === "SENT" || statusStr === "ENVIADO") {
                             statusBadge = "bg-amber-500/20 text-amber-300 border-amber-500/30";
                             statusLabel = "SENT (EM TRÂNSITO)";
                           } else if (statusStr === "PARTIALLY-DELIVERED") {
                             statusBadge = "bg-purple-500/20 text-purple-300 border-purple-500/30";
                             statusLabel = "PARTIALLY DELIVERED";
-                          } else if (statusStr === "PAID") {
-                            statusBadge = "bg-blue-500/20 text-blue-300 border-blue-500/30";
-                            statusLabel = "PAID (CONFIRMADO)";
                           }
 
                           // Resolução limpa e confiável do Lojista Parceiro (Loja real)
-                          const rawSeller = ord.sellerName || ord.items?.[0]?.sellerName || ord.storeId || "Netshoes";
+                          const rawSeller = ord.sellerName || ord.items?.[0]?.sellerName || "";
                           let storeName = rawSeller;
                           if (/netshoes/i.test(rawSeller)) storeName = "Netshoes";
                           else if (/webcontinental/i.test(rawSeller)) storeName = "Webcontinental";
                           else if (/centauro/i.test(rawSeller)) storeName = "Centauro";
                           else if (/fila/i.test(rawSeller)) storeName = "Fila";
                           else if (/new balance|newbalance/i.test(rawSeller)) storeName = "New Balance";
+                          else if (!storeName || storeName === "RhOFkbZJIN") storeName = "Aguardando Rock";
 
-                          let storeBadgeStyle = "bg-blue-500/20 text-blue-300 border-blue-500/30";
+                          let storeBadgeStyle = "bg-zinc-800 text-zinc-400 border-zinc-700";
                           if (storeName === "Netshoes") storeBadgeStyle = "bg-amber-500/20 text-amber-300 border-amber-500/30";
                           else if (storeName === "Webcontinental") storeBadgeStyle = "bg-purple-500/20 text-purple-300 border-purple-500/30";
                           else if (storeName === "Centauro") storeBadgeStyle = "bg-red-500/20 text-red-300 border-red-500/30";
                           else if (storeName === "Fila") storeBadgeStyle = "bg-sky-500/20 text-sky-300 border-sky-500/30";
                           else if (storeName === "New Balance") storeBadgeStyle = "bg-rose-500/20 text-rose-300 border-rose-500/30";
 
+                          // Meio de pagamento oficial
+                          const rawPm = (ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || "").toUpperCase();
+                          let pmBadge = "bg-zinc-800 text-zinc-500 border-zinc-700";
+                          let pmLabel = "Não informado";
+                          if (rawPm.includes("CREDIT") || rawPm.includes("CARTAO") || rawPm.includes("CARD")) {
+                            pmBadge = "bg-purple-500/20 text-purple-300 border-purple-500/30";
+                            pmLabel = "Cartão de Crédito";
+                          } else if (rawPm.includes("PIX")) {
+                            pmBadge = "bg-lime-400/20 text-lime-400 border-lime-400/30";
+                            pmLabel = "PIX";
+                          }
+
                           // Nome do produto limpo e legível
-                          const itemName = ord.productName || ord.items?.[0]?.name || "Produto Esportivo Netfits";
-                          const itemBrand = ord.brand || ord.items?.[0]?.brand;
-                          const itemCat = ord.category || ord.items?.[0]?.category;
+                          const itemName = ord.productName || ord.items?.[0]?.name || (storeName === "Aguardando Rock" ? "Item não detalhado pela Rock (1 item)" : "Produto Esportivo Netfits");
+                          const itemBrand = ord.brand && ord.brand !== "-" ? ord.brand : ord.items?.[0]?.brand;
+                          const itemCat = ord.category && ord.category !== "Aguardando Rock" ? ord.category : ord.items?.[0]?.category;
 
                           return (
                             <tr key={ord.id || ord.orderNumber} className="hover:bg-zinc-800/40 transition">
@@ -4080,43 +4153,50 @@ function AdminDashboardPage() {
                                 </span>
                               </td>
 
-                              {/* 3. Atleta / Comprador */}
+                              {/* 3. Meio de Pagamento */}
+                              <td className="py-3 px-4">
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold border ${pmBadge}`}>
+                                  {pmLabel}
+                                </span>
+                              </td>
+
+                              {/* 4. Atleta / Comprador */}
                               <td className="py-3 px-4">
                                 <p className="font-bold text-white">{ord.userName || ord.customer?.name || "Atleta Netfits"}</p>
                                 <p className="text-[10px] text-zinc-400">{ord.customer?.email || ord.userId || "Cadastrado no App"}</p>
                               </td>
 
-                              {/* 4. Data & Hora */}
+                              {/* 5. Data & Hora */}
                               <td className="py-3 px-4 text-right text-zinc-400 font-mono text-[11px]">
                                 {ord.paidAt || ord.createdAt ? new Date(ord.paidAt || ord.createdAt).toLocaleString("pt-BR") : "15/10/2026"}
                               </td>
 
-                              {/* 5. Valor Pago */}
+                              {/* 6. Valor Pago */}
                               <td className="py-3 px-4 text-right font-bold text-white font-mono">
                                 R$ {orderVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </td>
 
-                              {/* 6. Cashback NFS */}
+                              {/* 7. Cashback NFS */}
                               <td className="py-3 px-4 text-right font-bold text-lime-400 font-mono">
                                 +{ptsEarned.toLocaleString("pt-BR")} nfs
                               </td>
 
-                              {/* 7. Take-Rate */}
+                              {/* 8. Take-Rate */}
                               <td className="py-3 px-4 text-right font-bold text-purple-400 font-mono">
                                 R$ {takeRateVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                               </td>
 
-                              {/* 8. Rastreio & Envio */}
+                              {/* 9. Rastreio & Envio */}
                               <td className="py-3 px-4 text-center">
                                 <div className="flex flex-col items-center gap-0.5">
                                   <span className="px-2 py-0.5 rounded bg-zinc-950 font-mono text-[10px] text-zinc-300 border border-zinc-800">
                                     {tracking}
                                   </span>
-                                  {ord.carrier && <span className="text-[9px] text-zinc-500">{ord.carrier}</span>}
+                                  {ord.carrier && ord.carrier !== "-" && <span className="text-[9px] text-zinc-500">{ord.carrier}</span>}
                                 </div>
                               </td>
 
-                              {/* 9. Status Oficial */}
+                              {/* 10. Status Oficial */}
                               <td className="py-3 px-4 text-center">
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${statusBadge}`}>
                                   {statusLabel}
