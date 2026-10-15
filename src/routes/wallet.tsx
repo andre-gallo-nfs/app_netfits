@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -20,6 +20,8 @@ import {
 import { useWallet, type WalletTx } from "@/lib/wallet-store";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { useOperationalParams } from "@/lib/operational-params-store";
+import { badgesStore } from "@/lib/badges-store";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export const Route = createFileRoute("/wallet")({
   head: () => ({
@@ -38,7 +40,12 @@ export const Route = createFileRoute("/wallet")({
 function WalletPage() {
   const { balance, txs } = useWallet();
   const params = useOperationalParams();
+  const activeUser = sharedSandboxStore.useActiveUser();
   const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
+
+  useEffect(() => {
+    badgesStore.evaluate();
+  }, []);
 
   const balanceBRL = (balance * params.cppResgateBrl).toLocaleString("pt-BR", {
     style: "currency",
@@ -55,8 +62,11 @@ function WalletPage() {
             alt=""
             className="absolute top-4 right-4 w-8 h-8 object-contain rounded-md bg-background/10 p-0.5 opacity-70 pointer-events-none"
           />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">
-            Saldo netfits
+          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2 flex items-center justify-between">
+            <span>Saldo netfits</span>
+            <span className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-medium">
+              {activeUser.fullName || "Atleta Netfits"}
+            </span>
           </p>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold tracking-tight">{balance.toLocaleString("pt-BR")}</span>

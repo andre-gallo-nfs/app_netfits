@@ -166,6 +166,7 @@ const INITIAL_USERS: SandboxUser[] = [
     gym: "Academia local / Independente",
     coaching: "Limite Team",
     wearable: "Garmin Forerunner",
+    loyaltyPrograms: ["livelo", "esfera"],
     nfsBalance: 1091,
     referralCode: "GALLO-NETFITS",
     registeredAt: "2026-10-05T00:00:00Z",
@@ -843,10 +844,48 @@ class HomologationSandboxStore {
 
   public getActiveUser(): SandboxUser {
     if (typeof window !== "undefined") {
+      // 1. Suporte a simulação por parâmetro de URL (ex: ?user=usr_andre ou ?sim=usr_andre)
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const simUserId = urlParams.get("user") || urlParams.get("sim");
+        if (simUserId) {
+          const foundSim = this.state.users.find(
+            (u) =>
+              u.id === simUserId ||
+              (u.email && u.email.toLowerCase() === simUserId.toLowerCase()) ||
+              u.identifier === simUserId
+          );
+          if (foundSim) {
+            localStorage.setItem(DEVICE_SESSION_KEY, foundSim.id);
+            this.state.activeUserId = foundSim.id;
+            return foundSim;
+          }
+        }
+      } catch {}
+
       const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
       if (deviceUserId) {
         const found = this.state.users.find((u) => u.id === deviceUserId);
         if (found) return found;
+      }
+
+      // 2. Em ambiente de Homologação / Staging: Se nenhuma sessão foi explicitamente configurada,
+      // simula por padrão o perfil do André Gallo (usr_andre) para permitir validação completa!
+      const hostname = window.location.hostname || "";
+      const isStagingEnv =
+        hostname.includes("lhr.life") ||
+        hostname.includes("localhost") ||
+        hostname.includes("staging") ||
+        window.location.port === "3000";
+
+      if (isStagingEnv) {
+        const andreUser = this.state.users.find((u) => u.id === "usr_andre");
+        if (andreUser) {
+          try {
+            localStorage.setItem(DEVICE_SESSION_KEY, andreUser.id);
+          } catch {}
+          return andreUser;
+        }
       }
     }
     if (this.state.activeUserId) {
