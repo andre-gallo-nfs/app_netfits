@@ -27,5 +27,7 @@ ios/DerivedData/
 dist-android/
 *.jks
 !android/app/netfits-upload-key.jks
+cloudflared.exe
+scripts/staging_url.txt
 
 
