@@ -722,12 +722,12 @@ function ProfilePage() {
                     <Sparkles className="size-3.5" /> Link Direto de Cadastro (Member-Get-Member)
                   </span>
                   <span className="text-[10px] font-bold text-lime-600 dark:text-lime-400 bg-lime-500/10 px-2 py-0.5 rounded-full border border-lime-500/20">
-                    +50 nfs por indicação | 10% no Shop (Clube)
+                    +50 nfs por indicação
                   </span>
                 </div>
 
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Ao enviar este link direto, seu amigo abre a página de cadastro com seu código <strong className="text-foreground">{activeUser.referralCode}</strong> pré-preenchido automaticamente! Você ganha <strong>+50 nfs</strong> no cadastro dele (premiação única com marcação permanente). Assinantes do <strong>Netfits Club</strong> turbinam a regra para <strong>10% de comissão em pontos</strong> sobre todas as compras dos indicados no Shop!
+                  Ao enviar este link direto, seu amigo abre a página de cadastro com seu código <strong className="text-foreground">{activeUser.referralCode}</strong> pré-preenchido automaticamente! Você ganha <strong>+50 nfs</strong> no cadastro dele (premiação com marcação permanente).
                 </p>
 
                 <div className="flex items-center gap-2 bg-card p-2.5 rounded-xl border border-border">

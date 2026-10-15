@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Check, Share2, Users, Sparkles, X, Gift } from "lucide-react";
+import { Copy, Check, Share2, Users, Sparkles, X } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { badgesStore } from "@/lib/badges-store";
@@ -113,12 +113,11 @@ export function InviteFriendsCard() {
             {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe <span className="text-brand">+50 nfs</span> por amigo.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">
-            Todo amigo que se cadastrar com seu código ou link ganha +50 nfs de boas-vindas e você ganha +50 nfs na hora. Assinantes do <b>Netfits Club</b> turbinam a regra e passam a ganhar 10% de comissão em pontos sobre todas as compras deles no Shop!
+            Todo amigo que se cadastrar com seu código ou link ganha +50 nfs de boas-vindas e você ganha +50 nfs na hora na sua carteira com vínculo permanente!
           </p>
 
-          <div className="grid grid-cols-3 gap-2 mb-5">
+          <div className="grid grid-cols-2 gap-2 mb-5">
             <Stat icon={<Users className="size-3.5" />} value="+50" label="nfs / amigo" />
-            <Stat icon={<Gift className="size-3.5" />} value="10%" label="no Shop (Clube)" />
             <Stat icon={<Sparkles className="size-3.5" />} value="Vínculo" label="permanente" />
           </div>
 
