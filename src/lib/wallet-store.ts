@@ -230,7 +230,16 @@ function getSnapshot(): WalletSnapshot {
 }
 
 function getServerSnapshot(): WalletSnapshot {
-  return SERVER_SNAPSHOT;
+  try {
+    const activeUser = sharedSandboxStore.getActiveUser();
+    const sandboxTxs = sharedSandboxStore.getUserTransactions(activeUser.id);
+    return {
+      balance: activeUser.nfsBalance,
+      txs: sandboxTxs.map(formatFriendlyTx),
+    };
+  } catch {
+    return SERVER_SNAPSHOT;
+  }
 }
 
 export function useWallet() {
