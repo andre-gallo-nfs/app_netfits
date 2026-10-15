@@ -72,5 +72,7 @@
 	<string>O Netfits necessita de acesso à câmera para captura da sua foto de perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>O Netfits necessita de acesso à sua galeria de fotos para você escolher sua foto de perfil.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
