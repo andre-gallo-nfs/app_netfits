@@ -88,11 +88,20 @@ export interface SandboxOrder {
   productName: string;
   amountBrl?: number;
   pointsPaid: number;
-  status: "processando" | "enviado" | "entregue" | "PAID" | "PENDING" | string;
+  status: "processando" | "enviado" | "entregue" | "PAID" | "PENDING" | "DELIVERED" | "SENT" | "PARTIALLY-DELIVERED" | string;
   createdAt: string;
   paidAt?: string;
   summary?: any;
   customer?: any;
+  items?: any[];
+  sellerName?: string;
+  sellerId?: string;
+  brand?: string;
+  category?: string;
+  carrier?: string;
+  slaDays?: number;
+  trackingCode?: string;
+  cashbackEarned?: number;
 }
 
 export interface SandboxInteraction {
@@ -469,7 +478,232 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
 
 const INITIAL_TICKETS: SandboxTicket[] = [];
 
-const INITIAL_ORDERS: SandboxOrder[] = [];
+const INITIAL_ORDERS: SandboxOrder[] = [
+  {
+    id: "AHK0918295258",
+    orderNumber: "AHK0918295258",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    productName: "Tênis ASICS Novablast 4 Performance — Tam 41",
+    amountBrl: 32.5,
+    pointsPaid: 0,
+    status: "DELIVERED",
+    createdAt: "2026-10-15T10:14:22.000Z",
+    paidAt: "2026-10-15T10:15:00.000Z",
+    sellerName: "ASICS Brasil Oficial",
+    sellerId: "seller_asics",
+    brand: "ASICS",
+    category: "Calçados de Corrida",
+    carrier: "Total Express",
+    slaDays: 2,
+    trackingCode: "TX-AHK0918295-BR",
+    cashbackEarned: 130,
+    items: [
+      {
+        skuId: "SKU-CALC-ASI-501",
+        name: "Tênis ASICS Novablast 4 Performance — Tam 41",
+        quantity: 1,
+        price: 32.5,
+        brand: "ASICS",
+        category: "Calçados de Corrida",
+        sellerName: "ASICS Brasil Oficial",
+      },
+    ],
+    summary: { total: 32.5, totalShippingCost: 0, finalPrice: 32.5, points: { amount: 0, currencyAmount: 0 } },
+  },
+  {
+    id: "SOP0711045469",
+    orderNumber: "SOP0711045469",
+    userId: "usr_cristiane_gallo",
+    userName: "Cristiane Ferreira Formigari",
+    productName: "Whey Protein Isolado Baunilha 900g — Dux",
+    amountBrl: 129.11,
+    pointsPaid: 50,
+    status: "DELIVERED",
+    createdAt: "2026-10-07T11:04:42.340Z",
+    paidAt: "2026-10-07T11:05:33.866Z",
+    sellerName: "Dux Nutrition Lab",
+    sellerId: "seller_dux",
+    brand: "Dux Nutrition",
+    category: "Suplementação & Nutrição",
+    carrier: "Jadlog Express",
+    slaDays: 2,
+    trackingCode: "JD-SOP0711045-BR",
+    cashbackEarned: 437,
+    items: [
+      {
+        skuId: "SKU-SUP-DUX-009",
+        name: "Whey Protein Isolado Baunilha 900g — Dux",
+        quantity: 1,
+        price: 109.9,
+        brand: "Dux Nutrition",
+        category: "Suplementação & Nutrição",
+        sellerName: "Dux Nutrition Lab",
+      },
+    ],
+    summary: { total: 109.9, totalShippingCost: 19.21, finalPrice: 129.11, points: { amount: 50, currencyAmount: 0.5 } },
+  },
+  {
+    id: "DOJ0918218027",
+    orderNumber: "DOJ0918218027",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    productName: "Pack Eletrólitos Sachê Limão Siciliano (10 unid)",
+    amountBrl: 9.75,
+    pointsPaid: 0,
+    status: "SENT",
+    createdAt: "2026-10-09T14:22:10.000Z",
+    paidAt: "2026-10-09T14:23:00.000Z",
+    sellerName: "Liquidz Hydration Oficial",
+    sellerId: "seller_liquidz",
+    brand: "Liquidz",
+    category: "Hidratação & Performance",
+    carrier: "Loggi Logística",
+    slaDays: 3,
+    trackingCode: "LG-DOJ0918218-BR",
+    cashbackEarned: 39,
+    items: [
+      {
+        skuId: "SKU-NUT-LIQ-012",
+        name: "Pack Eletrólitos Sachê Limão Siciliano (10 unid)",
+        quantity: 1,
+        price: 9.75,
+        brand: "Liquidz",
+        category: "Hidratação & Performance",
+        sellerName: "Liquidz Hydration Oficial",
+      },
+    ],
+    summary: { total: 9.75, totalShippingCost: 0, finalPrice: 9.75, points: { amount: 0, currencyAmount: 0 } },
+  },
+  {
+    id: "WQB0918281690",
+    orderNumber: "WQB0918281690",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    productName: "Meia Técnica de Compressão Graduada 20-30 mmHg",
+    amountBrl: 9.75,
+    pointsPaid: 0,
+    status: "DELIVERED",
+    createdAt: "2026-10-09T15:40:00.000Z",
+    paidAt: "2026-10-09T15:41:00.000Z",
+    sellerName: "Netshoes Brasil",
+    sellerId: "seller_netshoes",
+    brand: "Nike Running",
+    category: "Acessórios & Compressão",
+    carrier: "Correios SEDEX",
+    slaDays: 2,
+    trackingCode: "SL-WQB0918281-BR",
+    cashbackEarned: 39,
+    items: [
+      {
+        skuId: "SKU-ACES-MEIA-03",
+        name: "Meia Técnica de Compressão Graduada 20-30 mmHg",
+        quantity: 1,
+        price: 9.75,
+        brand: "Nike Running",
+        category: "Acessórios & Compressão",
+        sellerName: "Netshoes Brasil",
+      },
+    ],
+    summary: { total: 9.75, totalShippingCost: 0, finalPrice: 9.75, points: { amount: 0, currencyAmount: 0 } },
+  },
+  {
+    id: "SXZ0918365463",
+    orderNumber: "SXZ0918365463",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    productName: "Mochila Hidratação Trail 5L + 2 Soft Flasks 500ml",
+    amountBrl: 68.75,
+    pointsPaid: 0,
+    status: "PARTIALLY-DELIVERED",
+    createdAt: "2026-10-09T16:15:00.000Z",
+    paidAt: "2026-10-09T16:16:00.000Z",
+    sellerName: "Decathlon Pro Outdoor",
+    sellerId: "seller_decathlon",
+    brand: "Kalenji / Kiprun",
+    category: "Equipamentos & Aventura",
+    carrier: "Total Express",
+    slaDays: 3,
+    trackingCode: "TX-SXZ0918365-BR",
+    cashbackEarned: 275,
+    items: [
+      {
+        skuId: "SKU-CICL-DEC-104",
+        name: "Mochila Hidratação Trail 5L + 2 Soft Flasks 500ml",
+        quantity: 1,
+        price: 68.75,
+        brand: "Kalenji / Kiprun",
+        category: "Equipamentos & Aventura",
+        sellerName: "Decathlon Pro Outdoor",
+      },
+    ],
+    summary: { total: 68.75, totalShippingCost: 0, finalPrice: 68.75, points: { amount: 0, currencyAmount: 0 } },
+  },
+  {
+    id: "GTJ0522372096",
+    orderNumber: "GTJ0522372096",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    productName: "Camiseta Dry-FIT Performance UV50+ Netfits",
+    amountBrl: 203.5,
+    pointsPaid: 0,
+    status: "DELIVERED",
+    createdAt: "2026-10-07T19:41:16.317Z",
+    paidAt: "2026-10-07T19:41:16.317Z",
+    sellerName: "Centauro Oficial",
+    sellerId: "seller_centauro",
+    brand: "Netfits Athletic",
+    category: "Vestuário Esportivo",
+    carrier: "Total Express",
+    slaDays: 2,
+    trackingCode: "TX-GTJ0522372-BR",
+    cashbackEarned: 814,
+    items: [
+      {
+        skuId: "SKU-VEST-NET-001",
+        name: "Camiseta Dry-FIT Performance UV50+ Netfits",
+        quantity: 1,
+        price: 176.4,
+        brand: "Netfits Athletic",
+        category: "Vestuário Esportivo",
+        sellerName: "Centauro Oficial",
+      },
+    ],
+    summary: { total: 176.4, totalShippingCost: 27.1, finalPrice: 203.5, points: { amount: 0, currencyAmount: 0 } },
+  },
+  {
+    id: "PFM0610443019",
+    orderNumber: "PFM0610443019",
+    userId: "usr_andre",
+    userName: "André Gallo",
+    productName: "Braçadeira Porta-Celular Neoprene Pro Corrida",
+    amountBrl: 56.85,
+    pointsPaid: 0,
+    status: "DELIVERED",
+    createdAt: "2026-10-07T19:41:13.628Z",
+    paidAt: "2026-10-07T19:41:13.628Z",
+    sellerName: "Netshoes Brasil",
+    sellerId: "seller_netshoes",
+    brand: "Netfits Gear",
+    category: "Acessórios & Telemetria",
+    carrier: "Correios SEDEX",
+    slaDays: 3,
+    trackingCode: "SL-PFM0610443-BR",
+    cashbackEarned: 227,
+    items: [
+      {
+        skuId: "SKU-ACES-MUN-042",
+        name: "Braçadeira Porta-Celular Neoprene Pro Corrida",
+        quantity: 1,
+        price: 44.1,
+        brand: "Netfits Gear",
+        category: "Acessórios & Telemetria",
+        sellerName: "Netshoes Brasil",
+      },
+    ],
+    summary: { total: 44.1, totalShippingCost: 12.75, finalPrice: 56.85, points: { amount: 0, currencyAmount: 0 } },
+  },
+];
 
 // Histórico de interações: estritamente vazio para refletir apenas interações reais
 const INITIAL_INTERACTIONS: SandboxInteraction[] = [];
@@ -680,7 +914,7 @@ class HomologationSandboxStore {
             orderNumber: ord.orderRef || ord._id,
             userId: ord.customer?.ref || "",
             userName: ord.customer?.name || "Cliente Netfits",
-            productName: `Pedido Mkplace ${ord.orderRef || ord._id}`,
+            productName: ord.items?.[0]?.name || `Pedido Mkplace ${ord.orderRef || ord._id}`,
             amountBrl: Number(ord.summary?.finalPrice ?? ord.summary?.total ?? 0),
             pointsPaid: Number(ord.summary?.points?.amount ?? 0),
             status: ord.status || "PAID",
@@ -688,6 +922,15 @@ class HomologationSandboxStore {
             paidAt: ord.paidAt,
             summary: ord.summary,
             customer: ord.customer,
+            items: ord.items || [],
+            sellerName: ord.items?.[0]?.sellerName || ord.sellerName || "Parceiro Mkplace",
+            sellerId: ord.items?.[0]?.sellerId || ord.storeId || "RhOFkbZJIN",
+            brand: ord.items?.[0]?.brand || "Netfits",
+            category: ord.items?.[0]?.category || "Esportes",
+            carrier: ord.shipping?.carrier || "Total Express / Correios",
+            slaDays: ord.shipping?.slaDays || 2,
+            trackingCode: ord.shipping?.trackingCode || `TX-${(ord.orderRef || ord._id).slice(-8)}-BR`,
+            cashbackEarned: ord.netfitsProcessing?.pointsEarned || 0,
           }));
           this.state.orders = mappedOrders;
           this.saveToStorageLocally();
