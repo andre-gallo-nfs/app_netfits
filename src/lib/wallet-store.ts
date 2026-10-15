@@ -5,13 +5,131 @@ import { levelStore } from "@/lib/level-store";
 export type WalletTx = {
   id: string;
   title: string;
+  displayCategory: string;
+  rawDescription: string;
   date: string;
+  fullDate: string;
   amount: string; // e.g. "+199 nfs" / "-1.290 nfs"
+  amountNum: number;
   positive: boolean;
+  category: SandboxTransaction["category"];
+  orderRef?: string;
+  orderTotalBrl?: string;
+  badgeName?: string;
+  contentTitle?: string;
 };
 
 function formatNfs(n: number) {
   return n.toLocaleString("pt-BR");
+}
+
+export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
+  const desc = t.description || "";
+  let title = "Atividade Netfits";
+  let displayCategory = "Atividade";
+  let orderRef: string | undefined;
+  let orderTotalBrl: string | undefined;
+  let badgeName: string | undefined;
+  let contentTitle: string | undefined;
+
+  // 1. SHOPPING / RESGATE / COMPRA
+  if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate/i.test(desc)) {
+    displayCategory = "Shopping";
+    if (t.amount < 0 || /resgate/i.test(desc)) {
+      title = "Resgate no Shopping";
+    } else {
+      title = "Compra no Shopping";
+    }
+
+    const orderMatch = desc.match(/#([a-zA-Z0-9_\-]+)/);
+    if (orderMatch) {
+      orderRef = `#${orderMatch[1]}`;
+    }
+
+    const priceMatch = desc.match(/R\$\s*([\d.,]+)/i);
+    if (priceMatch) {
+      orderTotalBrl = priceMatch[1];
+    }
+  }
+  // 2. BOAS-VINDAS
+  else if (t.category === "welcome" || /boas-vindas|cadastramento|novo cadastro/i.test(desc)) {
+    title = "Bônus de Boas-Vindas";
+    displayCategory = "Boas-Vindas";
+  }
+  // 3. INDICAÇÃO / MGM
+  else if (t.category === "referral" || /indica|convid|amigo/i.test(desc)) {
+    title = "Indicação de Amigo";
+    displayCategory = "Tribo & Amigos";
+  }
+  // 4. SELOS & CONQUISTAS
+  else if (/selo|conquista/i.test(desc)) {
+    displayCategory = "Conquistas";
+    const cleanedBadge = desc.replace(/^.*(?:Selo Conquistado|Selo Desbloqueado|Conquista):\s*/i, "").trim();
+    badgeName = cleanedBadge || "Selo Netfits";
+    title = `Selo: ${badgeName}`;
+  }
+  // 5. ARTIGOS & LEITURAS
+  else if (/leitura|artigo/i.test(desc)) {
+    displayCategory = "Conteúdo & Feed";
+    title = "Leitura de Artigo";
+    contentTitle = desc.replace(/^.*(?:Leitura Completa de Artigo:\s*|Artigo:\s*)/i, "").trim();
+  }
+  // 6. COMPARTILHAMENTO
+  else if (t.category === "share" || /compartilhamento/i.test(desc)) {
+    displayCategory = "Comunidade";
+    title = "Compartilhamento de Conteúdo";
+    contentTitle = desc.replace(/^.*(?:Compartilhamento pós-visualização:\s*|Compartilhamento:\s*)/i, "").trim();
+  }
+  // 7. VÍDEO EDUCATIVO
+  else if (/vídeo|video/i.test(desc)) {
+    displayCategory = "Conteúdo & Feed";
+    title = "Vídeo Educativo";
+    contentTitle = desc.replace(/^.*(?:Visualização de Vídeo[^:]*:\s*)/i, "").trim();
+  }
+  // 8. CURTIDAS / INTERAÇÕES
+  else if (t.category === "like" || /curtida/i.test(desc)) {
+    displayCategory = "Comunidade";
+    title = "Curtida no Feed";
+    contentTitle = desc.replace(/^.*(?:Curtida no conteúdo:\s*)/i, "").trim();
+  }
+  // 9. DESAFIOS
+  else if (/desafio/i.test(desc)) {
+    displayCategory = "Saúde & Longevidade";
+    title = "Desafio Concluído";
+    contentTitle = desc.replace(/^.*(?:Desafio Netfits:\s*)/i, "").trim();
+  }
+  // 10. VISUALIZAÇÕES GERAIS
+  else if (t.category === "view" || /visualização|engajamento/i.test(desc)) {
+    displayCategory = "Conteúdo & Feed";
+    title = "Engajamento no Feed";
+    contentTitle = desc.replace(/^.*(?:Visualização completa:\s*)/i, "").trim();
+  } else {
+    title = desc.replace(/^[^\w\s]+/g, "").trim() || "Atividade Netfits";
+  }
+
+  const txDate = new Date(t.timestamp);
+  const dateStr = !isNaN(txDate.getTime()) ? txDate.toLocaleDateString("pt-BR") : "Data indisponível";
+  const timeStr = !isNaN(txDate.getTime())
+    ? txDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    : "";
+  const fullDateStr = timeStr ? `${dateStr} às ${timeStr}` : dateStr;
+
+  return {
+    id: t.id,
+    title,
+    displayCategory,
+    rawDescription: desc,
+    date: dateStr,
+    fullDate: fullDateStr,
+    amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
+    amountNum: t.amount,
+    positive: t.amount >= 0,
+    category: t.category,
+    orderRef,
+    orderTotalBrl,
+    badgeName,
+    contentTitle,
+  };
 }
 
 export const wallet = {
@@ -22,13 +140,7 @@ export const wallet = {
   getTransactions: (): WalletTx[] => {
     const active = sharedSandboxStore.getActiveUser();
     const sandboxTxs = sharedSandboxStore.getUserTransactions(active.id);
-    return sandboxTxs.map((t) => ({
-      id: t.id,
-      title: t.description,
-      date: new Date(t.timestamp).toLocaleDateString("pt-BR"),
-      amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
-      positive: t.amount >= 0,
-    }));
+    return sandboxTxs.map(formatFriendlyTx);
   },
 
   /** Debita nfs (gasto numa compra) e registra a movimentação. */
@@ -107,13 +219,7 @@ function getSnapshot(): WalletSnapshot {
   lastTxsCount = sandboxTxs.length;
   lastTxId = topTxId;
 
-  const formattedTxs: WalletTx[] = sandboxTxs.map((t) => ({
-    id: t.id,
-    title: t.description,
-    date: new Date(t.timestamp).toLocaleDateString("pt-BR"),
-    amount: `${t.amount >= 0 ? "+" : ""}${formatNfs(t.amount)} nfs`,
-    positive: t.amount >= 0,
-  }));
+  const formattedTxs: WalletTx[] = sandboxTxs.map(formatFriendlyTx);
 
   cachedSnapshot = {
     balance: activeUser.nfsBalance,

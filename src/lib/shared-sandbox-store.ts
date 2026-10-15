@@ -954,22 +954,31 @@ class HomologationSandboxStore {
   }
 
   public addTransaction(data: {
+    id?: string;
     userId: string;
     userName: string;
     amount: number;
     description: string;
     category: SandboxTransaction["category"];
+    timestamp?: string;
   }) {
+    if (data.id && this.state.transactions.some((t) => t.id === data.id)) {
+      return this.state.transactions.find((t) => t.id === data.id)!;
+    }
     const newTx: SandboxTransaction = {
-      id: `tx-${Date.now()}`,
+      id: data.id || `tx-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       userId: data.userId,
       userName: data.userName,
       amount: data.amount,
       description: data.description,
       category: data.category,
-      timestamp: new Date().toISOString(),
+      timestamp: data.timestamp || new Date().toISOString(),
     };
     this.state.transactions.unshift(newTx);
+    const targetUser = this.state.users.find((u) => u.id === data.userId);
+    if (targetUser) {
+      targetUser.nfsBalance = (targetUser.nfsBalance || 0) + data.amount;
+    }
     this.saveToStorage();
     return newTx;
   }

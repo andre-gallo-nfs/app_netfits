@@ -381,13 +381,37 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
 
     if (shouldUnlock !== badge.unlocked || newProgress !== badge.currentProgress) {
       hasChanged = true;
-      return {
+      badge = {
         ...badge,
         unlocked: shouldUnlock,
         unlockedAt: shouldUnlock ? (badge.unlockedAt || nowStr) : undefined,
         currentProgress: shouldUnlock ? badge.maxProgress : newProgress,
       };
     }
+
+    // Se o selo foi conquistado (ou já estava desbloqueado), garante que a pontuação correspondente
+    // foi lançada no extrato do usuário com idempotência absoluta
+    if (shouldUnlock && activeUser && activeUser.id) {
+      const badgeTxId = `tx-badge-${activeUser.id}-${badge.id}`;
+      const hasTx = txs.some(
+        (t: any) =>
+          t.id === badgeTxId ||
+          (t.description && t.description.includes(badge.title))
+      );
+      if (!hasTx) {
+        sharedSandboxStore.addTransaction({
+          id: badgeTxId,
+          userId: activeUser.id,
+          userName: activeUser.fullName || "Atleta Netfits",
+          amount: badge.rewardNfs,
+          description: `🏆 Selo Conquistado: ${badge.title}`,
+          category: "workout",
+          timestamp: new Date().toISOString(),
+        });
+        hasChanged = true;
+      }
+    }
+
     return badge;
   });
 
@@ -427,10 +451,19 @@ export const badgesStore = {
       try {
         const activeUser = sharedSandboxStore.getActiveUser();
         localStorage.setItem(getBadgesStorageKey(activeUser?.id), JSON.stringify(badgesList));
+        if (activeUser && activeUser.id) {
+          sharedSandboxStore.addTransaction({
+            id: `tx-badge-${activeUser.id}-${item.id}`,
+            userId: activeUser.id,
+            userName: activeUser.fullName,
+            amount: item.rewardNfs,
+            description: `🏆 Selo Conquistado: ${item.title}`,
+            category: "workout",
+          });
+        }
       } catch {}
     }
 
-    wallet.earn(item.rewardNfs, `Selo Desbloqueado: ${item.title}`);
     toast.success(`🎉 Selo Desbloqueado: "${item.title}"! (+${item.rewardNfs} nfs creditados)`);
     emit();
   },
@@ -482,7 +515,17 @@ export const badgesStore = {
     }
 
     if (shouldUnlock) {
-      wallet.earn(item.rewardNfs, `Selo Desbloqueado: ${item.title}`);
+      const activeUser = sharedSandboxStore.getActiveUser();
+      if (activeUser && activeUser.id) {
+        sharedSandboxStore.addTransaction({
+          id: `tx-badge-${activeUser.id}-${item.id}`,
+          userId: activeUser.id,
+          userName: activeUser.fullName,
+          amount: item.rewardNfs,
+          description: `🏆 Selo Conquistado: ${item.title}`,
+          category: "workout",
+        });
+      }
       toast.success(`🎉 Selo Desbloqueado: "${item.title}"! (+${item.rewardNfs} nfs creditados)`);
     }
     emit();
