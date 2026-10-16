@@ -3,7 +3,7 @@
  */
 
 export // Base Definitiva de Usuários em Produção (Go-Live)
-const DEFAULT_PRESEEDED_USERS = [
+const DEFAULT_PRESEEDED_USERS: any[] = [
   {
     id: "usr_andre",
     fullName: "André Gallo",
@@ -107,6 +107,32 @@ const DEFAULT_PRESEEDED_USERS = [
     passwordHash: "C6yK]rh5,~j_\"Mt",
   },
 ];
+
+// Usuário 5: Cristiane Queli da Silva Gallo
+DEFAULT_PRESEEDED_USERS.push({
+  id: "user-1792090334266",
+  fullName: "Cristiane Queli da Silva Gallo",
+  email: "c.queligallo@gmail.com",
+  phone: "(11) 97471-1188",
+  cpf: "18434771890",
+  birthDate: "15/03/1980",
+  address: "Rua Karl Von Den Steinen, 54 - Vila Mariana, São Paulo · SP",
+  street: "Rua Karl Von Den Steinen",
+  number: "54",
+  neighborhood: "Vila Mariana",
+  city: "São Paulo",
+  state: "São Paulo",
+  shortState: "SP",
+  zipcode: "04005030",
+  sports: ["Corrida de rua", "Musculação", "Caminhada"],
+  healthPlan: "",
+  gym: "",
+  wearable: "",
+  nfsBalance: 50,
+  userCategory: "atleta",
+  registeredAt: "2026-10-15T18:00:00.000Z",
+  passwordHash: "Cris@2026",
+});
 
 export const DEFAULT_PRESEEDED_TRANSACTIONS = [
   {
@@ -254,3 +280,13 @@ export const DEFAULT_PRESEEDED_TRANSACTIONS = [
     timestamp: "2026-10-09T18:01:47.385Z",
   },
 ];
+
+DEFAULT_PRESEEDED_TRANSACTIONS.push({
+  id: "tx-1792090334266-welcome",
+  userId: "user-1792090334266",
+  userName: "Cristiane Queli da Silva Gallo",
+  amount: 50,
+  description: "🎉 Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+  category: "welcome",
+  timestamp: "2026-10-15T18:00:00.000Z",
+});

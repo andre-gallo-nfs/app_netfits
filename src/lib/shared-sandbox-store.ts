@@ -350,6 +350,31 @@ const INITIAL_USERS: SandboxUser[] = [
   },
 ];
 
+INITIAL_USERS.push({
+  id: "user-1792090334266",
+  identifier: "c.queligallo@gmail.com",
+  email: "c.queligallo@gmail.com",
+  phone: "(11) 97471-1188",
+  cpf: "18434771890",
+  birthDate: "15/03/1980",
+  fullName: "Cristiane Queli da Silva Gallo",
+  address: "Rua Karl Von Den Steinen, 54 - Vila Mariana, São Paulo · SP",
+  street: "Rua Karl Von Den Steinen",
+  number: "54",
+  neighborhood: "Vila Mariana",
+  city: "São Paulo",
+  state: "São Paulo",
+  shortState: "SP",
+  zipcode: "04005030",
+  type: "athlete",
+  userCategory: "atleta",
+  nfsBalance: 50,
+  referralCode: "CRIS-NETFITS",
+  registeredAt: "2026-10-15T18:00:00.000Z",
+  passwordHash: "Cris@2026",
+  sports: ["Corrida de rua", "Musculação", "Caminhada"],
+});
+
 const INITIAL_PARTNERS: SandboxPartner[] = [];
 
 const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
@@ -561,6 +586,16 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     timestamp: "2026-10-09T18:01:47.385Z",
   },
 ];
+
+INITIAL_TRANSACTIONS.push({
+  id: "tx-1792090334266-welcome",
+  userId: "user-1792090334266",
+  userName: "Cristiane Queli da Silva Gallo",
+  amount: 50,
+  description: "🎉 Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+  category: "welcome",
+  timestamp: "2026-10-15T18:00:00.000Z",
+});
 
 const INITIAL_TICKETS: SandboxTicket[] = [];
 
