@@ -198,7 +198,7 @@ const DEFAULT_PRESEEDED_TRANSACTIONS = [
     userName: "André Gallo",
     amount: 40,
     description: "🏆 Selo Conquistado: Primeira Compra Pontuada",
-    category: "workout",
+    category: "badge",
     timestamp: "2026-10-05T22:38:35Z",
   },
   {
