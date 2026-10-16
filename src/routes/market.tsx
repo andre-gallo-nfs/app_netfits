@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2, Sparkles
+  Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -80,11 +80,6 @@ function MarketEmbeddedPage() {
     launchMkplaceShop({ userId: activeUser.id });
   };
 
-  const cashEquivalent = (balance * 0.01).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-
   return (
     <div className="relative w-full min-h-[calc(100dvh-116px)] bg-zinc-950 select-none overflow-y-auto">
       {/* Visualização de Prontidão enquanto a Rock fornece a Webview definitiva */}
@@ -117,14 +112,7 @@ function MarketEmbeddedPage() {
                   {balance.toLocaleString("pt-BR")}
                 </span>
                 <span className="text-sm font-bold text-lime-400">nfs</span>
-                <span className="text-xs text-zinc-400 ml-auto font-mono">
-                  ≈ {cashEquivalent}
-                </span>
               </div>
-              <p className="text-[11px] text-zinc-400 mt-1 flex items-center gap-1.5">
-                <Sparkles className="size-3 text-lime-400 shrink-0" />
-                <span>Cotação oficial de resgate: <strong>100 nfs = R$ 1,00</strong></span>
-              </p>
             </div>
           </div>
 

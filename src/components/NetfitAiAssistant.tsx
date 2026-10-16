@@ -208,17 +208,17 @@ export function NetfitAiAssistant() {
             {/* Quick Chips 100% Realtime */}
             <div className="p-3 border-b border-zinc-800/60 bg-zinc-900/40 flex items-center gap-2 overflow-x-auto no-scrollbar text-xs">
               <button
-                onClick={() => handleSend("Qual o meu saldo e quanto tenho em reais?")}
+                onClick={() => handleSend("Qual o meu saldo de pontos Netfits?")}
                 className="shrink-0 bg-purple-950/80 border border-purple-500/50 text-purple-200 font-semibold rounded-full px-3 py-1.5 transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <Wallet className="size-3.5 text-lime-400" />
                 Meu Saldo ({nfsBalance.toLocaleString()} nfs)
               </button>
               <button
-                onClick={() => handleSend("Quanto vale 1 nfs em resgates no Shop?")}
+                onClick={() => handleSend("Como resgatar meus pontos em compras no Shop?")}
                 className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
-                💵 1 nfs = R$ {(params.cppResgateBrl || 0.01).toFixed(2)}
+                🛍️ Resgates no Shop
               </button>
               <button
                 onClick={() => handleSend("Quantos pontos ganho por treino com relógio ou na Smart Fit?")}
