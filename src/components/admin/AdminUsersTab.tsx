@@ -52,6 +52,9 @@ export function AdminUsersTab({
   });
 
   useEffect(() => {
+    sharedSandboxStore.syncFromCloud().then((users) => {
+      setSandboxUsersList([...users]);
+    });
     return sharedSandboxStore.subscribe(() => {
       setSandboxUsersList([...sharedSandboxStore.getUsers()]);
     });

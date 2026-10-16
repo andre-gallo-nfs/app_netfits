@@ -955,7 +955,19 @@ class HomologationSandboxStore {
             return false;
           });
 
+          for (const u of this.state.users) {
+            if (u.id === "user-1792090334266" || (u.email && u.email.toLowerCase() === "c.queligallo@gmail.com")) {
+              u.nfsBalance = 50;
+            }
+          }
+          if (Array.isArray(json?.transactions)) {
+            this.state.transactions = json.transactions.filter((tx: any) => {
+              const isGallo = tx.userId === "user-1792090334266" || tx.userId === "usr_cristiane_gallo";
+              return !(isGallo && (tx.category === "badge" || tx.id?.startsWith("tx-badge-") || /selo|conquista/i.test(tx.description || "")));
+            });
+          }
           this.saveToStorageLocally();
+          this.notify();
 
           // Auto-recuperação resiliente: Se o usuário ativo deste dispositivo ainda não consta
           // no servidor central (caso de cadastros prévios à liberação do sync), envia automaticamente
@@ -1201,7 +1213,15 @@ class HomologationSandboxStore {
         }
         // Purgar transações antigas obsoletas se houver
         stored.transactions = (stored.transactions || []).filter(
-          (tx) => tx && tx.amount !== 1080 && !tx.description?.includes("1080")
+          (tx) => {
+          if (!tx) return false;
+          if (tx.amount === 1080 || tx.description?.includes("1080")) return false;
+          const isGallo = tx.userId === "user-1792090334266" || tx.userId === "usr_cristiane_gallo";
+          if (isGallo && (tx.category === "badge" || tx.id?.startsWith("tx-badge-") || /selo|conquista/i.test(tx.description || ""))) {
+            return false;
+          }
+          return true;
+        }
         );
 
         // Injetar transações oficiais que faltarem
@@ -1251,14 +1271,23 @@ class HomologationSandboxStore {
           if (userTxTotal > 0) {
             u.nfsBalance = userTxTotal;
           }
-          // Carrega backup individual salvo estritamente pelo ID do usuário
-          try {
-            const bRaw = localStorage.getItem(`netfits_profile_saved_${u.id}`);
-            if (bRaw) {
-              const backup = JSON.parse(bRaw);
-              Object.assign(u, backup);
+          if (u.id === "user-1792090334266" || (u.email && u.email.toLowerCase() === "c.queligallo@gmail.com")) {
+            u.nfsBalance = 50;
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.removeItem(`netfits_profile_saved_${u.id}`);
+                localStorage.removeItem("netfits_profile_saved_usr_cristiane_gallo");
+              } catch {}
             }
-          } catch {}
+          } else {
+            try {
+              const bRaw = localStorage.getItem(`netfits_profile_saved_${u.id}`);
+              if (bRaw) {
+                const backup = JSON.parse(bRaw);
+                Object.assign(u, backup);
+              }
+            } catch {}
+          }
         }
 
         stored.users = mergedUsers;
