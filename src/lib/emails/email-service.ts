@@ -39,6 +39,7 @@ export interface SendEmailPayload {
   subject: string;
   html: string;
   from?: string;
+  reply_to?: string | string[];
   apiKey?: string;
 }
 
@@ -48,11 +49,12 @@ export async function sendViaResend(options: SendEmailPayload) {
     throw new Error("Chave RESEND_API_KEY não configurada.");
   }
 
-  const payload = {
+  const payload: Record<string, any> = {
     from: options.from || "Netfits <boasvindas@netfits.com.br>",
     to: Array.isArray(options.to) ? options.to : [options.to],
     subject: options.subject,
     html: options.html,
+    reply_to: options.reply_to || "contato@netfits.com.br",
   };
 
   const response = await fetch("https://api.resend.com/emails", {
