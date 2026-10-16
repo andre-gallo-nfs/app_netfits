@@ -9,10 +9,12 @@ import {
   renderPasswordResetEmail,
   renderPointsCreditedEmail,
   renderShopOrderEmail,
+  renderNpsEmail,
   type WelcomeEmailData,
   type PasswordResetEmailData,
   type PointsCreditedEmailData,
   type ShopOrderEmailData,
+  type NpsEmailData,
 } from "./templates";
 
 function getResendApiKey(): string {
@@ -138,6 +140,20 @@ export async function sendShopOrderConfirmedEmail(params: ShopOrderEmailData & {
 }
 
 /**
+ * 5. E-mail de Pesquisa de Satisfação & Avaliação NPS
+ */
+export async function sendNpsSurveyEmail(params: NpsEmailData & { to: string }) {
+  const html = renderNpsEmail(params);
+
+  return sendViaResend({
+    to: params.to,
+    subject: `Como foi sua experiência na Netfits, ${params.nomeUsuario || "Atleta"}? ⭐`,
+    html,
+    from: "Netfits Feedback <experiencia@netfits.com.br>",
+  });
+}
+
+/**
  * Dispatcher assíncrono à prova de falhas para o App Mobile / Web (Cadastro)
  */
 export async function dispatchWelcomeEmailSafe(to: string, nomeUsuario: string) {
@@ -189,3 +205,85 @@ export async function dispatchPasswordResetEmailSafe(
     return null;
   }
 }
+
+/**
+ * Dispatcher assíncrono à prova de falhas para Pontos Creditados (+X nfs)
+ */
+export async function dispatchPointsCreditedEmailSafe(
+  to: string,
+  params: PointsCreditedEmailData
+) {
+  if (!to || !to.includes("@")) return null;
+  try {
+    const res = await fetch("/api/email/points-credited", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, ...params }),
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.warn("[dispatchPointsCreditedEmailSafe] Backend fetch falhou, tentando envio direto Resend:", err);
+  }
+
+  try {
+    return await sendPointsCreditedEmail({ to, ...params });
+  } catch (err) {
+    console.error("[dispatchPointsCreditedEmailSafe] Falha no disparo de pontos creditados:", err);
+    return null;
+  }
+}
+
+/**
+ * Dispatcher assíncrono à prova de falhas para Confirmação de Pedido do Shop
+ */
+export async function dispatchShopOrderEmailSafe(
+  to: string,
+  params: ShopOrderEmailData
+) {
+  if (!to || !to.includes("@")) return null;
+  try {
+    const res = await fetch("/api/email/order-confirmed", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, ...params }),
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.warn("[dispatchShopOrderEmailSafe] Backend fetch falhou, tentando envio direto Resend:", err);
+  }
+
+  try {
+    return await sendShopOrderConfirmedEmail({ to, ...params });
+  } catch (err) {
+    console.error("[dispatchShopOrderEmailSafe] Falha no disparo de confirmação de pedido:", err);
+    return null;
+  }
+}
+
+/**
+ * Dispatcher assíncrono à prova de falhas para Pesquisa de Satisfação NPS
+ */
+export async function dispatchNpsEmailSafe(
+  to: string,
+  params: NpsEmailData
+) {
+  if (!to || !to.includes("@")) return null;
+  try {
+    const res = await fetch("/api/email/nps-survey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, ...params }),
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.warn("[dispatchNpsEmailSafe] Backend fetch falhou, tentando envio direto Resend:", err);
+  }
+
+  try {
+    return await sendNpsSurveyEmail({ to, ...params });
+  } catch (err) {
+    console.error("[dispatchNpsEmailSafe] Falha no disparo de pesquisa NPS:", err);
+    return null;
+  }
+}
+

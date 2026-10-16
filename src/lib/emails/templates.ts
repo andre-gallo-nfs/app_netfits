@@ -43,6 +43,14 @@ export interface ShopOrderEmailData {
   enderecoEntrega?: string;
 }
 
+export interface NpsEmailData {
+  nomeUsuario: string;
+  tipoPesquisa?: "compra" | "experiencia_geral" | "atendimento";
+  numeroPedido?: string;
+  produto?: string;
+  appUrl?: string;
+}
+
 export function renderWelcomeEmail({ nomeUsuario, appUrl = "https://www.netfits.com.br" }: WelcomeEmailData): string {
   const nome = nomeUsuario || "Atleta";
   return `<!DOCTYPE html>
@@ -573,3 +581,159 @@ export function renderShopOrderEmail(data: ShopOrderEmailData): string {
 </body>
 </html>`;
 }
+
+export function renderNpsEmail(data: NpsEmailData): string {
+  const nome = data.nomeUsuario || "Atleta";
+  const baseUrl = data.appUrl || "https://www.netfits.com.br";
+  const pedidoQuery = data.numeroPedido ? `&pedido=${encodeURIComponent(data.numeroPedido)}` : "";
+
+  // Cores de botões da escala NPS: 0-6 Detratores (#ef4444), 7-8 Neutros (#f59e0b), 9-10 Promotores (#10b981)
+  const renderNpsButton = (score: number) => {
+    let bg = "#ef4444";
+    let color = "#ffffff";
+    if (score >= 7 && score <= 8) bg = "#f59e0b";
+    if (score >= 9) {
+      bg = "#10b981";
+      color = "#ffffff";
+    }
+    const linkUrl = `${baseUrl}/contato?nps=${score}&source=email${pedidoQuery}`;
+    return `<td align="center" style="padding: 4px;">
+      <a href="${linkUrl}" target="_blank" style="display: block; width: 36px; height: 38px; line-height: 38px; text-align: center; background-color: #27272a; border: 1px solid #3f3f46; border-radius: 8px; font-size: 15px; font-weight: 800; color: ${color}; text-decoration: none; border-bottom: 3px solid ${bg};">
+        ${score}
+      </a>
+    </td>`;
+  };
+
+  const contextMessage = data.numeroPedido
+    ? `Identificamos que seu pedido <b>#${data.numeroPedido}</b>${data.produto ? ` (<i>${data.produto}</i>)` : ""} foi concluído recentemente. Queremos garantir que sua experiência de compra e pontuação tenha sido nota 10.`
+    : `Como membro ativo da comunidade Netfits, sua avaliação contínua é o combustível para evoluirmos nossos serviços de fidelidade, tecnologia e bem-estar.`;
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sua opinião é fundamental na Netfits!</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none;">
+    <div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #09090b; opacity: 0;">
+        Avalie sua experiência na Netfits em apenas 1 clique. Ajude-nos a construir a melhor comunidade fitness do Brasil.
+        &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
+    </div>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #09090b;">
+        <tr>
+            <td align="center" style="padding: 40px 15px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #18181b; border: 1px solid #27272a; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding: 32px 30px 20px 30px; background: linear-gradient(135deg, #18181b 0%, #311042 100%); border-bottom: 1px solid #3f3f46;">
+                            <a href="${baseUrl}" target="_blank" style="text-decoration: none;">
+                                <div style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff;">
+                                    NET<span style="color: #a3e635;">FITS</span>
+                                </div>
+                            </a>
+                            <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: #a1a1aa; text-transform: uppercase; margin-top: 8px;">
+                                Ouvidoria &amp; Experiência do Atleta
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Bloco de Destaque -->
+                    <tr>
+                        <td align="center" style="padding: 32px 30px 10px 30px;">
+                            <div style="display: inline-block; background-color: rgba(192, 132, 252, 0.1); border: 1px solid #c084fc; border-radius: 50px; padding: 6px 18px; margin-bottom: 16px;">
+                                <span style="color: #c084fc; font-size: 12px; font-weight: 800; text-transform: uppercase;">
+                                    ⭐ PESQUISA DE SATISFAÇÃO (NPS)
+                                </span>
+                            </div>
+
+                            <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; line-height: 1.3; margin: 0 0 10px 0;">
+                                Olá, ${nome}! Como foi sua experiência?
+                            </h1>
+                            <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0; max-width: 500px;">
+                                ${contextMessage}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Card de Avaliação NPS -->
+                    <tr>
+                        <td style="padding: 10px 30px 25px 30px;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #27272a; border: 1px solid #3f3f46; border-radius: 16px; padding: 24px 20px;">
+                                <tr>
+                                    <td align="center" style="padding-bottom: 18px;">
+                                        <div style="color: #ffffff; font-size: 15px; font-weight: 700; line-height: 1.4; max-width: 460px;">
+                                            Em uma escala de 0 a 10, o quanto você recomendaria a Netfits para um amigo ou familiar?
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Linha da Escala 0 a 10 -->
+                                <tr>
+                                    <td align="center">
+                                        <table border="0" cellpadding="0" cellspacing="0" style="max-width: 100%;">
+                                            <tr>
+                                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(renderNpsButton).join("")}
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <!-- Legendas Escala -->
+                                <tr>
+                                    <td style="padding-top: 14px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="left" style="font-size: 11px; color: #ef4444; font-weight: 700;">
+                                                    &larr; 0 = Pouco Provável
+                                                </td>
+                                                <td align="right" style="font-size: 11px; color: #10b981; font-weight: 700;">
+                                                    10 = Altamente Provável &rarr;
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- CTA Adicional de Comentário -->
+                    <tr>
+                        <td align="center" style="padding: 0 30px 30px 30px;">
+                            <p style="color: #71717a; font-size: 13px; line-height: 1.5; margin: 0 0 16px 0;">
+                                Quer deixar um elogio, sugestão de melhoria ou relatar algum ponto de atenção?
+                            </p>
+                            <table border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 12px; background-color: #7c3aed;">
+                                        <a href="${baseUrl}/contato?source=email_nps${pedidoQuery}" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 13px; font-weight: 800; color: #ffffff; text-decoration: none; border-radius: 12px; letter-spacing: 0.5px;">
+                                            ENVIAR COMENTÁRIO ADICIONAL &rarr;
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Rodapé -->
+                    <tr>
+                        <td style="padding: 20px 30px; background-color: #09090b; border-top: 1px solid #27272a; text-align: center;">
+                            <p style="color: #52525b; font-size: 10px; line-height: 1.5; margin: 0;">
+                                <b>NETFITS LTDA</b> &bull; CNPJ 68.930.455/0001-40 &bull; Santana de Parnaíba - SP<br>
+                                Ouvidoria e Experiência: <a href="mailto:experiencia@netfits.com.br" style="color: #a1a1aa; text-decoration: underline;">experiencia@netfits.com.br</a>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+}
+
