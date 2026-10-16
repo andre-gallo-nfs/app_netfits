@@ -38,9 +38,26 @@ export interface SendEmailPayload {
   to: string | string[];
   subject: string;
   html: string;
+  text?: string;
   from?: string;
   reply_to?: string | string[];
   apiKey?: string;
+}
+
+function htmlToPlainText(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&bull;/g, "•")
+    .replace(/&rarr;/g, "->")
+    .replace(/&larr;/g, "<-")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export async function sendViaResend(options: SendEmailPayload) {
@@ -54,6 +71,7 @@ export async function sendViaResend(options: SendEmailPayload) {
     to: Array.isArray(options.to) ? options.to : [options.to],
     subject: options.subject,
     html: options.html,
+    text: options.text || htmlToPlainText(options.html),
     reply_to: options.reply_to || "contato@netfits.com.br",
   };
 
