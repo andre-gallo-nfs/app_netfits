@@ -177,9 +177,31 @@ export async function handleSyncRoutes(
     try {
       const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
       if (cloudData && Array.isArray(cloudData.users) && cloudData.users.length > 0) {
-        serverState.users = cloudData.users;
+        const mergedUserMap = new Map<string, any>();
+        // Preserva integralmente os usuários pre-semeados e em memória
+        for (const u of serverState.users) {
+          if (u && u.id) mergedUserMap.set(u.id, u);
+        }
+        // Mescla usuários da nuvem sem jamais expurgar usuários existentes
+        for (const cu of cloudData.users) {
+          if (cu && cu.id) {
+            const existing = mergedUserMap.get(cu.id);
+            mergedUserMap.set(cu.id, existing ? { ...existing, ...cu } : cu);
+          }
+        }
+        serverState.users = Array.from(mergedUserMap.values());
+
         if (cloudData.transactions && cloudData.transactions.length > 0) {
-          serverState.transactions = cloudData.transactions;
+          const txMap = new Map<string, any>();
+          for (const tx of serverState.transactions) {
+            if (tx && tx.id) txMap.set(tx.id, tx);
+          }
+          for (const ctx of cloudData.transactions) {
+            if (ctx && ctx.id) txMap.set(ctx.id, ctx);
+          }
+          serverState.transactions = Array.from(txMap.values()).sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
         }
         if (cloudData.updatedAt) {
           serverState.lastSyncTimestamp = cloudData.updatedAt;
