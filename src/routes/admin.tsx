@@ -60,6 +60,21 @@ export const getDynamicTimePeriods = (): { id: PeriodType; label: string; shortL
 
 const TIME_PERIODS = getDynamicTimePeriods();
 
+export function normalizeOrderPaymentMethod(raw?: string | null): "CREDIT_CARD" | "PIX" | "UNKNOWN" {
+  if (!raw) return "UNKNOWN";
+  const str = String(raw)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+  if (str.includes("CREDIT") || str.includes("CARTAO") || str.includes("CARD")) {
+    return "CREDIT_CARD";
+  }
+  if (str.includes("PIX")) {
+    return "PIX";
+  }
+  return "UNKNOWN";
+}
+
 type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "mkplace" | "interactions";
 
 export interface AdminPillarDef {
@@ -1376,12 +1391,12 @@ function AdminDashboardPage() {
     let unspecPaymentGmv = 0;
 
     ordersList.forEach((ord: any) => {
-      const pm = (ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || "").toUpperCase();
+      const pmType = normalizeOrderPaymentMethod(ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod);
       const val = Number(ord.amountBrl ?? ord.summary?.finalPrice ?? 0);
-      if (pm.includes("CREDIT") || pm.includes("CARTAO") || pm.includes("CARD")) {
+      if (pmType === "CREDIT_CARD") {
         creditCardOrdersCount += 1;
         creditCardGmv += val;
-      } else if (pm.includes("PIX")) {
+      } else if (pmType === "PIX") {
         pixOrdersCount += 1;
         pixGmv += val;
       } else {
@@ -4168,17 +4183,17 @@ function AdminDashboardPage() {
                           else if (storeName === "New Balance") storeBadgeStyle = "bg-rose-500/20 text-rose-300 border-rose-500/30";
 
                           // Meio de pagamento oficial
-                          const rawPm = (ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod || "").toUpperCase();
+                          const pmType = normalizeOrderPaymentMethod(ord.paymentMethod || ord.metadata?.paymentMethod || ord.rawPayload?.metadata?.paymentMethod);
                           let pmBadge = "bg-zinc-800 text-zinc-500 border-zinc-700";
                           let pmLabel = storeName === "Aguardando Rock" ? "Aguardando Rock" : "Não informado";
-                          if (rawPm.includes("CREDIT") || rawPm.includes("CARTAO") || rawPm.includes("CARD")) {
+                          if (pmType === "CREDIT_CARD") {
                             pmBadge = "bg-purple-500/20 text-purple-300 border-purple-500/30";
                             pmLabel = "Cartão de Crédito";
-                          } else if (rawPm.includes("PIX")) {
+                          } else if (pmType === "PIX") {
                             pmBadge = "bg-lime-400/20 text-lime-400 border-lime-400/30";
                             pmLabel = "PIX";
-                          } else if (rawPm && rawPm !== "-" && storeName !== "Aguardando Rock") {
-                            pmLabel = String(rawPm);
+                          } else if (ord.paymentMethod && ord.paymentMethod !== "-" && storeName !== "Aguardando Rock") {
+                            pmLabel = String(ord.paymentMethod);
                           }
 
                           // Nome do produto limpo e legível
