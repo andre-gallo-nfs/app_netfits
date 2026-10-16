@@ -108,30 +108,19 @@ const DEFAULT_PRESEEDED_USERS: any[] = [
   },
 ];
 
-// Usuário 5: Cristiane Queli da Silva Gallo
+// Usuário 5: Cristiane Queli da Silva Gallo (Cadastro Real 15/10/2026)
 DEFAULT_PRESEEDED_USERS.push({
   id: "user-1792090334266",
   fullName: "Cristiane Queli da Silva Gallo",
   email: "c.queligallo@gmail.com",
-  phone: "(11) 97471-1188",
-  cpf: "18434771890",
-  birthDate: "15/03/1980",
-  address: "Rua Karl Von Den Steinen, 54 - Vila Mariana, São Paulo · SP",
-  street: "Rua Karl Von Den Steinen",
-  number: "54",
-  neighborhood: "Vila Mariana",
-  city: "São Paulo",
-  state: "São Paulo",
-  shortState: "SP",
-  zipcode: "04005030",
-  sports: ["Corrida de rua", "Musculação", "Caminhada"],
-  healthPlan: "",
-  gym: "",
-  wearable: "",
+  phone: "",
+  cpf: "",
+  birthDate: "",
+  address: "",
   nfsBalance: 50,
   userCategory: "atleta",
+  type: "athlete",
   registeredAt: "2026-10-15T18:00:00.000Z",
-  passwordHash: "Cris@2026",
 });
 
 export const DEFAULT_PRESEEDED_TRANSACTIONS = [
