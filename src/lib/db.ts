@@ -50,8 +50,9 @@ export function getPostgresPool(): pg.Pool | null {
   }
 
   if (!cachedPool) {
+    const cleanUrl = config.databaseUrl.replace(/[?&]sslmode=[^&]+/gi, "");
     cachedPool = new Pool({
-      connectionString: config.databaseUrl,
+      connectionString: cleanUrl,
       ssl: {
         rejectUnauthorized: false, // Compatível com Supabase / Cloud SQL / PgBouncer
       },

@@ -55,12 +55,13 @@ console.log(`📜 Schema DDL carregado (${schemaSql.length} bytes)`);
 if (isDryRun || !dbUrl || dbUrl.includes("[PROD_DB_PASSWORD]") || dbUrl.includes("placeholder")) {
   console.log("\n⚠️ [MODO DRY-RUN / VALIDAÇÃO DE SINTAXE]:");
   console.log("A string de conexão contém marcadores ou você selecionou --dry-run.");
-  console.log("Validando a sintaxe e a estrutura do schema.sql localmente...");
+  console.log("Validando a integridade arquitetural do schema.sql localmente...");
   
   const tables = [
     "users",
     "user_consent_logs",
     "wallet_transactions",
+    "point_batches",
     "system_parameters",
     "system_parameters_history",
     "wallet_transactions_archive",
@@ -68,20 +69,49 @@ if (isDryRun || !dbUrl || dbUrl.includes("[PROD_DB_PASSWORD]") || dbUrl.includes
     "orders"
   ];
 
-  console.log("\n✅ TABELAS MAPEADAS NO SCHEMA:");
+  console.log("\n✅ 1. TABELAS MAPEADAS NO SCHEMA:");
   for (const t of tables) {
-    console.log(`  • Tabela '${t}': OK no schema.sql`);
+    if (schemaSql.includes(`CREATE TABLE IF NOT EXISTS ${t}`)) {
+      console.log(`  • Tabela '${t}': OK`);
+    } else {
+      console.error(`  ❌ Tabela '${t}' ausente no schema!`);
+      process.exit(1);
+    }
   }
-  console.log("\n✅ Índices de Performance: idx_users_email, idx_users_referral_code, idx_wallet_transactions_user");
-  console.log("✅ FinOps Cold Storage Procedure: archive_expired_wallet_transactions() presente");
+
+  console.log("\n✅ 2. STORED PROCEDURES TRANSACIONAIS (SECURITY DEFINER):");
+  const procedures = [
+    "rpc_credit_points",
+    "rpc_debit_points_fefo",
+    "prevent_direct_balance_mutation",
+    "archive_expired_wallet_transactions"
+  ];
+  for (const proc of procedures) {
+    if (schemaSql.includes(proc)) {
+      console.log(`  • Procedimento '${proc}()': Presente e protegido`);
+    } else {
+      console.error(`  ❌ Procedimento '${proc}()' ausente no schema!`);
+      process.exit(1);
+    }
+  }
+
+  console.log("\n✅ 3. POLÍTICAS ROW LEVEL SECURITY (RLS):");
+  const rlsCount = (schemaSql.match(/ENABLE ROW LEVEL SECURITY/g) || []).length;
+  console.log(`  • Tabelas com RLS explicitamente habilitado: ${rlsCount} tabelas`);
+
+  console.log("\n✅ 4. PARÂMETROS ATUARIAIS (CPC 30 / CPC 47):");
+  const hasBreakage5 = schemaSql.includes("target_breakage_pct NUMERIC(5,2) NOT NULL DEFAULT 5.00");
+  console.log(`  • Target Breakage cravado em 5,0%: ${hasBreakage5 ? "CONFIRMADO (OK)" : "AVISO: verificar valor"}`);
+
   console.log("\n🎉 SCHEMA VALIDADO COM SUCESSO! Pronto para execução assim que as credenciais ativas da nuvem forem injetadas.");
   process.exit(0);
 }
 
 // 3. Executar migração real se a string for válida
 async function runMigration() {
+  const cleanDbUrl = dbUrl.replace(/[?&]sslmode=[^&]+/gi, "");
   const client = new Client({
-    connectionString: dbUrl,
+    connectionString: cleanDbUrl,
     ssl: { rejectUnauthorized: false },
   });
 

@@ -15,7 +15,7 @@ import {
   type PointsCreditedEmailData,
   type ShopOrderEmailData,
   type NpsEmailData,
-} from "./templates";
+} from "./templates.ts";
 
 function getResendApiKey(): string {
   if (typeof process !== "undefined" && process.env?.RESEND_API_KEY) {

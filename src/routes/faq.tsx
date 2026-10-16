@@ -97,7 +97,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Dispositivos & Wearables",
     question: "Como conectar smartwatches e wearables como Garmin, Strava ou Apple Watch?",
     answer:
-      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) concedendo bônus automáticos de +20 nfs por treino validado."
+      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) para acompanhar seu histórico, zonas de esforço e badges de constância esportiva. (A concessão de pontos por treino é exclusiva para membros do Clube Netfits e está em fase de deliberação pela diretoria)."
   },
   {
     id: "faq_7",

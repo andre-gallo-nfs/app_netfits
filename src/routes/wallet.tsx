@@ -19,6 +19,7 @@ import {
   Filter,
 } from "lucide-react";
 import { useWallet, type WalletTx } from "@/lib/wallet-store";
+import { useWalletData } from "@/lib/queries/user-queries";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { useOperationalParams } from "@/lib/operational-params-store";
 import { badgesStore } from "@/lib/badges-store";
@@ -41,9 +42,12 @@ export const Route = createFileRoute("/wallet")({
 type PeriodFilter = "last5" | "today" | "week" | "month" | "all";
 
 function WalletPage() {
-  const { balance, txs } = useWallet();
-  const params = useOperationalParams();
+  const { balance: localBalance, txs: localTxs } = useWallet();
   const activeUser = sharedSandboxStore.useActiveUser();
+  const { data: remoteWallet } = useWalletData(activeUser.id);
+  const balance = remoteWallet?.balance ?? localBalance;
+  const txs = remoteWallet?.transactions ?? localTxs;
+  const params = useOperationalParams();
   const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
   const [filterPeriod, setFilterPeriod] = useState<PeriodFilter>("last5");
 

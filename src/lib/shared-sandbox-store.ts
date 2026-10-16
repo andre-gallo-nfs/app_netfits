@@ -12,11 +12,15 @@ export interface SandboxUser {
   birthDate?: string;
   fullName: string;
   type: "athlete" | "associado" | "partner" | "admin";
+  userCategory?: "atleta" | "associado" | "parceiro" | "admin";
+  isClubMember?: boolean;
   nfsBalance: number;
   referralCode: string;
   referredBy?: string;
   associatedWith?: string;
   registeredAt: string;
+  plan?: "free" | "club" | string;
+  isClubSubscriber?: boolean;
   avatarUrl?: string;
   professionalRegister?: string;
   specialty?: string;
@@ -157,6 +161,25 @@ export interface SandboxTicket {
   createdAt: string;
 }
 
+export interface SandboxOrderItem {
+  id?: string;
+  name?: string;
+  productName?: string;
+  quantity?: number;
+  priceBrl?: number;
+  price?: number;
+  unitPrice?: number;
+  finalPrice?: number;
+  skuId?: string;
+  sellerName?: string;
+  sellerId?: string;
+  status?: string;
+  trackingCode?: string;
+  carrier?: string;
+  brand?: string;
+  category?: string;
+}
+
 export interface SandboxOrder {
   id: string;
   orderNumber: string;
@@ -170,7 +193,7 @@ export interface SandboxOrder {
   paidAt?: string;
   summary?: any;
   customer?: any;
-  items?: any[];
+  items?: SandboxOrderItem[];
   sellerName?: string;
   sellerId?: string;
   brand?: string;
@@ -180,6 +203,9 @@ export interface SandboxOrder {
   trackingCode?: string;
   cashbackEarned?: number;
   paymentMethod?: string;
+  referralCode?: string;
+  netfitsProcessing?: any;
+  rawPayload?: any;
   metadata?: any;
 }
 
@@ -1383,6 +1409,15 @@ class HomologationSandboxStore {
       () => this.getActiveUser(),
       () => this.getActiveUser()
     );
+  }
+
+  public getUserById(id?: string): SandboxUser | undefined {
+    if (!id) return this.getActiveUser();
+    return this.state.users.find((u) => u.id === id);
+  }
+
+  public touch() {
+    this.notify();
   }
 
   public getUsers() {
