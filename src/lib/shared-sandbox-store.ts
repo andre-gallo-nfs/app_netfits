@@ -87,13 +87,12 @@ export function classifyTransactionCategory(t: {
     /selo|conquista|badge/i.test(desc);
   if (isBadge) return "badge";
 
-  // 2. Indicação de Amigos (MGM & Comissões de Indicação)
+  // 2. Indicação de Amigos (MGM — Exclusivamente no Cadastro Inicial de Novo Membro)
   const isReferral =
     cat === "referral" ||
     type === "referral" ||
     id.startsWith("tx-referral-") ||
-    id.includes("ref-comm") ||
-    /comissão de indicação|comissao de indicacao|indica|mgm|member get member/i.test(desc);
+    /indica|mgm|member get member/i.test(desc);
   if (isReferral) return "referral";
 
   // 3. Boas-Vindas / Cadastro Inicial
@@ -108,7 +107,7 @@ export function classifyTransactionCategory(t: {
   const isShop =
     cat === "shop" ||
     type === "shop" ||
-    (id.startsWith("tx-mkp-") && !id.includes("ref-comm")) ||
+    id.startsWith("tx-mkp-") ||
     /cashback|compra|shopping|pedido|mkplace/i.test(desc);
   if (isShop) return "shop";
 
