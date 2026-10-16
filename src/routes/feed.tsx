@@ -32,51 +32,15 @@ export const Route = createFileRoute("/feed")({
   component: FeedPage,
 });
 
-const FEED_CATEGORIES = [
-  "Para você",
-  "Em movimento",
-  "Nutrição",
-  "Saúde",
-  "Longevidade",
-] as const;
-
 export function FeedPage() {
-  const [activeCategory, setActiveCategory] = useState<string>("Para você");
-
   useEffect(() => {
     badgesStore.evaluate();
   }, []);
 
   return (
     <div className="pb-8 space-y-4">
-      {/* Abas Superiores de Filtro do Feed (Conforme Design Oficial) */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border/40 py-2.5 px-4 overflow-x-auto scrollbar-none flex items-center gap-2">
-        {FEED_CATEGORIES.map((cat) => {
-          const isActive = activeCategory === cat;
-          return (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => {
-                setActiveCategory(cat);
-                if (cat !== "Para você") {
-                  toast.info(`Filtrando feed por: ${cat}`);
-                }
-              }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                isActive
-                  ? "bg-foreground text-background shadow-xs font-bold ring-1 ring-foreground"
-                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              {cat}
-            </button>
-          );
-        })}
-      </div>
-
       {/* Lista Principal de Publicações do Feed — Exclusivo FIBIOS */}
-      <div className="space-y-6 pt-1">
+      <div className="space-y-6 pt-2">
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
 
