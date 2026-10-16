@@ -190,7 +190,7 @@ export const SEED_REAL_ORDERS: PersistentOrderRecord[] = [
       points: { amount: 50, currencyAmount: 0.5 },
     },
     customer: {
-      ref: "usr_cristiane_gallo",
+      ref: "user-1791370530242",
       name: "Cristiane Ferreira Formigari",
       email: "cristiane.formigari@fibios.com.br",
       document: "11001624882",
