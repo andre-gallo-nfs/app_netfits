@@ -441,33 +441,9 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
       };
     }
 
-    // Se o selo foi conquistado legitimamente, lança o crédito no extrato com idempotência
-    if (shouldUnlock && activeUser && activeUser.id) {
-      const hasTx = txs.some(
-        (t: any) =>
-          t.id === badgeTxId ||
-          (t.description && (
-            t.description.includes(badge.title) ||
-            (badge.id === "primeira_compra" && (t.description.includes("Primeiro Cashback") || t.description.includes("Primeira Compra Pontuada")))
-          ))
-      );
-      if (!hasTx) {
-        sharedSandboxStore.addTransaction({
-          id: badgeTxId,
-          userId: activeUser.id,
-          userName: activeUser.fullName || "Atleta Netfits",
-          amount: badge.rewardNfs,
-          description: `🏆 Selo Conquistado: ${badge.title}`,
-          category: "badge",
-          timestamp: new Date().toISOString(),
-        });
-        hasChanged = true;
-        if (typeof window !== "undefined") {
-          toast.success(`🏆 Selo Conquistado: "${badge.title}"! (+${badge.rewardNfs} nfs creditados)`);
-        }
-      }
-    }
-
+    // Nota: O cálculo de exibição em tempo real apenas atualiza o estado visual.
+    // Transações financeiras de selos no extrato NÃO devem ser geradas em loop passivo,
+    // mas sim de forma estrita em eventos pontuais de conclusão real.
     return badge;
   });
 
