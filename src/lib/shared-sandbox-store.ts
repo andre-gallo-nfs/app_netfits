@@ -3,8 +3,6 @@ import { toast } from "sonner";
 import { operationalParamsStore } from "./operational-params-store";
 import { dispatchPointsCreditedEmailSafe, dispatchShopOrderEmailSafe } from "./emails/email-service";
 
-const dispatchedPointsTxIds = new Set<string>();
-
 export interface SandboxUser {
   id: string;
   identifier: string;
@@ -209,16 +207,6 @@ const INITIAL_USERS: SandboxUser[] = [
     passwordHash: "Kite@1972",
   },
   {
-    id: "usr_cristiane_gallo",
-    identifier: "Cristiane Queli da Silva Gallo",
-    email: "",
-    fullName: "Cristiane Queli da Silva Gallo",
-    type: "athlete",
-    nfsBalance: 50,
-    referralCode: "CRIS-NETFITS",
-    registeredAt: "2026-10-06T00:00:00Z",
-  },
-  {
     id: "user-1791370530242",
     identifier: "cristiane.formigari@amantikira.com.br",
     email: "cristiane.formigari@amantikira.com.br",
@@ -408,15 +396,6 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     timestamp: "2026-10-06T18:00:00Z",
   },
   {
-    id: "tx-welcome-cristiane-gallo",
-    userId: "usr_cristiane_gallo",
-    userName: "Cristiane Queli da Silva Gallo",
-    amount: 50,
-    description: "🎉 Bônus de Boas-Vindas no Cadastramento Netfits",
-    category: "welcome",
-    timestamp: "2026-10-06T00:00:00Z",
-  },
-  {
     id: "tx-welcome-cristiane-formigari",
     userId: "user-1791370530242",
     userName: "Cristiane Ferreira Formigari",
@@ -521,7 +500,7 @@ const INITIAL_ORDERS: SandboxOrder[] = [
   {
     id: "SOP0711045469",
     orderNumber: "SOP0711045469",
-    userId: "usr_cristiane_gallo",
+    userId: "user-1791370530242",
     userName: "Cristiane Ferreira Formigari",
     productName: "Barra de Proteína Black Skull Whey Bar Gourmet Zero 12 Un",
     amountBrl: 129.11,
@@ -725,8 +704,6 @@ interface SandboxSchema {
   interactions: SandboxInteraction[];
   activeUserId: string;
 }
-
-const CLOUD_SYNC_ENDPOINT = "https://api.restful-api.dev/objects/ff8081819ff5b11001a0398235171e14";
 
 class HomologationSandboxStore {
   private state: SandboxSchema;
@@ -1315,31 +1292,11 @@ class HomologationSandboxStore {
         if (found) return found;
       }
 
-      // 2. Em ambiente de Homologação / Staging: Se nenhuma sessão foi explicitamente configurada,
-      // simula por padrão o perfil do André Gallo (usr_andre) para permitir validação completa!
-      const hostname = window.location.hostname || "";
-      const isStagingEnv =
-        hostname.includes("lhr.life") ||
-        hostname.includes("localhost") ||
-        hostname.includes("staging") ||
-        window.location.port === "3000";
-
-      if (isStagingEnv) {
-        const andreUser = this.state.users.find((u) => u.id === "usr_andre");
-        if (andreUser) {
-          try {
-            localStorage.setItem(DEVICE_SESSION_KEY, andreUser.id);
-          } catch {}
-          return andreUser;
-        }
-      }
     }
     if (this.state.activeUserId) {
       const found = this.state.users.find((u) => u.id === this.state.activeUserId);
       if (found) return found;
     }
-    const defaultAndre = this.state.users.find((u) => u.id === "usr_andre");
-    if (defaultAndre) return defaultAndre;
     return ANONYMOUS_GUEST_USER;
   }
 
@@ -1464,22 +1421,6 @@ class HomologationSandboxStore {
     const targetUser = this.state.users.find((u) => u.id === data.userId);
     if (targetUser) {
       targetUser.nfsBalance = (targetUser.nfsBalance || 0) + data.amount;
-
-      // Disparo automático e seguro de notificação de pontos por e-mail
-      if (data.amount > 0 && targetUser.email && targetUser.email.includes("@")) {
-        if (data.category !== "welcome" && !dispatchedPointsTxIds.has(newTx.id)) {
-          dispatchedPointsTxIds.add(newTx.id);
-          dispatchPointsCreditedEmailSafe(targetUser.email, {
-            nomeUsuario: targetUser.fullName,
-            pontos: data.amount,
-            origem: data.description,
-            saldoTotal: targetUser.nfsBalance,
-            dataHora: new Date().toLocaleString("pt-BR"),
-          }).catch((err) => {
-            console.warn("[addTransaction] Falha ao notificar crédito de pontos por e-mail:", err);
-          });
-        }
-      }
     }
     this.saveToStorage();
     return newTx;

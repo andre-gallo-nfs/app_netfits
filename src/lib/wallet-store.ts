@@ -329,7 +329,6 @@ export const wallet = {
     if (amount <= 0) return;
     const active = sharedSandboxStore.getActiveUser();
     if (active.nfsBalance < amount) return;
-    active.nfsBalance -= amount;
     sharedSandboxStore.addTransaction({
       userId: active.id,
       userName: active.fullName,
@@ -345,7 +344,6 @@ export const wallet = {
     const active = sharedSandboxStore.getActiveUser();
     const multiplier = levelStore.getMultiplier();
     const credited = Math.round(amount * multiplier);
-    active.nfsBalance += credited;
     sharedSandboxStore.addTransaction({
       userId: active.id,
       userName: active.fullName,

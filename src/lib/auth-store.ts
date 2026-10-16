@@ -75,16 +75,6 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     userCategory: "atleta",
     registeredAt: "2026-10-07T10:55:30.242Z",
   },
-  {
-    id: "usr_cristiane_gallo",
-    fullName: "Cristiane Queli da Silva Gallo",
-    email: "",
-    phone: "",
-    cpf: "",
-    passwordHash: "",
-    userCategory: "atleta",
-    registeredAt: "2026-10-06T00:00:00Z",
-  },
 ];
 
 export function cleanDigits(val: string): string {
@@ -378,7 +368,6 @@ export const authStore = {
     sharedSandboxStore.setActiveUser(regResult.user.id);
     emit();
 
-    wallet.earn(50, "Bônus de Boas-Vindas", "welcome");
     if (referralCode) {
       toast.success(`🎉 Cadastro realizado! Indicação "${referralCode.toUpperCase()}" vinculada (+50 nfs bônus).`);
     } else {
