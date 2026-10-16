@@ -53,6 +53,83 @@ export interface SandboxTransaction {
   timestamp: string;
 }
 
+export type TransactionOriginCategory =
+  | "badge"
+  | "shop"
+  | "referral"
+  | "welcome"
+  | "feed"
+  | "workout"
+  | "other";
+
+/**
+ * Classificador determinístico e mutuamente exclusivo de transações por origem.
+ * Garante 100% de reconciliação contábil (soma das origens == total emitido, diferença 0).
+ */
+export function classifyTransactionCategory(t: {
+  id?: string;
+  category?: string;
+  type?: string;
+  description?: string;
+  amount?: number;
+}): TransactionOriginCategory {
+  const desc = t.description || "";
+  const id = t.id || "";
+  const cat = (t.category || "").toLowerCase();
+  const type = (t.type || "").toLowerCase();
+
+  // 1. Selos & Badges Oficiais (Prioridade sobre menções contextuais como 'cashback' em 'Primeiro Cashback')
+  const isBadge =
+    id.startsWith("tx-badge-") ||
+    id.includes("badge") ||
+    cat === "badge" ||
+    type === "badge" ||
+    /selo|conquista|badge/i.test(desc);
+  if (isBadge) return "badge";
+
+  // 2. Indicação de Amigos (MGM & Comissões de Indicação)
+  const isReferral =
+    cat === "referral" ||
+    type === "referral" ||
+    id.startsWith("tx-referral-") ||
+    id.includes("ref-comm") ||
+    /comissão de indicação|comissao de indicacao|indica|mgm|member get member/i.test(desc);
+  if (isReferral) return "referral";
+
+  // 3. Boas-Vindas / Cadastro Inicial
+  const isWelcome =
+    cat === "welcome" ||
+    type === "welcome" ||
+    id.includes("welcome") ||
+    /boas-vindas|cadastramento|novo cadastro/i.test(desc);
+  if (isWelcome) return "welcome";
+
+  // 4. Compras no Shopping / Marketplace Netfits (Cashback)
+  const isShop =
+    cat === "shop" ||
+    type === "shop" ||
+    (id.startsWith("tx-mkp-") && !id.includes("ref-comm")) ||
+    /cashback|compra|shopping|pedido|mkplace/i.test(desc);
+  if (isShop) return "shop";
+
+  // 5. Engajamento no Feed & Conteúdo Mídia (Leituras, Vídeos, Desafios, Quizzes, Curtidas, Shares, Cliques)
+  const isFeed =
+    ["feed", "view", "like", "share", "click", "post"].includes(cat) ||
+    ["feed", "view", "like", "share", "click", "post"].includes(type) ||
+    id.includes("feed") ||
+    /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|visualizacao|compartilhamento|feed|fibios|franco|isabella/i.test(desc);
+  if (isFeed) return "feed";
+
+  // 6. Treinos & Atividades Físicas Validadas (GPS, Strava, Garmin, etc.)
+  const isWorkout =
+    cat === "workout" ||
+    type === "workout" ||
+    /treino|corrida|pedal|ciclismo|musculação|musculacao|strava|garmin|gps/i.test(desc);
+  if (isWorkout) return "workout";
+
+  return "other";
+}
+
 export interface SandboxPartner {
   id: string;
   tradeName: string;

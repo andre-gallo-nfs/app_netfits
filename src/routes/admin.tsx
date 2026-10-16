@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { wallet } from "@/lib/wallet-store";
 import { operationalParamsStore, useOperationalParams } from "@/lib/operational-params-store";
 import { useColdTier, coldTierStore } from "@/lib/cold-tier-store";
-import { sharedSandboxStore, SandboxInteraction } from "@/lib/shared-sandbox-store";
+import { sharedSandboxStore, SandboxInteraction, classifyTransactionCategory } from "@/lib/shared-sandbox-store";
 import { qaEngine, QaTestRunResult } from "@/lib/qa-autonomous-engine";
 import netfitsLogo from "@/assets/netfits-logo.png";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
@@ -916,13 +916,7 @@ function AdminDashboardPage() {
   const realTotalPointsRedeemed = realOrders.reduce((acc, o: any) => acc + (o.pointsPaid ?? o.summary?.points?.amount ?? 0), 0);
   const realTransactions = sharedSandboxStore.getTransactions();
   const realPartners = sharedSandboxStore.getPartners();
-  const realWorkoutTransactions = realTransactions.filter((t) => {
-    if (t.category !== "workout") return false;
-    const desc = t.description || "";
-    const isBadge = t.id.startsWith("tx-badge-") || t.id.includes("badge") || /selo|conquista/i.test(desc);
-    const isFeed = /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc);
-    return !isBadge && !isFeed;
-  });
+  const realWorkoutTransactions = realTransactions.filter((t) => classifyTransactionCategory(t) === "workout");
   const realWorkoutCount = realWorkoutTransactions.length;
   const realWorkoutPoints = realWorkoutTransactions.reduce((acc, t) => acc + (t.amount || 0), 0);
   const declaredLoyaltyUsers = sandboxUsersList.filter(u => u.loyaltyPrograms && u.loyaltyPrograms.length > 0);
@@ -936,16 +930,7 @@ function AdminDashboardPage() {
 
   // Transações de Feed & Incentivo Mídia Netfits (Apuradas Diretamente da Base de Dados)
   const realFeedTransactions = useMemo(() => {
-    return realTransactions.filter((t) => {
-      const desc = t.description || "";
-      const isBadge = t.id.startsWith("tx-badge-") || /selo|conquista/i.test(desc);
-      if (isBadge) return false;
-      return (
-        ["view", "click", "like", "share", "feed"].includes(t.category) ||
-        /leitura|artigo|desafio|quiz|vídeo|video|curtida|like|click|clique|visualização|feed|fibios|franco|isabella/i.test(desc) ||
-        t.id.includes("feed")
-      );
-    });
+    return realTransactions.filter((t) => classifyTransactionCategory(t) === "feed");
   }, [realTransactions]);
 
   const realFeedNfsIssued = useMemo(() => {
@@ -4617,79 +4602,90 @@ function AdminDashboardPage() {
 
         {/* Tab: Programa de Pontos (Fidelidade, Emissão, Resgate & Provisão Passiva) */}
         {activeTab === "points" && (() => {
+          const positiveTxs = realTransactions.filter((t) => (t.amount || 0) > 0);
           const totalEmitidos = isReal
-            ? (realTransactions.filter((t) => t.amount > 0).reduce((acc, t) => acc + (t.amount || 0), 0) || realNfsInCirculation)
+            ? (positiveTxs.reduce((acc, t) => acc + (t.amount || 0), 0) || realNfsInCirculation)
             : Math.round(12840000 * pf);
           const totalResgatados = isReal ? realTotalPointsRedeemed : Math.round(2415000 * pf);
           const totalExpirados = isReal ? 0 : Math.round(1540800 * pf);
           const baldeValidos = totalEmitidos - totalResgatados - totalExpirados;
           const provisaoBrl = baldeValidos * (operationalParams.costPerProvisionedPointBrl ?? 0.01);
 
-          const realWelcomePoints = realTransactions
-            .filter((t: any) => t.amount > 0 && (t.type === "welcome" || t.category === "welcome" || (t.description && /boas-vindas|cadastro/i.test(t.description))))
-            .reduce((acc, t) => acc + (t.amount || 0), 0) || Math.max(0, totalEmitidos - realWorkoutPoints);
-          const realShopPoints = realTransactions
-            .filter((t: any) => t.amount > 0 && (t.type === "shop" || t.category === "shop" || (t.description && /compra|cashback|shopping/i.test(t.description))))
-            .reduce((acc, t) => acc + (t.amount || 0), 0);
-          const realFeedPoints = realTransactions
-            .filter((t: any) => t.amount > 0 && (t.type === "feed" || t.category === "feed" || (t.description && /feed|artigo|quiz/i.test(t.description))))
-            .reduce((acc, t) => acc + (t.amount || 0), 0);
-          const realBadgePoints = realTransactions
-            .filter((t: any) => t.amount > 0 && (t.type === "badge" || t.category === "badge" || (t.description && /badge|conquista/i.test(t.description))))
-            .reduce((acc, t) => acc + (t.amount || 0), 0);
-          const realReferralPoints = realTransactions
-            .filter((t: any) => t.amount > 0 && (t.type === "referral" || t.category === "referral" || (t.description && /indica|mgm/i.test(t.description))))
-            .reduce((acc, t) => acc + (t.amount || 0), 0);
+          // Classificação determinística, mutuamente exclusiva e 100% reconciliada
+          const pointsByCategory = {
+            welcome: 0,
+            workout: 0,
+            shop: 0,
+            feed: 0,
+            badge: 0,
+            referral: 0,
+            other: 0,
+          };
+
+          if (isReal) {
+            positiveTxs.forEach((t) => {
+              const cat = classifyTransactionCategory(t);
+              pointsByCategory[cat] = (pointsByCategory[cat] || 0) + (t.amount || 0);
+            });
+          }
 
           const emissaoBreakdown = isReal
             ? [
-                {
+                ...(pointsByCategory.welcome > 0 ? [{
                   key: "welcome",
                   label: "Bônus de Boas-Vindas / Cadastro",
-                  count: realWelcomePoints,
-                  pct: totalEmitidos > 0 ? Number(((realWelcomePoints / totalEmitidos) * 100).toFixed(1)) : 100,
+                  count: pointsByCategory.welcome,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.welcome / totalEmitidos) * 100).toFixed(1)) : 0,
                   icon: "🎁",
                   color: "#84cc16"
-                },
-                ...(realWorkoutPoints > 0 ? [{
-                  key: "workouts",
-                  label: "Treinos & Atividades Físicas Validadas",
-                  count: realWorkoutPoints,
-                  pct: totalEmitidos > 0 ? Number(((realWorkoutPoints / totalEmitidos) * 100).toFixed(1)) : 0,
-                  icon: "🏃",
-                  color: "#f59e0b"
                 }] : []),
-                ...(realShopPoints > 0 ? [{
+                ...(pointsByCategory.shop > 0 ? [{
                   key: "shop",
                   label: "Cashback por Compras no Shopping",
-                  count: realShopPoints,
-                  pct: totalEmitidos > 0 ? Number(((realShopPoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  count: pointsByCategory.shop,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.shop / totalEmitidos) * 100).toFixed(1)) : 0,
                   icon: "🛍️",
                   color: "#10b981"
                 }] : []),
-                ...(realFeedPoints > 0 ? [{
-                  key: "feed",
-                  label: "Engajamento no Feed (Artigos & Quizzes)",
-                  count: realFeedPoints,
-                  pct: totalEmitidos > 0 ? Number(((realFeedPoints / totalEmitidos) * 100).toFixed(1)) : 0,
-                  icon: "👁️",
-                  color: "#3b82f6"
-                }] : []),
-                ...(realBadgePoints > 0 ? [{
+                ...(pointsByCategory.badge > 0 ? [{
                   key: "badge",
                   label: "Conquistas de Badges Oficiais",
-                  count: realBadgePoints,
-                  pct: totalEmitidos > 0 ? Number(((realBadgePoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  count: pointsByCategory.badge,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.badge / totalEmitidos) * 100).toFixed(1)) : 0,
                   icon: "🏆",
                   color: "#8b5cf6"
                 }] : []),
-                ...(realReferralPoints > 0 ? [{
+                ...(pointsByCategory.feed > 0 ? [{
+                  key: "feed",
+                  label: "Engajamento no Feed (Artigos, Mídia & Quizzes)",
+                  count: pointsByCategory.feed,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.feed / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "👁️",
+                  color: "#3b82f6"
+                }] : []),
+                ...(pointsByCategory.referral > 0 ? [{
                   key: "referral",
-                  label: "Indicação de Amigos (MGM)",
-                  count: realReferralPoints,
-                  pct: totalEmitidos > 0 ? Number(((realReferralPoints / totalEmitidos) * 100).toFixed(1)) : 0,
+                  label: "Indicação de Amigos (MGM & Comissões)",
+                  count: pointsByCategory.referral,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.referral / totalEmitidos) * 100).toFixed(1)) : 0,
                   icon: "👥",
                   color: "#ec4899"
+                }] : []),
+                ...(pointsByCategory.workout > 0 ? [{
+                  key: "workouts",
+                  label: "Treinos & Atividades Físicas Validadas",
+                  count: pointsByCategory.workout,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.workout / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "🏃",
+                  color: "#f59e0b"
+                }] : []),
+                ...(pointsByCategory.other > 0 ? [{
+                  key: "other",
+                  label: "Outras Bonificações Especiais",
+                  count: pointsByCategory.other,
+                  pct: totalEmitidos > 0 ? Number(((pointsByCategory.other / totalEmitidos) * 100).toFixed(1)) : 0,
+                  icon: "✨",
+                  color: "#06b6d4"
                 }] : [])
               ]
             : [
