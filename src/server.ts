@@ -19,7 +19,9 @@ import {
 import {
   sendWelcomeEmail,
   sendPasswordResetEmail,
+  sendPointsCreditedEmail,
   sendShopOrderConfirmedEmail,
+  sendNpsSurveyEmail,
 } from "./lib/emails/email-service";
 import {
   fetchPersistentOrders,
@@ -1152,6 +1154,74 @@ export default {
           });
 
           // =========================================================================
+          // DISPAROS DE E-MAILS TRANSACIONAIS OFICIAIS (RESEND)
+          // 1. Confirmação de Pedido do Shop
+          // 2. Crédito de Cashback (Pontos)
+          // 3. Pesquisa de Satisfação NPS (em pedidos Entregues)
+          // =========================================================================
+          const targetRecipientEmail = user?.email || rawOrder?.customerEmail || rawOrder?.customer?.email || "";
+          const targetRecipientName = user?.fullName || rawOrder?.customer?.name || "Atleta Netfits";
+
+          if (targetRecipientEmail && targetRecipientEmail.includes("@") && !isReplay) {
+            const rawItems = Array.isArray(finalOrder?.items) ? finalOrder.items : [];
+            const itemsSummary = rawItems.length > 0
+              ? rawItems.map((it: any) => `${it.name || it.title || "Item"} (x${it.quantity || 1})`).join(", ")
+              : "Produtos Netfits Shop";
+            const firstItem = rawItems[0] || {};
+            const storeName = (rawOrder as any)?.storeName || firstItem?.sellerName || "Netfits Shop";
+
+            // 1. Pedido Confirmado / Aprovado
+            if (isApproved) {
+              sendShopOrderConfirmedEmail({
+                to: targetRecipientEmail,
+                nomeUsuario: targetRecipientName,
+                numeroPedido: String(finalOrder.orderRef || orderId),
+                produto: itemsSummary,
+                parceiro: storeName,
+                quantidade: rawItems.reduce((acc: number, it: any) => acc + (Number(it.quantity) || 1), 0) || 1,
+                valorSubtotal: (finalOrder?.summary as any)?.total ?? (finalOrder?.summary as any)?.subtotal,
+                pontosUtilizados: result.pointsUsed || 0,
+                valorDescontoPontos: (result.pointsUsed || 0) > 0 ? ((result.pointsUsed || 0) * 0.25).toFixed(2) : undefined,
+                valorFrete: (finalOrder?.summary as any)?.totalShippingCost ? String((finalOrder?.summary as any)?.totalShippingCost) : undefined,
+                formaPagamento: (finalOrder as any)?.paymentMethod || rawOrder?.paymentMethod || "Cartão de Crédito",
+                valorTotalPago: (finalOrder?.summary as any)?.finalPrice ?? (finalOrder?.summary as any)?.total,
+                saldoRestante: user ? user.nfsBalance : undefined,
+                dataCompra: new Date().toLocaleDateString("pt-BR"),
+              }).catch((err) => {
+                console.warn("[MKPlace Order Email] Falha no disparo de confirmação:", err);
+              });
+            }
+
+            // 2. Crédito de Cashback
+            if (cashbackCredited && result.nfsEarned > 0) {
+              sendPointsCreditedEmail({
+                to: targetRecipientEmail,
+                nomeUsuario: targetRecipientName,
+                pontos: result.nfsEarned,
+                origem: `Cashback da Compra no Shop #${orderId}`,
+                saldoTotal: user ? user.nfsBalance : result.nfsEarned,
+                dataHora: new Date().toLocaleString("pt-BR"),
+              }).catch((err) => {
+                console.warn("[MKPlace Cashback Email] Falha no disparo de cashback:", err);
+              });
+            }
+
+            // 3. Avaliação NPS (quando entregue)
+            const isDelivered = ["DELIVERED", "COMPLETED", "ENTREGUE"].includes(String(incomingStatus).toUpperCase());
+            if (isDelivered) {
+              sendNpsSurveyEmail({
+                to: targetRecipientEmail,
+                nomeUsuario: targetRecipientName,
+                tipoPesquisa: "compra",
+                numeroPedido: String(finalOrder.orderRef || orderId),
+                produto: itemsSummary,
+              }).catch((err) => {
+                console.warn("[MKPlace NPS Email] Falha no disparo de pesquisa NPS:", err);
+              });
+            }
+          }
+
+          // =========================================================================
           // REGRA 6 DA AUDITORIA ROCK:
           // Registrar no log de cada requisição: horário, _id, status e código HTTP
           // NUNCA registrar a x-api-key!
@@ -1673,6 +1743,93 @@ export default {
         }
       }
     }
+
+    if (url.pathname === "/api/email/points-credited" || url.pathname === "/api/email/points-credited/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const to = body.to || body.email;
+          const nomeUsuario = body.nomeUsuario || body.fullName || "Atleta";
+          const pontos = body.pontos;
+          const origem = body.origem || "Atividade no App";
+          const saldoTotal = body.saldoTotal ?? pontos;
+          const dataHora = body.dataHora;
+          if (!to) {
+            return new Response(JSON.stringify({ error: "Campo 'to' é obrigatório" }), { status: 400, headers: corsHeaders });
+          }
+          if (pontos === undefined || pontos === null) {
+            return new Response(JSON.stringify({ error: "Campo 'pontos' é obrigatório" }), { status: 400, headers: corsHeaders });
+          }
+          const result = await sendPointsCreditedEmail({ to, nomeUsuario, pontos, origem, saldoTotal, dataHora });
+          return new Response(JSON.stringify({ success: true, result }), { status: 200, headers: corsHeaders });
+        } catch (err: any) {
+          console.error("[api/email/points-credited] Erro:", err);
+          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers: corsHeaders });
+        }
+      }
+    }
+
+    if (url.pathname === "/api/email/order-confirmed" || url.pathname === "/api/email/order-confirmed/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const to = body.to || body.email;
+          const numeroPedido = body.numeroPedido || body.orderId || body.orderRef;
+          if (!to || !numeroPedido) {
+            return new Response(JSON.stringify({ error: "Campos 'to' e 'numeroPedido' são obrigatórios" }), { status: 400, headers: corsHeaders });
+          }
+          const result = await sendShopOrderConfirmedEmail({
+            to,
+            nomeUsuario: body.nomeUsuario || body.fullName || "Atleta",
+            numeroPedido,
+            produto: body.produto || "Produtos Netfits Shop",
+            parceiro: body.parceiro || body.loja || "Netfits Shop",
+            quantidade: body.quantidade || 1,
+            valorSubtotal: body.valorSubtotal,
+            pontosUtilizados: body.pontosUtilizados || 0,
+            valorDescontoPontos: body.valorDescontoPontos,
+            valorFrete: body.valorFrete,
+            formaPagamento: body.formaPagamento,
+            valorTotalPago: body.valorTotalPago,
+            saldoRestante: body.saldoRestante,
+            corStatusCashback: body.corStatusCashback,
+            textoStatusCashback: body.textoStatusCashback,
+            previsaoEntrega: body.previsaoEntrega,
+            enderecoEntrega: body.enderecoEntrega,
+            dataCompra: body.dataCompra,
+          });
+          return new Response(JSON.stringify({ success: true, result }), { status: 200, headers: corsHeaders });
+        } catch (err: any) {
+          console.error("[api/email/order-confirmed] Erro:", err);
+          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers: corsHeaders });
+        }
+      }
+    }
+
+    if (url.pathname === "/api/email/nps-survey" || url.pathname === "/api/email/nps-survey/") {
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          const to = body.to || body.email;
+          if (!to) {
+            return new Response(JSON.stringify({ error: "Campo 'to' é obrigatório" }), { status: 400, headers: corsHeaders });
+          }
+          const result = await sendNpsSurveyEmail({
+            to,
+            nomeUsuario: body.nomeUsuario || body.fullName || "Atleta",
+            tipoPesquisa: body.tipoPesquisa || "experiencia_geral",
+            numeroPedido: body.numeroPedido || body.orderId,
+            produto: body.produto,
+            appUrl: body.appUrl,
+          });
+          return new Response(JSON.stringify({ success: true, result }), { status: 200, headers: corsHeaders });
+        } catch (err: any) {
+          console.error("[api/email/nps-survey] Erro:", err);
+          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500, headers: corsHeaders });
+        }
+      }
+    }
+
 
     // ==========================================
     // ENDPOINTS DE FINOPS & COLD DATA TIERING

@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { operationalParamsStore } from "./operational-params-store";
+import { dispatchPointsCreditedEmailSafe, dispatchShopOrderEmailSafe } from "./emails/email-service";
+
+const dispatchedPointsTxIds = new Set<string>();
 
 export interface SandboxUser {
   id: string;
@@ -1461,6 +1464,22 @@ class HomologationSandboxStore {
     const targetUser = this.state.users.find((u) => u.id === data.userId);
     if (targetUser) {
       targetUser.nfsBalance = (targetUser.nfsBalance || 0) + data.amount;
+
+      // Disparo automático e seguro de notificação de pontos por e-mail
+      if (data.amount > 0 && targetUser.email && targetUser.email.includes("@")) {
+        if (data.category !== "welcome" && !dispatchedPointsTxIds.has(newTx.id)) {
+          dispatchedPointsTxIds.add(newTx.id);
+          dispatchPointsCreditedEmailSafe(targetUser.email, {
+            nomeUsuario: targetUser.fullName,
+            pontos: data.amount,
+            origem: data.description,
+            saldoTotal: targetUser.nfsBalance,
+            dataHora: new Date().toLocaleString("pt-BR"),
+          }).catch((err) => {
+            console.warn("[addTransaction] Falha ao notificar crédito de pontos por e-mail:", err);
+          });
+        }
+      }
     }
     this.saveToStorage();
     return newTx;
@@ -1627,8 +1646,9 @@ class HomologationSandboxStore {
     if (referrer) {
       const referralBonus = operationalParamsStore.getParams().normalUserNewReferralBonusNfs ?? 50;
       referrer.nfsBalance += referralBonus;
+      const refTxId = `tx-${Date.now()}-referrer`;
       this.state.transactions.unshift({
-        id: `tx-${Date.now()}-referrer`,
+        id: refTxId,
         userId: referrer.id,
         userName: referrer.fullName,
         amount: referralBonus,
@@ -1636,6 +1656,16 @@ class HomologationSandboxStore {
         category: "referral",
         timestamp: new Date().toISOString(),
       });
+
+      if (referrer.email && referrer.email.includes("@")) {
+        dispatchPointsCreditedEmailSafe(referrer.email, {
+          nomeUsuario: referrer.fullName,
+          pontos: referralBonus,
+          origem: `Indicação de Amigo: ${newUser.fullName} se cadastrou na Netfits`,
+          saldoTotal: referrer.nfsBalance,
+          dataHora: new Date().toLocaleString("pt-BR"),
+        }).catch((err) => console.warn("[registerAthlete] Falha ao notificar indicação:", err));
+      }
     }
 
     this.saveToStorage();
@@ -1750,6 +1780,23 @@ class HomologationSandboxStore {
       category: "shop",
       timestamp: new Date().toISOString(),
     });
+
+    if (active.email && active.email.includes("@")) {
+      dispatchShopOrderEmailSafe(active.email, {
+        nomeUsuario: active.fullName,
+        numeroPedido: newOrder.orderNumber,
+        produto: productName,
+        parceiro: "Netfits Shop",
+        quantidade: 1,
+        pontosUtilizados: pointsPrice,
+        valorDescontoPontos: (pointsPrice * 0.01).toFixed(2),
+        formaPagamento: "Saldo Netfits (nfs)",
+        saldoRestante: active.nfsBalance,
+        dataCompra: new Date().toLocaleDateString("pt-BR"),
+      }).catch((err) => {
+        console.warn("[buyShopProduct] Falha no disparo de confirmação:", err);
+      });
+    }
 
     this.saveToStorage();
     toast.success(`🎉 Resgate de "${productName}" realizado com sucesso! Debitado: -${pointsPrice} nfs.`);
