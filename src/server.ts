@@ -1415,7 +1415,7 @@ export default {
             newUserRegistrationBonusNfs: globalServerOperationalParams.newUserRegistrationBonusNfs ?? 50,
             cppAcumuloBrl: globalServerOperationalParams.cppAcumuloBrl ?? 0.015,
             cppResgateBrl: globalServerOperationalParams.cppResgateBrl ?? 0.01,
-            friendCommissionPct: globalServerOperationalParams.normalUserReferralSharePct || 5.0,
+            friendCommissionPct: 0.0, // Desativada no momento (0.0%). Será avaliada futuramente apenas com a implantação do Netfits Club.
             netfitsTakeRatePct: globalServerOperationalParams.netfitsTakeRatePctFromGmv || 6.0,
             settlementPeriodDays: 14,
           },

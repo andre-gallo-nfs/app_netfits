@@ -171,8 +171,8 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   associadoShareOfNetfitsRevenuePct: 10.0,
   normalUserNewReferralBonusNfs: 50,
   newUserRegistrationBonusNfs: 50,
-  clubMemberReferralShopPointsPct: 10.0,
-  normalUserReferralSharePct: 10.0,
+  clubMemberReferralShopPointsPct: 0.0, // Desativada (0%). Será avaliada exclusivamente no futuro lançamento do Clube Netfits.
+  normalUserReferralSharePct: 0.0, // Desativada (0%). Usuário comum NÃO recebe comissão sobre compras de amigos.
 
   cppAcumuloBrl: 0.015, // R$ 0,015 por ponto de acúmulo (atualizado conforme diretriz executiva)
   cppResgateBrl: 0.01,
@@ -193,7 +193,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v10";
+const STORAGE_KEY = "netfits_operational_params_v11";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

@@ -4665,7 +4665,7 @@ function AdminDashboardPage() {
                 }] : []),
                 ...(pointsByCategory.referral > 0 ? [{
                   key: "referral",
-                  label: "Indicação de Amigos (MGM & Comissões)",
+                  label: "Indicação de Novos Membros (MGM no Cadastro)",
                   count: pointsByCategory.referral,
                   pct: totalEmitidos > 0 ? Number(((pointsByCategory.referral / totalEmitidos) * 100).toFixed(1)) : 0,
                   icon: "👥",
