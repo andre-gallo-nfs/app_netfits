@@ -55,15 +55,18 @@ run('git merge staging --no-ff -m "chore(release): tombar homologacao para produ
 // 7. Revalidar main com o build final
 run("npm run validate", "Validando integridade pós-merge na branch main");
 
-// 8. Publicar no GitHub (dispara deploy de produção)
+// 8. Publicar no GitHub
 run("git push origin main", "Publicando versão oficial de Produção no GitHub");
 
-// 9. Voltar para a branch de trabalho (staging)
+// 9. Publicar versão de Produção diretamente no Cloudflare Workers (Oficial Netfits)
+run("npm run build:prod && npx wrangler deploy", "Publicando versão oficial no Cloudflare Workers (www.netfits.com.br)");
+
+// 10. Voltar para a branch de trabalho (staging)
 run("git checkout staging", "Retornando para a branch 'staging' (Segurança de Desenvolvimento)");
 
 console.log("\n=======================================================");
 console.log("✅ TOMBAMENTO CONCLUÍDO COM SUCESSO!");
 console.log("1. A versão validada em Homologação foi promovida para Produção ('main').");
-console.log("2. O deploy de Produção foi disparado automaticamente.");
+console.log("2. O repositório GitHub e o Cloudflare Workers foram atualizados com sucesso.");
 console.log("3. Seu ambiente de trabalho já voltou para 'staging' com segurança.");
 console.log("=======================================================\n");
