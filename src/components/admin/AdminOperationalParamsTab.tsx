@@ -159,35 +159,41 @@ export function AdminOperationalParamsTab() {
               </span>
             </div>
 
-            {/* 1. Categorias de Visualização/Leitura */}
+            {/* 1. Quizzes de Conhecimento & Leitura */}
             <div className="space-y-2">
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                1. Pontuação por Categoria de Post (Leitura & Visualização)
+                1. Pontuação de Quizzes & Leitura no Feed
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <ParamInput
-                  label="Posts Próprios Netfits & Fibios (Educacionais)"
-                  unit="nfs / view"
-                  value={params.nfsPerEducationalPostView ?? 5}
+                  label="Quiz em Posts Próprios Netfits & Fibios"
+                  unit="nfs / acerto"
+                  value={params.nfsPerEducationalQuiz ?? 5}
                   onChange={(v) =>
                     setParams((p) => ({
                       ...p,
-                      nfsPerEducationalPostView: Number(v),
-                      nfsPerPostView: Number(v),
+                      nfsPerEducationalQuiz: Number(v),
                     }))
                   }
                 />
                 <ParamInput
-                  label="Posts Patrocinados (Marcas & Parceiros)"
-                  unit="nfs / view"
-                  value={params.nfsPerSponsoredPostView ?? 10}
-                  onChange={(v) => setParams((p) => ({ ...p, nfsPerSponsoredPostView: Number(v) }))}
+                  label="Quiz em Posts Patrocinados por Parceiros"
+                  unit="nfs / acerto"
+                  value={params.nfsPerSponsoredQuiz ?? 10}
+                  onChange={(v) => setParams((p) => ({ ...p, nfsPerSponsoredQuiz: Number(v) }))}
                 />
                 <ParamInput
-                  label="Desafios / Quiz Diário (com trava 1/dia)"
-                  unit="nfs / acerto"
-                  value={params.nfsPerQuiz ?? 5}
-                  onChange={(v) => setParams((p) => ({ ...p, nfsPerQuiz: Number(v) }))}
+                  label="Leitura Passiva de Posts (Sem premiação)"
+                  unit="nfs / view"
+                  value={params.nfsPerEducationalPostView ?? 0}
+                  onChange={(v) =>
+                    setParams((p) => ({
+                      ...p,
+                      nfsPerEducationalPostView: Number(v),
+                      nfsPerSponsoredPostView: Number(v),
+                      nfsPerPostView: Number(v),
+                    }))
+                  }
                 />
               </div>
             </div>

@@ -110,7 +110,7 @@ export function NetfitsEducationalCard() {
         return;
       }
 
-      const points = feedAntifraud.getRules().pointsPerQuiz ?? 5;
+      const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
       wallet.earn(points, "Desafio Netfits: Propósito, Longevidade & Bem-Estar");
@@ -124,7 +124,7 @@ export function NetfitsEducationalCard() {
 
   const handleClaimRead = () => {
     if (readClaimed) {
-      toast.info("Você já coletou a recompensa de leitura deste manifesto.");
+      toast.info("Você já concluiu a validação de leitura deste manifesto.");
       return;
     }
 
@@ -140,10 +140,8 @@ export function NetfitsEducationalCard() {
     }
 
     setReadClaimed(true);
-    const points = feedAntifraud.getRules().pointsPerEducationalView; // 5 nfs oficiais
-    wallet.earn(points, "Leitura: O Propósito Netfits — Longevidade, Saúde & Bem-Estar");
-    feedAntifraud.recordAction("read", ARTICLE_POST_ID, points);
-    toast.success(`👏 Leitura e rolagem validadas com sucesso! (+${points} nfs creditados na sua carteira)`);
+    feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0);
+    toast.success("👏 Leitura e rolagem validadas com sucesso! Agora responda ao Desafio para pontuar.");
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
@@ -441,7 +439,7 @@ export function NetfitsEducationalCard() {
 
               {readClaimed ? (
                 <div className="p-3 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold text-center">
-                  ✅ Você já resgatou os {feedAntifraud.getRules().pointsPerEducationalView} nfs desta leitura de manifesto!
+                  ✅ Leitura e rolagem validadas! Responda o Desafio no card para conquistar +5 NFs.
                 </div>
               ) : (
                 <button
@@ -460,7 +458,7 @@ export function NetfitsEducationalCard() {
                       ? `Aguarde ${Math.max(0, minDwellRequired - dwellTimeSeconds)}s de leitura`
                       : !isScrollQualified
                       ? "Role o texto até o final para validar a leitura ⬇"
-                      : `Confirmar Leitura e Conquistar +${feedAntifraud.getRules().pointsPerEducationalView} nfs`}
+                      : "Validar Leitura do Manifesto"}
                   </span>
                 </button>
               )}

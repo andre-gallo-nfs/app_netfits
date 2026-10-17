@@ -113,7 +113,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
         return;
       }
 
-      const points = feedAntifraud.getRules().pointsPerQuiz ?? 5;
+      const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
       wallet.earn(points, "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)");
@@ -127,26 +127,22 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
 
   const handleClaimRead = () => {
     if (readClaimed) {
-      toast.info("Você já coletou a recompensa de leitura deste artigo.");
+      toast.info("Você já confirmou a leitura deste artigo.");
       return;
     }
 
-    const validation = feedAntifraud.validateAction("read", ARTICLE_POST_ID, {
-      dwellTimeSeconds,
-      hasScrolledToBottom,
-      postCategory: "educational",
-    });
+    if (dwellTimeSeconds < feedAntifraud.getRules().minDwellTimeSeconds) {
+      toast.warning(`Permaneça na leitura por mais ${feedAntifraud.getRules().minDwellTimeSeconds - dwellTimeSeconds}s para validar.`);
+      return;
+    }
 
-    if (!validation.allowed) {
-      toast.warning(validation.reason || "Requisitos de leitura e rolagem não atingidos.");
+    if (!hasScrolledToBottom && feedAntifraud.getRules().requireScrollToBottom) {
+      toast.warning("Role o artigo até o final para confirmar a leitura.");
       return;
     }
 
     setReadClaimed(true);
-    const points = feedAntifraud.getRules().pointsPerEducationalView; // 5 nfs oficiais
-    wallet.earn(points, "Leitura Completa de Artigo: Força & Longevidade (Dr. Franco Merici)");
-    feedAntifraud.recordAction("read", ARTICLE_POST_ID, points);
-    toast.success(`👏 Leitura e rolagem validadas com sucesso! (+${points} nfs creditados na sua carteira)`);
+    toast.success("👏 Leitura e rolagem validadas com sucesso!");
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
@@ -212,7 +208,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
           {/* Badge Indicador de Artigo Clicável */}
           <div className="absolute top-3 right-3 bg-zinc-950/85 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-purple-600 group-hover:border-purple-500 transition-colors">
             <BookOpen className="size-3.5 text-lime-400 group-hover:text-white" />
-            <span className="text-[11px] font-bold">Ler artigo (+10 nfs)</span>
+            <span className="text-[11px] font-bold">Ler artigo · Desafio (+5 nfs)</span>
           </div>
         </div>
 
@@ -226,7 +222,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
               </div>
               <div>
                 <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                  DESAFIO NETFITS (VÁLIDO POR 24H)
+                  DESAFIO FIBIOS & NETFITS
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-xs font-bold text-zinc-800">

@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink, Copy } from "lucide-react";
+import { createFileRoute } from '@tanstack/react-router'
+import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink, Copy, Trophy, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges, badgesStore } from "@/lib/badges-store";
@@ -237,41 +237,265 @@ function FeedCard({ item }: { item: FeedItem }) {
     return <ProductFeedCard item={item} />;
   }
   if (item.type === "spot") {
-    return (
-      <article className="px-4">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Parceiro Patrocinado · Clínica médica
-          </span>
-        </div>
-        <img
-          src={item.image}
-          alt={item.title}
-          loading="lazy"
-          className="w-full aspect-video object-cover rounded-xl ring-1 ring-black/5 mb-3"
-        />
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <h2 className="text-lg font-semibold leading-tight">{item.title}</h2>
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <MapPin className="size-3" /> {item.location}
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="text-xs font-semibold text-brand">{item.tier}</span>
-            <span className="block text-[10px] text-muted-foreground">Ganhe Netfits em consultas</span>
-          </div>
-        </div>
-        <SocialActions id={item.id} title={item.title} postCategory="sponsored" />
-      </article>
-    );
+    return <SpotFeedCard item={item} />;
   }
 
   // expert
+  return <ExpertFeedCard item={item} />;
+}
+
+function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
+  const [selectedOption, setSelectedOption] = useState<string>("opt-1");
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [dwellSeconds, setDwellSeconds] = useState(0);
+
+  const quizId = `${item.id}-quiz`;
+  const minDwell = 5;
+  const isDwellQualified = dwellSeconds >= minDwell;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (feedAntifraud.hasClaimed("quiz", quizId)) {
+        setHasSubmitted(true);
+      }
+    }
+    const timer = setInterval(() => {
+      setDwellSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [quizId]);
+
+  const handleSubmit = () => {
+    if (hasSubmitted) {
+      toast.info("Você já concluiu este desafio patrocinado!");
+      return;
+    }
+
+    if (!isDwellQualified) {
+      toast.warning(`Aguarde mais ${minDwell - dwellSeconds}s de leitura para liberar o Quizz.`);
+      return;
+    }
+
+    if (selectedOption === "opt-1") {
+      const validation = feedAntifraud.validateAction("quiz", quizId, {
+        postCategory: "sponsored",
+        dwellTimeSeconds: dwellSeconds,
+      });
+
+      if (!validation.allowed) {
+        toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
+        return;
+      }
+
+      const points = feedAntifraud.getRules().pointsPerSponsoredQuiz || 10;
+      setHasSubmitted(true);
+      setErrorMsg(null);
+      wallet.earn(points, `Desafio Patrocinado: ${item.title}`);
+      feedAntifraud.recordAction("quiz", quizId, points);
+      toast.success(`🎉 Resposta correta! +${points} NFs patrocinados creditados na sua carteira.`);
+    } else {
+      setErrorMsg("Resposta incorreta. A Fibios oferece medicina integrativa completa para atletas.");
+      toast.error("Resposta incorreta. Tente novamente!");
+    }
+  };
+
+  return (
+    <article className="px-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Parceiro Patrocinado · Clínica médica
+        </span>
+      </div>
+
+      <img
+        src={item.image}
+        alt={item.title}
+        loading="lazy"
+        className="w-full aspect-video object-cover rounded-xl ring-1 ring-black/5"
+      />
+
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="text-lg font-semibold leading-tight">{item.title}</h2>
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <MapPin className="size-3" /> {item.location}
+          </p>
+        </div>
+        <div className="text-right">
+          <span className="text-xs font-semibold text-brand">{item.tier}</span>
+          <span className="block text-[10px] text-muted-foreground">Ganhe Netfits em consultas</span>
+        </div>
+      </div>
+
+      {/* Quizz Patrocinado (10 NFs) */}
+      <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
+        <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-lg bg-lime-500/10 text-lime-700 grid place-items-center shrink-0">
+              <Trophy className="size-4" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black tracking-widest text-zinc-500 uppercase block">
+                DESAFIO PARCEIRO PATROCINADO
+              </span>
+              <span className="text-xs font-bold text-zinc-900">
+                Especialidades Fibios
+              </span>
+            </div>
+          </div>
+          <span className="px-2.5 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
+            10 NFs
+          </span>
+        </div>
+
+        <h4 className="text-xs sm:text-sm font-bold text-zinc-900 leading-snug">
+          Quais especialidades integradas a clínica parceira Fibios oferece para atletas e entusiastas de longevidade?
+        </h4>
+
+        <div className="space-y-2">
+          {[
+            { id: "opt-1", text: "Medicina esportiva, avaliação de biomarcadores, cardiologia e recuperação muscular.", isCorrect: true },
+            { id: "opt-2", text: "Apenas consultas estéticas sem acompanhamento de performance ou exames laboratoriais.", isCorrect: false },
+            { id: "opt-3", text: "Prescrição de analgésicos para mascarar a dor sem investigar a causa.", isCorrect: false },
+          ].map((opt) => {
+            const isSelected = selectedOption === opt.id;
+            const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                disabled={hasSubmitted}
+                onClick={() => {
+                  setSelectedOption(opt.id);
+                  setErrorMsg(null);
+                }}
+                className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
+                  isFinishedCorrect
+                    ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
+                    : isSelected
+                    ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
+                    : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
+                } ${hasSubmitted ? "cursor-default" : ""}`}
+              >
+                <div
+                  className={`size-4 rounded-full border-2 grid place-items-center shrink-0 ${
+                    isFinishedCorrect || isSelected
+                      ? "border-lime-600 bg-lime-500/20"
+                      : "border-zinc-400"
+                  }`}
+                >
+                  {(isFinishedCorrect || isSelected) && (
+                    <div className="size-1.5 rounded-full bg-lime-600" />
+                  )}
+                </div>
+                <span className="flex-1 text-zinc-900 font-medium leading-snug">{opt.text}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {errorMsg && (
+          <div className="flex items-start gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
+            <AlertCircle className="size-4 shrink-0 mt-0.5" />
+            <p>{errorMsg}</p>
+          </div>
+        )}
+
+        {!hasSubmitted ? (
+          isDwellQualified ? (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition cursor-pointer"
+            >
+              <span>Responder e conquistar 10 NFs</span>
+              <ArrowRight className="size-4" />
+            </button>
+          ) : (
+            <div className="p-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-600 text-xs flex items-center justify-center gap-2">
+              <Lock className="size-3.5 text-zinc-400" />
+              <span>Aguarde {Math.max(0, minDwell - dwellSeconds)}s de leitura para liberar o Quizz (+10 NFs).</span>
+            </div>
+          )
+        ) : (
+          <div className="p-2.5 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="size-4 text-lime-600 shrink-0" />
+            <div className="flex-1 text-xs">
+              <span className="font-bold text-lime-700 block">Desafio Patrocinado Conquistado!</span>
+              <span className="text-zinc-800 font-medium">+10 NFs foram creditados na sua carteira Netfits.</span>
+            </div>
+            <Sparkles className="size-4 text-lime-600 shrink-0" />
+          </div>
+        )}
+      </div>
+
+      <SocialActions id={item.id} title={item.title} postCategory="sponsored" />
+    </article>
+  );
+}
+
+function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> }) {
+  const [selectedOption, setSelectedOption] = useState<string>("opt-1");
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [dwellSeconds, setDwellSeconds] = useState(0);
+
+  const quizId = `${item.id}-quiz`;
+  const minDwell = 5;
+  const isDwellQualified = dwellSeconds >= minDwell;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (feedAntifraud.hasClaimed("quiz", quizId)) {
+        setHasSubmitted(true);
+      }
+    }
+    const timer = setInterval(() => {
+      setDwellSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [quizId]);
+
+  const handleSubmit = () => {
+    if (hasSubmitted) {
+      toast.info("Você já concluiu este desafio patrocinado!");
+      return;
+    }
+
+    if (!isDwellQualified) {
+      toast.warning(`Aguarde mais ${minDwell - dwellSeconds}s de leitura para liberar o Quizz.`);
+      return;
+    }
+
+    if (selectedOption === "opt-1") {
+      const validation = feedAntifraud.validateAction("quiz", quizId, {
+        postCategory: "sponsored",
+        dwellTimeSeconds: dwellSeconds,
+      });
+
+      if (!validation.allowed) {
+        toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
+        return;
+      }
+
+      const points = feedAntifraud.getRules().pointsPerSponsoredQuiz || 10;
+      setHasSubmitted(true);
+      setErrorMsg(null);
+      wallet.earn(points, `Desafio Patrocinado: Consulta ${item.name}`);
+      feedAntifraud.recordAction("quiz", quizId, points);
+      toast.success(`🎉 Resposta correta! +${points} NFs patrocinados creditados na sua carteira.`);
+    } else {
+      setErrorMsg("Resposta incorreta. A consulta clínica foca em biomarcadores, sono e longevidade.");
+      toast.error("Resposta incorreta. Tente novamente!");
+    }
+  };
+
   return (
     <article className="px-4">
-      <div className="bg-card rounded-2xl p-5 ring-1 ring-black/5">
-        <div className="flex gap-4 mb-4">
+      <div className="bg-card rounded-2xl p-5 ring-1 ring-black/5 space-y-4">
+        <div className="flex gap-4">
           <div className="size-16 shrink-0 rounded-xl bg-brand grid place-items-center text-brand-foreground font-bold text-lg">
             {item.name
               .split(" ")
@@ -291,12 +515,120 @@ function FeedCard({ item }: { item: FeedItem }) {
                 {item.price}{" "}
                 <span className="text-[10px] font-medium text-brand">{item.cashback}</span>
               </span>
-              <button className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-full">
+              <button 
+                type="button"
+                onClick={() => toast.success("Redirecionando para agendamento com a especialista...")}
+                className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-full cursor-pointer hover:opacity-90 transition"
+              >
                 Agendar
               </button>
             </div>
           </div>
         </div>
+
+        {/* Quizz Patrocinado da Consulta (10 NFs) */}
+        <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+            <div className="flex items-center gap-2">
+              <div className="size-7 rounded-lg bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
+                <Trophy className="size-3.5" />
+              </div>
+              <div>
+                <span className="text-[9px] font-black tracking-widest text-purple-600 uppercase block">
+                  DESAFIO DO ESPECIALISTA
+                </span>
+                <span className="text-xs font-bold text-zinc-900">
+                  Medicina do Esporte & Longevidade
+                </span>
+              </div>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[10px] tracking-tight shadow-xs">
+              10 NFs
+            </span>
+          </div>
+
+          <h4 className="text-xs font-bold text-zinc-900 leading-snug">
+            Qual é o papel do acompanhamento médico esportivo preventivo no rendimento e longevidade do atleta?
+          </h4>
+
+          <div className="space-y-2">
+            {[
+              { id: "opt-1", text: "Mapear exames, equilíbrio hormonal e sono para sustentar performance sem lesões ou sobrecarga.", isCorrect: true },
+              { id: "opt-2", text: "Substituir treinos físicos por suplementação sintética sem indicação médica.", isCorrect: false },
+              { id: "opt-3", text: "Estimular o treino diário contínuo sem permitir dias de recuperação muscular.", isCorrect: false },
+            ].map((opt) => {
+              const isSelected = selectedOption === opt.id;
+              const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  disabled={hasSubmitted}
+                  onClick={() => {
+                    setSelectedOption(opt.id);
+                    setErrorMsg(null);
+                  }}
+                  className={`w-full text-left p-2.5 rounded-lg border text-xs font-medium transition-all flex items-center gap-2.5 cursor-pointer ${
+                    isFinishedCorrect
+                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
+                      : isSelected
+                      ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
+                      : "bg-white border-zinc-200 text-zinc-900 hover:border-zinc-300"
+                  } ${hasSubmitted ? "cursor-default" : ""}`}
+                >
+                  <div
+                    className={`size-3.5 rounded-full border-2 grid place-items-center shrink-0 ${
+                      isFinishedCorrect || isSelected
+                        ? "border-lime-600 bg-lime-500/20"
+                        : "border-zinc-400"
+                    }`}
+                  >
+                    {(isFinishedCorrect || isSelected) && (
+                      <div className="size-1 rounded-full bg-lime-600" />
+                    )}
+                  </div>
+                  <span className="flex-1 text-zinc-900 font-medium leading-snug">{opt.text}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {errorMsg && (
+            <div className="flex items-start gap-1.5 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-800 text-[11px] animate-in fade-in">
+              <AlertCircle className="size-3.5 shrink-0 mt-0.5" />
+              <p>{errorMsg}</p>
+            </div>
+          )}
+
+          {!hasSubmitted ? (
+            isDwellQualified ? (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="w-full py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+              >
+                <span>Responder e conquistar 10 NFs</span>
+                <ArrowRight className="size-3.5" />
+              </button>
+            ) : (
+              <div className="p-2 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-600 text-[11px] flex items-center justify-center gap-1.5">
+                <Lock className="size-3 text-zinc-400" />
+                <span>Aguarde {Math.max(0, minDwell - dwellSeconds)}s de leitura para liberar o Quizz (+10 NFs).</span>
+              </div>
+            )
+          ) : (
+            <div className="p-2 rounded-lg bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2 animate-in fade-in">
+              <CheckCircle2 className="size-3.5 text-lime-600 shrink-0" />
+              <div className="flex-1 text-[11px]">
+                <span className="font-bold text-lime-700 block">Desafio Patrocinado Conquistado!</span>
+                <span className="text-zinc-800 font-medium">+10 NFs creditados na sua carteira.</span>
+              </div>
+              <Sparkles className="size-3.5 text-lime-600 shrink-0" />
+            </div>
+          )}
+        </div>
+
         <SocialActions id={item.id} title={item.name} postCategory="sponsored" />
       </div>
     </article>
@@ -443,10 +775,8 @@ function VideoFeedCard({
 
       if (validation.allowed) {
         setRewarded(true);
-        const points = feedAntifraud.getRules().pointsPerEducationalView;
-        sharedSandboxStore.rewardEngagement("view", item.title, points);
-        feedAntifraud.recordAction("video_view", item.id, points);
-        toast.success(`🎉 Retenção mínima de 90% atingida! +${points} nfs creditados na sua carteira! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+        feedAntifraud.recordAction("video_view", item.id, 0);
+        toast.success("🎉 Retenção mínima de 90% atingida com sucesso!");
       } else if (validation.reason) {
         toast.warning(validation.reason);
       }
@@ -456,14 +786,12 @@ function VideoFeedCard({
   const handleCloseModal = () => {
     if (!isCompleted && progress < 90) {
       toast.error(
-        "🚫 Antifraude Netfits: Premiação cancelada. O vídeo precisa ser assistido em ao menos 90% para pontuar."
+        "🚫 Antifraude Netfits: O vídeo precisa ser assistido em ao menos 90% para validar a retenção."
       );
     }
     setIsPlayingModalOpen(false);
     setProgress(0);
   };
-
-  const videoPoints = params.nfsPerEducationalPostView || 5;
 
   return (
     <>
@@ -499,12 +827,12 @@ function VideoFeedCard({
         {rewarded ? (
           <div className="mb-3 p-2.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center gap-2">
             <Check className="size-4 shrink-0" />
-            <span>Vídeo assistido (90%+ de retenção) — +{videoPoints} nfs creditados</span>
+            <span>Vídeo assistido (90%+ de retenção validada)</span>
           </div>
         ) : (
           <div className="mb-3 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-purple-300 text-[11px] font-medium flex items-center gap-2">
             <ShieldCheck className="size-4 text-lime-400 shrink-0" />
-            <span>Regra Antifraude: Assista ao menos 90% do vídeo ({item.duration}) para receber +{videoPoints} nfs</span>
+            <span>Regra Antifraude: Assista ao menos 90% do vídeo ({item.duration})</span>
           </div>
         )}
 
@@ -556,11 +884,11 @@ function VideoFeedCard({
               </div>
               {!isCompleted ? (
                 <p className="text-[11px] text-amber-400 bg-amber-950/40 border border-amber-500/30 rounded-xl p-2.5 leading-snug">
-                  ⚠️ <b>Antifraude Ativo:</b> Não feche o player antes do fim. Sair com menos de 90% do vídeo assistido cancela a premiação.
+                  ⚠️ <b>Antifraude Ativo:</b> Não feche o player antes do fim. Sair com menos de 90% do vídeo assistido cancela a validação.
                 </p>
               ) : (
                 <p className="text-[11px] text-lime-400 bg-lime-950/40 border border-lime-500/30 rounded-xl p-2.5 leading-snug font-bold">
-                  🎉 Vídeo assistido (90%+ concluído)! +{videoPoints} nfs creditados com sucesso na sua carteira!
+                  🎉 Vídeo assistido (90%+ concluído)! Retenção validada pela auditoria antifraude.
                 </p>
               )}
             </div>
@@ -570,7 +898,7 @@ function VideoFeedCard({
                 onClick={handleCloseModal}
                 className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition cursor-pointer"
               >
-                {isCompleted ? "Concluir e Voltar ao Feed" : "Fechar (Interromper sem Pontuar)"}
+                {isCompleted ? "Concluir e Voltar ao Feed" : "Fechar Player"}
               </button>
             </div>
           </div>

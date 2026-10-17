@@ -116,7 +116,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
         return;
       }
 
-      const points = feedAntifraud.getRules().pointsPerQuiz ?? 5;
+      const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
       wallet.earn(points, "Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari — Fibios)");
@@ -130,26 +130,22 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
 
   const handleClaimRead = () => {
     if (readClaimed) {
-      toast.info("Você já coletou a recompensa de leitura deste artigo.");
+      toast.info("Você já confirmou a leitura deste artigo.");
       return;
     }
 
-    const validation = feedAntifraud.validateAction("read", ARTICLE_POST_ID, {
-      dwellTimeSeconds,
-      hasScrolledToBottom,
-      postCategory: "educational",
-    });
+    if (dwellTimeSeconds < feedAntifraud.getRules().minDwellTimeSeconds) {
+      toast.warning(`Permaneça na leitura por mais ${feedAntifraud.getRules().minDwellTimeSeconds - dwellTimeSeconds}s para validar.`);
+      return;
+    }
 
-    if (!validation.allowed) {
-      toast.warning(validation.reason || "Requisitos de leitura e rolagem não atingidos.");
+    if (!hasScrolledToBottom && feedAntifraud.getRules().requireScrollToBottom) {
+      toast.warning("Role o artigo até o final para confirmar a leitura.");
       return;
     }
 
     setReadClaimed(true);
-    const points = feedAntifraud.getRules().pointsPerEducationalView; // 5 nfs oficiais
-    wallet.earn(points, "Leitura Completa de Artigo: Biomarcadores & Sono (Dra. Isabella Formigari)");
-    feedAntifraud.recordAction("read", ARTICLE_POST_ID, points);
-    toast.success(`👏 Leitura e rolagem validadas com sucesso! (+${points} nfs creditados na sua carteira)`);
+    toast.success("👏 Leitura e rolagem validadas com sucesso!");
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
@@ -216,7 +212,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           {/* Badge Indicador de Artigo Clicável */}
           <div className="absolute top-3 right-3 bg-zinc-950/85 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-purple-600 group-hover:border-purple-500 transition-colors">
             <BookOpen className="size-3.5 text-lime-400 group-hover:text-white" />
-            <span className="text-[11px] font-bold">Ler artigo (+10 nfs)</span>
+            <span className="text-[11px] font-bold">Ler artigo · Desafio (+5 nfs)</span>
           </div>
 
           {/* Textos e Tags Sobrepostos */}
@@ -267,127 +263,106 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           </div>
         </div>
 
-        {/* 3. Módulo Condicional: Desafio do Dia (24h) OU Artigo Permanente sem Quiz */}
-        {isDailyChallenge ? (
-          <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-            {/* Cabeçalho do Quiz */}
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
-                <Trophy className="size-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                  DESAFIO NETFITS (VÁLIDO POR 24H)
+        {/* 3. Módulo de Desafio / Quiz Educativo Permanente (5 NFs) */}
+        <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+          {/* Cabeçalho do Quiz */}
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
+              <Trophy className="size-5" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
+                DESAFIO FIBIOS & NETFITS
+              </span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-xs font-bold text-zinc-800">
+                  Responda e ganhe
                 </span>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-xs font-bold text-zinc-800">
-                    Responda e ganhe
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-                    5 NFs
-                  </span>
-                </div>
+                <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
+                  5 NFs
+                </span>
               </div>
             </div>
-
-            {/* Pergunta */}
-            <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
-              Qual pilar é mais decisivo para a recuperação muscular e regulação da inflamação pós-treino?
-            </h4>
-
-            {/* Lista de Alternativas (Radio Buttons) */}
-            <div className="space-y-2.5">
-              {QUIZ_OPTIONS.map((opt) => {
-                const isSelected = selectedOption === opt.id;
-                const isFinishedCorrect = hasSubmitted && opt.isCorrect;
-
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => {
-                      if (!hasSubmitted) {
-                        setSelectedOption(opt.id);
-                        setErrorMsg(null);
-                      }
-                    }}
-                    disabled={hasSubmitted}
-                    className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
-                      isFinishedCorrect
-                        ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
-                        : isSelected
-                        ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
-                        : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
-                    } ${hasSubmitted ? "cursor-default" : ""}`}
-                  >
-                    <div
-                      className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
-                        isFinishedCorrect || isSelected
-                          ? "border-lime-600 bg-lime-500/20"
-                          : "border-zinc-400"
-                      }`}
-                    >
-                      {(isFinishedCorrect || isSelected) && (
-                        <div className="size-2 rounded-full bg-lime-600" />
-                      )}
-                    </div>
-                    <span className="flex-1 text-zinc-900 font-medium">{opt.text}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Mensagem de Erro Educativo se errar */}
-            {errorMsg && (
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
-                <AlertCircle className="size-4 shrink-0 mt-0.5" />
-                <p>{errorMsg}</p>
-              </div>
-            )}
-
-            {/* Botão de Ação / Conclusão */}
-            {!hasSubmitted ? (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
-              >
-                <span>Responder e conquistar 5 NFs</span>
-                <ArrowRight className="size-4" />
-              </button>
-            ) : (
-              <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
-                <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
-                <div className="flex-1 text-xs">
-                  <span className="font-bold text-lime-700 block">
-                    Desafio conquistado!
-                  </span>
-                  <span className="text-zinc-800 font-medium">+5 NFs foram creditados na sua carteira Netfits.</span>
-                </div>
-                <Sparkles className="size-4 text-lime-600 shrink-0" />
-              </div>
-            )}
           </div>
-        ) : (
-          <div className="bg-zinc-50 border border-zinc-200/90 rounded-2xl p-4 flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-purple-50 text-purple-700 grid place-items-center shrink-0">
-                <BookOpen className="size-5 text-purple-600" />
-              </div>
-              <div>
-                <span className="text-xs font-bold text-zinc-900 block">Artigo Educativo Permanente</span>
-                <span className="text-[11px] text-zinc-600 font-medium">Toque no card para ler a análise clínica completa</span>
-              </div>
+
+          {/* Pergunta */}
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
+            Qual pilar é mais decisivo para a recuperação muscular e regulação da inflamação pós-treino?
+          </h4>
+
+          {/* Lista de Alternativas (Radio Buttons) */}
+          <div className="space-y-2.5">
+            {QUIZ_OPTIONS.map((opt) => {
+              const isSelected = selectedOption === opt.id;
+              const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    if (!hasSubmitted) {
+                      setSelectedOption(opt.id);
+                      setErrorMsg(null);
+                    }
+                  }}
+                  disabled={hasSubmitted}
+                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
+                    isFinishedCorrect
+                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
+                      : isSelected
+                      ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
+                      : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
+                  } ${hasSubmitted ? "cursor-default" : ""}`}
+                >
+                  <div
+                    className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
+                      isFinishedCorrect || isSelected
+                        ? "border-lime-600 bg-lime-500/20"
+                        : "border-zinc-400"
+                    }`}
+                  >
+                    {(isFinishedCorrect || isSelected) && (
+                      <div className="size-2 rounded-full bg-lime-600" />
+                    )}
+                  </div>
+                  <span className="flex-1 text-zinc-900 font-medium">{opt.text}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Mensagem de Erro Educativo se errar */}
+          {errorMsg && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
+              <AlertCircle className="size-4 shrink-0 mt-0.5" />
+              <p>{errorMsg}</p>
             </div>
+          )}
+
+          {/* Botão de Ação / Conclusão */}
+          {!hasSubmitted ? (
             <button
               type="button"
-              onClick={() => setArticleOpen(true)}
-              className="text-xs font-bold text-purple-700 bg-purple-100/80 hover:bg-purple-200 px-3.5 py-2 rounded-xl transition active:scale-95 cursor-pointer shadow-xs"
+              onClick={handleSubmit}
+              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
             >
-              Ler Artigo
+              <span>Responder e conquistar 5 NFs</span>
+              <ArrowRight className="size-4" />
             </button>
-          </div>
-        )}
+          ) : (
+            <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
+              <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
+              <div className="flex-1 text-xs">
+                <span className="font-bold text-lime-700 block">
+                  Desafio conquistado!
+                </span>
+                <span className="text-zinc-800 font-medium">+5 NFs foram creditados na sua carteira Netfits.</span>
+              </div>
+              <Sparkles className="size-4 text-lime-600 shrink-0" />
+            </div>
+          )}
+        </div>
 
         {/* 4. Pílula de Sabedoria / Takeaway no Rodapé */}
         <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-purple-950 border border-zinc-800 rounded-2xl p-4 text-white flex items-center gap-3.5 shadow-sm">
