@@ -68,16 +68,18 @@ export const feedAntifraud = {
     const params = operationalParamsStore.getParams();
     return {
       dailyInteractionLimit: params.dailyThirdPartyInteractionsLimit ?? 10,
-      pointsPerEducationalView: params.nfsPerEducationalPostView ?? 5, // 5 nfs para posts próprios Netfits e Fibios
-      pointsPerSponsoredView: params.nfsPerSponsoredPostView ?? 10,   // 10 nfs para patrocinados de marcas/parceiros
-      pointsPerView: params.nfsPerEducationalPostView ?? 5,
-      pointsPerVideo: params.nfsPerEducationalPostView ?? 5,
+      pointsPerEducationalQuiz: params.nfsPerEducationalQuiz ?? 5, // 5 nfs para posts próprios Netfits e Fibios
+      pointsPerSponsoredQuiz: params.nfsPerSponsoredQuiz ?? 10,   // 10 nfs para patrocinados de marcas/parceiros
+      pointsPerEducationalView: params.nfsPerEducationalPostView ?? 0, // 0 nfs
+      pointsPerSponsoredView: params.nfsPerSponsoredPostView ?? 0,   // 0 nfs
+      pointsPerView: params.nfsPerPostView ?? 0,
+      pointsPerVideo: params.nfsPerVideoPost ?? 0,
       pointsPerLinkClick: params.nfsPerLinkClick ?? 0, // 0 nfs - sem premiação
       pointsPerLike: params.nfsPerLike ?? 0,           // 0 nfs - sem premiação
-      pointsPerQuiz: params.nfsPerQuiz ?? 5,           // 5 nfs por acerto em quiz diário
+      pointsPerQuiz: params.nfsPerQuiz ?? 5,           // fallback legado
       pointsPerShare: params.nfsPerShare ?? 1,         // 1 nf por compartilhamento em rede social
       minVideoCompletionPct: params.minVideoCompletionPct ?? 90, // Regra oficial: 90% de retenção mínima do vídeo
-      minDwellTimeSeconds: params.minDwellTimeSecondsForView ?? 10, // Dwell time aumentado para 10s
+      minDwellTimeSeconds: params.minDwellTimeSecondsForView ?? 10, // Dwell time de 10s
       requireScrollToBottom: params.requireScrollToBottomForRead ?? true, // Exige scroll down total
       maxInteractionsPerMinute: params.maxInteractionsPerMinute ?? 10,
       blockSelfEngagement: params.blockSelfEngagementRewards ?? true,
@@ -176,7 +178,9 @@ export const feedAntifraud = {
     if (this.hasClaimed(action, postId)) {
       return {
         allowed: false,
-        reason: "🔒 Antifraude: Você já coletou a recompensa desta ação nesta publicação.",
+        reason: action === "quiz"
+          ? "🔒 Você já concluiu o desafio desta publicação e garantiu seus pontos!"
+          : "🔒 Antifraude: Você já coletou a recompensa desta ação nesta publicação.",
         dailyCount,
         dailyLimit: rules.dailyInteractionLimit,
       };
@@ -192,15 +196,28 @@ export const feedAntifraud = {
       };
     }
 
-    // 4. Trava de Quiz Diário (Limite estrito de 1 desafio/quiz premiado por dia)
-    if (action === "quiz") {
-      const today = getTodayString();
-      const log = loadActionLog();
-      const todayQuizCount = log.filter((item) => item.action === "quiz" && item.timestamp.startsWith(today)).length;
-      if (todayQuizCount >= 1) {
+    // 4. Pré-Requisitos para Desbloqueio e Conclusão do Quiz
+    if (action === "quiz" && extraContext) {
+      if (typeof extraContext.dwellTimeSeconds === "number" && extraContext.dwellTimeSeconds < rules.minDwellTimeSeconds) {
         return {
           allowed: false,
-          reason: "🔒 Antifraude: Limite de 1 quiz premiado por dia atingido. O Desafio Netfits é diário. Volte amanhã para o novo desafio!",
+          reason: `⏳ Antifraude: É necessário ler o conteúdo por ao menos ${rules.minDwellTimeSeconds}s para validar o Quiz.`,
+          dailyCount,
+          dailyLimit: rules.dailyInteractionLimit,
+        };
+      }
+      if (extraContext.hasScrolledToBottom === false) {
+        return {
+          allowed: false,
+          reason: "📜 Antifraude: Role o artigo até o final para liberar o Quiz.",
+          dailyCount,
+          dailyLimit: rules.dailyInteractionLimit,
+        };
+      }
+      if (typeof extraContext.videoProgressPct === "number" && extraContext.videoProgressPct < rules.minVideoCompletionPct) {
+        return {
+          allowed: false,
+          reason: `🚫 Antifraude: É necessário assistir a ao menos ${rules.minVideoCompletionPct}% do vídeo para liberar o Quiz.`,
           dailyCount,
           dailyLimit: rules.dailyInteractionLimit,
         };

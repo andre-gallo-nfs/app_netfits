@@ -30,5 +30,9 @@ jobs:
       - name: TypeScript Verification
         run: npm run typecheck
 
+      - name: Unit Tests (Vitest)
+        run: npm test
+
       - name: Production Build Check
         run: npx vite build --mode production
+

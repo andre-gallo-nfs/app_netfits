@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useOperationalParams } from "@/lib/operational-params-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { useLevel } from "@/lib/level-store";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import {
   Activity, Flame, ShieldCheck, Award, Sparkles, Clock, HeartPulse,
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/activities")({
 function ActivitiesPage() {
   const params = useOperationalParams();
   const activeUser = sharedSandboxStore.useActiveUser();
+  const userLevel = useLevel();
   const [showSyncSheet, setShowSyncSheet] = useState(false);
 
   // Obtém exclusivamente as atividades reais registradas para o usuário ativo (zero dados mockados)
@@ -50,6 +52,9 @@ function ActivitiesPage() {
   const hasStrava = userWearable.includes("strava");
   const hasAnyWearable = hasAppleWatch || hasGarmin || hasStrava || (userWearable.length > 0 && userWearable !== "não uso");
 
+  const isClubMember = Boolean(userLevel === "prime" || userLevel === "elite");
+  const isWorkoutRewardActive = (!params.workoutRewardClubOnly || isClubMember) && params.workoutRewardBoardApproved;
+
   return (
     <div className="pb-10 space-y-5">
       {/* Cabeçalho da Página */}
@@ -59,11 +64,11 @@ function ActivitiesPage() {
             <div className="flex items-center gap-1.5 mb-1">
               <span className="size-2 rounded-full bg-lime-400 animate-pulse" />
               <span className="text-[10px] font-black uppercase tracking-widest text-lime-500 dark:text-lime-400">
-                Sweat-to-Earn Oficial
+                Telemetria &amp; Wearables
               </span>
             </div>
             <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
-              Atividades & Hábitos
+              Atividades &amp; Hábitos
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
               Esforço biológico real auditado por sensores ópticos e GPS.
@@ -88,9 +93,15 @@ function ActivitiesPage() {
                 {currentWeekWorkouts} de {maxWeeklyWorkouts} Treinos Validados
               </h2>
             </div>
-            <span className="px-3 py-1 rounded-full bg-lime-400/15 border border-lime-400/30 text-lime-400 text-xs font-mono font-black">
-              +{currentWeekWorkouts * pointsPerWorkout} nfs
-            </span>
+            {isWorkoutRewardActive ? (
+              <span className="px-3 py-1 rounded-full bg-lime-400/15 border border-lime-400/30 text-lime-400 text-xs font-mono font-black">
+                +{currentWeekWorkouts * pointsPerWorkout} nfs
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-[10px] font-medium text-right">
+                {params.workoutRewardClubOnly ? "Clube Netfits" : "Em análise"}
+              </span>
+            )}
           </div>
 
           {/* Barra de Progresso Semanal */}
@@ -107,7 +118,7 @@ function ActivitiesPage() {
             </div>
           </div>
 
-          {/* Chamada para o Golden Streak */}
+          {/* Chamada para o Golden Streak / Nota de Governança */}
           <div className="bg-purple-950/40 border border-purple-500/30 rounded-2xl p-3.5 flex items-center gap-3">
             <div className="size-8 rounded-xl bg-purple-500/20 grid place-items-center shrink-0">
               <Sparkles className="size-4 text-purple-300" />
@@ -117,7 +128,11 @@ function ActivitiesPage() {
                 Faltam {Math.max(0, maxWeeklyWorkouts - currentWeekWorkouts)} treinos para o Golden Streak!
               </p>
               <p className="text-[10px] text-purple-300/80 leading-tight">
-                Complete a meta de 5 treinos na semana e receba um bônus adicional de <b>+{streakBonus} nfs</b>.
+                {isWorkoutRewardActive ? (
+                  <>Complete a meta de 5 treinos na semana e receba um bônus adicional de <b>+{streakBonus} nfs</b>.</>
+                ) : (
+                  <>Constância validada via sensores. <i>(Pontuação por treino exclusiva para membros do Clube Netfits · Pendente de aprovação da diretoria).</i></>
+                )}
               </p>
             </div>
           </div>

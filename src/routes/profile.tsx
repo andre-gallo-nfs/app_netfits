@@ -24,132 +24,31 @@ export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
-const PRESET_AVATARS = [
-  { id: "runner", label: "Corrida / Marathon", url: "https://images.unsplash.com/photo-1483721074892-4a85dd908069?w=200&auto=format&fit=crop&q=80" },
-  { id: "gym", label: "Musculação / Gym", url: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80" },
-  { id: "swim", label: "Natação / Swimmer", url: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=200&auto=format&fit=crop&q=80" },
-  { id: "personal", label: "Personal Trainer", url: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=200&auto=format&fit=crop&q=80" },
-  { id: "crossfit", label: "Treino Funcional", url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&auto=format&fit=crop&q=80" },
-  { id: "yoga", label: "Yoga & Wellness", url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=200&auto=format&fit=crop&q=80" },
-];
+import {
+  PRESET_AVATARS,
+  RUNNING_SPORTS,
+  HEALTH_PLANS,
+  GYMS,
+  WEARABLES,
+  formatBirthDateForDisplay,
+  formatBirthDateMask,
+  formatPhoneMask,
+  formatCpfMask,
+  formatCepMask,
+} from "../components/profile/profile-constants";
+import { Card, Field, SelectChips, Stat, inputClass } from "../components/profile/ProfileUI";
+import { AvatarModal } from "../components/profile/AvatarModal";
+import { DeleteAccountModal } from "../components/profile/DeleteAccountModal";
+import { ProfileLegalModal } from "../components/profile/ProfileLegalModal";
 
-const RUNNING_SPORTS = [
-  "Corrida de rua",
-  "Trail running",
-  "Maratona",
-  "Triathlon",
-  "Ciclismo",
-  "Natação",
-  "Caminhada",
-  "Treino funcional",
-  "Musculação",
-  "Yoga",
-];
-
-const HEALTH_PLANS = [
-  "Sem plano",
-  "Amil",
-  "Bradesco Saúde",
-  "SulAmérica",
-  "Unimed",
-  "Hapvida / NotreDame",
-  "Porto Seguro Saúde",
-  "Allianz Saúde",
-  "Care Plus",
-  "Omint",
-  "Outro",
-];
-
-const GYMS = [
-  "Não frequento",
-  "Smart Fit",
-  "Bio Ritmo",
-  "Bodytech",
-  "Companhia Athletica",
-  "Selfit",
-  "Just Fit",
-  "Pratique",
-  "Academia local / Independente",
-];
-
-const WEARABLES = [
-  "Não uso",
-  "Apple Watch",
-  "Garmin Forerunner",
-  "Garmin Fenix",
-  "Samsung Galaxy Watch",
-  "Fitbit",
-  "Polar",
-  "Coros",
-  "Suunto",
-  "Amazfit",
-  "Xiaomi Mi Band",
-  "Outro",
-];
-
-export const formatBirthDateForDisplay = (val?: string) => {
-  if (!val) return "";
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) return val;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-    const [y, m, d] = val.split("-");
-    return `${d}/${m}/${y}`;
-  }
-  return val;
-};
-
-export const formatBirthDateMask = (val: string) => {
-  let v = val.replace(/\D/g, "");
-  if (v.length > 8) v = v.slice(0, 8);
-  if (v.length > 4) {
-    return `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4)}`;
-  } else if (v.length > 2) {
-    return `${v.slice(0, 2)}/${v.slice(2)}`;
-  }
-  return v;
-};
-
-export const formatPhoneMask = (val: string) => {
-  let v = val.replace(/\D/g, "");
-  if (v.length > 11) v = v.slice(0, 11);
-  if (v.length > 6) {
-    return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
-  } else if (v.length > 2) {
-    return `(${v.slice(0, 2)}) ${v.slice(2)}`;
-  }
-  return v;
-};
-
-export const formatCpfMask = (val: string) => {
-  let v = val.replace(/\D/g, "");
-  if (v.length > 11) v = v.slice(0, 11);
-  if (v.length > 9) {
-    return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6, 9)}-${v.slice(9)}`;
-  } else if (v.length > 6) {
-    return `${v.slice(0, 3)}.${v.slice(3, 6)}.${v.slice(6)}`;
-  } else if (v.length > 3) {
-    return `${v.slice(0, 3)}.${v.slice(3)}`;
-  }
-  return v;
-};
-
-export const formatCepMask = (val: string) => {
-  let v = val.replace(/\D/g, "");
-  if (v.length > 8) v = v.slice(0, 8);
-  if (v.length > 5) {
-    return `${v.slice(0, 5)}-${v.slice(5)}`;
-  }
-  return v;
-};
+export { formatBirthDateForDisplay, formatBirthDateMask, formatCepMask };
 
 function ProfilePage() {
   const navigate = useNavigate();
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showLegalModal, setShowLegalModal] = useState<"terms" | "privacy" | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!sharedSandboxStore.hasActiveSession()) {
@@ -163,54 +62,6 @@ function ProfilePage() {
       unsubscribe();
     };
   }, [navigate]);
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Por favor, selecione uma imagem de até 10MB.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const rawData = event.target?.result as string;
-      if (!rawData) return;
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const size = 256;
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          const minDim = Math.min(img.width, img.height);
-          const sx = (img.width - minDim) / 2;
-          const sy = (img.height - minDim) / 2;
-          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-          const compressed = canvas.toDataURL("image/jpeg", 0.85);
-          sharedSandboxStore.updateUser(activeUser.id, { avatarUrl: compressed });
-          setShowAvatarModal(false);
-          toast.success("📸 Sua foto de perfil foi salva e atualizada com sucesso!");
-        }
-      };
-      img.src = rawData;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handlePresetSelect = (avatarUrl: string) => {
-    sharedSandboxStore.updateUser(activeUser.id, { avatarUrl });
-    setShowAvatarModal(false);
-    toast.success("✨ Avatar alterado com sucesso!");
-  };
-
-  const handleRemoveAvatar = () => {
-    sharedSandboxStore.updateUser(activeUser.id, { avatarUrl: undefined });
-    setShowAvatarModal(false);
-    toast.info("Avatar removido. Exibindo suas iniciais.");
-  };
 
   const getInitialForm = () => {
     let backup: any = {};
@@ -1224,7 +1075,7 @@ function ProfilePage() {
               <button
                 type="button"
                 onClick={() => {
-                  setDeleteConfirmText("");
+                  
                   setShowDeleteModal(true);
                 }}
                 className="w-full bg-red-500/5 hover:bg-red-500/15 text-red-600 dark:text-red-400 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-red-500/20 transition cursor-pointer active:scale-98"
@@ -1236,374 +1087,21 @@ function ProfilePage() {
           </div>
         </Card>
       </form>
-      {/* Modal de Escolha / Upload de Avatar */}
-      {showAvatarModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 text-white rounded-3xl max-w-sm w-full p-6 space-y-5 shadow-2xl relative">
-            <button
-              onClick={() => setShowAvatarModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full bg-zinc-800/50"
-            >
-              <X className="size-5" />
-            </button>
-
-            <div className="text-center space-y-1">
-              <div className="size-12 rounded-full bg-purple-600/20 text-purple-400 mx-auto grid place-items-center mb-2">
-                <Camera className="size-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Alterar Foto de Perfil</h3>
-              <p className="text-xs text-zinc-400">
-                Envie uma foto do seu dispositivo ou escolha um avatar esportivo.
-              </p>
-            </div>
-
-            {/* Input de Arquivo Oculto */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept="image/*"
-              className="hidden"
-            />
-
-            {/* Opção 1: Upload de Foto Própria */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-3 rounded-2xl transition flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 cursor-pointer"
-            >
-              <Upload className="size-4" />
-              <span>Enviar Foto do Dispositivo / Câmera</span>
-            </button>
-
-            <div className="relative flex py-1 items-center">
-              <div className="flex-grow border-t border-zinc-800"></div>
-              <span className="flex-shrink mx-3 text-[10px] uppercase font-bold text-zinc-500 tracking-wider">
-                ou selecione um avatar
-              </span>
-              <div className="flex-grow border-t border-zinc-800"></div>
-            </div>
-
-            {/* Opção 2: Grid de Avatares Esportivos Prontos */}
-            <div className="grid grid-cols-3 gap-2.5">
-              {PRESET_AVATARS.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => handlePresetSelect(preset.url)}
-                  className="group relative rounded-xl overflow-hidden aspect-square border border-zinc-800 hover:border-purple-500 transition focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
-                >
-                  <img
-                    src={preset.url}
-                    alt={preset.label}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-200"
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center p-1 text-center">
-                    <span className="text-[9px] font-bold text-white leading-tight">{preset.label}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* Opção 3: Remover Foto (Restaurar Iniciais) */}
-            {activeUser.avatarUrl && (
-              <button
-                type="button"
-                onClick={handleRemoveAvatar}
-                className="w-full bg-zinc-800 hover:bg-red-950 hover:text-red-400 text-zinc-300 font-medium text-xs py-2.5 rounded-2xl transition flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Trash2 className="size-3.5" />
-                <span>Remover Foto (Usar Iniciais)</span>
-              </button>
-            )}
-          </div>
-        </div>
+            {showAvatarModal && (
+        <AvatarModal onClose={() => setShowAvatarModal(false)} activeUser={activeUser} />
       )}
 
-      {/* Modal de Exclusão de Conta & Anonimização (Mandatório Apple Guideline 5.1.1(v) e Google Play) */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-red-500/30 text-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full bg-zinc-800/50"
-            >
-              <X className="size-5" />
-            </button>
-
-            <div className="text-center space-y-2">
-              <div className="size-12 rounded-full bg-red-500/20 text-red-400 mx-auto grid place-items-center mb-1">
-                <AlertTriangle className="size-6 text-red-500" />
-              </div>
-              <h3 className="text-lg font-bold text-white">Excluir Conta & Dados Pessoais</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Esta ação é irreversível e atende ao Artigo 18 da LGPD (Lei nº 13.709/2018) e às diretrizes obrigatórias da Apple Store e Google Play.
-              </p>
-            </div>
-
-            <div className="bg-zinc-950/70 border border-zinc-800 rounded-2xl p-3.5 space-y-2 text-[11px] text-zinc-300">
-              <div className="flex items-start gap-2">
-                <span className="text-red-400 font-bold">•</span>
-                <span><b>Remoção Imediata:</b> Seu perfil, preferências, foto e credenciais biométricas serão permanentemente apagados deste e de qualquer aparelho.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-red-400 font-bold">•</span>
-                <span><b>Cancelamento de Saldo:</b> Quaisquer pontos <b>nfs</b> e conquistas associadas a esta conta serão cancelados sem direito a resgate posterior.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <span className="text-zinc-400 font-bold">•</span>
-                <span><b>Preservação Legal / Fiscal:</b> Registros de compras físicas já faturadas no Marketplace serão mantidos pelo prazo estritamente legal para cumprimento de obrigações tributárias (Art. 16 da LGPD).</span>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                Digite <strong className="text-red-400">EXCLUIR</strong> para confirmar:
-              </label>
-              <input
-                type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="EXCLUIR"
-                className="w-full bg-zinc-950 border border-zinc-800 text-white placeholder-zinc-600 rounded-xl px-3.5 py-2.5 text-xs font-mono tracking-wider focus:outline-none focus:border-red-500 transition"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                disabled={isDeleting}
-                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs py-3 rounded-xl transition cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                disabled={deleteConfirmText.trim().toUpperCase() !== "EXCLUIR" || isDeleting}
-                onClick={() => {
-                  if (deleteConfirmText.trim().toUpperCase() !== "EXCLUIR") return;
-                  setIsDeleting(true);
-                  try {
-                    authStore.deleteAccount(activeUser.id);
-                    appLockStore.setUnlocked(false);
-                    setShowDeleteModal(false);
-                    navigate({ to: "/auth" });
-                  } catch (e) {
-                    toast.error("Erro ao excluir conta. Tente novamente.");
-                    setIsDeleting(false);
-                  }
-                }}
-                className={`flex-1 font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer ${
-                  deleteConfirmText.trim().toUpperCase() === "EXCLUIR" && !isDeleting
-                    ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/30"
-                    : "bg-red-600/30 text-zinc-500 cursor-not-allowed"
-                }`}
-              >
-                <Trash2 className="size-3.5" />
-                <span>{isDeleting ? "Excluindo..." : "Confirmar Exclusão"}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <DeleteAccountModal onClose={() => setShowDeleteModal(false)} activeUser={activeUser} />
       )}
 
-      {/* Modal Unificado de Termos de Uso e Política de Privacidade LGPD */}
       {showLegalModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-800 text-white rounded-3xl max-w-lg w-full max-h-[85vh] flex flex-col p-6 shadow-2xl relative">
-            <button
-              onClick={() => setShowLegalModal(null)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-full bg-zinc-800/50"
-            >
-              <X className="size-5" />
-            </button>
-
-            {/* Cabeçalho das Abas Legais */}
-            <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 mb-4">
-              <button
-                type="button"
-                onClick={() => setShowLegalModal("terms")}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
-                  showLegalModal === "terms"
-                    ? "bg-lime-500/20 text-lime-400 border border-lime-500/30"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                Termos de Uso
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowLegalModal("privacy")}
-                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition ${
-                  showLegalModal === "privacy"
-                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                Privacidade & LGPD
-              </button>
-            </div>
-
-            {/* Conteúdo com rolagem */}
-            <div className="overflow-y-auto space-y-4 pr-1 text-xs text-zinc-300 leading-relaxed">
-              {showLegalModal === "terms" ? (
-                <>
-                  <div className="space-y-1">
-                    <h4 className="font-extrabold text-sm text-white">Regulamento Oficial do Programa Netfits</h4>
-                    <p className="text-[11px] text-zinc-400">Versão 2.0 — Atualizada para Plataformas Mobile (iOS / Android)</p>
-                  </div>
-                  <div className="space-y-2 text-[11px] text-zinc-300">
-                    <p><b>1. Objeto:</b> O Programa Netfits é um ecossistema digital voltado à longevidade ativa, promoção do esporte e fidelidade com recompensas na moeda <b>nfs</b>.</p>
-                    <p><b>2. Pontos nfs & Validade Atuarial:</b> Os pontos acumulados por treinos validados e compras no marketplace seguem a regra atuarial FEFO (First-Expired, First-Out), com validade padrão de 24 meses.</p>
-                    <p><b>3. Shop Netfits & Marketplace:</b> A venda e entrega de produtos físicos (suplementos, tênis, vestuário) é operada em parceria com sellers homologados e integrada de ponta a ponta com emissão de nota fiscal direta de mercadorias.</p>
-                    <p><b>4. Políticas Antifraude:</b> Treinos e interações com vídeos/quizzes exigem tempo de visualização mínimo auditado (dwell time). Suspeitas de spoofing de GPS ou automação fraudulenta implicam bloqueio da conta.</p>
-                    <p><b>5. Disposições Finais:</b> O regulamento integral pode ser baixado em PDF ou consultado na íntegra a qualquer momento através do nosso portal oficial.</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-1">
-                    <h4 className="font-extrabold text-sm text-white">Política de Privacidade & Proteção de Dados (LGPD)</h4>
-                    <p className="text-[11px] text-zinc-400">Em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018)</p>
-                  </div>
-                  <div className="space-y-2 text-[11px] text-zinc-300">
-                    <p><b>1. Controladora dos Dados:</b> Netfits Fidelidade Ltda., CNPJ nº 68.930.455/0001-40, com sede em Santana de Parnaíba/SP.</p>
-                    <p><b>2. Dados Tratados:</b> Coletamos dados cadastrais (nome, CPF, telefone, e-mail, data de nascimento), dados de saúde esportiva voluntariamente fornecidos e telemetria de treinos para pontuação.</p>
-                    <p><b>3. Finalidade e Base Legal:</b> Execução do contrato do programa de benefícios, prevenção a fraudes e cumprimento de obrigações legais (Art. 7º, V e IX da LGPD).</p>
-                    <p><b>4. Direitos do Titular (Art. 18 LGPD):</b> Você pode acessar, corrigir, anonimizar, bloquear ou excluir seus dados pessoais a qualquer tempo diretamente pelo app ou pelo canal do DPO.</p>
-                    <p><b>5. Encarregado de Proteção de Dados (DPO):</b> Para esclarecimentos e solicitações formais sobre dados, contate: <span className="text-lime-400 font-mono">dpo@netfits.com.br</span>.</p>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Rodapé do Modal */}
-            <div className="border-t border-zinc-800 pt-3 mt-4 flex items-center justify-between">
-              <a
-                href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-                download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
-                className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition"
-              >
-                <Download className="size-3.5 text-lime-400" />
-                <span>Baixar Documento Consolidado (PDF)</span>
-              </a>
-              <button
-                type="button"
-                onClick={() => setShowLegalModal(null)}
-                className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs py-2 px-4 rounded-xl transition cursor-pointer"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
+        <ProfileLegalModal
+          showLegalModal={showLegalModal}
+          onClose={() => setShowLegalModal(null)}
+          onSelectTab={(t) => setShowLegalModal(t)}
+        />
       )}
-    </div>
-  );
-}
-
-const inputClass =
-  "w-full bg-card ring-1 ring-black/10 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-brand transition";
-
-function Card({
-  title,
-  icon: Icon,
-  children,
-}: {
-  title: string;
-  icon: typeof User;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="bg-card rounded-2xl ring-1 ring-black/5 p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="size-7 rounded-lg bg-muted grid place-items-center">
-          {Icon && typeof Icon === "function" ? (
-            <Icon className="size-3.5 text-foreground/70" />
-          ) : null}
-        </div>
-        <h2 className="text-sm font-bold">{title}</h2>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function Field({
-  label,
-  icon: Icon,
-  children,
-}: {
-  label: string;
-  icon?: typeof User;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1 mb-1">
-        {Icon && <Icon className="size-3" />}
-        {label}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-function SelectChips({
-  options,
-  value,
-  onChange,
-}: {
-  options: string[];
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {options.map((o) => {
-        const active = value === o;
-        return (
-          <button
-            type="button"
-            key={o}
-            onClick={() => onChange(o)}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full ring-1 transition flex items-center gap-1 ${
-              active
-                ? "bg-foreground text-background ring-foreground"
-                : "bg-card text-foreground/80 ring-black/10 hover:ring-foreground/30"
-            }`}
-          >
-            {active && <Check className="size-3" />}
-            {o}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function Stat({
-  value,
-  label,
-  highlight,
-}: {
-  value: number;
-  label: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-xl px-2 py-2.5 text-center ring-1 ${
-        highlight
-          ? "bg-brand text-brand-foreground ring-brand"
-          : "bg-muted ring-black/5"
-      }`}
-    >
-      <p className="text-lg font-bold leading-none">{value}</p>
-      <p className="text-[9px] font-bold uppercase tracking-widest mt-1 opacity-70">
-        {label}
-      </p>
     </div>
   );
 }

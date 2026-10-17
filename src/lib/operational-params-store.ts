@@ -6,13 +6,15 @@ export type OperationalParams = {
   dailyRewardedPostLimit: number; // Limite diário de posts próprios pontuáveis - 1
   weeklyRewardedPostLimit: number; // Limite semanal de posts próprios pontuáveis - 7
 
-  // Categorias de Visualização / Leitura de Posts:
-  nfsPerEducationalPostView: number; // Posts próprios Netfits & Fibios (Educacionais/Saúde): 5 nfs
-  nfsPerSponsoredPostView: number;   // Posts patrocinados de marcas e parceiros: 10 nfs
-  nfsPerPostView: number;            // Legado/Base (sincronizado com educacional - 5 nfs)
+  // Categorias de Visualização / Leitura de Posts (0 nfs - pontuação concentrada no Quiz):
+  nfsPerEducationalPostView: number; // 0 nfs
+  nfsPerSponsoredPostView: number;   // 0 nfs
+  nfsPerPostView: number;            // 0 nfs
 
-  // Ações sociais no Feed:
-  nfsPerQuiz: number;      // Desafios / Quizzes Eletrônicos: 5 nfs (trava de 1/dia)
+  // Quizzes de Conhecimento no Feed:
+  nfsPerEducationalQuiz: number; // Posts próprios Netfits & Fibios: 5 nfs (subsídio Netfits)
+  nfsPerSponsoredQuiz: number;   // Posts patrocinados por parceiros: 10 nfs (custeio do parceiro)
+  nfsPerQuiz: number;            // Base/fallback legado (5 nfs)
   nfsPerLinkClick: number; // Clicar no link do post: 0 nfs (sem premiação)
   nfsPerLike: number;      // Curtida: 0 nfs (sem premiação)
   nfsPerShare: number;     // Compartilhamento externo: 1 nf por rede social
@@ -34,7 +36,11 @@ export type OperationalParams = {
   duplicateMediaFilterActive: boolean;  // Filtro de hash de mídia duplicada ou spam
 
   // Atividades Físicas, Wearables & Regras Sweat-to-Earn
-  nfsPerWorkout: number; // nfs por atividade executada (20 nfs)
+  // IMPORTANTE: Pontuação por treino realizada é SOMENTE válida para membros do Clube Netfits.
+  // Mesmo essa pontuação exclusiva de membros do clube ainda está PENDENTE de aprovação da diretoria da empresa.
+  nfsPerWorkout: number; // nfs por atividade executada (20 nfs para membros do clube, condicionado à aprovação da diretoria)
+  workoutRewardClubOnly: boolean; // Trava de produto: somente membros do Clube Netfits elegíveis
+  workoutRewardBoardApproved: boolean; // Trava de governança: pendente de aprovação formal da diretoria
   weeklyMaxRewardedWorkouts: number; // Máximo de atividades pontuáveis por semana (5 treinos)
   dailyMaxRewardedWorkouts: number; // Máximo de atividades pontuáveis por dia (1 treino)
   minWorkoutDurationMinutes: number; // Duração mínima para modalidades gerais (30 min)
@@ -127,13 +133,15 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   dailyRewardedPostLimit: 1, // Limite diário de posts próprios pontuáveis
   weeklyRewardedPostLimit: 7, // Limite semanal de posts próprios pontuáveis
 
-  // Categorias de Visualização / Leitura de Posts:
-  nfsPerEducationalPostView: 5, // Posts próprios Netfits & Fibios (Educacionais/Saúde): 5 nfs
-  nfsPerSponsoredPostView: 10,  // Posts patrocinados (Marcas e Parceiros): 10 nfs
-  nfsPerPostView: 5,            // Sincronizado com educacional
+  // Categorias de Visualização / Leitura de Posts (0 nfs - pontuação no Quiz):
+  nfsPerEducationalPostView: 0,
+  nfsPerSponsoredPostView: 0,
+  nfsPerPostView: 0,
 
-  // Ações sociais no Feed:
-  nfsPerQuiz: 5,       // Desafio/Quiz diário: 5 nfs (com trava estrita de 1/dia)
+  // Quizzes de Conhecimento no Feed:
+  nfsPerEducationalQuiz: 5,  // Posts próprios Netfits & Fibios: 5 nfs (subsídio Netfits)
+  nfsPerSponsoredQuiz: 10,   // Posts patrocinados por parceiros: 10 nfs (custeio do parceiro)
+  nfsPerQuiz: 5,             // Base/fallback legado (5 nfs)
   nfsPerLinkClick: 0,  // Clicar no link: 0 nfs (sem premiação)
   nfsPerLike: 0,       // Curtida: 0 nfs (sem premiação)
   nfsPerShare: 1,      // 1 nf por compartilhamento em rede social
@@ -142,8 +150,8 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   dailyMaxPointsThirdPartyInteractions: 100,
 
   // Campos legados sincronizados
-  nfsPerVideoPost: 5,
-  nfsPerTextPost: 5,
+  nfsPerVideoPost: 0,
+  nfsPerTextPost: 0,
 
   blockSelfEngagementRewards: true, // Auto-engajamento sempre bloqueado
   minDwellTimeSecondsForView: 10,   // Dwell time aumentado para 10s
@@ -154,7 +162,9 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   duplicateMediaFilterActive: true,
 
   // Atividades Físicas, Wearables & Regras Sweat-to-Earn
-  nfsPerWorkout: 20, // 20 nfs por atividade executada
+  nfsPerWorkout: 20, // 20 nfs por atividade executada (somente Clube Netfits)
+  workoutRewardClubOnly: true, // Trava: exclusivo para assinantes do Clube
+  workoutRewardBoardApproved: false, // Governança: PENDENTE DE APROVAÇÃO DA DIRETORIA
   weeklyMaxRewardedWorkouts: 5, // Limite de 5 treinos por semana
   dailyMaxRewardedWorkouts: 1, // Limite de 1 treino por dia
   minWorkoutDurationMinutes: 30, // 30 minutos mínimos para treinos gerais
@@ -193,7 +203,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v11";
+const STORAGE_KEY = "netfits_operational_params_v12";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
@@ -310,6 +320,21 @@ export const operationalParamsStore = {
   },
 };
 
+export const subscribeOperationalParams = subscribe;
+
+export function getOperationalParams(): OperationalParams {
+  return operationalParamsStore.getParams();
+}
+
+export function updateOperationalParams(newParams: Partial<OperationalParams>) {
+  return operationalParamsStore.updateParams(newParams);
+}
+
+export function resetOperationalParams() {
+  return operationalParamsStore.resetParams();
+}
+
 export function useOperationalParams(): OperationalParams {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
+

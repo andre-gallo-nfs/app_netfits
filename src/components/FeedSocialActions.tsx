@@ -136,9 +136,14 @@ export function FeedSocialActions({
     }
 
     setViewed(true);
-    sharedSandboxStore.rewardEngagement("view", title, viewPoints);
-    feedAntifraud.recordAction("read", id, viewPoints);
-    toast.success(`+${viewPoints} nfs por leitura de post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+    if (viewPoints > 0) {
+      sharedSandboxStore.rewardEngagement("view", title, viewPoints);
+      feedAntifraud.recordAction("read", id, viewPoints);
+      toast.success(`+${viewPoints} nfs por leitura de post! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+    } else {
+      feedAntifraud.recordAction("read", id, 0);
+      toast.success("👏 Leitura confirmada! Responda o Quizz deste post para pontuar.");
+    }
   };
 
   const handleLinkClick = () => {
@@ -238,7 +243,7 @@ export function FeedSocialActions({
         {showViewButton && (
           <button
             onClick={handleCompleteView}
-            aria-label={viewed ? "Leitura concluída" : "Concluir leitura do artigo e ganhar pontos"}
+            aria-label={viewed ? "Leitura concluída" : "Concluir leitura do artigo"}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ring-1 transition-colors active:scale-95 cursor-pointer ${
               viewed
                 ? "bg-purple-600 text-white ring-purple-600 shadow-sm"
@@ -246,7 +251,13 @@ export function FeedSocialActions({
             }`}
           >
             <Eye className="size-4" />
-            {viewed ? `Lido (+${viewPoints} nfs)` : `Concluir Leitura (+${viewPoints} nfs)`}
+            {viewed
+              ? viewPoints > 0
+                ? `Lido (+${viewPoints} nfs)`
+                : "Leitura Concluída"
+              : viewPoints > 0
+              ? `Concluir Leitura (+${viewPoints} nfs)`
+              : "Confirmar Leitura"}
           </button>
         )}
 

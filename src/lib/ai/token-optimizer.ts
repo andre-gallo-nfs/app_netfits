@@ -115,7 +115,7 @@ class TokenOptimizerService {
 
       return {
         handled: true,
-        text: `Você possui atualmente **${nfsBalance.toLocaleString("pt-BR")} nfs** na sua carteira (equivalente a aproximadamente **${balanceBRL}** em resgates reais no Netfits Shop)!${txInfo}`,
+        text: `Você possui atualmente **${nfsBalance.toLocaleString("pt-BR")} nfs** na sua carteira disponíveis para resgates em compras e produtos no Netfits Shop!${txInfo}`,
         actionLabel: "Abrir Minha Carteira",
         route: "/wallet",
         source: "deterministic_fast_path",
@@ -123,7 +123,7 @@ class TokenOptimizerService {
       };
     }
 
-    // 2. Cotação e Valor Econômico do Ponto nfs
+    // 2. Cotação e Resgates no Netfits Shop
     if (
       q.includes("quanto vale") ||
       q.includes("valor") ||
@@ -131,16 +131,14 @@ class TokenOptimizerService {
       q.includes("cotação") ||
       q.includes("1 nfs") ||
       q.includes("preço do ponto") ||
-      q.includes("paridade")
+      q.includes("paridade") ||
+      q.includes("resgate")
     ) {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
-      const cpp = params.cppResgateBrl || 0.01;
-      const ex100 = (100 * cpp).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-      const ex1000 = (1000 * cpp).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
       return {
         handled: true,
-        text: `Pela regra oficial vigente, cada **1 nfs equivale a R$ ${cpp.toFixed(2)}** em resgates na Loja Oficial (ex: 100 nfs = ${ex100} | 1.000 nfs = ${ex1000}). No Netfits Shop você pode abater até 100% do carrinho com pontos ou combiná-los com cartão de crédito!`,
+        text: `No Netfits Shop você pode utilizar seus pontos **nfs** para abater até 100% do valor de qualquer produto no momento do checkout, ou combiná-los com cartão de crédito e PIX! O abatimento dos pontos é aplicado e calculado automaticamente direto na tela de pagamento da sua compra.`,
         actionLabel: "Explorar o Shop",
         route: "/market",
         source: "deterministic_fast_path",

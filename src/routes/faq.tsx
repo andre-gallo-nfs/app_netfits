@@ -57,7 +57,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Programa de Pontos nfs",
     question: "O que são os pontos nfs e como funciona a validade e a regra FEFO?",
     answer:
-      "Os pontos nfs são a moeda de fidelidade do ecossistema Netfits. Cada ponto emitido é provisionado com 100% de solvência atuarial em caixa (R$ 0,01 por nfs). Os pontos possuem validade de 12 a 24 meses e utilizam o algoritmo protegido FEFO (First-Expiring, First-Out), garantindo que os lotes de pontos mais próximos do vencimento sejam consumidos primeiro em seus resgates."
+      "Os pontos nfs são a moeda de fidelidade do ecossistema Netfits. Cada ponto emitido é provisionado com 100% de solvência atuarial em caixa. Os pontos possuem validade de 12 a 24 meses e utilizam o algoritmo protegido FEFO (First-Expiring, First-Out), garantindo que os lotes de pontos mais próximos do vencimento sejam consumidos primeiro em seus resgates."
   },
   {
     id: "faq_2",
@@ -73,7 +73,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Netfits Shop & Cashback",
     question: "Posso utilizar meus pontos nfs como pagamento parcial ou total no Shop?",
     answer:
-      "Sim! Você pode utilizar seus pontos nfs como desconto direto no valor da compra (cotação de R$ 0,01 por nfs). A transação utiliza um protocolo seguro de reserva em duas fases (Two-Phase Lock) que trava os pontos por 15 minutos e gera um voucher token assinado e 100% rastreável no Ledger de Auditoria imutável da Netfits."
+      "Sim! Você pode utilizar seus pontos nfs como desconto direto no valor da compra no momento do checkout. A transação utiliza um protocolo seguro de reserva em duas fases (Two-Phase Lock) que trava os pontos por 15 minutos e gera um voucher token assinado e 100% rastreável no Ledger de Auditoria imutável da Netfits."
   },
   {
     id: "faq_8",
@@ -97,7 +97,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Dispositivos & Wearables",
     question: "Como conectar smartwatches e wearables como Garmin, Strava ou Apple Watch?",
     answer:
-      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) concedendo bônus automáticos de +20 nfs por treino validado."
+      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) para acompanhar seu histórico, zonas de esforço e badges de constância esportiva. (A concessão de pontos por treino é exclusiva para membros do Clube Netfits e está em fase de deliberação pela diretoria)."
   },
   {
     id: "faq_7",
@@ -226,7 +226,7 @@ function FaqPage() {
                 <span>Pontos nfs & FEFO</span>
               </div>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                100% de solvência em caixa (R$ 0,01/ponto) e consumo prioritário por vencimento (12 a 24 meses).
+                100% de solvência em caixa e consumo prioritário por vencimento através do algoritmo FEFO (12 a 24 meses).
               </p>
             </div>
 
