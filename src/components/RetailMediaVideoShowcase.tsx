@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   Clock,
   ArrowRight,
+  ArrowDown,
   Lock,
   BadgeCheck,
   ExternalLink,
@@ -306,6 +307,10 @@ export function RetailMediaVideoShowcase() {
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
   const [quizError, setQuizError] = useState<string | null>(null);
 
+  // Referência para rolagem suave ao liberar o Quiz
+  const quizSectionRef = useRef<HTMLDivElement | null>(null);
+  const modalScrollRef = useRef<HTMLDivElement | null>(null);
+
   const brand = DEMO_BRAND_PRODUCTS[selectedBrandIndex];
 
   // Simulação de reprodução com controle de Dwell Time
@@ -323,6 +328,9 @@ export function RetailMediaVideoShowcase() {
             setHasQualifiedAntifraud(true);
             feedAntifraud.recordAction("video_view", activeModalProduct.id, 0);
             toast.success("🎉 Retenção de 90% auditada com sucesso! O Quiz Patrocinado de +10 nfs foi liberado.");
+            setTimeout(() => {
+              quizSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 300);
           }
 
           if (nextPct >= 100) {
@@ -564,9 +572,9 @@ export function RetailMediaVideoShowcase() {
       {/* ========================================================================= */}
       {activeModalProduct && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-sm sm:max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[96vh]">
-            {/* Header do Modal */}
-            <div className="p-3.5 border-b border-zinc-800/80 flex items-center justify-between text-white bg-zinc-900/70">
+          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-sm sm:max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[92vh] sm:max-h-[94vh]">
+            {/* Header do Modal — Fixo no topo com X e informações da marca */}
+            <div className="p-3.5 border-b border-zinc-800/80 flex items-center justify-between text-white bg-zinc-900/90 backdrop-blur-md shrink-0 z-20">
               <div className="flex items-center gap-2">
                 <span className="size-8 rounded-xl bg-purple-600/20 text-purple-400 grid place-items-center text-xs font-black">
                   {activeModalProduct.brandName.slice(0, 2).toUpperCase()}
@@ -595,229 +603,258 @@ export function RetailMediaVideoShowcase() {
               </button>
             </div>
 
-            {/* Player de Vídeo Real Vertical 09:16 (Instagram Reels / TikTok / Shorts) */}
-            <div className="p-2 sm:p-3 bg-zinc-950 flex items-center justify-center">
-              <div className="relative aspect-[9/16] w-full max-w-[320px] sm:max-w-[340px] max-h-[52vh] sm:max-h-[56vh] bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${activeModalProduct.youtubeId}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1`}
-                  title={`${activeModalProduct.brandName} - ${activeModalProduct.hookTitle}`}
-                  className="w-full h-full border-0 object-cover"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-
-            {/* Painel de Auditoria Antifraude & Controle de Dwell Time (90%) */}
-            <div className="p-4 bg-zinc-900 border-b border-zinc-800 space-y-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck
-                    className={`size-4 ${
-                      hasQualifiedAntifraud ? "text-lime-400" : "text-purple-400"
-                    }`}
+            {/* Container Principal de Rolagem Unificada: o vídeo sobe na tela liberando espaço total para o Quiz */}
+            <div
+              ref={modalScrollRef}
+              className="flex-1 overflow-y-auto overscroll-contain focus:outline-none divide-y divide-zinc-900"
+            >
+              {/* Player de Vídeo Real Vertical 09:16 (Instagram Reels / TikTok / Shorts) */}
+              <div className="p-3 sm:p-4 bg-zinc-950 flex flex-col items-center justify-center">
+                <div className="relative aspect-[9/16] w-full max-w-[280px] sm:max-w-[320px] bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800/90">
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${activeModalProduct.youtubeId}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1`}
+                    title={`${activeModalProduct.brandName} - ${activeModalProduct.hookTitle}`}
+                    className="w-full h-full border-0 object-cover"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
                   />
-                  <div>
-                    <span className="text-xs font-bold text-white block">
-                      Auditoria de Retenção Antifraude
-                    </span>
-                    <span className="text-[10px] text-zinc-400">
-                      {hasQualifiedAntifraud
-                        ? "✓ 90% auditado — Quiz patrocinado liberado!"
-                        : `Assista ao menos 90% para liberar o Quiz (${progressPct}% concluído)`}
-                    </span>
+                </div>
+              </div>
+
+              {/* Painel de Auditoria Antifraude & Controle de Dwell Time (90%) */}
+              <div className="p-4 bg-zinc-900/90 border-t border-b border-zinc-800/80 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck
+                      className={`size-4 shrink-0 ${
+                        hasQualifiedAntifraud ? "text-lime-400" : "text-purple-400"
+                      }`}
+                    />
+                    <div>
+                      <span className="text-xs font-bold text-white block">
+                        Auditoria de Retenção Antifraude
+                      </span>
+                      <span className="text-[10px] text-zinc-400">
+                        {hasQualifiedAntifraud
+                          ? "✓ 90% auditado — Quiz liberado abaixo!"
+                          : `Assista ao menos 90% para liberar o Quiz (${progressPct}% concluído)`}
+                      </span>
+                    </div>
                   </div>
+
+                  {/* Atalho Demo para Homologação OU Botão de Ir para o Quiz */}
+                  {hasQualifiedAntifraud ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        quizSectionRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        })
+                      }
+                      className="px-2.5 py-1.5 rounded-full bg-lime-400 hover:bg-lime-500 text-zinc-950 text-[10px] font-black flex items-center gap-1 transition cursor-pointer shadow-md shrink-0"
+                    >
+                      <span>Ir ao Quiz (+10 nfs)</span>
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setElapsedSec(Math.round(activeModalProduct.durationSec * 0.92));
+                        setProgressPct(92);
+                        setHasQualifiedAntifraud(true);
+                        feedAntifraud.recordAction("video_view", activeModalProduct.id, 0);
+                        toast.success("⚡ Atalho Staging: 90% aprovado! Quiz de +10 nfs liberado.");
+                        setTimeout(() => {
+                          quizSectionRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }, 250);
+                      }}
+                      className="px-2.5 py-1.5 rounded-full bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 text-[10px] font-extrabold flex items-center gap-1.5 transition cursor-pointer shrink-0"
+                      title="Atalho para testes: simular 90% imediatamente"
+                    >
+                      <Zap className="size-3 text-yellow-400 fill-yellow-400" />
+                      <span>Pular para 90% (Demo)</span>
+                    </button>
+                  )}
                 </div>
 
-                {/* Atalho Demo para Homologação */}
-                {!hasQualifiedAntifraud && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setElapsedSec(Math.round(activeModalProduct.durationSec * 0.92));
-                      setProgressPct(92);
-                      setHasQualifiedAntifraud(true);
-                      feedAntifraud.recordAction("video_view", activeModalProduct.id, 0);
-                      toast.success("⚡ Atalho Staging: 90% aprovado! Quiz de +10 nfs liberado.");
-                    }}
-                    className="px-2.5 py-1.5 rounded-full bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 text-[10px] font-extrabold flex items-center gap-1.5 transition cursor-pointer shrink-0"
-                    title="Atalho para testes: simular 90% imediatamente"
-                  >
-                    <Zap className="size-3 text-yellow-400 fill-yellow-400" />
-                    <span>Pular para 90% (Demo)</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Barra de Progresso com Marcador de 90% */}
-              <div className="relative w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-300 ${
-                    hasQualifiedAntifraud
-                      ? "bg-gradient-to-r from-lime-400 to-emerald-500"
-                      : "bg-gradient-to-r from-purple-500 to-indigo-500"
-                  }`}
-                  style={{ width: `${progressPct}%` }}
-                />
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-10 shadow"
-                  style={{ left: "90%" }}
-                  title="Meta de 90% Antifraude"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="text-white hover:text-purple-400 transition cursor-pointer flex items-center gap-1 font-sans text-xs"
-                  >
-                    {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-                    <span>{isPlaying ? "Pausar Contador" : "Continuar"}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setElapsedSec(0);
-                      setProgressPct(0);
-                      setIsPlaying(true);
-                    }}
-                    className="hover:text-white transition cursor-pointer flex items-center gap-1 font-sans text-xs"
-                  >
-                    <RotateCcw className="size-3" />
-                    <span>Reiniciar</span>
-                  </button>
+                {/* Barra de Progresso com Marcador de 90% */}
+                <div className="relative w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      hasQualifiedAntifraud
+                        ? "bg-gradient-to-r from-lime-400 to-emerald-500"
+                        : "bg-gradient-to-r from-purple-500 to-indigo-500"
+                    }`}
+                    style={{ width: `${progressPct}%` }}
+                  />
+                  <div
+                    className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-10 shadow"
+                    style={{ left: "90%" }}
+                    title="Meta de 90% Antifraude"
+                  />
                 </div>
 
-                <span>
-                  {Math.floor(elapsedSec / 60)}:{String(elapsedSec % 60).padStart(2, "0")} /{" "}
-                  {Math.floor(activeModalProduct.durationSec / 60)}:
-                  {String(activeModalProduct.durationSec % 60).padStart(2, "0")} ({progressPct}%)
-                </span>
-              </div>
-            </div>
+                <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="text-white hover:text-purple-400 transition cursor-pointer flex items-center gap-1 font-sans text-xs"
+                    >
+                      {isPlaying ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
+                      <span>{isPlaying ? "Pausar Contador" : "Continuar"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setElapsedSec(0);
+                        setProgressPct(0);
+                        setIsPlaying(true);
+                      }}
+                      className="hover:text-white transition cursor-pointer flex items-center gap-1 font-sans text-xs"
+                    >
+                      <RotateCcw className="size-3" />
+                      <span>Reiniciar</span>
+                    </button>
+                  </div>
 
-            {/* Painel Inferior com o Quiz e Chamada de Conversão */}
-            <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-white bg-zinc-950">
-              {/* Notificação Antifraude */}
-              <div
-                className={`p-3 rounded-2xl border text-xs flex items-center gap-3 transition-colors ${
-                  hasQualifiedAntifraud
-                    ? "bg-lime-950/40 border-lime-500/40 text-lime-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400"
-                }`}
-              >
-                {hasQualifiedAntifraud ? (
-                  <CheckCircle2 className="size-5 text-lime-400 shrink-0" />
-                ) : (
-                  <Lock className="size-5 text-zinc-500 shrink-0" />
-                )}
-                <div>
-                  <p className="font-bold">
-                    {hasQualifiedAntifraud
-                      ? "🎉 90% assistido! Desafio Patrocinado Desbloqueado."
-                      : "Assista ao menos 90% do vídeo para liberar a resposta do Quiz."}
-                  </p>
-                  <p className="text-[10px] opacity-80">
-                    Recompensa oficial do anunciante: <strong>+10 nfs na carteira</strong>
-                  </p>
-                </div>
-              </div>
-
-              {/* Desafio / Pergunta do Quiz */}
-              <div className="space-y-3 bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4">
-                <div className="flex items-center gap-2">
-                  <Trophy className="size-4 text-yellow-400" />
-                  <span className="text-[11px] font-black uppercase tracking-wider text-yellow-400">
-                    Desafio Técnico Patrocinado (+10 nfs)
+                  <span>
+                    {Math.floor(elapsedSec / 60)}:{String(elapsedSec % 60).padStart(2, "0")} /{" "}
+                    {Math.floor(activeModalProduct.durationSec / 60)}:
+                    {String(activeModalProduct.durationSec % 60).padStart(2, "0")} ({progressPct}%)
                   </span>
                 </div>
-
-                <p className="text-xs sm:text-sm font-bold text-white leading-snug">
-                  {activeModalProduct.quiz.question}
-                </p>
-
-                {/* Opções de Resposta */}
-                <div className="space-y-2 pt-1">
-                  {activeModalProduct.quiz.options.map((opt) => {
-                    const isSelected = selectedOption === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        disabled={!hasQualifiedAntifraud && !quizSubmitted}
-                        onClick={() => setSelectedOption(opt.id)}
-                        className={`w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                          isSelected
-                            ? "bg-purple-600 text-white border-purple-400 font-semibold shadow-md"
-                            : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700"
-                        }`}
-                      >
-                        <span
-                          className={`size-4 rounded-full border grid place-items-center shrink-0 mt-0.5 ${
-                            isSelected
-                              ? "border-white bg-white text-purple-600 font-black text-[9px]"
-                              : "border-zinc-600"
-                          }`}
-                        >
-                          {isSelected ? "✓" : ""}
-                        </span>
-                        <span className="leading-snug">{opt.text}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {quizError && (
-                  <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
-                    <AlertCircle className="size-4 shrink-0 text-red-400" />
-                    <span>{quizError}</span>
-                  </div>
-                )}
-
-                {/* Botão de Envio do Quiz */}
-                <button
-                  type="button"
-                  disabled={!hasQualifiedAntifraud || quizSubmitted}
-                  onClick={handleQuizSubmit}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
-                >
-                  {quizSubmitted ? (
-                    <>
-                      <CheckCircle2 className="size-4 text-lime-400" />
-                      <span>Desafio Concluído (+10 nfs coletados)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="size-4 text-yellow-300" />
-                      <span>Confirmar Resposta (+10 nfs)</span>
-                    </>
-                  )}
-                </button>
               </div>
 
-              {/* Botão Direto para o Shop Netfits */}
-              <div className="pt-2 flex items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleCloseModal();
-                    setSelectedShopProduct(activeModalProduct.shopProduct);
-                  }}
-                  className="flex-1 py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              {/* Painel do Quiz e Chamada de Conversão (Rola naturalmente ocupando a tela toda) */}
+              <div
+                ref={quizSectionRef}
+                className="p-4 sm:p-5 space-y-4 text-white bg-zinc-950 scroll-mt-2"
+              >
+                {/* Notificação Antifraude */}
+                <div
+                  className={`p-3 rounded-2xl border text-xs flex items-center gap-3 transition-colors ${
+                    hasQualifiedAntifraud
+                      ? "bg-lime-950/40 border-lime-500/40 text-lime-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400"
+                  }`}
                 >
-                  <ShoppingBag className="size-4" />
-                  <span>Comprar no Shop ({activeModalProduct.shopProduct.cashback})</span>
-                </button>
+                  {hasQualifiedAntifraud ? (
+                    <CheckCircle2 className="size-5 text-lime-400 shrink-0" />
+                  ) : (
+                    <Lock className="size-5 text-zinc-500 shrink-0" />
+                  )}
+                  <div>
+                    <p className="font-bold">
+                      {hasQualifiedAntifraud
+                        ? "🎉 90% assistido! Desafio Patrocinado Desbloqueado."
+                        : "Assista ao menos 90% do vídeo para liberar a resposta do Quiz."}
+                    </p>
+                    <p className="text-[10px] opacity-80">
+                      Recompensa oficial do anunciante: <strong>+10 nfs na carteira</strong>
+                    </p>
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xs font-semibold border border-zinc-800 transition cursor-pointer"
-                >
-                  Concluir
-                </button>
+                {/* Desafio / Pergunta do Quiz */}
+                <div className="space-y-3 bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="size-4 text-yellow-400" />
+                    <span className="text-[11px] font-black uppercase tracking-wider text-yellow-400">
+                      Desafio Técnico Patrocinado (+10 nfs)
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm font-bold text-white leading-snug">
+                    {activeModalProduct.quiz.question}
+                  </p>
+
+                  {/* Opções de Resposta */}
+                  <div className="space-y-2 pt-1">
+                    {activeModalProduct.quiz.options.map((opt) => {
+                      const isSelected = selectedOption === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          disabled={!hasQualifiedAntifraud && !quizSubmitted}
+                          onClick={() => setSelectedOption(opt.id)}
+                          className={`w-full p-3 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isSelected
+                              ? "bg-purple-600 text-white border-purple-400 font-semibold shadow-md"
+                              : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-700"
+                          }`}
+                        >
+                          <span
+                            className={`size-4 rounded-full border grid place-items-center shrink-0 mt-0.5 ${
+                              isSelected
+                                ? "border-white bg-white text-purple-600 font-black text-[9px]"
+                                : "border-zinc-600"
+                            }`}
+                          >
+                            {isSelected ? "✓" : ""}
+                          </span>
+                          <span className="leading-snug">{opt.text}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {quizError && (
+                    <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+                      <AlertCircle className="size-4 shrink-0 text-red-400" />
+                      <span>{quizError}</span>
+                    </div>
+                  )}
+
+                  {/* Botão de Envio do Quiz */}
+                  <button
+                    type="button"
+                    disabled={!hasQualifiedAntifraud || quizSubmitted}
+                    onClick={handleQuizSubmit}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    {quizSubmitted ? (
+                      <>
+                        <CheckCircle2 className="size-4 text-lime-400" />
+                        <span>Desafio Concluído (+10 nfs coletados)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="size-4 text-yellow-300" />
+                        <span>Confirmar Resposta (+10 nfs)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Botão Direto para o Shop Netfits */}
+                <div className="pt-2 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCloseModal();
+                      setSelectedShopProduct(activeModalProduct.shopProduct);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ShoppingBag className="size-4" />
+                    <span>Comprar no Shop ({activeModalProduct.shopProduct.cashback})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xs font-semibold border border-zinc-800 transition cursor-pointer"
+                  >
+                    Concluir
+                  </button>
+                </div>
               </div>
             </div>
           </div>
