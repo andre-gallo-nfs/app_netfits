@@ -4,8 +4,8 @@ import crypto from "node:crypto";
 const publicKeyPath = "C:\\Users\\aacga\\OneDrive\\netfits\\Rock\\homolog\\rsa-generated.public.pem";
 const publicKey = fs.readFileSync(publicKeyPath, "utf8");
 
-// Fetch live token from vercel
-const res = await fetch("https://app-netfits.vercel.app/api/marketplace/mkplace/token", {
+// Fetch live token from official netfits api
+const res = await fetch("https://www.netfits.com.br/api/marketplace/mkplace/token", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ userId: "usr_102" })

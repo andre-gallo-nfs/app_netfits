@@ -12,8 +12,8 @@ B3hGFk5fZGFsjJ/Y4kRkIypDcemuq41dGpq4bq5IifEquwGNNNIqSVgoqh8xHAM0
 5QIDAQAB
 -----END PUBLIC KEY-----`;
 
-// Fetch live token from vercel
-const res = await fetch("https://app-netfits.vercel.app/api/marketplace/mkplace/token", {
+// Fetch live token from official netfits api
+const res = await fetch("https://www.netfits.com.br/api/marketplace/mkplace/token", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ userId: "usr_102" })

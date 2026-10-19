@@ -30,6 +30,11 @@ Antes de realizar QUALQUER alteração, refatoração, edição em lote ou imple
    - **PROIBIDO push direto na branch `main`**: Toda alteração, refatoração ou nova funcionalidade solicitada via prompt DEVE ser desenvolvida e enviada exclusivamente para a branch `staging` (`git push origin staging`).
    - **Ambiente de Homologação**: O push na branch `staging` atualiza o ambiente de homologação/preview.
    - **Portão Humano**: O André realiza a validação funcional e de negócio para conferir se o prompt foi interpretado e executado corretamente sem efeitos colaterais.
-   - **Tombamento Oficial para Produção**: Somente após o "de acordo" explícito do André, é executado o tombamento (`npm run promote:prod`), que promove `staging` para `main` com Quality Gate aprovado e dispara o deploy oficial de produção.
+   - **Tombamento Oficial para Produção**: Somente após o "de acordo" explícito do André, é executado o tombamento (`npm run promote:prod`), que promove `staging` para `main` com Quality Gate aprovado e dispara o deploy oficial de produção diretamente no Cloudflare Workers (`www.netfits.com.br`).
    - O ambiente de desenvolvimento deve sempre retornar à branch `staging` após qualquer tombamento.
+
+5. **Exclusividade Cloudflare & Descomissionamento Total da Vercel**:
+   - A infraestrutura oficial, definitiva e exclusiva de produção, borda, DNS e CDN da Netfits é o **Cloudflare** (`www.netfits.com.br`).
+   - É expressamente proibido qualquer uso, menção ou apontamento de rotas e emails para domínios da Vercel (`*.vercel.app`).
+   - Todo deploy de produção é realizado estritamente no Cloudflare Workers.
 
