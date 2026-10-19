@@ -34,6 +34,7 @@ export interface DemoBrandProduct {
   brandName: string;
   brandTagline: string;
   category: string;
+  timeAgo: string;
   durationLabel: string;
   durationSec: number;
   poster: string;
@@ -62,6 +63,7 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Liquidz",
     brandTagline: "Hidratação de Alta Performance & Eletrólitos",
     category: "Suplementação & Hidratação",
+    timeAgo: "há 1 hora",
     durationLabel: "0:59 min",
     durationSec: 59,
     poster: productLiquidz,
@@ -120,6 +122,7 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Dux Nutrition",
     brandTagline: "Nutrição Esportiva Limpa & Longevidade",
     category: "Força & Longevidade Mitocondrial",
+    timeAgo: "há 3 horas",
     durationLabel: "1:28 min",
     durationSec: 88,
     poster: productCreatine,
@@ -178,6 +181,7 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Asics Brasil",
     brandTagline: "Inovação Biomecânica & Corrida",
     category: "Calçados & Performance",
+    timeAgo: "há 4 horas",
     durationLabel: "1:00 min",
     durationSec: 60,
     poster: asicsNovablast,
@@ -236,6 +240,7 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Garmin Brasil",
     brandTagline: "Telemetria Esportiva & GPS de Alta Precisão",
     category: "Tecnologia & Telemetria",
+    timeAgo: "há 6 horas",
     durationLabel: "0:30 min",
     durationSec: 30,
     poster: gearWatch,
@@ -292,7 +297,6 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
 ];
 
 export function RetailMediaVideoShowcase() {
-  const [selectedBrandIndex, setSelectedBrandIndex] = useState<number>(0);
   const [activeModalProduct, setActiveModalProduct] = useState<DemoBrandProduct | null>(null);
   const [selectedShopProduct, setSelectedShopProduct] = useState<DetailProduct | null>(null);
 
@@ -310,8 +314,6 @@ export function RetailMediaVideoShowcase() {
   // Referência para rolagem suave ao liberar o Quiz
   const quizSectionRef = useRef<HTMLDivElement | null>(null);
   const modalScrollRef = useRef<HTMLDivElement | null>(null);
-
-  const brand = DEMO_BRAND_PRODUCTS[selectedBrandIndex];
 
   // Simulação de reprodução com controle de Dwell Time
   useEffect(() => {
@@ -413,159 +415,125 @@ export function RetailMediaVideoShowcase() {
     "Apresentação da tecnologia oficial do parceiro";
 
   return (
-    <section className="px-4 space-y-4">
-      {/* 1. Header do Showcase para Demonstração de Mídia */}
-      <div className="bg-gradient-to-r from-purple-950/80 via-zinc-900 to-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-white shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="p-1 rounded-lg bg-purple-500/20 text-purple-300">
-              <Zap className="size-4" />
-            </span>
-            <span className="text-xs font-black uppercase tracking-wider text-purple-300">
-              Retail Media · Showcase de Mídia
-            </span>
-          </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-lime-400/20 text-lime-400 border border-lime-400/30">
-            Atenção Auditada
-          </span>
-        </div>
+    <>
+      {DEMO_BRAND_PRODUCTS.map((brand) => {
+        const isQuizClaimed = typeof window !== "undefined" && feedAntifraud.hasClaimed("quiz", brand.quiz.id);
 
-        <p className="text-xs text-zinc-300 leading-relaxed">
-          Demonstração da nossa tecnologia para anunciantes: vídeos com retenção de 90% auditada,
-          Quiz pedagógico (+10 nfs patrocinados) e conversão direta no Shop.
-        </p>
+        return (
+          <article
+            key={brand.id}
+            className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
+          >
+            {/* Topo: Marca e Badge de Patrocínio */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-11 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 border border-zinc-700 flex items-center justify-center p-2 text-white font-black text-xs shadow-inner">
+                  {brand.brandName.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
+                      {brand.brandName}
+                    </h3>
+                    <BadgeCheck className="size-4 text-purple-600 dark:text-purple-400 fill-purple-600/20" />
+                    <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                      Patrocinado
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    {brand.brandTagline} · {brand.timeAgo}
+                  </p>
+                </div>
+              </div>
 
-        {/* Seletor de Marcas com 4 Abas */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
-          {DEMO_BRAND_PRODUCTS.map((item, idx) => {
-            const isSelected = selectedBrandIndex === idx;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setSelectedBrandIndex(idx)}
-                className={`py-2 px-2.5 rounded-xl text-left border transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-purple-600 text-white border-purple-400 shadow-md font-bold"
-                    : "bg-zinc-950/50 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700 font-medium"
-                }`}
-              >
-                <div className="text-[11px] truncate">{item.brandName}</div>
-                <div className="text-[9px] opacity-75 truncate">{item.category.split("&")[0]}</div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 2. O Card Principal do Feed da Marca Selecionada */}
-      <article className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
-        {/* Topo: Marca e Badge de Patrocínio */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="size-11 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-950 border border-zinc-700 flex items-center justify-center p-2 text-white font-black text-xs shadow-inner">
-              {brand.brandName.slice(0, 2).toUpperCase()}
+              <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
+                {brand.category}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-                  {brand.brandName}
-                </h3>
-                <BadgeCheck className="size-4 text-purple-600 dark:text-purple-400 fill-purple-600/20" />
-                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                  Patrocinado
+
+            {/* Thumbnail do Vídeo Vertical 09:16 com Botão Play e Badges */}
+            <div
+              onClick={() => handleOpenVideo(brand)}
+              className="relative rounded-3xl overflow-hidden aspect-[9/16] max-w-[340px] sm:max-w-[360px] mx-auto bg-zinc-950 cursor-pointer group shadow-2xl border border-zinc-800"
+              role="button"
+              tabIndex={0}
+              aria-label={`Assistir ao vídeo vertical da ${brand.brandName}`}
+            >
+              <img
+                src={brand.poster}
+                alt={brand.hookTitle}
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+
+              {/* Badge Topo */}
+              <div className="absolute top-3 left-3 flex items-center gap-2">
+                <span className="bg-purple-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                  <Sparkles className="size-3 text-lime-400" />
+                  <span>{brand.badge}</span>
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                {brand.brandTagline} · há 2 horas
-              </p>
+
+              {/* Duração & Badge de Vídeo Real */}
+              <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                <span className="bg-red-600/90 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                  <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                  <span>Vídeo Real HD</span>
+                </span>
+                <div className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
+                  <Clock className="size-3 text-purple-400" />
+                  <span>{brand.durationLabel}</span>
+                </div>
+              </div>
+
+              {/* Botão Central de Play com efeito Pulsante */}
+              <div className="absolute inset-0 grid place-items-center">
+                <div className="size-16 rounded-full bg-purple-600 text-white grid place-items-center shadow-2xl group-hover:scale-110 transition-transform ring-4 ring-purple-600/30">
+                  <Play className="size-7 ml-0.5 fill-white text-white" />
+                </div>
+              </div>
+
+              {/* Legenda de Gancho sobreposta no rodapé */}
+              <div className="absolute bottom-3 left-3 right-3 text-white space-y-1 p-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-lime-400 uppercase tracking-widest">
+                    {isQuizClaimed
+                      ? "✓ Desafio Respondido · +10 nfs Coletados"
+                      : "Vídeo Oficial da Marca · +10 nfs"}
+                  </span>
+                  <span className="text-[10px] text-zinc-300 font-medium hidden sm:inline">
+                    · Toque para assistir com som
+                  </span>
+                </div>
+                <h4 className="text-base sm:text-lg font-black leading-snug drop-shadow-md">
+                  {brand.hookTitle}
+                </h4>
+                <p className="text-xs text-zinc-200 line-clamp-2 drop-shadow-sm font-medium">
+                  {brand.hookSubtitle}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
-            {brand.category}
-          </span>
-        </div>
+            {/* Rodapé: Ações Sociais e Atalho Direto de Conversão */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+              <FeedSocialActions
+                id={brand.id}
+                title={`${brand.brandName}: ${brand.hookTitle}`}
+                postCategory="sponsored"
+              />
 
-        {/* Thumbnail do Vídeo Vertical 09:16 com Botão Play e Badges */}
-        <div
-          onClick={() => handleOpenVideo(brand)}
-          className="relative rounded-3xl overflow-hidden aspect-[9/16] max-w-[340px] sm:max-w-[360px] mx-auto bg-zinc-950 cursor-pointer group shadow-2xl border border-zinc-800"
-          role="button"
-          tabIndex={0}
-          aria-label={`Assistir ao vídeo vertical da ${brand.brandName}`}
-        >
-          <img
-            src={brand.poster}
-            alt={brand.hookTitle}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-
-          {/* Badge Topo */}
-          <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className="bg-purple-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
-              <Sparkles className="size-3 text-lime-400" />
-              <span>{brand.badge}</span>
-            </span>
-          </div>
-
-          {/* Duração & Badge de Vídeo Real */}
-          <div className="absolute top-3 right-3 flex items-center gap-1.5">
-            <span className="bg-red-600/90 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
-              <span className="size-1.5 rounded-full bg-white animate-pulse" />
-              <span>Vídeo Real HD</span>
-            </span>
-            <div className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
-              <Clock className="size-3 text-purple-400" />
-              <span>{brand.durationLabel}</span>
+              <button
+                type="button"
+                onClick={() => setSelectedShopProduct(brand.shopProduct)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+              >
+                <ShoppingBag className="size-3.5" />
+                <span>Ver no Shop ({brand.shopProduct.cashback})</span>
+              </button>
             </div>
-          </div>
-
-          {/* Botão Central de Play com efeito Pulsante */}
-          <div className="absolute inset-0 grid place-items-center">
-            <div className="size-16 rounded-full bg-purple-600 text-white grid place-items-center shadow-2xl group-hover:scale-110 transition-transform ring-4 ring-purple-600/30">
-              <Play className="size-7 ml-0.5 fill-white text-white" />
-            </div>
-          </div>
-
-          {/* Legenda de Gancho sobreposta no rodapé */}
-          <div className="absolute bottom-3 left-3 right-3 text-white space-y-1 p-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-lime-400 uppercase tracking-widest">
-                Vídeo Oficial da Marca · +10 nfs
-              </span>
-              <span className="text-[10px] text-zinc-300 font-medium hidden sm:inline">
-                · Toque para assistir com som
-              </span>
-            </div>
-            <h4 className="text-base sm:text-lg font-black leading-snug drop-shadow-md">
-              {brand.hookTitle}
-            </h4>
-            <p className="text-xs text-zinc-200 line-clamp-2 drop-shadow-sm font-medium">
-              {brand.hookSubtitle}
-            </p>
-          </div>
-        </div>
-
-        {/* Rodapé: Ações Sociais e Atalho Direto de Conversão */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 border-t border-zinc-100 dark:border-zinc-800">
-          <FeedSocialActions
-            id={brand.id}
-            title={`${brand.brandName}: ${brand.hookTitle}`}
-            postCategory="sponsored"
-          />
-
-          <button
-            type="button"
-            onClick={() => setSelectedShopProduct(brand.shopProduct)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
-          >
-            <ShoppingBag className="size-3.5" />
-            <span>Ver no Shop ({brand.shopProduct.cashback})</span>
-          </button>
-        </div>
-      </article>
+          </article>
+        );
+      })}
 
       {/* ========================================================================= */}
       {/* 3. MODAL DE REPRODUÇÃO DE VÍDEO COM AUDITORIA ANTIFRAUDE & QUIZ PATROCINADO */}
@@ -868,6 +836,6 @@ export function RetailMediaVideoShowcase() {
           onClose={() => setSelectedShopProduct(null)}
         />
       )}
-    </section>
+    </>
   );
 }
