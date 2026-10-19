@@ -1,5 +1,5 @@
 async function get7DayToken() {
-  const res = await fetch("https://app-netfits.vercel.app/api/marketplace/mkplace/token", {
+  const res = await fetch("https://www.netfits.com.br/api/marketplace/mkplace/token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

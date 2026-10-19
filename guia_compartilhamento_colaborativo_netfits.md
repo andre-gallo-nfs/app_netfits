@@ -35,13 +35,10 @@ Como já configuramos a exportação automática para a sua pasta do **OneDrive*
 
 ---
 
-## 3. 🌐 Publicação do App Online em 1 Clique (Vercel / Cloudflare Pages)
+## 3. 🌐 Acesso ao App Online Oficial (Cloudflare)
 
-Para que seu colega possa **navegar no aplicativo diretamente do celular ou computador dele**:
+Para que qualquer colega ou sócio possa **navegar no aplicativo diretamente do celular ou computador**:
 
-### Passo a Passo com Vercel (Gratuito):
-1. Acesse **[vercel.com](https://vercel.com)** e faça login com sua conta GitHub.
-2. Clique em **"Add New Project"** e selecione o repositório `netfits-app`.
-3. Clique em **Deploy**.
-
-> **Vantagem**: O app ficará disponível em um link público (ex: `https://netfits.vercel.app`), onde qualquer nova atualização enviada para o código atualizará o site automaticamente em segundos!
+- **Endereço Oficial**: [https://www.netfits.com.br](https://www.netfits.com.br)
+- **Hospedagem & Borda**: Cloudflare Workers com CDN global e certificados SSL automáticos.
+- **Tombamento de Versões**: Qualquer nova versão homologada e promovida via `npm run promote:prod` atualiza o aplicativo instantaneamente no Cloudflare.
