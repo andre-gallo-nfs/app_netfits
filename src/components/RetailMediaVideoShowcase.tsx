@@ -61,19 +61,19 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Liquidz",
     brandTagline: "Hidratação de Alta Performance & Eletrólitos",
     category: "Suplementação & Hidratação",
-    durationLabel: "0:48 min",
-    durationSec: 48,
+    durationLabel: "0:59 min",
+    durationSec: 59,
     poster: productLiquidz,
-    badge: "Eletrólitos Premium",
-    youtubeId: "Nppv4luvuxY",
+    badge: "Reels / TikTok (9:16)",
+    youtubeId: "efKeKBklLyw",
     accentColor: "from-blue-600 to-cyan-500",
     hookTitle: "Por que água pura não hidrata suas células após 1h de suor?",
     hookSubtitle: "A ciência da osmolaridade celular: como a reposição de sódio e potássio biodisponível previne cãibras e queda de foco.",
     videoHighlights: [
-      { atSec: 5, text: "🔬 Início: Teste de perda mineral em atletas de endurance sob 28°C" },
-      { atSec: 18, text: "💧 O risco de Hiponatremia: Por que beber apenas água pura dilui o sangue" },
-      { atSec: 32, text: "⚡ Fórmula Liquidz: Sódio, Potássio e Magnésio com absorção em 15 minutos" },
-      { atSec: 44, text: "🏆 Conclusão médica: Preservação de 100% da potência muscular até o fim do treino" },
+      { atSec: 8, text: "🔬 Osmolaridade celular: Por que água pura dilui o sangue após 1h de suor" },
+      { atSec: 25, text: "💧 Reposição mineral: Sódio, Potássio e Magnésio sem açúcar" },
+      { atSec: 42, text: "⚡ Absorção rápida: Prevenção de cãibras e preservação da volemia" },
+      { atSec: 53, text: "🏆 90% Concluído: Desafio técnico desbloqueado (+10 nfs)" },
     ],
     quiz: {
       id: "quiz-sponsor-liquidz",
@@ -119,19 +119,19 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Dux Nutrition",
     brandTagline: "Nutrição Esportiva Limpa & Longevidade",
     category: "Força & Longevidade Mitocondrial",
-    durationLabel: "1:00 min",
-    durationSec: 60,
+    durationLabel: "1:28 min",
+    durationSec: 88,
     poster: productCreatine,
-    badge: "Selo Creapure® Oficial",
-    youtubeId: "Efcyi-2Y4lA",
+    badge: "Reels / TikTok (9:16)",
+    youtubeId: "_CyuUVK3HMs",
     accentColor: "from-amber-500 to-orange-600",
     hookTitle: "Creatina não é apenas para quem faz hipertrofia pesada!",
-    hookSubtitle: "Como a pureza alemã de 99,95% atua como combustível do cérebro, na saúde mitocondrial e na força pós-40 anos.",
+    hookSubtitle: "Como a pureza de 99,95% atua como combustível do cérebro, na saúde mitocondrial e na força pós-40 anos.",
     videoHighlights: [
-      { atSec: 8, text: "🧠 Além do músculo: Creatina como regenerador primário de ATP cerebral" },
-      { atSec: 24, text: "🔬 O perigo de subprodutos: Como identificar creatinas com impurezas industriais" },
-      { atSec: 42, text: "🇩🇪 Padrão Creapure®: Fabricação patenteada alemã com 99,95% de pureza verificada" },
-      { atSec: 55, text: "🛡️ Longevidade: Preservação de densidade óssea e cognição ao longo do envelhecimento" },
+      { atSec: 10, text: "🧠 Além do músculo: Creatina como regenerador primário de ATP celular" },
+      { atSec: 30, text: "🔬 Padrão de Pureza: Matéria-prima 100% pura sem aditivos nocivos" },
+      { atSec: 55, text: "🛡️ Saúde mitocondrial & longevidade: Preservação de força e cognição" },
+      { atSec: 79, text: "🏆 90% Concluído: Desafio pedagógico liberado (+10 nfs)" },
     ],
     quiz: {
       id: "quiz-sponsor-dux",
@@ -177,19 +177,19 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Asics Brasil",
     brandTagline: "Inovação Biomecânica & Corrida",
     category: "Calçados & Performance",
-    durationLabel: "0:52 min",
-    durationSec: 52,
+    durationLabel: "1:00 min",
+    durationSec: 60,
     poster: asicsNovablast,
-    badge: "Geometria Trampolim",
-    youtubeId: "PDQH3vJsfGs",
+    badge: "Reels / TikTok (9:16)",
+    youtubeId: "mytbKMbK3TA",
     accentColor: "from-emerald-500 to-teal-600",
     hookTitle: "A Biomecânica do NovaBlast 4: Retorno de energia e proteção articular",
     hookSubtitle: "A física da espuma FF BLAST+ ECO e a geometria que economiza oxigênio a cada km rodado.",
     videoHighlights: [
-      { atSec: 6, text: "👟 Laboratório de Kobe: Análise do impacto na tíbia e joelhos a 4:30 min/km" },
-      { atSec: 20, text: "🧪 Espuma FF BLAST+ ECO: Amortecimento energizado com 20% de biobase sustentável" },
-      { atSec: 36, text: "🏃 Geometria Rocker: Transição suave do calcanhar ao antepé economizando até 4% de oxigênio" },
-      { atSec: 48, text: "🏁 Conforto duradouro: Menor desgaste muscular no dia seguinte ao longão" },
+      { atSec: 8, text: "👟 Entressola FF BLAST+ ECO: Geometria trampolim com máxima propulsão" },
+      { atSec: 22, text: "🧪 Absorção de impacto: Menor fadiga na tíbia e articulações a cada passada" },
+      { atSec: 40, text: "🏃 Transição Rocker: Rolagem fluida do pé com economia de energia" },
+      { atSec: 54, text: "🏆 90% Concluído: Desafio biomecânico liberado (+10 nfs)" },
     ],
     quiz: {
       id: "quiz-sponsor-asics",
@@ -235,19 +235,19 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
     brandName: "Garmin Brasil",
     brandTagline: "Telemetria Esportiva & GPS de Alta Precisão",
     category: "Tecnologia & Telemetria",
-    durationLabel: "0:45 min",
-    durationSec: 45,
+    durationLabel: "0:30 min",
+    durationSec: 30,
     poster: gearWatch,
-    badge: "HRV Status & Readiness",
-    youtubeId: "kX_hn3Xf90g",
+    badge: "Reels / TikTok (9:16)",
+    youtubeId: "bSnlW44TGV8",
     accentColor: "from-purple-600 to-indigo-600",
     hookTitle: "Como a Variabilidade Cardíaca (VFC) no Garmin guia seu treino?",
     hookSubtitle: "O número invisível no seu pulso que avisa o momento exato de acelerar ou dar um passo atrás para regenerar.",
     videoHighlights: [
-      { atSec: 5, text: "⌚ O sensor óptico Elevate: Medição milissegundo a milissegundo durante o sono" },
-      { atSec: 16, text: "📉 VFC Baixa: Predomínio do sistema simpático e alerta precoce de sobrecarga" },
-      { atSec: 28, text: "📈 VFC Equilibrada: O estado parassimpático ótimo para absorver treinos fortes" },
-      { atSec: 40, text: "🎯 Training Readiness: A pontuação que correlaciona sono, carga aguda e recuperação" },
+      { atSec: 5, text: "⌚ Sensor óptico Elevate: Medição contínua no pulso durante a corrida" },
+      { atSec: 12, text: "📉 VFC Baixa: Alerta precoce de sobrecarga física e estresse sistêmico" },
+      { atSec: 20, text: "📈 VFC Equilibrada: Estado ótimo para absorver treinos de intensidade" },
+      { atSec: 27, text: "🏆 90% Concluído: Desafio patrocinado liberado (+10 nfs)" },
     ],
     quiz: {
       id: "quiz-sponsor-garmin",
@@ -331,7 +331,7 @@ export function RetailMediaVideoShowcase() {
           }
           return nextSec;
         });
-      }, 500); // Avança 1 segundo a cada 500ms para uma demonstração ágil e dinâmica
+      }, 1000); // 1 segundo real a cada 1000ms sincronizado exatamente com a duração real do vídeo
     }
 
     return () => {
@@ -479,13 +479,13 @@ export function RetailMediaVideoShowcase() {
           </span>
         </div>
 
-        {/* Thumbnail do Vídeo com Botão Play e Badges */}
+        {/* Thumbnail do Vídeo Vertical 09:16 com Botão Play e Badges */}
         <div
           onClick={() => handleOpenVideo(brand)}
-          className="relative rounded-2xl overflow-hidden aspect-[4/5] sm:aspect-[16/10] bg-zinc-950 cursor-pointer group shadow-md"
+          className="relative rounded-3xl overflow-hidden aspect-[9/16] max-w-[340px] sm:max-w-[360px] mx-auto bg-zinc-950 cursor-pointer group shadow-2xl border border-zinc-800"
           role="button"
           tabIndex={0}
-          aria-label={`Assistir ao vídeo da ${brand.brandName}`}
+          aria-label={`Assistir ao vídeo vertical da ${brand.brandName}`}
         >
           <img
             src={brand.poster}
@@ -563,20 +563,25 @@ export function RetailMediaVideoShowcase() {
       {/* 3. MODAL DE REPRODUÇÃO DE VÍDEO COM AUDITORIA ANTIFRAUDE & QUIZ PATROCINADO */}
       {/* ========================================================================= */}
       {activeModalProduct && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[92vh]">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-sm sm:max-w-md rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[96vh]">
             {/* Header do Modal */}
-            <div className="p-4 border-b border-zinc-800/80 flex items-center justify-between text-white bg-zinc-900/50">
-              <div className="flex items-center gap-2.5">
+            <div className="p-3.5 border-b border-zinc-800/80 flex items-center justify-between text-white bg-zinc-900/70">
+              <div className="flex items-center gap-2">
                 <span className="size-8 rounded-xl bg-purple-600/20 text-purple-400 grid place-items-center text-xs font-black">
                   {activeModalProduct.brandName.slice(0, 2).toUpperCase()}
                 </span>
                 <div>
-                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span>{activeModalProduct.brandName}</span>
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-white">
+                      {activeModalProduct.brandName}
+                    </h4>
                     <BadgeCheck className="size-3.5 text-purple-400" />
-                  </h4>
-                  <p className="text-[10px] text-zinc-400">Vídeo Oficial de Mídia & Retail Media</p>
+                    <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-400 border border-pink-500/30">
+                      Reels 09:16
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400">Vídeo Vertical Oficial de Campanha</p>
                 </div>
               </div>
 
@@ -590,15 +595,17 @@ export function RetailMediaVideoShowcase() {
               </button>
             </div>
 
-            {/* Player de Vídeo Real da Campanha (Alta Definição & Áudio Oficial) */}
-            <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden shadow-2xl">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${activeModalProduct.youtubeId}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1`}
-                title={`${activeModalProduct.brandName} - ${activeModalProduct.hookTitle}`}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+            {/* Player de Vídeo Real Vertical 09:16 (Instagram Reels / TikTok / Shorts) */}
+            <div className="p-2 sm:p-3 bg-zinc-950 flex items-center justify-center">
+              <div className="relative aspect-[9/16] w-full max-w-[320px] sm:max-w-[340px] max-h-[52vh] sm:max-h-[56vh] bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${activeModalProduct.youtubeId}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1`}
+                  title={`${activeModalProduct.brandName} - ${activeModalProduct.hookTitle}`}
+                  className="w-full h-full border-0 object-cover"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
             </div>
 
             {/* Painel de Auditoria Antifraude & Controle de Dwell Time (90%) */}
