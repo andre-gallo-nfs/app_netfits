@@ -74,6 +74,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        {/* Google Analytics 4 (GA4) Direct Tag */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VGQNVVW7GL" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-VGQNVVW7GL', { anonymize_ip: true, cookie_flags: 'SameSite=None;Secure' });`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
