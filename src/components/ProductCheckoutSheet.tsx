@@ -1,3 +1,4 @@
+import { trackPaymentMethodSelect, trackEcommercePurchase } from "@/lib/analytics";
 import { useEffect, useMemo, useState } from "react";
 import {
   X,
@@ -85,6 +86,17 @@ export function ProductCheckoutSheet({
       wallet.earn(cashbackNfs, `Ganhe Netfits na compra ${product.title}`, "shop");
     }
     setConfirmed(true);
+    trackEcommercePurchase(
+      `tx-shop-${Date.now()}`,
+      fullyPaidWithNfs ? 0 : priceNum - (useNfs ? nfsDiscount : 0),
+      nfsToUse,
+      [{
+        id: product.id,
+        name: product.title,
+        priceBrl: priceNum,
+        quantity: 1
+      }]
+    );
   }
 
   return (
@@ -207,13 +219,13 @@ export function ProductCheckoutSheet({
                 <div className="grid grid-cols-2 gap-2">
                   <MethodBtn
                     active={method === "card"}
-                    onClick={() => setMethod("card")}
+                    onClick={() => { setMethod("card"); trackPaymentMethodSelect("card", useNfs, nfsToUse); }}
                     icon={<CreditCard className="size-4" />}
                     label="Cartão"
                   />
                   <MethodBtn
                     active={method === "pix"}
-                    onClick={() => setMethod("pix")}
+                    onClick={() => { setMethod("pix"); trackPaymentMethodSelect("pix", useNfs, nfsToUse); }}
                     icon={<QrCode className="size-4" />}
                     label="Pix"
                   />

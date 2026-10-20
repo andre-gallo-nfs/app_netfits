@@ -1,3 +1,4 @@
+import { trackArticleRead } from "@/lib/analytics";
 import { useState, useEffect } from "react";
 import { 
   Trophy, 
@@ -74,6 +75,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       }
       if (feedAntifraud.hasClaimed("read", ARTICLE_POST_ID)) {
         setReadClaimed(true);
+    trackArticleRead("isabella-sono-biomarcadores", "Biomarcadores & Sono na Longevidade (Dra. Isabella Formigari)", dwellTimeSeconds);
       }
     }
   }, []);

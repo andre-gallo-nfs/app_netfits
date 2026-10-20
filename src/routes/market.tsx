@@ -1,3 +1,4 @@
+import { trackShopView } from "@/lib/analytics";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2
@@ -43,6 +44,7 @@ function MarketEmbeddedPage() {
 
     // Registra a visita no Shop para desbloquear o selo Explorador do Shop
     badgesStore.recordShopVisit();
+    trackShopView("all");
 
     getMkplaceStoreUrl(activeUser.id)
       .then((url) => {

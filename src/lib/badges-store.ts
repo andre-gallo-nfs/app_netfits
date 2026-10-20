@@ -1,3 +1,4 @@
+import { trackBadgeUnlocked } from "@/lib/analytics";
 import { useSyncExternalStore, useEffect } from "react";
 import { wallet } from "./wallet-store";
 import { sharedSandboxStore } from "./shared-sandbox-store";
@@ -500,6 +501,7 @@ export const badgesStore = {
     }
 
     toast.success(`🎉 Selo Desbloqueado: "${item.title}"! (+${item.rewardNfs} nfs creditados)`);
+    trackBadgeUnlocked(item.id, item.title, item.rewardNfs, item.category);
     emit();
   },
   recordShare() {

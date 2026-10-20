@@ -1,3 +1,4 @@
+import { trackWalletView, trackStatementClick } from "@/lib/analytics";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -53,6 +54,7 @@ function WalletPage() {
 
   useEffect(() => {
     badgesStore.evaluate();
+    trackWalletView(balance);
   }, []);
 
   useEffect(() => {

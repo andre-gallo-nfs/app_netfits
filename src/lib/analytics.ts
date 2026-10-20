@@ -150,6 +150,155 @@ export function trackXmlDownload(xmlType: string) {
   });
 }
 
+
+/**
+ * Rastreamento de Leitura de Artigo
+ */
+export function trackArticleRead(articleId: string, title: string, dwellTimeSeconds: number) {
+  trackEvent("article_read", {
+    article_id: articleId,
+    article_title: title,
+    dwell_time_seconds: dwellTimeSeconds,
+  });
+}
+
+/**
+ * Rastreamento de Habilitação de Quizz (após dwell time / scroll)
+ */
+export function trackQuizUnlocked(quizId: string, title: string, isSponsored: boolean) {
+  trackEvent("quiz_unlocked", {
+    quiz_id: quizId,
+    quiz_title: title,
+    is_sponsored: isSponsored,
+  });
+}
+
+/**
+ * Rastreamento de Resposta e Conclusão de Quizz
+ */
+export function trackQuizCompleted(
+  quizId: string,
+  title: string,
+  isCorrect: boolean,
+  pointsEarned: number,
+  isSponsored: boolean
+) {
+  trackEvent("quiz_completed", {
+    quiz_id: quizId,
+    quiz_title: title,
+    is_correct: isCorrect,
+    points_earned: pointsEarned,
+    is_sponsored: isSponsored,
+  });
+}
+
+/**
+ * Rastreamento de Visualização de Vídeo (Retail Media / Feed)
+ */
+export function trackVideoView(videoId: string, brandName: string, progressPct: number, durationSec: number) {
+  trackEvent("video_view", {
+    video_id: videoId,
+    brand_name: brandName,
+    progress_percent: progressPct,
+    duration_seconds: durationSec,
+  });
+}
+
+/**
+ * Rastreamento de Navegação no Shop / Marketplace
+ */
+export function trackShopView(category?: string) {
+  trackEvent("shop_view", {
+    shop_category: category || "all",
+  });
+}
+
+/**
+ * Rastreamento de Seleção e Abertura de Detalhe de Produto
+ */
+export function trackProductSelect(productId: string, productName: string, price: string, seller?: string) {
+  trackEvent("select_item", {
+    item_id: productId,
+    item_name: productName,
+    price: price,
+    item_brand: seller || "Netfits Partner",
+  });
+}
+
+/**
+ * Rastreamento de Adição ao Carrinho / Abertura de Checkout
+ */
+export function trackAddToCart(productId: string, productName: string, price: string, pointsCashback?: string) {
+  trackEvent("add_to_cart", {
+    item_id: productId,
+    item_name: productName,
+    price: price,
+    cashback_points: pointsCashback || "0",
+  });
+}
+
+/**
+ * Rastreamento de Seleção do Meio de Pagamento (Cartão, Pix, Pontos)
+ */
+export function trackPaymentMethodSelect(method: "card" | "pix" | "points", useNfs: boolean, nfsAmount: number) {
+  trackEvent("add_payment_info", {
+    payment_type: method,
+    use_nfs_discount: useNfs,
+    nfs_points_applied: nfsAmount,
+  });
+}
+
+/**
+ * Rastreamento de Conquista / Desbloqueio de Badge
+ */
+export function trackBadgeUnlocked(badgeId: string, badgeTitle: string, rewardNfs: number, category: string) {
+  trackEvent("badge_unlocked", {
+    badge_id: badgeId,
+    badge_title: badgeTitle,
+    reward_nfs: rewardNfs,
+    badge_category: category,
+  });
+}
+
+/**
+ * Rastreamento de Visualização da Página de Badges
+ */
+export function trackBadgesPageView(filterCategory: string) {
+  trackEvent("badges_page_view", {
+    category_filter: filterCategory,
+  });
+}
+
+/**
+ * Rastreamento de Visualização da Carteira de Pontos
+ */
+export function trackWalletView(balanceNfs: number) {
+  trackEvent("wallet_view", {
+    balance_nfs: balanceNfs,
+  });
+}
+
+/**
+ * Rastreamento de Clique em Linha de Extrato de Pontos
+ */
+export function trackStatementClick(transactionId: string, type: string, amount: number, description: string) {
+  trackEvent("statement_item_click", {
+    transaction_id: transactionId,
+    transaction_type: type,
+    nfs_amount: amount,
+    description: description,
+  });
+}
+
+/**
+ * Rastreamento de Acesso ao Cadastro / Registro
+ */
+export function trackRegistrationAccess(source?: string) {
+  trackEvent("registration_access", {
+    access_source: source || "direct",
+  });
+}
+
 /**
  * Componente de Rastreamento Automático de Rotas para TanStack Router
  */

@@ -1,3 +1,4 @@
+import { trackVideoView, trackProductSelect } from "@/lib/analytics";
 import { useState, useEffect, useRef } from "react";
 import {
   Play,
@@ -329,6 +330,7 @@ export function RetailMediaVideoShowcase() {
           if (nextPct >= 90 && !hasQualifiedAntifraud) {
             setHasQualifiedAntifraud(true);
             feedAntifraud.recordAction("video_view", activeModalProduct.id, 0);
+            trackVideoView(activeModalProduct.id, activeModalProduct.brandName, 100, activeModalProduct.durationSec);
             toast.success("🎉 Retenção de 90% auditada com sucesso! O Quiz Patrocinado de +10 nfs foi liberado.");
             setTimeout(() => {
               quizSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -351,6 +353,7 @@ export function RetailMediaVideoShowcase() {
 
   const handleOpenVideo = (item: DemoBrandProduct) => {
     setActiveModalProduct(item);
+    trackVideoView(item.id, item.brandName, 0, item.durationSec);
     setElapsedSec(0);
     setProgressPct(0);
     setSelectedOption(item.quiz.options[0]?.id || "");
