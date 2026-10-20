@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2, ShoppingCart
 } from "lucide-react";
-import { ProductCheckoutSheet } from "@/components/ProductCheckoutSheet";
 import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -43,7 +42,7 @@ function MarketEmbeddedPage() {
   const targetCashback = selectedProduct?.cashback || urlParams?.get("cashback") || "+360 nfs";
   const targetUrl = selectedProduct?.url || urlParams?.get("url") || "";
 
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+  const [currentView, setCurrentView] = useState<"product" | "cart">("product");
   const [storeUrl, setStoreUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -51,6 +50,40 @@ function MarketEmbeddedPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const isPlaceholderUrl = false;
+
+  const handleGoToRockCart = async () => {
+    setIsLoading(true);
+    setCurrentView("cart");
+    try {
+      const cartUrl = await getMkplaceStoreUrl(activeUser.id, "carrinho");
+      setStoreUrl(cartUrl);
+      if (iframeRef.current) {
+        iframeRef.current.src = cartUrl;
+      }
+      toast.success("Carregando carrinho oficial na Rock Encantech...");
+    } catch {
+      toast.error("Erro ao conectar ao carrinho da Rock Encantech");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoToRockProduct = async () => {
+    setIsLoading(true);
+    setCurrentView("product");
+    try {
+      const prodUrl = await getMkplaceStoreUrl(activeUser.id, targetQuery);
+      setStoreUrl(prodUrl);
+      if (iframeRef.current) {
+        iframeRef.current.src = prodUrl;
+      }
+      toast.success("Retornando à página do produto na Rock Encantech...");
+    } catch {
+      toast.error("Erro ao carregar produto na Rock Encantech");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Carrega a URL com o token SSO assim que a tela abre e registra a visita para o selo de explorador
   useEffect(() => {
@@ -254,16 +287,27 @@ function MarketEmbeddedPage() {
                 </div>
               </div>
 
-              {/* Ações Rápidas: Ir para o Carrinho com o Produto Pré-Incluído & Link Direto Netshoes */}
+              {/* Ações Rápidas: Ir para o Carrinho Oficial da Rock Encantech ou Retornar ao Produto */}
               <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsCheckoutOpen(true)}
-                  className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition cursor-pointer"
-                >
-                  <ShoppingCart className="size-3.5" />
-                  <span>Ir para o Carrinho (1 item)</span>
-                </button>
+                {currentView === "product" ? (
+                  <button
+                    type="button"
+                    onClick={handleGoToRockCart}
+                    className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition cursor-pointer"
+                  >
+                    <ShoppingCart className="size-3.5" />
+                    <span>Ir para o Carrinho Oficial Rock</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleGoToRockProduct}
+                    className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition cursor-pointer"
+                  >
+                    <ShoppingBag className="size-3.5" />
+                    <span>Ver Página do Produto</span>
+                  </button>
+                )}
 
                 {targetUrl && (
                   <a
@@ -363,21 +407,6 @@ function MarketEmbeddedPage() {
             </div>
           )}
         </>
-      )}
-
-      {/* Modal de Carrinho com o Produto Selecionado Pré-Carregado */}
-      {isCheckoutOpen && (
-        <ProductCheckoutSheet
-          product={{
-            id: targetProduct || "2FU-9629-205",
-            title: targetTitle || "Boné Aba Curva Mizuno Run Sky — Off White",
-            price: targetPrice || "R$ 89,90",
-            cashback: targetCashback || "+360 nfs",
-            image: productMizunoCap,
-            badge: "Netshoes Oficial",
-          }}
-          onClose={() => setIsCheckoutOpen(false)}
-        />
       )}
     </div>
   );

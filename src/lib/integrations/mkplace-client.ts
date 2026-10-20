@@ -64,7 +64,7 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
             if (parts[1]) token = parts[1];
           }
         } else {
-          webviewUrl = data.webviewUrl;
+          webviewUrl = data.webviewUrl.replace(/\/+$/, "");
         }
       }
       if (data.token) {
@@ -107,9 +107,7 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
       }
     }
 
-    const separator = targetBase.includes("?")
-      ? "&"
-      : (targetBase.endsWith("/") ? "?" : "/?");
+    const separator = targetBase.includes("?") ? "&" : "?";
     return `${targetBase}${separator}token=${encodeURIComponent(token)}`;
   } catch (err) {
     console.warn("[Mkplace Client] Fallback de URL da loja:", err);
