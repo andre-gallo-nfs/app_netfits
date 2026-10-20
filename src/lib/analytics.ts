@@ -67,18 +67,22 @@ export function trackPageView(pathname: string, pageTitle?: string) {
  * Dispara eventos customizados genéricos no GA4
  */
 export function trackEvent(eventName: string, params: Record<string, any> = {}) {
-  if (typeof window === "undefined" || !window.gtag) return;
+  if (typeof window === "undefined") return;
+
+  window.dataLayer = window.dataLayer || [];
+  if (typeof window.gtag !== "function") {
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer.push(args);
+    };
+  }
 
   window.gtag("event", eventName, {
-    timestamp: new Date().toISOString(),
+    send_to: GA_MEASUREMENT_ID,
     ...params,
   });
-  console.log(`[GA4 Event] ${eventName}:`, params);
+  console.log(`[GA4 Event Dispatched] ${eventName}:`, params);
 }
 
-/**
- * Rastreamento de E-Commerce (Compras no Netfits Shop / Resgate de Pontos)
- */
 export function trackEcommercePurchase(
   transactionId: string,
   valueBrl: number,
