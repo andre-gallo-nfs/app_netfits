@@ -18,6 +18,7 @@ import {
 import { ProductCheckoutSheet, type CheckoutProduct } from "./ProductCheckoutSheet";
 import { PARTNER_MERCHANTS, generatePartnerAffiliateUrl } from "@/lib/shop-partner-schema";
 import { launchMkplaceShop } from "@/lib/integrations/mkplace-client";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export type DetailProduct = CheckoutProduct & {
@@ -43,6 +44,7 @@ export function ProductDetailSheet({
   product: DetailProduct;
   onClose: () => void;
 }) {
+  const navigate = useNavigate();
   const [checkout, setCheckout] = useState(false);
   const [liked, setLiked] = useState(false);
 
@@ -59,11 +61,11 @@ export function ProductDetailSheet({
 
   const handleBuyInRockStore = () => {
     trackAddToCart(product.id, product.title, product.price, product.cashback);
-    toast.success(`Abrindo "${product.title}" na Loja Oficial Netfits...`, {
-      description: "Conectando ao catálogo Rock Encantech com seu saldo sincronizado.",
+    toast.success(`Abrindo "${product.title}" no Shop Netfits...`, {
+      description: "Conectando ao catálogo Rock Encantech dentro do aplicativo.",
     });
-    launchMkplaceShop({ newTab: true });
     onClose();
+    navigate({ to: "/market" });
   };
 
   return (

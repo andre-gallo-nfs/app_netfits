@@ -35,6 +35,10 @@ export const Route = createFileRoute("/feed")({
 });
 
 export function FeedPage() {
+  const isStaging =
+    typeof import.meta !== "undefined" &&
+    (import.meta.env?.VITE_APP_ENV === "staging" || import.meta.env?.DEV);
+
   useEffect(() => {
     badgesStore.evaluate();
   }, []);
@@ -58,8 +62,8 @@ export function FeedPage() {
         {/* 5. Protocolo Fibios: Dra. Isabella Formigari (Vídeo 4:12 & Agendamento) */}
         <DrIsabellaCard />
 
-        {/* 6. Showcase de Demonstração de Retail Media (Vídeos das 4 Marcas: Liquidz, Dux, Asics, Garmin) */}
-        <RetailMediaVideoShowcase />
+        {/* 6. Showcase de Demonstração de Retail Media (Vídeos das 4 Marcas: Liquidz, Dux, Asics, Garmin) — Apenas Homologação/Staging */}
+        {isStaging && <RetailMediaVideoShowcase />}
 
         {/* 7. Clínica & Especialistas Fibios */}
         {feedItems.map((item) => (
