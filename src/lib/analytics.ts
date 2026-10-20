@@ -25,27 +25,21 @@ declare global {
 export function initGA4() {
   if (typeof window === "undefined") return;
 
-  // Evita reinjeção dupla do script
-  if (document.getElementById("ga4-script")) return;
-
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer.push(args);
-  };
-  window.gtag("js", new Date());
-  window.gtag("config", GA_MEASUREMENT_ID, {
-    send_page_view: false, // Desativado envio automático para termos controle total das rotas do TanStack Router
-    anonymize_ip: true,
-    cookie_flags: "SameSite=None;Secure",
-  });
+  if (typeof window.gtag !== "function") {
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer.push(args);
+    };
+  }
 
-  // Inject Script
-  const script = document.createElement("script");
-  script.id = "ga4-script";
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  document.head.appendChild(script);
-  console.log(`[GA4 Engine] Google Analytics 4 ativo com ID: ${GA_MEASUREMENT_ID}`);
+  // Se o script já está no cabeçalho pelo SSR, não reinjeta
+  if (!document.getElementById("ga4-script") && !document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
+    const script = document.createElement("script");
+    script.id = "ga4-script";
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+    document.head.appendChild(script);
+  }
 }
 
 /**
@@ -76,10 +70,7 @@ export function trackEvent(eventName: string, params: Record<string, any> = {}) 
     };
   }
 
-  window.gtag("event", eventName, {
-    send_to: GA_MEASUREMENT_ID,
-    ...params,
-  });
+  window.gtag("event", eventName, params);
   console.log(`[GA4 Event Dispatched] ${eventName}:`, params);
 }
 
