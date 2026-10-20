@@ -229,7 +229,7 @@ function WalletPage() {
                 <li key={t.id}>
                   <button
                     type="button"
-                    onClick={() => setSelectedTx(t)}
+                    onClick={() => { setSelectedTx(t); trackStatementClick(t.id, t.type, t.amount, t.description); }}
                     className="w-full text-left bg-card rounded-xl p-3.5 flex items-center gap-3 ring-1 ring-black/5 shadow-sm cursor-pointer hover:bg-muted/40 transition active:scale-[0.98] group focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <div
