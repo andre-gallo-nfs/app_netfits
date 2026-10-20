@@ -9,8 +9,8 @@ import { useLocation } from "@tanstack/react-router";
 
 // ID Padrão do Google Analytics 4 (pode ser sobrescrito via env VITE_GA_MEASUREMENT_ID)
 export const GA_MEASUREMENT_ID =
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_GA_MEASUREMENT_ID) ||
-  "G-NETFITS2026";
+  (typeof import.meta !== "undefined" && import.meta.env && (import.meta.env.VITE_GA4_MEASUREMENT_ID || import.meta.env.VITE_GA_MEASUREMENT_ID)) ||
+  "G-VGQNVVW7GL";
 
 declare global {
   interface Window {
