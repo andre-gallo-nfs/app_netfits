@@ -9,6 +9,7 @@ import { DrIsabellaCard } from "@/components/DrIsabellaCard";
 import { DrFrancoQuizCard } from "@/components/DrFrancoQuizCard";
 import { DraIsabellaQuizCard } from "@/components/DraIsabellaQuizCard";
 import { NetfitsEducationalCard } from "@/components/NetfitsEducationalCard";
+import { RetailMediaVideoShowcase } from "@/components/RetailMediaVideoShowcase";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -56,7 +57,10 @@ export function FeedPage() {
         {/* 5. Protocolo Fibios: Dra. Isabella Formigari (Vídeo 4:12 & Agendamento) */}
         <DrIsabellaCard />
 
-        {/* 6. Clínica & Especialistas Fibios */}
+        {/* 6. Showcase de Demonstração de Retail Media (Vídeos das 4 Marcas: Liquidz, Dux, Asics, Garmin) */}
+        <RetailMediaVideoShowcase />
+
+        {/* 7. Clínica & Especialistas Fibios */}
         {feedItems.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}
