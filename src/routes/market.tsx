@@ -10,7 +10,26 @@ import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { getMkplaceStoreUrl, launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 import { badgesStore } from "@/lib/badges-store";
 
+export interface MarketSearchParams {
+  product?: string;
+  title?: string;
+  price?: string;
+  seller?: string;
+  cashback?: string;
+  q?: string;
+  query?: string;
+}
+
 export const Route = createFileRoute("/market")({
+  validateSearch: (search: Record<string, unknown>): MarketSearchParams => ({
+    product: typeof search.product === "string" ? search.product : undefined,
+    title: typeof search.title === "string" ? search.title : undefined,
+    price: typeof search.price === "string" ? search.price : undefined,
+    seller: typeof search.seller === "string" ? search.seller : undefined,
+    cashback: typeof search.cashback === "string" ? search.cashback : undefined,
+    q: typeof search.q === "string" ? search.q : undefined,
+    query: typeof search.query === "string" ? search.query : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Netfits Shop — Loja Oficial" },
@@ -27,6 +46,14 @@ export const Route = createFileRoute("/market")({
 function MarketEmbeddedPage() {
   const { balance } = useWallet();
   const activeUser = sharedSandboxStore.useActiveUser();
+
+  const search = Route.useSearch();
+  const targetProduct = search?.product || "";
+  const targetTitle = search?.title || "";
+  const targetQuery = search?.q || search?.query || targetTitle;
+  const targetPrice = search?.price || "";
+  const targetSeller = search?.seller || "";
+  const targetCashback = search?.cashback || "";
 
   const [storeUrl, setStoreUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -46,7 +73,7 @@ function MarketEmbeddedPage() {
     badgesStore.recordShopVisit();
     trackShopView("all");
 
-    getMkplaceStoreUrl(activeUser.id)
+    getMkplaceStoreUrl(activeUser.id, targetQuery)
       .then((url) => {
         if (isMounted) {
           setStoreUrl(url);
@@ -70,7 +97,7 @@ function MarketEmbeddedPage() {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [activeUser.id, reloadKey]);
+  }, [activeUser.id, reloadKey, targetQuery]);
 
   const handleRefresh = () => {
     setIsLoading(true);
@@ -203,6 +230,39 @@ function MarketEmbeddedPage() {
               <div className="flex items-center gap-2 text-[10px] text-zinc-400 bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-800">
                 <ShieldCheck className="size-3.5 text-emerald-400" />
                 <span>Autenticação RS256 Segura</span>
+              </div>
+            </div>
+          )}
+
+          {/* Banner de Destaque / Deep Link de Produto Selecionado do Feed */}
+          {targetTitle && (
+            <div className="w-full bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-950 border-b border-purple-500/30 px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs sticky top-0 z-20 shadow-md">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="size-8 rounded-xl bg-purple-600/30 border border-purple-500/40 text-purple-300 grid place-items-center shrink-0 shadow-inner">
+                  <ShoppingBag className="size-4 text-purple-300" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-extrabold uppercase text-purple-400 tracking-wider">
+                      Produto Selecionado
+                    </span>
+                    <span className="text-[10px] text-zinc-500">·</span>
+                    <span className="text-[10px] font-bold text-zinc-300">
+                      Vendido por {targetSeller || "Netshoes"}
+                    </span>
+                  </div>
+                  <p className="font-bold text-white text-xs truncate">
+                    {targetTitle}
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <span className="text-xs font-black text-white block">
+                  {targetPrice || "R$ 89,90"}
+                </span>
+                <span className="text-[10px] font-extrabold text-lime-400 bg-lime-400/10 px-2 py-0.5 rounded-full border border-lime-400/20 inline-block">
+                  {targetCashback || "+360 nfs"}
+                </span>
               </div>
             </div>
           )}

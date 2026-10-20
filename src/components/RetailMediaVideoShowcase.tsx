@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Zap,
 } from "lucide-react";
+import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
 import productLiquidz from "@/assets/product-liquidz.jpg";
 import productCreatine from "@/assets/product-creatine.jpg";
 import asicsNovablast from "@/assets/asics-novablast.jpg";
@@ -60,6 +61,67 @@ export interface DemoBrandProduct {
 }
 
 export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
+  {
+    id: "demo-mizuno-bone",
+    brandName: "Mizuno",
+    brandTagline: "Tecnologia & Tradição Esportiva Japonesa",
+    category: "Running & Acessórios",
+    timeAgo: "há 15 min",
+    durationLabel: "0:45 min",
+    durationSec: 45,
+    poster: productMizunoCap,
+    badge: "Oficial Netshoes · Shop",
+    youtubeId: "efKeKBklLyw",
+    accentColor: "from-amber-600 to-orange-500",
+    hookTitle: "Por que atletas de alta performance usam boné técnico com proteção UV50+?",
+    hookSubtitle: "Termorregulação craniana e controle de suor: como a tecnologia respirável da Mizuno evita a fadiga precoce sob calor intenso.",
+    videoHighlights: [
+      { atSec: 5, text: "☀️ Proteção UV50+: Bloqueio da radiação solar direta na região craniana" },
+      { atSec: 15, text: "💧 Faixa interna anti-suor: Evita ardência nos olhos e mantém a visão limpa" },
+      { atSec: 28, text: "💨 Tecnologia Quick-Dry: Secagem ultra-rápida e microperfurações de ar" },
+      { atSec: 40, text: "🏆 90% Concluído: Desafio técnico Mizuno desbloqueado (+10 nfs)" },
+    ],
+    quiz: {
+      id: "quiz-sponsor-mizuno-cap",
+      question: "Qual é a principal função fisiológica do Boné Técnico Mizuno com tecido respirável e proteção UV em treinos diurnos de corrida?",
+      options: [
+        {
+          id: "mz-1",
+          text: "Auxiliar na termorregulação craniana, reduzir a fadiga térmica e absorver o suor antes que atinja a visão do atleta.",
+          isCorrect: true,
+          feedback: "Exato! A proteção solar na cabeça combinada com tecido de alta evaporação mantém a temperatura estável e a visão desobstruída.",
+        },
+        {
+          id: "mz-2",
+          text: "Retardar os batimentos cardíacos forçando a retenção do calor corporal no topo da cabeça.",
+          isCorrect: false,
+          feedback: "Incorreto. O objetivo do boné técnico é dissipar o calor e controlar a transpiração, nunca reter calor.",
+        },
+        {
+          id: "mz-3",
+          text: "Substituir a necessidade de hidratação líquida durante o exercício prolongado.",
+          isCorrect: false,
+          feedback: "Incorreto. A reposição hídrica e mineral contínua é insubstituível em treinos ao ar livre.",
+        },
+      ],
+    },
+    shopProduct: {
+      id: "netshoes-mizuno-bone-offwhite",
+      title: "Boné Aba Curva Mizuno — Cor Off White",
+      price: "R$ 89,90",
+      cashback: "+360 nfs",
+      image: productMizunoCap,
+      seller: "Netshoes",
+      sellerType: "marketplace_partner",
+      sellerId: "netshoes",
+      rating: 4.9,
+      reviews: "328 avaliações",
+      tag: "Acessórios & Performance",
+      description: "Boné unissex Mizuno aba curva confeccionado em tecido leve de secagem rápida com proteção UV50+, faixa interna anti-suor e fecho ajustável. Comercializado e entregue pela Netshoes dentro do Netfits Shop.",
+      targetQuery: "bone mizuno off white",
+    },
+  },
+
   {
     id: "demo-liquidz",
     brandName: "Liquidz",
@@ -309,9 +371,20 @@ export function RetailMediaVideoShowcase() {
   const handleBuyProduct = (product: DetailProduct) => {
     trackProductSelect(product.id, product.title, product.price);
     toast.success(`Abrindo "${product.title}" no Shop Netfits...`, {
-      description: "Catálogo oficial Rock Encantech integrado com seu saldo.",
+      description: `Parceiro: ${product.seller || "Netshoes"} · Ganhe ${product.cashback}`,
     });
-    navigate({ to: "/market" });
+    const query = product.targetQuery || product.title;
+    navigate({
+      to: "/market",
+      search: {
+        product: product.id,
+        title: product.title,
+        price: product.price,
+        seller: product.seller || "Netshoes",
+        cashback: product.cashback,
+        q: query,
+      },
+    });
   };
 
   if (!isStaging) {

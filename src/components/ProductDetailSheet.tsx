@@ -35,6 +35,7 @@ export type DetailProduct = CheckoutProduct & {
   specs?: { label: string; value: string }[];
   shippingEta?: string;
   affiliateUrl?: string;
+  targetQuery?: string;
 };
 
 export function ProductDetailSheet({

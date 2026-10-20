@@ -12,7 +12,7 @@ export interface LaunchShopOptions {
  * Retorna a URL completa da Loja Oficial Rock Encantech (Mkplace)
  * com o token SSO (JWT RS256) acoplado para renderização em tela (iframe ou webview).
  */
-export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
+export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: string): Promise<string> {
   const activeUser = sharedSandboxStore.getActiveUser();
   const targetUserId = userId || activeUser?.id || "usr_101";
 
@@ -78,10 +78,23 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
         ".NETFITS_FALLBACK_SIGNATURE";
     }
 
-    const separator = webviewUrl.includes("?")
+    let targetBase = webviewUrl;
+    if (targetQueryOrPath && targetQueryOrPath.trim()) {
+      const clean = targetQueryOrPath.trim();
+      const stripped = clean.startsWith("/") ? clean.slice(1) : clean;
+      if (stripped.startsWith("busca") || stripped.startsWith("produto") || stripped.startsWith("item") || stripped.startsWith("search")) {
+        const baseNoSlash = webviewUrl.replace(/\/+$/, "");
+        targetBase = `${baseNoSlash}/${stripped}`;
+      } else {
+        const baseNoSlash = webviewUrl.replace(/\/+$/, "");
+        targetBase = `${baseNoSlash}/busca?q=${encodeURIComponent(stripped)}`;
+      }
+    }
+
+    const separator = targetBase.includes("?")
       ? "&"
-      : (webviewUrl.endsWith("/") ? "?" : "/?");
-    return `${webviewUrl}${separator}token=${encodeURIComponent(token)}`;
+      : (targetBase.endsWith("/") ? "?" : "/?");
+    return `${targetBase}${separator}token=${encodeURIComponent(token)}`;
   } catch (err) {
     console.warn("[Mkplace Client] Fallback de URL da loja:", err);
     return "https://loja.netfits.com.br";
