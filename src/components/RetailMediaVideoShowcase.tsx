@@ -29,6 +29,7 @@ import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
 import type { DetailProduct } from "@/components/ProductDetailSheet";
+import { shopSelectionStore } from "@/lib/shop-selection-store";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -374,19 +375,18 @@ export function RetailMediaVideoShowcase() {
     toast.success(`Abrindo "${product.title}" no Shop Netfits...`, {
       description: `Parceiro: ${product.seller || "Netshoes"} · Ganhe ${product.cashback}`,
     });
-    const query = product.targetQuery || product.title;
-    navigate({
-      to: "/market",
-      search: {
-        product: product.id,
-        title: product.title,
-        price: product.price,
-        seller: product.seller || "Netshoes",
-        cashback: product.cashback,
-        q: query,
-        url: product.affiliateUrl,
-      },
+
+    shopSelectionStore.setProduct({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      cashback: product.cashback || "+360 nfs",
+      seller: product.seller || "Netshoes",
+      url: product.affiliateUrl || "https://www.netshoes.com.br/p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205",
+      targetPath: product.targetQuery || "p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205",
     });
+
+    navigate({ to: "/market" });
   };
 
   if (!isStaging) {

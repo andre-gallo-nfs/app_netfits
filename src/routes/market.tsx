@@ -11,29 +11,9 @@ import { useWallet } from "@/lib/wallet-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { getMkplaceStoreUrl, launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 import { badgesStore } from "@/lib/badges-store";
-
-export interface MarketSearchParams {
-  product?: string;
-  title?: string;
-  price?: string;
-  seller?: string;
-  cashback?: string;
-  q?: string;
-  query?: string;
-  url?: string;
-}
+import { shopSelectionStore } from "@/lib/shop-selection-store";
 
 export const Route = createFileRoute("/market")({
-  validateSearch: (search: Record<string, unknown>): MarketSearchParams => ({
-    product: typeof search.product === "string" ? search.product : undefined,
-    title: typeof search.title === "string" ? search.title : undefined,
-    price: typeof search.price === "string" ? search.price : undefined,
-    seller: typeof search.seller === "string" ? search.seller : undefined,
-    cashback: typeof search.cashback === "string" ? search.cashback : undefined,
-    q: typeof search.q === "string" ? search.q : undefined,
-    query: typeof search.query === "string" ? search.query : undefined,
-    url: typeof search.url === "string" ? search.url : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "Netfits Shop — Loja Oficial" },
@@ -51,13 +31,17 @@ function MarketEmbeddedPage() {
   const { balance } = useWallet();
   const activeUser = sharedSandboxStore.useActiveUser();
 
-  const search = Route.useSearch();
-  const targetProduct = search?.product || "";
-  const targetTitle = search?.title || "";
-  const targetQuery = search?.q || search?.query || targetTitle;
-  const targetPrice = search?.price || "";
-  const targetSeller = search?.seller || "";
-  const targetCashback = search?.cashback || "";
+  const selectedProduct = shopSelectionStore.useSelectedProduct();
+
+  // Fallback para URLSearchParams direto do window.location
+  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const targetProduct = selectedProduct?.id || urlParams?.get("product") || "";
+  const targetTitle = selectedProduct?.title || urlParams?.get("title") || "";
+  const targetQuery = selectedProduct?.targetPath || selectedProduct?.title || urlParams?.get("q") || urlParams?.get("query") || targetTitle;
+  const targetPrice = selectedProduct?.price || urlParams?.get("price") || "";
+  const targetSeller = selectedProduct?.seller || urlParams?.get("seller") || "Netshoes";
+  const targetCashback = selectedProduct?.cashback || urlParams?.get("cashback") || "+360 nfs";
+  const targetUrl = selectedProduct?.url || urlParams?.get("url") || "";
 
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [storeUrl, setStoreUrl] = useState<string>("");
@@ -281,9 +265,9 @@ function MarketEmbeddedPage() {
                   <span>Ir para o Carrinho (1 item)</span>
                 </button>
 
-                {search?.url && (
+                {targetUrl && (
                   <a
-                    href={search.url}
+                    href={targetUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-2.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-bold transition flex items-center gap-1 border border-zinc-700"
