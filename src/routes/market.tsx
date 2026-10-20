@@ -1,8 +1,10 @@
 import { trackShopView } from "@/lib/analytics";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2
+  Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2, ShoppingCart
 } from "lucide-react";
+import { ProductCheckoutSheet } from "@/components/ProductCheckoutSheet";
+import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
@@ -18,6 +20,7 @@ export interface MarketSearchParams {
   cashback?: string;
   q?: string;
   query?: string;
+  url?: string;
 }
 
 export const Route = createFileRoute("/market")({
@@ -29,6 +32,7 @@ export const Route = createFileRoute("/market")({
     cashback: typeof search.cashback === "string" ? search.cashback : undefined,
     q: typeof search.q === "string" ? search.q : undefined,
     query: typeof search.query === "string" ? search.query : undefined,
+    url: typeof search.url === "string" ? search.url : undefined,
   }),
   head: () => ({
     meta: [
@@ -55,6 +59,7 @@ function MarketEmbeddedPage() {
   const targetSeller = search?.seller || "";
   const targetCashback = search?.cashback || "";
 
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [storeUrl, setStoreUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -234,15 +239,17 @@ function MarketEmbeddedPage() {
             </div>
           )}
 
-          {/* Banner de Destaque / Deep Link de Produto Selecionado do Feed */}
+          {/* Banner de Destaque / Deep Link de Produto Selecionado do Feed com Botão de Carrinho */}
           {targetTitle && (
-            <div className="w-full bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-950 border-b border-purple-500/30 px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs sticky top-0 z-20 shadow-md">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="size-8 rounded-xl bg-purple-600/30 border border-purple-500/40 text-purple-300 grid place-items-center shrink-0 shadow-inner">
-                  <ShoppingBag className="size-4 text-purple-300" />
-                </div>
+            <div className="w-full bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-950 border-b border-purple-500/40 p-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sticky top-0 z-20 shadow-xl">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={productMizunoCap}
+                  alt={targetTitle}
+                  className="size-11 rounded-xl object-cover border border-purple-500/30 shrink-0 shadow-sm bg-zinc-800"
+                />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-[10px] font-extrabold uppercase text-purple-400 tracking-wider">
                       Produto Selecionado
                     </span>
@@ -250,19 +257,42 @@ function MarketEmbeddedPage() {
                     <span className="text-[10px] font-bold text-zinc-300">
                       Vendido por {targetSeller || "Netshoes"}
                     </span>
+                    <span className="text-[9px] font-black text-lime-400 bg-lime-400/10 px-1.5 py-0.5 rounded border border-lime-400/20">
+                      {targetCashback || "+360 nfs"}
+                    </span>
                   </div>
                   <p className="font-bold text-white text-xs truncate">
                     {targetTitle}
                   </p>
+                  <p className="text-xs font-black text-lime-400">
+                    {targetPrice || "R$ 89,90"}
+                  </p>
                 </div>
               </div>
-              <div className="shrink-0 text-right">
-                <span className="text-xs font-black text-white block">
-                  {targetPrice || "R$ 89,90"}
-                </span>
-                <span className="text-[10px] font-extrabold text-lime-400 bg-lime-400/10 px-2 py-0.5 rounded-full border border-lime-400/20 inline-block">
-                  {targetCashback || "+360 nfs"}
-                </span>
+
+              {/* Ações Rápidas: Ir para o Carrinho com o Produto Pré-Incluído & Link Direto Netshoes */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsCheckoutOpen(true)}
+                  className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition cursor-pointer"
+                >
+                  <ShoppingCart className="size-3.5" />
+                  <span>Ir para o Carrinho (1 item)</span>
+                </button>
+
+                {search?.url && (
+                  <a
+                    href={search.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-bold transition flex items-center gap-1 border border-zinc-700"
+                    title="Ver página oficial na Netshoes"
+                  >
+                    <span>Netshoes</span>
+                    <ExternalLink className="size-3" />
+                  </a>
+                )}
               </div>
             </div>
           )}
@@ -349,6 +379,21 @@ function MarketEmbeddedPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Modal de Carrinho com o Produto Selecionado Pré-Carregado */}
+      {isCheckoutOpen && (
+        <ProductCheckoutSheet
+          product={{
+            id: targetProduct || "2FU-9629-205",
+            title: targetTitle || "Boné Aba Curva Mizuno Run Sky — Off White",
+            price: targetPrice || "R$ 89,90",
+            cashback: targetCashback || "+360 nfs",
+            image: productMizunoCap,
+            badge: "Netshoes Oficial",
+          }}
+          onClose={() => setIsCheckoutOpen(false)}
+        />
       )}
     </div>
   );

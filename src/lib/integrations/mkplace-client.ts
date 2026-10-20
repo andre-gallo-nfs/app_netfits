@@ -53,11 +53,19 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
     if (res.ok) {
       const data = await res.json();
       if (data.webviewUrl) {
-        // Se a webviewUrl já veio montada do backend com o token, retorna diretamente
         if (data.webviewUrl.includes("token=")) {
-          return data.webviewUrl;
+          try {
+            const parsed = new URL(data.webviewUrl);
+            token = parsed.searchParams.get("token") || token;
+            webviewUrl = `${parsed.origin}${parsed.pathname}`.replace(/\/+$/, "");
+          } catch {
+            const parts = data.webviewUrl.split("?token=");
+            webviewUrl = parts[0].replace(/\/+$/, "");
+            if (parts[1]) token = parts[1];
+          }
+        } else {
+          webviewUrl = data.webviewUrl;
         }
-        webviewUrl = data.webviewUrl;
       }
       if (data.token) {
         token = data.token;
@@ -82,12 +90,20 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
     if (targetQueryOrPath && targetQueryOrPath.trim()) {
       const clean = targetQueryOrPath.trim();
       const stripped = clean.startsWith("/") ? clean.slice(1) : clean;
-      if (stripped.startsWith("busca") || stripped.startsWith("produto") || stripped.startsWith("item") || stripped.startsWith("search")) {
+      if (
+        stripped.startsWith("p/") ||
+        stripped.startsWith("produto") ||
+        stripped.startsWith("item") ||
+        stripped.startsWith("busca") ||
+        stripped.startsWith("search") ||
+        stripped.startsWith("carrinho") ||
+        stripped.startsWith("cart")
+      ) {
         const baseNoSlash = webviewUrl.replace(/\/+$/, "");
         targetBase = `${baseNoSlash}/${stripped}`;
       } else {
         const baseNoSlash = webviewUrl.replace(/\/+$/, "");
-        targetBase = `${baseNoSlash}/busca?q=${encodeURIComponent(stripped)}`;
+        targetBase = `${baseNoSlash}/p/${stripped}`;
       }
     }
 

@@ -106,8 +106,8 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
       ],
     },
     shopProduct: {
-      id: "netshoes-mizuno-bone-offwhite",
-      title: "Boné Aba Curva Mizuno — Cor Off White",
+      id: "2FU-9629-205",
+      title: "Boné Aba Curva Mizuno Run Sky — Off White",
       price: "R$ 89,90",
       cashback: "+360 nfs",
       image: productMizunoCap,
@@ -117,8 +117,9 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
       rating: 4.9,
       reviews: "328 avaliações",
       tag: "Acessórios & Performance",
-      description: "Boné unissex Mizuno aba curva confeccionado em tecido leve de secagem rápida com proteção UV50+, faixa interna anti-suor e fecho ajustável. Comercializado e entregue pela Netshoes dentro do Netfits Shop.",
-      targetQuery: "bone mizuno off white",
+      description: "Boné unissex Mizuno aba curva Run Sky confeccionado em tecido leve de secagem rápida com proteção UV50+, faixa interna anti-suor e fecho ajustável. Comercializado e entregue pela Netshoes dentro do Netfits Shop.",
+      targetQuery: "p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205",
+      affiliateUrl: "https://www.netshoes.com.br/p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205",
     },
   },
 
@@ -383,6 +384,7 @@ export function RetailMediaVideoShowcase() {
         seller: product.seller || "Netshoes",
         cashback: product.cashback,
         q: query,
+        url: product.affiliateUrl,
       },
     });
   };
