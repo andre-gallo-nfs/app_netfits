@@ -1,9 +1,8 @@
 import { trackShopView } from "@/lib/analytics";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2, ShoppingCart
+  Zap, RefreshCw, ExternalLink, ShieldCheck, AlertCircle, ShoppingBag, ArrowLeft, CheckCircle2
 } from "lucide-react";
-import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useWallet } from "@/lib/wallet-store";
@@ -34,15 +33,8 @@ function MarketEmbeddedPage() {
 
   // Fallback para URLSearchParams direto do window.location
   const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-  const targetProduct = selectedProduct?.id || urlParams?.get("product") || "";
-  const targetTitle = selectedProduct?.title || urlParams?.get("title") || "";
-  const targetQuery = selectedProduct?.targetPath || selectedProduct?.title || urlParams?.get("q") || urlParams?.get("query") || targetTitle;
-  const targetPrice = selectedProduct?.price || urlParams?.get("price") || "";
-  const targetSeller = selectedProduct?.seller || urlParams?.get("seller") || "Netshoes";
-  const targetCashback = selectedProduct?.cashback || urlParams?.get("cashback") || "+360 nfs";
-  const targetUrl = selectedProduct?.url || urlParams?.get("url") || "";
+  const targetQuery = selectedProduct?.targetPath || selectedProduct?.title || urlParams?.get("q") || urlParams?.get("query") || "";
 
-  const [currentView, setCurrentView] = useState<"product" | "cart">("product");
   const [storeUrl, setStoreUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -50,40 +42,6 @@ function MarketEmbeddedPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const isPlaceholderUrl = false;
-
-  const handleGoToRockCart = async () => {
-    setIsLoading(true);
-    setCurrentView("cart");
-    try {
-      const cartUrl = await getMkplaceStoreUrl(activeUser.id, "carrinho");
-      setStoreUrl(cartUrl);
-      if (iframeRef.current) {
-        iframeRef.current.src = cartUrl;
-      }
-      toast.success("Carregando carrinho oficial na Rock Encantech...");
-    } catch {
-      toast.error("Erro ao conectar ao carrinho da Rock Encantech");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoToRockProduct = async () => {
-    setIsLoading(true);
-    setCurrentView("product");
-    try {
-      const prodUrl = await getMkplaceStoreUrl(activeUser.id, targetQuery);
-      setStoreUrl(prodUrl);
-      if (iframeRef.current) {
-        iframeRef.current.src = prodUrl;
-      }
-      toast.success("Retornando à página do produto na Rock Encantech...");
-    } catch {
-      toast.error("Erro ao carregar produto na Rock Encantech");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Carrega a URL com o token SSO assim que a tela abre e registra a visita para o selo de explorador
   useEffect(() => {
@@ -256,75 +214,6 @@ function MarketEmbeddedPage() {
             </div>
           )}
 
-          {/* Banner de Destaque / Deep Link de Produto Selecionado do Feed com Botão de Carrinho */}
-          {targetTitle && (
-            <div className="w-full bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-950 border-b border-purple-500/40 p-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sticky top-0 z-20 shadow-xl">
-              <div className="flex items-center gap-3 min-w-0">
-                <img
-                  src={productMizunoCap}
-                  alt={targetTitle}
-                  className="size-11 rounded-xl object-cover border border-purple-500/30 shrink-0 shadow-sm bg-zinc-800"
-                />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] font-extrabold uppercase text-purple-400 tracking-wider">
-                      Produto Selecionado
-                    </span>
-                    <span className="text-[10px] text-zinc-500">·</span>
-                    <span className="text-[10px] font-bold text-zinc-300">
-                      Vendido por {targetSeller || "Netshoes"}
-                    </span>
-                    <span className="text-[9px] font-black text-lime-400 bg-lime-400/10 px-1.5 py-0.5 rounded border border-lime-400/20">
-                      {targetCashback || "+360 nfs"}
-                    </span>
-                  </div>
-                  <p className="font-bold text-white text-xs truncate">
-                    {targetTitle}
-                  </p>
-                  <p className="text-xs font-black text-lime-400">
-                    {targetPrice || "R$ 89,90"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Ações Rápidas: Ir para o Carrinho Oficial da Rock Encantech ou Retornar ao Produto */}
-              <div className="flex items-center gap-2 shrink-0">
-                {currentView === "product" ? (
-                  <button
-                    type="button"
-                    onClick={handleGoToRockCart}
-                    className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition cursor-pointer"
-                  >
-                    <ShoppingCart className="size-3.5" />
-                    <span>Ir para o Carrinho Oficial Rock</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleGoToRockProduct}
-                    className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition cursor-pointer"
-                  >
-                    <ShoppingBag className="size-3.5" />
-                    <span>Ver Página do Produto</span>
-                  </button>
-                )}
-
-                {targetUrl && (
-                  <a
-                    href={targetUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-2.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-bold transition flex items-center gap-1 border border-zinc-700"
-                    title="Ver página oficial na Netshoes"
-                  >
-                    <span>Netshoes</span>
-                    <ExternalLink className="size-3" />
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Barra Superior da Loja Oficial */}
           <div className="w-full bg-zinc-900 border-b border-zinc-800 px-3.5 py-2 flex items-center justify-between text-xs sticky top-0 z-10">
             <div className="flex items-center gap-2">
@@ -362,7 +251,7 @@ function MarketEmbeddedPage() {
               ref={iframeRef}
               src={storeUrl}
               title="Loja Oficial Netfits — Rock Encantech"
-              className="w-full h-[calc(100dvh-156px)] border-0 bg-white"
+              className="w-full h-[calc(100dvh-152px)] border-0 bg-white"
               allow="clipboard-write; payment; geolocation; camera"
               onLoad={() => setIsLoading(false)}
               onError={() => {
