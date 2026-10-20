@@ -2,7 +2,6 @@ import { trackShopView, trackProductSelect } from "@/lib/analytics";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Zap,
-  ExternalLink,
   ShieldCheck,
   ShoppingBag,
   ArrowLeft,
@@ -20,6 +19,7 @@ import { useWallet } from "@/lib/wallet-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { badgesStore } from "@/lib/badges-store";
 import { shopSelectionStore } from "@/lib/shop-selection-store";
+import { launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -53,18 +53,11 @@ function MarketEmbeddedPage() {
     toast.info("Retornando ao catálogo geral da Loja Oficial");
   };
 
-  const handleOpenPartnerBuy = () => {
-    const buyUrl =
-      selectedProduct?.url ||
-      "https://www.netshoes.com.br/p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205";
-
-    toast.success("Redirecionando com segurança para a loja oficial...", {
-      description: "Seus pontos nfs serão creditados após a confirmação do pedido pelo parceiro.",
+  const handleBuyInShop = () => {
+    toast.success("Conectando ao checkout oficial da Rock Encantech...", {
+      description: "Seu saldo de nfs e endereço já estão sincronizados via SSO.",
     });
-
-    if (typeof window !== "undefined") {
-      window.open(buyUrl, "_blank", "noopener,noreferrer");
-    }
+    launchMkplaceShop({ userId: activeUser.id });
   };
 
   // Se houver produto selecionado pelo card do feed/vídeo, renderiza a Página do Produto dentro do Shop
@@ -193,9 +186,9 @@ function MarketEmbeddedPage() {
           <div className="bg-purple-950/20 border border-purple-500/20 rounded-2xl p-3.5 flex items-start gap-3">
             <BadgeCheck className="size-5 text-purple-400 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <p className="text-xs font-bold text-white">Parceria Oficial de Fulfillment</p>
+              <p className="text-xs font-bold text-white">Catálogo Integrado Rock Encantech</p>
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Produto comercializado pela <strong className="text-zinc-200">{productSeller}</strong> e entregue com nota fiscal. Toda compra acumula <strong className="text-lime-400">4,00 nfs por R$ 1,00</strong> diretamente na sua conta Netfits.
+                Produto comercializado dentro do <strong className="text-zinc-200">Netfits Shop</strong> com fulfillment parceiro ({productSeller}) e entregue com nota fiscal. Toda compra acumula <strong className="text-lime-400">4,00 nfs por R$ 1,00</strong> diretamente na sua conta.
               </p>
             </div>
           </div>
@@ -211,12 +204,11 @@ function MarketEmbeddedPage() {
 
             <button
               type="button"
-              onClick={handleOpenPartnerBuy}
+              onClick={handleBuyInShop}
               className="flex-1 py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
               <ShoppingBag className="size-4" />
-              <span>Comprar na Netshoes (+{productCashback})</span>
-              <ExternalLink className="size-3 text-zinc-900" />
+              <span>Comprar no Shop Netfits ({productCashback})</span>
             </button>
           </div>
         </div>
