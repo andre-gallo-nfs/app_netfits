@@ -384,6 +384,7 @@ export function RetailMediaVideoShowcase() {
       seller: product.seller || "Netshoes",
       url: product.affiliateUrl || "https://www.netshoes.com.br/p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205",
       targetPath: product.targetQuery || "p/bone-aba-curva-mizuno-run-sky-off+white-2FU-9629-205",
+      image: product.image || productMizunoCap,
     });
 
     navigate({ to: "/market" });
