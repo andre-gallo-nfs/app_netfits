@@ -16,7 +16,10 @@ const config: CapacitorConfig = {
       "*.mkplace.com.br",
       "*.vercel.app",
       "*.pages.dev",
-      "*.supabase.co"
+      "*.supabase.co",
+      "*.google-analytics.com",
+      "*.googletagmanager.com",
+      "*.analytics.google.com"
     ]
   },
   plugins: {
