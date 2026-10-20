@@ -1,3 +1,4 @@
+import { trackQuizCompleted, trackQuizUnlocked } from "@/lib/analytics";
 import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink, Copy, Trophy, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -259,6 +260,12 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
   const isDwellQualified = dwellSeconds >= minDwell;
 
   useEffect(() => {
+    if (isDwellQualified && !hasSubmitted) {
+      trackQuizUnlocked(quizId, item.title, true);
+    }
+  }, [isDwellQualified, quizId, item.title, hasSubmitted]);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       if (feedAntifraud.hasClaimed("quiz", quizId)) {
         setHasSubmitted(true);
@@ -297,6 +304,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
       setErrorMsg(null);
       wallet.earn(points, `Desafio Patrocinado: ${item.title}`);
       feedAntifraud.recordAction("quiz", quizId, points);
+      trackQuizCompleted(quizId, item.title, true, points, true);
       toast.success(`🎉 Resposta correta! +${points} NFs patrocinados creditados na sua carteira.`);
     } else {
       setErrorMsg("Resposta incorreta. A Fibios oferece medicina integrativa completa para atletas.");

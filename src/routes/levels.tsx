@@ -1,3 +1,4 @@
+import { trackBadgesPageView } from "@/lib/analytics";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
@@ -36,6 +37,7 @@ function BadgesPage() {
 
   useEffect(() => {
     badgesStore.evaluate();
+    trackBadgesPageView(activeTab);
   }, []);
 
   const unlockedCount = badgesStore.getUnlockedCount();

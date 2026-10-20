@@ -1,3 +1,4 @@
+import { trackQuizCompleted, trackArticleRead, trackQuizUnlocked } from "@/lib/analytics";
 import { useState, useEffect } from "react";
 import { 
   Trophy, 
@@ -71,6 +72,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
       }
       if (feedAntifraud.hasClaimed("read", ARTICLE_POST_ID)) {
         setReadClaimed(true);
+    trackArticleRead(QUIZ_POST_ID, "Força & Longevidade (Dr. Franco Merici)", dwellTimeSeconds);
       }
     }
   }, []);
@@ -118,9 +120,11 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
       setHasSubmitted(true);
       wallet.earn(points, "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)");
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
+      trackQuizCompleted(QUIZ_POST_ID, "Força & Longevidade (Dr. Franco Merici)", true, points, false);
       toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);
     } else {
       setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus NFs!");
+      trackQuizCompleted(QUIZ_POST_ID, "Força & Longevidade (Dr. Franco Merici)", false, 0, false);
       toast.error("Resposta incorreta. Leia a dica e tente novamente!");
     }
   };

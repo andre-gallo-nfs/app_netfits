@@ -1,3 +1,4 @@
+import { trackProductSelect, trackAddToCart } from "@/lib/analytics";
 import { useState } from "react";
 import {
   X,

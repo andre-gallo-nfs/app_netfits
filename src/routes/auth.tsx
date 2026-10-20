@@ -1,3 +1,4 @@
+import { trackRegistrationAccess } from "@/lib/analytics";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
@@ -55,6 +56,12 @@ function AuthPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [mode, setMode] = useState<"register" | "login">("register");
+
+  useEffect(() => {
+    if (mode === "register") {
+      trackRegistrationAccess("landing");
+    }
+  }, []);
 
   // Campos de Cadastro Separados & Obrigatórios
   const [fullName, setFullName] = useState("");
@@ -364,6 +371,7 @@ function AuthPage() {
         <button
           onClick={() => {
             setMode("register");
+    trackRegistrationAccess("tab_toggle");
             setDuplicateAlert(null);
             setFormError(null);
           }}
