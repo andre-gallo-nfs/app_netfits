@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { ProductCheckoutSheet, type CheckoutProduct } from "./ProductCheckoutSheet";
 import { PARTNER_MERCHANTS, generatePartnerAffiliateUrl } from "@/lib/shop-partner-schema";
+import { launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 import { toast } from "sonner";
 
 export type DetailProduct = CheckoutProduct & {
@@ -56,13 +57,13 @@ export function ProductDetailSheet({
     returnPolicyDays: 30,
   };
 
-  const handleExternalAffiliateBuy = () => {
-    const trackingUrl =
-      product.affiliateUrl ||
-      generatePartnerAffiliateUrl(merchantInfo.id, product.title, product.price);
-    
-    toast.info(`Redirecionando para ${merchantInfo.name} com rastreio de cashback Netfits...`);
-    window.open(trackingUrl, "_blank");
+  const handleBuyInRockStore = () => {
+    trackAddToCart(product.id, product.title, product.price, product.cashback);
+    toast.success(`Abrindo "${product.title}" na Loja Oficial Netfits...`, {
+      description: "Conectando ao catálogo Rock Encantech com seu saldo sincronizado.",
+    });
+    launchMkplaceShop({ newTab: true });
+    onClose();
   };
 
   return (
@@ -230,24 +231,27 @@ export function ProductDetailSheet({
 
           <div className="sticky bottom-0 bg-white border-t border-zinc-200 px-5 py-3 pb-5 space-y-2">
             <button
-              onClick={() => setCheckout(true)}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-3.5 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-purple-600/20"
+              onClick={handleBuyInRockStore}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-3.5 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-purple-600/20 cursor-pointer"
             >
               <ShoppingBag className="size-4" />
-              Comprar & Ganhar {product.cashback ?? "nfs"} · {product.price}
+              Comprar & Ganhar {product.cashback ?? "4 nfs / R$ 1"} · {product.price}
             </button>
 
-            <button
-              onClick={handleExternalAffiliateBuy}
-              className="w-full bg-muted hover:bg-muted/80 text-foreground text-xs font-semibold py-2.5 rounded-full flex items-center justify-center gap-1.5 border border-border"
-            >
-              <ExternalLink className="size-3.5 text-muted-foreground" />
-              Ir direto para a loja {merchantInfo.name}
-            </button>
+            <div className="flex items-center justify-center gap-3 pt-1 text-[11px] text-zinc-500 font-medium">
+              <span className="flex items-center gap-1">
+                <ShieldCheck className="size-3.5 text-emerald-600" />
+                Loja Oficial Rock Encantech
+              </span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <Zap className="size-3.5 text-purple-600" />
+                4 nfs por R$ 1,00
+              </span>
+            </div>
 
-            <p className="text-[10px] text-center text-muted-foreground flex items-center justify-center gap-1">
-              <ShieldCheck className="size-3" />
-              Fulfillment & Logística geridos exclusivamente por {merchantInfo.name}
+            <p className="text-[10px] text-center text-muted-foreground">
+              Catálogo curado com +100 mil SKUs homologados e acúmulo garantido.
             </p>
           </div>
         </div>
