@@ -63,67 +63,6 @@ export interface DemoBrandProduct {
 
 export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
   {
-    id: "demo-mizuno-bone",
-    brandName: "Mizuno",
-    brandTagline: "Tecnologia & Tradição Esportiva Japonesa",
-    category: "Running & Acessórios",
-    timeAgo: "há 15 min",
-    durationLabel: "0:51 min",
-    durationSec: 51,
-    poster: productMizunoCap,
-    badge: "Oficial Netshoes · Shop",
-    youtubeId: "bG89es_BjeM",
-    accentColor: "from-amber-600 to-orange-500",
-    hookTitle: "Por que atletas de alta performance usam boné técnico com proteção UV50+?",
-    hookSubtitle: "Termorregulação craniana e controle de suor: como a tecnologia respirável da Mizuno evita a fadiga precoce sob calor intenso.",
-    videoHighlights: [
-      { atSec: 5, text: "☀️ Proteção UV50+: Bloqueio da radiação solar direta na região craniana" },
-      { atSec: 15, text: "💧 Faixa interna anti-suor: Evita ardência nos olhos e mantém a visão limpa" },
-      { atSec: 28, text: "💨 Tecnologia Quick-Dry: Secagem ultra-rápida e microperfurações de ar" },
-      { atSec: 40, text: "🏆 90% Concluído: Desafio técnico Mizuno desbloqueado (+10 nfs)" },
-    ],
-    quiz: {
-      id: "quiz-sponsor-mizuno-cap",
-      question: "Qual é a principal função fisiológica do Boné Técnico Mizuno com tecido respirável e proteção UV em treinos diurnos de corrida?",
-      options: [
-        {
-          id: "mz-1",
-          text: "Auxiliar na termorregulação craniana, reduzir a fadiga térmica e absorver o suor antes que atinja a visão do atleta.",
-          isCorrect: true,
-          feedback: "Exato! A proteção solar na cabeça combinada com tecido de alta evaporação mantém a temperatura estável e a visão desobstruída.",
-        },
-        {
-          id: "mz-2",
-          text: "Retardar os batimentos cardíacos forçando a retenção do calor corporal no topo da cabeça.",
-          isCorrect: false,
-          feedback: "Incorreto. O objetivo do boné técnico é dissipar o calor e controlar a transpiração, nunca reter calor.",
-        },
-        {
-          id: "mz-3",
-          text: "Substituir a necessidade de hidratação líquida durante o exercício prolongado.",
-          isCorrect: false,
-          feedback: "Incorreto. A reposição hídrica e mineral contínua é insubstituível em treinos ao ar livre.",
-        },
-      ],
-    },
-    shopProduct: {
-      id: "2FU-9629-205",
-      title: "Boné Aba Curva Mizuno Run Sky — Off White",
-      price: "R$ 89,90",
-      cashback: "+360 nfs",
-      image: productMizunoCap,
-      seller: "Netshoes",
-      sellerType: "marketplace_partner",
-      sellerId: "netshoes",
-      rating: 4.9,
-      reviews: "328 avaliações",
-      tag: "Acessórios & Performance",
-      description: "Boné unissex Mizuno aba curva Run Sky confeccionado em tecido leve de secagem rápida com proteção UV50+, faixa interna anti-suor e fecho ajustável. Comercializado dentro do Netfits Shop com fulfillment Rock Encantech.",
-      targetPath: "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky",
-    },
-  },
-
-  {
     id: "demo-liquidz",
     brandName: "Liquidz",
     brandTagline: "Hidratação de Alta Performance & Eletrólitos",
@@ -372,7 +311,7 @@ export function RetailMediaVideoShowcase() {
   const handleBuyProduct = (product: DetailProduct) => {
     trackProductSelect(product.id, product.title, product.price);
     toast.success(`Abrindo "${product.title}" no Shop Netfits...`, {
-      description: `Parceiro: ${product.seller || "Netshoes"} · Ganhe ${product.cashback}`,
+      description: `Parceiro: ${product.seller || "Shop Netfits"} · Ganhe ${product.cashback}`,
     });
 
     shopSelectionStore.setProduct({
@@ -380,14 +319,14 @@ export function RetailMediaVideoShowcase() {
       title: product.title,
       price: product.price,
       cashback: product.cashback || "+360 nfs",
-      seller: product.seller || "Netshoes",
-      image: product.image || productMizunoCap,
-      targetPath: product.targetPath || "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky",
+      seller: product.seller || "Shop Netfits",
+      image: product.image || productLiquidz,
+      targetPath: product.targetPath || "https://loja.netfits.com.br",
     });
 
     navigate({
       to: "/market",
-      search: { product: "bone-aba-curva-mizuno-run-sky" },
+      search: { product: product.id },
     });
   };
 

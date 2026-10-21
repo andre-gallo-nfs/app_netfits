@@ -10,6 +10,7 @@ import { DrIsabellaCard } from "@/components/DrIsabellaCard";
 import { DrFrancoQuizCard } from "@/components/DrFrancoQuizCard";
 import { DraIsabellaQuizCard } from "@/components/DraIsabellaQuizCard";
 import { NetfitsEducationalCard } from "@/components/NetfitsEducationalCard";
+import { MizunoArticleFeedCard } from "@/components/MizunoArticleFeedCard";
 import { RetailMediaVideoShowcase } from "@/components/RetailMediaVideoShowcase";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
@@ -55,6 +56,9 @@ export function FeedPage() {
 
         {/* 3. Educacional da Plataforma: O Propósito Netfits & Healthspan (Time Netfits) */}
         <NetfitsEducationalCard />
+
+        {/* 4. Artigo Técnico Patrocinado & Retail Media: Mizuno Running (Termorregulação & Proteção UV50+) */}
+        <MizunoArticleFeedCard />
 
         {/* 4. Conteúdo Permanente Fibios: Dra. Isabella Formigari (Biomarcadores & Sono — Artigo Histórico sem Quiz) */}
         <DraIsabellaQuizCard isDailyChallenge={false} />
