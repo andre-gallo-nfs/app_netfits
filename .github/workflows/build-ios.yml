@@ -50,39 +50,42 @@ jobs:
         run: |
           npx cap sync ios --verbose || echo "Proceeding with committed native assets"
 
-      - name: Setup App Store Connect AuthKey
+      - name: Setup App Store Connect AuthKey via Python
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           KEY_B64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
         run: |
-          mkdir -p ~/.appstoreconnect/private_keys
-          echo "$KEY_B64" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
-          chmod 600 ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
-          echo "AuthKey saved to ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8"
-          head -n 1 ~/.appstoreconnect/private_keys/AuthKey_${KEY_ID}.p8
+          python3 -c "
+          import os, base64
+          key_id = os.environ['KEY_ID'].strip()
+          key_b64 = os.environ['KEY_B64'].strip()
+          target_dir = os.path.expanduser('~/.appstoreconnect/private_keys')
+          os.makedirs(target_dir, exist_ok=True)
+          key_path = os.path.join(target_dir, f'AuthKey_{key_id}.p8')
+          raw_data = base64.b64decode(key_b64)
+          with open(key_path, 'wb') as f:
+              f.write(raw_data)
+          os.chmod(key_path, 0o600)
+          print(f'AuthKey written to {key_path}, size={os.path.getsize(key_path)} bytes')
+          "
 
       - name: Run Fastlane Beta (Sign & Upload to TestFlight)
         working-directory: ios/App
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          set -o pipefail
           bundle exec fastlane beta 2>&1 | tee /tmp/fastlane.log
 
-      - name: Print Fastlane Log (Always)
+      - name: Upload Build Log to Branch (Always)
         if: always()
         run: |
-          if [ -f /tmp/fastlane.log ]; then
-            echo "## Fastlane Execution Log" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -n 120 /tmp/fastlane.log >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Upload IPA Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: netfits-ios-ipa
-          path: ios/App/build/*.ipa
-          retention-days: 14
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B ios-build-diagnostics
+          cp /tmp/fastlane.log ./fastlane-build.log || true
+          git add ./fastlane-build.log
+          git commit -m "diagnostics: fastlane build log" || true
+          git push origin ios-build-diagnostics --force || true

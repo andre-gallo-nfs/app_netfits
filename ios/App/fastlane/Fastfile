@@ -6,8 +6,10 @@ platform :ios do
     key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
     issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
     key_file = File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8")
+    team_id = ENV["APPLE_TEAM_ID"]
 
     UI.message("Connecting to App Store Connect API with Key ID: #{key_id}")
+    UI.message("Key file exists: #{File.exist?(key_file)} (size: #{File.size(key_file) rescue 0} bytes)")
 
     api_key = app_store_connect_api_key(
       key_id: key_id,
@@ -25,17 +27,21 @@ platform :ios do
       lock_when_sleeps: false
     )
 
-    get_certificates(
+    cert_args = {
       api_key: api_key,
       keychain_name: "build_keychain",
       keychain_password: "netfits-temp-pass"
-    )
+    }
+    cert_args[:team_id] = team_id if team_id && !team_id.empty?
+    get_certificates(cert_args)
 
-    get_provisioning_profile(
+    sigh_args = {
       api_key: api_key,
       app_identifier: "br.com.netfits.app",
       filename: "AppStore_br.com.netfits.app.mobileprovision"
-    )
+    }
+    sigh_args[:team_id] = team_id if team_id && !team_id.empty?
+    get_provisioning_profile(sigh_args)
 
     update_project_provisioning(
       xcodeproj: "App.xcodeproj",
