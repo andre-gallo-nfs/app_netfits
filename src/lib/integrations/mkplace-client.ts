@@ -6,13 +6,14 @@ export interface LaunchShopOptions {
   newTab?: boolean;
   userId?: string;
   silent?: boolean;
+  targetQueryOrPath?: string;
 }
 
 /**
  * Retorna a URL completa da Loja Oficial Rock Encantech (Mkplace)
  * com o token SSO (JWT RS256) acoplado para renderização em tela (iframe ou webview).
  */
-export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
+export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: string): Promise<string> {
   const activeUser = sharedSandboxStore.getActiveUser();
   const targetUserId = userId || activeUser?.id || "usr_101";
 
@@ -53,11 +54,19 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
     if (res.ok) {
       const data = await res.json();
       if (data.webviewUrl) {
-        // Se a webviewUrl já veio montada do backend com o token, retorna diretamente
         if (data.webviewUrl.includes("token=")) {
-          return data.webviewUrl;
+          try {
+            const parsed = new URL(data.webviewUrl);
+            token = parsed.searchParams.get("token") || token;
+            webviewUrl = `${parsed.origin}${parsed.pathname}`.replace(/\/+$/, "");
+          } catch {
+            const parts = data.webviewUrl.split("?token=");
+            webviewUrl = parts[0].replace(/\/+$/, "");
+            if (parts[1]) token = parts[1];
+          }
+        } else {
+          webviewUrl = data.webviewUrl.replace(/\/+$/, "");
         }
-        webviewUrl = data.webviewUrl;
       }
       if (data.token) {
         token = data.token;
@@ -78,10 +87,20 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
         ".NETFITS_FALLBACK_SIGNATURE";
     }
 
-    const separator = webviewUrl.includes("?")
-      ? "&"
-      : (webviewUrl.endsWith("/") ? "?" : "/?");
-    return `${webviewUrl}${separator}token=${encodeURIComponent(token)}`;
+    let targetBase = webviewUrl;
+    if (targetQueryOrPath && targetQueryOrPath.trim()) {
+      const clean = targetQueryOrPath.trim();
+      if (clean.startsWith("http://") || clean.startsWith("https://")) {
+        targetBase = clean;
+      } else {
+        const baseNoSlash = webviewUrl.replace(/\/+$/, "");
+        const pathNoSlash = clean.startsWith("/") ? clean.slice(1) : clean;
+        targetBase = `${baseNoSlash}/${pathNoSlash}`;
+      }
+    }
+
+    const separator = targetBase.includes("?") ? "&" : "?";
+    return `${targetBase}${separator}token=${encodeURIComponent(token)}`;
   } catch (err) {
     console.warn("[Mkplace Client] Fallback de URL da loja:", err);
     return "https://loja.netfits.com.br";
@@ -92,7 +111,7 @@ export async function getMkplaceStoreUrl(userId?: string): Promise<string> {
  * Utilitário para abertura externa da Loja Oficial quando expressamente solicitado.
  */
 export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
-  const finalUrl = await getMkplaceStoreUrl(options.userId);
+  const finalUrl = await getMkplaceStoreUrl(options.userId, options.targetQueryOrPath);
 
   if (!options.silent) {
     toast.info("Conectando à Loja Oficial Netfits...", {

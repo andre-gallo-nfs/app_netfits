@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Zap,
 } from "lucide-react";
+import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
 import productLiquidz from "@/assets/product-liquidz.jpg";
 import productCreatine from "@/assets/product-creatine.jpg";
 import asicsNovablast from "@/assets/asics-novablast.jpg";
@@ -27,7 +28,9 @@ import gearWatch from "@/assets/gear-watch.jpg";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
-import { ProductDetailSheet, type DetailProduct } from "@/components/ProductDetailSheet";
+import type { DetailProduct } from "@/components/ProductDetailSheet";
+import { shopSelectionStore } from "@/lib/shop-selection-store";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export interface DemoBrandProduct {
@@ -298,8 +301,38 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
 ];
 
 export function RetailMediaVideoShowcase() {
+  const navigate = useNavigate();
   const [activeModalProduct, setActiveModalProduct] = useState<DemoBrandProduct | null>(null);
-  const [selectedShopProduct, setSelectedShopProduct] = useState<DetailProduct | null>(null);
+
+  const isStaging =
+    typeof import.meta !== "undefined" &&
+    (import.meta.env?.VITE_APP_ENV === "staging" || import.meta.env?.DEV);
+
+  const handleBuyProduct = (product: DetailProduct) => {
+    trackProductSelect(product.id, product.title, product.price);
+    toast.success(`Abrindo "${product.title}" no Shop Netfits...`, {
+      description: `Parceiro: ${product.seller || "Shop Netfits"} · Ganhe ${product.cashback}`,
+    });
+
+    shopSelectionStore.setProduct({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      cashback: product.cashback || "+360 nfs",
+      seller: product.seller || "Shop Netfits",
+      image: product.image || productLiquidz,
+      targetPath: product.targetPath || "https://loja.netfits.com.br",
+    });
+
+    navigate({
+      to: "/market",
+      search: { product: product.id },
+    });
+  };
+
+  if (!isStaging) {
+    return null;
+  }
 
   // Estados de reprodução do vídeo
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -527,11 +560,11 @@ export function RetailMediaVideoShowcase() {
 
               <button
                 type="button"
-                onClick={() => setSelectedShopProduct(brand.shopProduct)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                onClick={() => handleBuyProduct(brand.shopProduct)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer active:scale-98"
               >
                 <ShoppingBag className="size-3.5" />
-                <span>Ver no Shop ({brand.shopProduct.cashback})</span>
+                <span>Comprar este produto no Shop</span>
               </button>
             </div>
           </article>
@@ -810,12 +843,12 @@ export function RetailMediaVideoShowcase() {
                     type="button"
                     onClick={() => {
                       handleCloseModal();
-                      setSelectedShopProduct(activeModalProduct.shopProduct);
+                      handleBuyProduct(activeModalProduct.shopProduct);
                     }}
-                    className="flex-1 py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="flex-1 py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-500 text-zinc-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                   >
                     <ShoppingBag className="size-4" />
-                    <span>Comprar no Shop ({activeModalProduct.shopProduct.cashback})</span>
+                    <span>Comprar este produto no Shop</span>
                   </button>
 
                   <button
@@ -832,13 +865,7 @@ export function RetailMediaVideoShowcase() {
         </div>
       )}
 
-      {/* Sheet de Detalhes do Produto no Shop (se acionado) */}
-      {selectedShopProduct && (
-        <ProductDetailSheet
-          product={selectedShopProduct}
-          onClose={() => setSelectedShopProduct(null)}
-        />
-      )}
+
     </>
   );
 }

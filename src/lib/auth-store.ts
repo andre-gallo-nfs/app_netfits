@@ -100,7 +100,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     fullName: "Cristiane Queli da Silva Gallo",
     email: "c.queligallo@gmail.com",
     phone: "(11) 98210-9997",
-    cpf: "129.044.128-67",
+    cpf: "000.000.000-00",
     birthDate: "12/04/1972",
     address: "Rua Carlos Steinen, 193 (Ap 121) - Paraíso, São Paulo · SP",
     street: "Rua Carlos Steinen",
