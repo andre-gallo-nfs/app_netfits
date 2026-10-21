@@ -6,7 +6,7 @@ platform :ios do
     key_id = ENV["APP_STORE_CONNECT_KEY_ID"]
     issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
     key_file = File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{key_id}.p8")
-    team_id = ENV["APPLE_TEAM_ID"]
+    team_id = ENV["APPLE_TEAM_ID"] || "SA9P4PKNL8"
 
     UI.message("Connecting to App Store Connect API with Key ID: #{key_id}")
     UI.message("Key file exists: #{File.exist?(key_file)} (size: #{File.size(key_file) rescue 0} bytes)")
