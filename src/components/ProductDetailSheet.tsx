@@ -70,7 +70,10 @@ export function ProductDetailSheet({
       description: "Conectando ao catálogo Rock Encantech dentro do aplicativo.",
     });
     onClose();
-    navigate({ to: "/market" });
+    navigate({
+      to: "/market",
+      search: { product: product.id },
+    });
   };
 
   return (

@@ -383,7 +383,10 @@ export function RetailMediaVideoShowcase() {
       image: product.image || productMizunoCap,
     });
 
-    navigate({ to: "/market" });
+    navigate({
+      to: "/market",
+      search: { product: product.id },
+    });
   };
 
   if (!isStaging) {
