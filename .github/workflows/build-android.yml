@@ -141,14 +141,13 @@ jobs:
         if: success()
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.4-google-play
-          name: "Netfits Android App Bundle v1.0.4 (Onboarding Limpo & Biometria Nativa)"
+          tag_name: v1.0.5-google-play
+          name: "Netfits Android App Bundle v1.0.5 (Identidade Visual e Ícones Nativos Netfits)"
           body: |
-            ### 🚀 Netfits Android Release (.aab) v1.0.4 para Google Play Store
-            - **Versão:** 1.0.4 (versionCode 5)
+            ### 🚀 Netfits Android Release (.aab) v1.0.5 para Google Play Store
+            - **Versão:** 1.0.5 (versionCode 6)
             - **Package ID:** `br.com.netfits.app`
-            - **Fluxo Onboarding:** Primeiro acesso abre em Boas-Vindas/Cadastro/Login (/auth) sem pré-carregar contas
-            - **Biometria:** Validação nativa real com BiometricPrompt (impressão digital / facial)
+            - **Identidade Visual Nativa:** Ícones adaptativos completos (Adaptive Icons), splash screen dark e launcher mipmaps oficiais Netfits
             - **Target SDK:** 36 (Conforme exigido pelo Google Play Console)
             - **Min SDK:** 24 (Android 7.0+)
             - **Chave de Assinatura Oficial:** SHA1 D7:AB:16:0F:03:08:80:7B:3C:9E:60:51:2E:D5:BC:44:45:A7:AA:F6 (`netfits-upload-key.jks`)
