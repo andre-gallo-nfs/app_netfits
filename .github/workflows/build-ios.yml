@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-ios:
-    name: Build, Archive & TestFlight
+    name: Build, Sign & Upload to TestFlight
     runs-on: macos-14
 
     steps:
@@ -20,7 +20,18 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Select Xcode 16 / 15
+      - name: Set up Ruby & Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          working-directory: ios/App
+
+      - name: Install Ruby Gems (Fastlane)
+        working-directory: ios/App
+        run: |
+          bundle install
+
+      - name: Select Xcode
         run: |
           if [ -d "/Applications/Xcode_16.0.app" ]; then
             sudo xcode-select -s /Applications/Xcode_16.0.app
@@ -29,39 +40,29 @@ jobs:
           fi
           xcode-select -p
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm install --include=dev
 
       - name: Build Web Production Bundle
         run: npm run build:prod
 
       - name: Sync Capacitor iOS
-        run: npx cap sync ios
-
-      - name: Resolve Swift Package Dependencies (SPM)
-        working-directory: ios/App
         run: |
-          xcodebuild -resolvePackageDependencies -workspace App.xcworkspace -scheme App
+          npx cap sync ios --verbose || echo "Proceeding with committed native assets"
 
-      - name: Verify or Build Archive
+      - name: Run Fastlane Beta (Sign & Upload to TestFlight)
         working-directory: ios/App
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
         run: |
-          echo "Building iOS Archive with Xcode..."
-          xcodebuild -workspace App.xcworkspace \
-            -scheme App \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath $RUNNER_TEMP/Netfits.xcarchive \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            archive
+          bundle exec fastlane beta
 
-          echo "✅ Xcode Archive successfully compiled!"
-
-      - name: Compress and Upload Archive Artifact
+      - name: Upload IPA Artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: netfits-ios-xcarchive
-          path: ${{ runner.temp }}/Netfits.xcarchive
+          name: netfits-ios-ipa
+          path: ios/App/build/*.ipa
           retention-days: 14

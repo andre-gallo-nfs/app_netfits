@@ -1,0 +1,57 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload iOS app to TestFlight"
+  lane :beta do
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_P8"],
+      is_key_content_base64: true,
+      in_house: false
+    )
+
+    create_keychain(
+      name: "fastlane_keychain",
+      password: "netfits-build-temp",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: false
+    )
+
+    get_certificates(
+      api_key: api_key,
+      keychain_name: "fastlane_keychain",
+      keychain_password: "netfits-build-temp"
+    )
+
+    get_provisioning_profile(
+      api_key: api_key,
+      app_identifier: "br.com.netfits.app",
+      filename: "AppStore_br.com.netfits.app.mobileprovision"
+    )
+
+    update_project_provisioning(
+      xcodeproj: "App.xcodeproj",
+      profile: "AppStore_br.com.netfits.app.mobileprovision",
+      target_filter: "App",
+      build_configuration: "Release"
+    )
+
+    build_app(
+      workspace: "App.xcworkspace",
+      scheme: "App",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "Netfits.ipa",
+      clean: true
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
