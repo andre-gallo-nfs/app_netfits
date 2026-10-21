@@ -4,6 +4,7 @@
  */
 
 import { Link, useLocation } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { 
   Building2, 
   HelpCircle, 
@@ -14,10 +15,18 @@ import {
   Activity 
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 
 export function InstitutionalWebHeader() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHasSession(sharedSandboxStore.hasActiveSession());
+    }
+  }, []);
 
   const navLinks = [
     { to: "/", label: "Home", icon: Home, color: "hover:text-purple-400" },
@@ -64,8 +73,17 @@ export function InstitutionalWebHeader() {
           })}
         </nav>
 
-        {/* CTA Baixar App nas Lojas Oficiais */}
+        {/* CTA Baixar App nas Lojas Oficiais & Botão rápido para Feed se logado */}
         <div className="flex items-center gap-3 shrink-0">
+          {hasSession && (
+            <Link
+              to="/feed"
+              className="bg-lime-400 hover:bg-lime-300 text-zinc-950 font-extrabold text-xs px-3.5 py-2.5 rounded-full shadow-lg shadow-lime-400/20 transition-all duration-200 flex items-center gap-1.5"
+            >
+              <Activity className="size-4" />
+              <span>Acessar Feed</span>
+            </Link>
+          )}
           <Link
             to="/download"
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-lg shadow-purple-600/30 transition-all duration-200 flex items-center gap-1.5"
@@ -92,6 +110,15 @@ export function InstitutionalWebHeader() {
             </Link>
           );
         })}
+        {hasSession && (
+          <Link
+            to="/feed"
+            className="px-2 py-1 rounded text-lime-400 font-bold bg-zinc-900 border border-lime-400/30 whitespace-nowrap flex items-center gap-1"
+          >
+            <Activity className="size-3" />
+            <span>Feed</span>
+          </Link>
+        )}
       </div>
     </header>
   );
