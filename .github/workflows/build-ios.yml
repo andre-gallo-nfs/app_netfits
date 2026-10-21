@@ -1,0 +1,67 @@
+name: Build iOS Release & TestFlight
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-ios:
+    name: Build, Archive & TestFlight
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Select Xcode 16 / 15
+        run: |
+          if [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app
+          elif [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app
+          fi
+          xcode-select -p
+
+      - name: Install Dependencies
+        run: npm install --include=dev
+
+      - name: Build Web Production Bundle
+        run: npm run build:prod
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Resolve Swift Package Dependencies (SPM)
+        working-directory: ios/App
+        run: |
+          xcodebuild -resolvePackageDependencies -workspace App.xcworkspace -scheme App
+
+      - name: Verify or Build Archive
+        working-directory: ios/App
+        run: |
+          echo "Building iOS Archive with Xcode..."
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath $RUNNER_TEMP/Netfits.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            archive
+
+          echo "✅ Xcode Archive successfully compiled!"
+
+      - name: Compress and Upload Archive Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: netfits-ios-xcarchive
+          path: ${{ runner.temp }}/Netfits.xcarchive
+          retention-days: 14
