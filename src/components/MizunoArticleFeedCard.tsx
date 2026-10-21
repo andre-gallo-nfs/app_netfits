@@ -33,20 +33,21 @@ interface QuizOption {
   feedback: string;
 }
 
+// Resposta correta posicionada no meio (Opção 2) para exigir leitura e clique deliberado do usuário
 const MIZUNO_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: "mz-opt-1",
-    text: "Auxiliar na termorregulação craniana, reduzir a fadiga térmica do sistema nervoso central e absorver o suor antes que atinja os olhos.",
-    isCorrect: true,
-    feedback:
-      "Perfeito! A proteção solar na cabeça combinada ao tecido de rápida evaporação estabiliza a temperatura craniana, protege os olhos e preserva o foco do atleta.",
-  },
-  {
-    id: "mz-opt-2",
     text: "Reter o calor corporal no topo da cabeça para acelerar a queima calórica forçada.",
     isCorrect: false,
     feedback:
       "Incorreto. A retenção de calor na cabeça provoca superaquecimento (hipertermia), colapso precoce de pace e risco à saúde. O objetivo do boné técnico é dissipar calor.",
+  },
+  {
+    id: "mz-opt-2",
+    text: "Auxiliar na termorregulação craniana, reduzir a fadiga térmica do sistema nervoso central e absorver o suor antes que atinja os olhos.",
+    isCorrect: true,
+    feedback:
+      "Perfeito! A proteção solar na cabeça combinada ao tecido de rápida evaporação estabiliza a temperatura craniana, protege os olhos e preserva o foco do atleta.",
   },
   {
     id: "mz-opt-3",
@@ -62,7 +63,8 @@ const ARTICLE_POST_ID = "artigo-mizuno-bone-uv50";
 
 export function MizunoArticleFeedCard() {
   const navigate = useNavigate();
-  const [selectedOption, setSelectedOption] = useState<string>("mz-opt-1");
+  // Sem resposta pré-selecionada: força o usuário a ler e clicar ativamente na alternativa
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmittedQuiz, setHasSubmittedQuiz] = useState<boolean>(false);
   const [quizErrorMsg, setQuizErrorMsg] = useState<string | null>(null);
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
@@ -74,6 +76,7 @@ export function MizunoArticleFeedCard() {
     if (typeof window !== "undefined") {
       if (feedAntifraud.hasClaimed("quiz", QUIZ_POST_ID)) {
         setHasSubmittedQuiz(true);
+        setSelectedOption("mz-opt-2");
       }
       if (feedAntifraud.hasClaimed("read", ARTICLE_POST_ID)) {
         setReadClaimed(true);
@@ -119,6 +122,11 @@ export function MizunoArticleFeedCard() {
       return;
     }
 
+    if (!selectedOption) {
+      toast.warning("Selecione uma alternativa antes de confirmar sua resposta!");
+      return;
+    }
+
     const opt = MIZUNO_QUIZ_OPTIONS.find((o) => o.id === selectedOption);
     if (!opt) return;
 
@@ -136,16 +144,16 @@ export function MizunoArticleFeedCard() {
   };
 
   const handleBuyProduct = () => {
-    trackProductSelect("2FU-9629-205", "Boné Aba Curva Mizuno Run Sky — Off White", "R$ 89,90");
+    trackProductSelect("2FU-9629-205", "Boné Aba Curva Mizuno Run Sky — Off White", "R$ 89,46");
     toast.success("Abrindo produto no Shop Netfits...", {
-      description: "Mizuno Run Sky · Ganhe +360 nfs (4 nfs por R$ 1,00)",
+      description: "Mizuno Run Sky · Ganhe +358 nfs (4 nfs por R$ 1,00)",
     });
 
     shopSelectionStore.setProduct({
       id: "2FU-9629-205",
       title: "Boné Aba Curva Mizuno Run Sky — Off White",
-      price: "R$ 89,90",
-      cashback: "+360 nfs",
+      price: "R$ 89,46",
+      cashback: "+358 nfs",
       seller: "Mizuno Oficial",
       image: productMizunoCap,
       targetPath: "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky",
@@ -223,7 +231,7 @@ export function MizunoArticleFeedCard() {
               className="shrink-0 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg transition active:scale-95 cursor-pointer"
             >
               <ShoppingBag className="size-3.5" />
-              <span>Ver no Shop (+360 nfs)</span>
+              <span>Ver no Shop (+358 nfs)</span>
             </button>
           </div>
         </div>
@@ -306,8 +314,10 @@ export function MizunoArticleFeedCard() {
           </p>
 
           <div className="space-y-2">
-            {MIZUNO_QUIZ_OPTIONS.map((option) => {
+            {MIZUNO_QUIZ_OPTIONS.map((option, index) => {
               const isSelected = selectedOption === option.id;
+              const letter = String.fromCharCode(65 + index); // A, B, C
+
               return (
                 <button
                   key={option.id}
@@ -321,18 +331,18 @@ export function MizunoArticleFeedCard() {
                   disabled={hasSubmittedQuiz}
                   className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition-all flex items-start gap-2.5 cursor-pointer ${
                     isSelected
-                      ? "border-purple-600 bg-purple-50/80 dark:bg-purple-950/40 text-purple-950 dark:text-purple-100 font-medium"
+                      ? "border-purple-600 bg-purple-50/80 dark:bg-purple-950/40 text-purple-950 dark:text-purple-100 font-medium ring-2 ring-purple-600/30"
                       : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600"
                   } ${hasSubmittedQuiz ? "opacity-90 cursor-default" : ""}`}
                 >
                   <div
-                    className={`size-4 rounded-full border mt-0.5 shrink-0 flex items-center justify-center ${
+                    className={`size-5 rounded-full border mt-0.5 shrink-0 flex items-center justify-center font-bold text-[10px] ${
                       isSelected
                         ? "border-purple-600 bg-purple-600 text-white"
-                        : "border-zinc-300 dark:border-zinc-600"
+                        : "border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400"
                     }`}
                   >
-                    {isSelected && <div className="size-1.5 rounded-full bg-white" />}
+                    {letter}
                   </div>
                   <span className="flex-1">{option.text}</span>
                 </button>
@@ -356,10 +366,19 @@ export function MizunoArticleFeedCard() {
             <button
               type="button"
               onClick={handleQuizSubmit}
-              className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+              disabled={!selectedOption}
+              className={`w-full py-2.5 rounded-xl text-white font-bold text-xs shadow transition flex items-center justify-center gap-1.5 ${
+                selectedOption
+                  ? "bg-purple-600 hover:bg-purple-700 active:scale-98 cursor-pointer shadow-purple-600/20"
+                  : "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 cursor-not-allowed"
+              }`}
             >
-              <span>Confirmar Resposta (+10 nfs)</span>
-              <ArrowRight className="size-3.5" />
+              <span>
+                {selectedOption
+                  ? "Confirmar Resposta (+10 nfs)"
+                  : "Selecione uma alternativa para responder"}
+              </span>
+              {selectedOption && <ArrowRight className="size-3.5" />}
             </button>
           )}
         </div>
@@ -382,7 +401,7 @@ export function MizunoArticleFeedCard() {
                 </span>
               </div>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                <strong className="text-zinc-900 dark:text-white font-bold">R$ 89,90</strong> · Ganhe <strong className="text-purple-600 dark:text-purple-400 font-bold">+360 nfs</strong> (4 nfs por R$ 1)
+                <strong className="text-zinc-900 dark:text-white font-bold">R$ 89,46</strong> · Ganhe <strong className="text-purple-600 dark:text-purple-400 font-bold">+358 nfs</strong> (4 nfs por R$ 1)
               </p>
             </div>
           </div>
@@ -535,7 +554,7 @@ export function MizunoArticleFeedCard() {
                   className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow transition active:scale-95 cursor-pointer shrink-0"
                 >
                   <ShoppingBag className="size-3.5" />
-                  <span>Comprar por R$ 89,90 (+360 nfs)</span>
+                  <span>Comprar por R$ 89,46 (+358 nfs)</span>
                 </button>
               </div>
             </div>
