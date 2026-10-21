@@ -7,13 +7,13 @@ import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Netfits Ltda. — A Primeira Camada de Fidelidade para a Vida em Movimento" },
+      { title: "Netfits — A Vida em Movimento Vale Mais | Longevidade Ativa & Healthspan" },
       {
         name: "description",
         content:
-          "Fazer cada movimento valer mais. Conheça a Netfits: feed de saúde, marketplace com cashback, ecossistema de parceiros e programa de fidelidade.",
+          "Plataforma AI-first de promoção à saúde, bem-estar e longevidade. Fazer cada movimento valer mais com educação médica, Active Loyalty e marketplace esportivo.",
       },
-      { property: "og:title", content: "Netfits Ltda. — Fazer cada movimento valer mais" },
+      { property: "og:title", content: "Netfits — A Vida em Movimento Vale Mais" },
     ],
   }),
   component: RootIndexRoute,
@@ -23,11 +23,19 @@ function RootIndexRoute() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Se o dispositivo já possui uma conta/sessão ativa autenticada, direciona diretamente para o app (/feed)
-    if (sharedSandboxStore.hasActiveSession()) {
-      navigate({ to: "/feed", replace: true });
-    } else if (nativeBridge.isNativePlatform() || window.location.search.includes("app=true")) {
-      navigate({ to: "/auth", replace: true });
+    // Redirecionamento automático para o app (/feed ou /auth) SOMENTE quando executando
+    // dentro do aplicativo nativo (Android/iOS via Capacitor) ou PWA instalado (?app=true).
+    // No navegador Web (www.netfits.com.br), o visitante DEVE SEMPRE permanecer na Homepage Institucional!
+    const isNativeOrAppMode =
+      nativeBridge.isNativePlatform() ||
+      (typeof window !== "undefined" && window.location.search.includes("app=true"));
+
+    if (isNativeOrAppMode) {
+      if (sharedSandboxStore.hasActiveSession()) {
+        navigate({ to: "/feed", replace: true });
+      } else {
+        navigate({ to: "/auth", replace: true });
+      }
     }
   }, [navigate]);
 
