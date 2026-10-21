@@ -41,6 +41,7 @@ export type DetailProduct = {
   shippingEta?: string;
   affiliateUrl?: string;
   targetQuery?: string;
+  targetPath?: string;
 };
 
 export function ProductDetailSheet({

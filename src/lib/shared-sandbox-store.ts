@@ -238,15 +238,26 @@ if (typeof window !== "undefined") {
 }
 
 export const ANONYMOUS_GUEST_USER: SandboxUser = {
-  id: "",
-  identifier: "",
-  fullName: "Visitante",
-  email: "",
+  id: "usr_visitante_homolog",
+  identifier: "visitante@netfits.com.br",
+  fullName: "Atleta Visitante (Homologacao)",
+  email: "visitante@netfits.com.br",
+  cpf: "000.000.000-00",
+  phone: "(11) 90000-0000",
+  birthDate: "01/01/1990",
+  address: "Av. Brigadeiro Faria Lima, 3477 - Itaim Bibi, Sao Paulo - SP",
+  street: "Av. Brigadeiro Faria Lima",
+  number: "3477",
+  neighborhood: "Itaim Bibi",
+  city: "Sao Paulo",
+  state: "Sao Paulo",
+  shortState: "SP",
+  zipcode: "04538-133",
   type: "associado",
-  nfsBalance: 0,
-  referralCode: "",
-  registeredAt: "",
-  sports: [],
+  nfsBalance: 50,
+  referralCode: "VISITANTE50",
+  registeredAt: "2026-10-20T00:00:00.000Z",
+  sports: ["Corrida"],
 };
 
 export function purgeFabricatedMockData<T extends Partial<SandboxUser>>(u: T): T {
@@ -414,7 +425,7 @@ const INITIAL_USERS: SandboxUser[] = [
     "identifier": "c.queligallo@gmail.com",
     "email": "c.queligallo@gmail.com",
     "phone": "(11) 98210-9997",
-    "cpf": "129.044.128-67",
+    "cpf": "000.000.000-00",
     "birthDate": "12/04/1972",
     "fullName": "Cristiane Queli da Silva Gallo",
     "zipcode": "04004-011",

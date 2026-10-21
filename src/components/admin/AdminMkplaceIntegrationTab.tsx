@@ -57,7 +57,7 @@ const TEST_PERSONAS = [
     id: "user-1792090334266",
     name: "Cristiane Queli da Silva Gallo",
     email: "c.queligallo@gmail.com",
-    cpf: "129.044.128-67",
+    cpf: "000.000.000-00",
     phone: "(11) 98210-9997",
     role: "Atleta",
     tier: "Atleta Oficial",

@@ -119,6 +119,7 @@ export const DEMO_BRAND_PRODUCTS: DemoBrandProduct[] = [
       reviews: "328 avaliações",
       tag: "Acessórios & Performance",
       description: "Boné unissex Mizuno aba curva Run Sky confeccionado em tecido leve de secagem rápida com proteção UV50+, faixa interna anti-suor e fecho ajustável. Comercializado dentro do Netfits Shop com fulfillment Rock Encantech.",
+      targetPath: "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky",
     },
   },
 
@@ -381,11 +382,12 @@ export function RetailMediaVideoShowcase() {
       cashback: product.cashback || "+360 nfs",
       seller: product.seller || "Netshoes",
       image: product.image || productMizunoCap,
+      targetPath: product.targetPath || "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky",
     });
 
     navigate({
       to: "/market",
-      search: { product: product.id },
+      search: { product: "bone-aba-curva-mizuno-run-sky" },
     });
   };
 

@@ -6,6 +6,7 @@ export interface LaunchShopOptions {
   newTab?: boolean;
   userId?: string;
   silent?: boolean;
+  targetQueryOrPath?: string;
 }
 
 /**
@@ -89,21 +90,12 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
     let targetBase = webviewUrl;
     if (targetQueryOrPath && targetQueryOrPath.trim()) {
       const clean = targetQueryOrPath.trim();
-      const stripped = clean.startsWith("/") ? clean.slice(1) : clean;
-      if (
-        stripped.startsWith("p/") ||
-        stripped.startsWith("produto") ||
-        stripped.startsWith("item") ||
-        stripped.startsWith("busca") ||
-        stripped.startsWith("search") ||
-        stripped.startsWith("carrinho") ||
-        stripped.startsWith("cart")
-      ) {
-        const baseNoSlash = webviewUrl.replace(/\/+$/, "");
-        targetBase = `${baseNoSlash}/${stripped}`;
+      if (clean.startsWith("http://") || clean.startsWith("https://")) {
+        targetBase = clean;
       } else {
         const baseNoSlash = webviewUrl.replace(/\/+$/, "");
-        targetBase = `${baseNoSlash}/p/${stripped}`;
+        const pathNoSlash = clean.startsWith("/") ? clean.slice(1) : clean;
+        targetBase = `${baseNoSlash}/${pathNoSlash}`;
       }
     }
 
@@ -119,7 +111,7 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
  * Utilitário para abertura externa da Loja Oficial quando expressamente solicitado.
  */
 export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
-  const finalUrl = await getMkplaceStoreUrl(options.userId);
+  const finalUrl = await getMkplaceStoreUrl(options.userId, options.targetQueryOrPath);
 
   if (!options.silent) {
     toast.info("Conectando à Loja Oficial Netfits...", {
