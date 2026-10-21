@@ -29,13 +29,13 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 1500,
       launchAutoHide: true,
-      backgroundColor: "#ffffff",
+      backgroundColor: "#000000",
       androidSplashResourceName: "splash",
       showSpinner: false
     },
     StatusBar: {
-      style: "LIGHT",
-      backgroundColor: "#ffffff",
+      style: "DARK",
+      backgroundColor: "#000000",
       overlaysWebView: false
     },
     Biometric: {
