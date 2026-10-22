@@ -35,7 +35,14 @@ const BENEFITS = [
 ];
 
 export function WearableSyncSheet({ onClose }: { onClose: () => void }) {
-  const [connectedId, setConnectedId] = useState<string | null>(null);
+  const activeUser = sharedSandboxStore.useActiveUser();
+  const initiallyConnected = WEARABLES.find(
+    (w) =>
+      w.name.toLowerCase() === activeUser.wearable?.toLowerCase() ||
+      w.id.toLowerCase() === activeUser.wearable?.toLowerCase()
+  )?.id || null;
+
+  const [connectedId, setConnectedId] = useState<string | null>(initiallyConnected);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
   const connect = (id: string) => {

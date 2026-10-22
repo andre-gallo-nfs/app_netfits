@@ -72,8 +72,8 @@ export class HealthBridgeService {
       };
     }
 
-    // 🛡️ TRAVA 2: Duração Mínima de Esforço
-    const minMinutes = workout.sport === "hiit" ? 20 : 25;
+    // 🛡️ TRAVA 2: Duração Mínima de Esforço (Regra Oficial: 30 minutos contínuos)
+    const minMinutes = 30;
     if (workout.durationMinutes < minMinutes) {
       return {
         success: false,
