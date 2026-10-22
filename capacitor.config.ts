@@ -26,13 +26,6 @@ const config: CapacitorConfig = {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"]
     },
-    SplashScreen: {
-      launchShowDuration: 1500,
-      launchAutoHide: true,
-      backgroundColor: "#000000",
-      androidSplashResourceName: "splash",
-      showSpinner: false
-    },
     StatusBar: {
       style: "DARK",
       backgroundColor: "#000000",
