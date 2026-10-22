@@ -18,7 +18,7 @@ platform :ios do
       in_house: false
     )
 
-    keychain_path = create_keychain(
+    create_keychain(
       name: "build_keychain",
       password: "netfits-temp-pass",
       default_keychain: true,
@@ -27,9 +27,11 @@ platform :ios do
       lock_when_sleeps: false
     )
 
+    target_keychain = File.expand_path("~/Library/Keychains/build_keychain-db")
+
     cert_args = {
       api_key: api_key,
-      keychain_path: keychain_path,
+      keychain_path: target_keychain,
       keychain_password: "netfits-temp-pass"
     }
     cert_args[:team_id] = team_id if team_id && !team_id.empty?
