@@ -23,6 +23,16 @@ platform :ios do
 
     target_keychain = File.expand_path("~/Library/Keychains/build_keychain-db")
 
+    p12_path = "/tmp/p12/netfits-apple-distribution.p12"
+    if File.exist?(p12_path)
+      import_certificate(
+        certificate_path: p12_path,
+        certificate_password: "Netfits@2026!Apple",
+        keychain_name: "build_keychain",
+        keychain_password: "netfits-temp-pass"
+      )
+    end
+
     cert_args = {
       api_key: api_key,
       keychain_path: target_keychain,

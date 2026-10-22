@@ -58,6 +58,15 @@ jobs:
         run: |
           npx cap sync ios --verbose || echo "Proceeding with committed native assets"
 
+      - name: Download P12 Distribution Certificate
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: netfits-apple-distribution-p12
+          run-id: 39699116211
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/p12
+
       - name: Setup App Store Connect AuthKey via Python
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
