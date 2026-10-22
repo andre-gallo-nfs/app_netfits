@@ -18,7 +18,7 @@ platform :ios do
       in_house: false
     )
 
-    create_keychain(
+    keychain_path = create_keychain(
       name: "build_keychain",
       password: "netfits-temp-pass",
       default_keychain: true,
@@ -29,7 +29,7 @@ platform :ios do
 
     cert_args = {
       api_key: api_key,
-      keychain_name: "build_keychain",
+      keychain_path: keychain_path,
       keychain_password: "netfits-temp-pass"
     }
     cert_args[:team_id] = team_id if team_id && !team_id.empty?
