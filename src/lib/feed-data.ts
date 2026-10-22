@@ -90,7 +90,7 @@ export const feedItems: FeedItem[] = [
     type: "expert",
     id: "e1",
     name: "Dra. Isabella Formigari",
-    role: "Medicina do Esporte & Longevidade — Fibios",
+    role: "Médica (CRM-SP 282951) · Sócia Fundadora da Fibios",
     excerpt:
       "Avaliação clínica integrada, biomarcadores e protocolos de recovery e longevidade para atletas em qualquer nível.",
     price: "R$ 500,00",

@@ -192,7 +192,7 @@ export function DrIsabellaCard() {
             <p className="text-[10px] font-bold uppercase tracking-widest opacity-90">
               Dra. Isabella Formigari
             </p>
-            <p className="text-xs opacity-80">Médica · Pós Graduação em Medicina do Esporte (Einstein SP) · CRM-SP 282951</p>
+            <p className="text-xs opacity-80">Médica (CRM-SP 282951) · Sócia Fundadora da Fibios</p>
           </div>
         </div>
 
@@ -431,7 +431,7 @@ export function DrIsabellaCard() {
                   Dra. Isabella Formigari
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Médica · Pós Graduação em Medicina do Esporte (Einstein SP) · CRM-SP 282951
+                  Médica (CRM-SP 282951) · Sócia Fundadora da Fibios
                 </p>
               </div>
 

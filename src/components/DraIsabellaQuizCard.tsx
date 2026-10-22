@@ -257,7 +257,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                     Dra. Isabella Formigari
                   </p>
                   <p className="text-[10px] text-zinc-200">
-                    MÉDICA · PÓS-GRADUAÇÃO MEDICINA DO ESPORTE (EINSTEIN SP) · CRM-SP 282951
+                    MÉDICA (CRM-SP 282951) · SÓCIA FUNDADORA DA FIBIOS
                   </p>
                 </div>
               </div>
@@ -452,7 +452,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                   <img src={draIsabellaAvatar} alt="" className="size-7 rounded-full object-cover" />
                   <div>
                     <span className="font-bold text-zinc-900 block">Dra. Isabella Formigari</span>
-                    <span className="text-[10px] text-zinc-500">Médica · Longevidade & Medicina do Esporte</span>
+                    <span className="text-[10px] text-zinc-500">Médica (CRM-SP 282951) · Sócia Fundadora da Fibios</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

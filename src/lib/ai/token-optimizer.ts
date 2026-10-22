@@ -309,7 +309,7 @@ class TokenOptimizerService {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       return {
         handled: true,
-        text: `O ecossistema conta com os especialistas oficiais da **Clínica Fibios** (Pinheiros, São Paulo): a **Dra. Isabella Formigari** (Cardiologia do Esporte, Medicina do Sono, Biomarcadores & Longevidade) e o **Dr. Franco Merici** (Medicina do Exercício, Hipertrofia & Força Muscular para Longevidade). No Feed e na Loja Oficial você encontra protocolos de saúde, quizzes educativos e agendamentos com acúmulo de pontos!`,
+        text: `O ecossistema conta com os especialistas oficiais da **Clínica Fibios** (Pinheiros, São Paulo): a **Dra. Isabella Formigari** (Médica CRM-SP 282951, sócia fundadora da Fibios) e o **Dr. Franco Merici** (Médico CRM-SP 212567, sócio fundador da Fibios). No Feed e na Loja Oficial você encontra protocolos de saúde, quizzes educativos e agendamentos com acúmulo de pontos!`,
         actionLabel: "Ver Especialistas no Feed",
         route: "/feed",
         source: "deterministic_fast_path",

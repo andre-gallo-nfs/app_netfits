@@ -424,7 +424,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                   <img src={drFrancoAvatar} alt="" className="size-7 rounded-full object-cover" />
                   <div>
                     <span className="font-bold text-zinc-900 block">Dr. Franco Merici</span>
-                    <span className="text-[10px] text-zinc-500">Médico · Sócio-Fundador Fibios</span>
+                    <span className="text-[10px] text-zinc-500">Médico (CRM-SP 212567) · Sócio Fundador da Fibios</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

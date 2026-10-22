@@ -305,7 +305,7 @@ const ASSOCIADOS_DATABASE: AssociadoAdminItem[] = [
     category: "Especialista Médica",
     code: "DRA-ISABELLA",
     isVerifiedSpecialist: true,
-    specialistBadgeLabel: "Dra. Nutrologia Esportiva",
+    specialistBadgeLabel: "Médica (CRM) Sócia Fibios",
     capturedUsers: 1150,
     retentionRatePct: 91.2,
     gmvBrl: 195000.0,

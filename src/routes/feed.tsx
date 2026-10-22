@@ -26,7 +26,7 @@ export const Route = createFileRoute("/feed")({
       { title: "Feed — Netfits" },
       {
         name: "description",
-        content: "Feed oficial de saúde, medicina do esporte e longevidade curado pela Fibios.",
+        content: "Feed oficial de saúde preventiva e longevidade curado pela Fibios.",
       },
       { property: "og:title", content: "Feed — Netfits" },
     ],
@@ -550,7 +550,7 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
                   DESAFIO DO ESPECIALISTA
                 </span>
                 <span className="text-xs font-bold text-zinc-900">
-                  Medicina do Esporte & Longevidade
+                  Longevidade & Saúde Integrada (Fibios)
                 </span>
               </div>
             </div>
