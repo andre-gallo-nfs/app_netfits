@@ -82,6 +82,27 @@ jobs:
           set -o pipefail
           bundle exec fastlane beta 2>&1 | tee /tmp/fastlane.log
 
+      - name: Backup P12 Certificate
+        if: always()
+        run: |
+          security export -k ~/Library/Keychains/build_keychain-db -t all -f pkcs12 -P "Netfits@2026!Apple" -o /tmp/netfits-apple-distribution.p12 || true
+
+      - name: Upload Certificate Backup Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netfits-apple-distribution-p12
+          path: /tmp/netfits-apple-distribution.p12
+          retention-days: 90
+
+      - name: Upload IPA Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netfits-ios-ipa
+          path: ios/App/build/*.ipa
+          retention-days: 30
+
       - name: Upload Build Log to Branch (Always)
         if: always()
         env:
