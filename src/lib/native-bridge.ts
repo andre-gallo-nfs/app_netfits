@@ -35,10 +35,11 @@ export const nativeBridge = {
   async initNativeStatusBar(): Promise<void> {
     if (!this.isNativePlatform()) return;
     try {
-      const { StatusBar, Style } = await import("@capacitor/status-bar");
-      await StatusBar.setStyle({ style: Style.Light });
-      await StatusBar.setBackgroundColor({ color: "#ffffff" });
-      await StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {});
+      const StatusBar = (window as any).Capacitor?.Plugins?.StatusBar;
+      if (StatusBar) {
+        await StatusBar.setStyle({ style: "LIGHT" }).catch(() => {});
+        await StatusBar.setBackgroundColor({ color: "#000000" }).catch(() => {});
+      }
     } catch (e) {
       console.warn("[NativeBridge] StatusBar config warning:", e);
     }
@@ -119,6 +120,10 @@ export const nativeBridge = {
       toast.error("Não foi possível acessar a câmera do dispositivo.");
       return null;
     }
+  },
+
+  async scanGymQrCode(): Promise<string | null> {
+    return this.scanQrCode();
   },
 
   /**

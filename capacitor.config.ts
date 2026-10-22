@@ -22,16 +22,7 @@ const config: CapacitorConfig = {
       "*.analytics.google.com"
     ]
   },
-  plugins: {
-    StatusBar: {
-      style: "DARK",
-      backgroundColor: "#000000",
-      overlaysWebView: false
-    },
-    Biometric: {
-      reason: "Autentique-se com Face ID / Digital para acessar sua conta Netfits"
-    }
-  }
+  plugins: {}
 };
 
 export default config;

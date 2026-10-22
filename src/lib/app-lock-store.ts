@@ -5,7 +5,6 @@ import { sharedSandboxStore } from "./shared-sandbox-store";
 import { authStore } from "./auth-store";
 import { nativeBridge } from "./native-bridge";
 import { Capacitor } from "@capacitor/core";
-import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
 const SESSION_UNLOCKED_KEY = "netfits_session_unlocked_v2";
 const APP_EXPLICITLY_LOCKED_KEY = "netfits_app_explicitly_locked";
@@ -233,8 +232,10 @@ class AppLockStore {
           };
         }
 
+        const BiometricAuth = (window as any).Capacitor?.Plugins?.BiometricAuth;
+        if (!BiometricAuth) { this.setUnlocked(true); return { success: true }; }
         const check = await withTimeout(BiometricAuth.checkBiometry(), 3000);
-        if (!check || !check.isAvailable) {
+        if (!check || !(check as any).isAvailable) {
           return {
             success: false,
             error:
