@@ -1,3 +1,5 @@
+import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { toast } from "sonner";
 import { useState } from "react";
 import { X, Watch, Activity, Moon, HeartPulse, Check, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 
@@ -38,9 +40,17 @@ export function WearableSyncSheet({ onClose }: { onClose: () => void }) {
 
   const connect = (id: string) => {
     setPendingId(id);
+    const target = WEARABLES.find((w) => w.id === id);
     setTimeout(() => {
       setConnectedId(id);
       setPendingId(null);
+      if (target) {
+        const active = sharedSandboxStore.getActiveUser();
+        if (active?.id) {
+          sharedSandboxStore.updateUser(active.id, { wearable: target.name });
+        }
+        toast.success(`${target.name} vinculado! Atividades sincronizadas via Caminho 1 + 2.`);
+      }
     }, 900);
   };
 
