@@ -60,6 +60,9 @@ jobs:
         run: |
           npx cap sync ios --verbose || echo "Proceeding with committed native assets"
           node scripts/patch-ios-spm.cjs
+          if [ ! -f "ios/App/App/config.xml" ]; then
+            echo "<widget version=\"1.0.0\" xmlns=\"http://www.w3.org/ns/widgets\" xmlns:cdv=\"http://cordova.apache.org/ns/1.0\"><access origin=\"*\" /></widget>" > ios/App/App/config.xml
+          fi
 
       - name: Download P12 Distribution Certificate
         continue-on-error: true

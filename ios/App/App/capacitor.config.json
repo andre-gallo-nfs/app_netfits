@@ -1,0 +1,28 @@
+{
+	"appId": "br.com.netfits.app",
+	"appName": "Netfits",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"appendUserAgent": "NetfitsMobileApp",
+	"server": {
+		"url": "https://www.netfits.com.br/feed",
+		"androidScheme": "https",
+		"iosScheme": "https",
+		"allowNavigation": [
+			"netfits.com.br",
+			"*.netfits.com.br",
+			"*.mkplace.com.br",
+			"*.vercel.app",
+			"*.pages.dev",
+			"*.supabase.co",
+			"*.google-analytics.com",
+			"*.googletagmanager.com",
+			"*.analytics.google.com"
+		]
+	},
+	"plugins": {},
+	"packageClassList": [
+		"AppPlugin",
+		"KeyboardPlugin"
+	]
+}
