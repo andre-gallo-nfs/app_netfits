@@ -211,23 +211,27 @@ export class HealthBridgeService {
     const threeHoursAgo = new Date(now.getTime() - 2.5 * 60 * 60 * 1000);
 
     const dev = preferredDevice.toLowerCase();
-    const isGarmin = dev.includes("garmin");
-    const isApple = dev.includes("apple");
-    const isStrava = dev.includes("strava");
 
-    const deviceName = isGarmin
-      ? "Garmin Forerunner 965"
-      : isApple
-      ? "Apple Watch Series 9"
-      : isStrava
-      ? "Strava App (GPS Monitorado)"
-      : "Polar Vantage V3";
+    const devMap: Record<string, { name: string; app: string; label: string }> = {
+      garmin: { name: "Garmin Forerunner 965", app: "com.garmin.connect.mobile", label: "Corrida de Rua (Zona Aeróbica)" },
+      apple: { name: "Apple Watch Series 9", app: "com.apple.health", label: "Corrida ao Ar Livre (Apple Workout)" },
+      strava: { name: "Strava GPS Monitorado", app: "com.strava", label: "Pedal de Ciclismo / Corrida (Strava)" },
+      polar: { name: "Polar Vantage V3", app: "fi.polar.polarflow", label: "Treino Aeróbico Monitorado (Polar Flow)" },
+      whoop: { name: "Whoop 4.0 Strap", app: "com.whoop.mobile", label: "Treino de Strain Metabólico (Whoop)" },
+      oura: { name: "Oura Ring Gen 3", app: "com.ouraring.oura", label: "Atividade Dinâmica Ativa (Oura Health)" },
+      samsung: { name: "Samsung Galaxy Watch 6", app: "com.sec.android.app.shealth", label: "Corrida Monitorada (Samsung Health)" },
+      coros: { name: "Coros Pace 3", app: "com.coros.android", label: "Corrida Contínua (Coros Training Hub)" },
+      fitbit: { name: "Fitbit Sense 2", app: "com.fitbit.FitbitMobile", label: "Treino Funcional e Cardio (Fitbit)" },
+      suunto: { name: "Suunto Race", app: "com.stt.android.suunto", label: "Trail Running e Resistência (Suunto)" },
+      amazfit: { name: "Amazfit Cheetah Pro", app: "com.huami.midong", label: "Treino de Ritmo Aeróbico (Zepp Health)" },
+      google: { name: "Google Pixel Watch 2", app: "com.google.android.apps.fitness", label: "Corrida Monitorada (Health Connect)" },
+    };
 
-    const sourceApp = isGarmin
-      ? "com.garmin.connect.mobile"
-      : isApple
-      ? "com.apple.health"
-      : "com.strava";
+    const matchedKey = Object.keys(devMap).find((k) => dev.includes(k)) || "garmin";
+    const info = devMap[matchedKey];
+    const deviceName = info.name;
+    const sourceApp = info.app;
+    const defaultLabel = info.label;
 
     // Treino 1: Corrida Aeróbica Matinal (Aprovado em todas as travas)
     const runDuration = 38;
@@ -246,7 +250,7 @@ export class HealthBridgeService {
         sourceApp,
         sourceChannel: "caminho_1_local",
         sport: "running",
-        sportLabel: "Corrida de Rua (Zona Aeróbica)",
+        sportLabel: defaultLabel,
         startTime: runStart,
         endTime: twoHoursAgo.toISOString(),
         durationMinutes: runDuration,
