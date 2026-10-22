@@ -124,8 +124,8 @@ export class HealthBridgeService {
     // Registra hash local para desduplicação imediata
     this.saveValidatedHash(workout.fingerprintHash);
 
-    // Gera pílula de longevidade personalizada pela Fibios
-    const fibiosInsight = this.generateFibiosRecoveryInsight(workout);
+    // Gera dica Netfits de recuperação baseada no esforço registrado
+    const recoveryTip = this.generateRecoveryTip(workout);
 
     return {
       success: true,
@@ -134,21 +134,22 @@ export class HealthBridgeService {
       pointsAwarded: pointsToAward,
       workout,
       validatedAt: new Date().toISOString(),
-      fibiosInsight,
+      recoveryTip,
+      fibiosInsight: recoveryTip,
     };
   }
 
   /**
-   * Gera recomendação clínica personalizada dos Drs. Isabella e Franco com base na telemetria
+   * Gera dica de recuperação inteligente da Netfits com base na telemetria
    */
-  private generateFibiosRecoveryInsight(workout: NormalizedWorkout): string {
+  private generateRecoveryTip(workout: NormalizedWorkout): string {
     if (workout.avgHeartRate && workout.avgHeartRate > 155) {
-      return "🩺 Fibios Recovery: Treino em Zona 4 de alta intensidade cardiorrespiratória. Hidrate-se com eletrólitos (sódio e potássio) e priorize 8 horas de sono hoje para reparo mitocondrial.";
+      return "💡 Dica Netfits de Recuperação: Treino em Zona 4 de alta intensidade cardiorrespiratória. Hidrate-se bem, reponha eletrólitos e priorize uma boa noite de sono para reparo muscular.";
     }
     if (workout.sport === "strength_training") {
-      return "🩺 Fibios Recovery: Fortalecimento muscular concluído com sucesso. Estímulo mecânico padrão-ouro para prevenção da sarcopenia e densidade mineral óssea.";
+      return "💡 Dica Netfits de Recuperação: Fortalecimento muscular concluído com sucesso. Excelente estímulo mecânico para tônus, força e saúde articular.";
     }
-    return "🩺 Fibios Recovery: Consistência aeróbica perfeita para elevar o seu VO₂ máximo e diminuir a mortalidade cardiovascular. Continue em movimento!";
+    return "💡 Dica Netfits de Recuperação: Consistência aeróbica no ponto certo para o seu condicionamento físico e longevidade. Continue em movimento!";
   }
 
   private getValidatedHashes(): string[] {

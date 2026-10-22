@@ -37,7 +37,8 @@ export interface WorkoutValidationResult {
   pointsAwarded: number;
   workout?: NormalizedWorkout;
   validatedAt?: string;
-  fibiosInsight?: string; // Pílula personalizada da Fibios baseada no esforço
+  recoveryTip?: string; // Dica Netfits de recuperação baseada no esforço
+  fibiosInsight?: string;
 }
 
 export interface WearableDeviceOption {

@@ -107,10 +107,10 @@ export function WorkoutValidationCard({ onValidated }: { onValidated?: () => voi
           </p>
         </div>
 
-        {/* Pílula de Recuperação Fibios */}
+        {/* Dica de Recuperação Netfits */}
         <div className="p-3 rounded-2xl bg-emerald-900/30 border border-emerald-500/20 text-xs text-emerald-200 space-y-1">
           <p className="text-[11px] leading-relaxed">
-            🩺 <b>Curadoria Fibios Recovery:</b> Treino registrado com frequência cardíaca controlada. Hidrate-se bem e descanse para manter seu <b>Golden Streak</b> ativo amanhã!
+            💡 <b>Dica Netfits de Recuperação:</b> Treino registrado com frequência cardíaca controlada. Hidrate-se bem, reponha as energias e descanse para manter seu <b>Golden Streak</b> ativo amanhã!
           </p>
         </div>
 
