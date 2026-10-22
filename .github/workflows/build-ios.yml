@@ -8,7 +8,7 @@ on:
 jobs:
   build-ios:
     name: Build, Sign & Upload to TestFlight
-    runs-on: macos-14
+    runs-on: macos-latest
     permissions:
       contents: write
       actions: read
@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "Available Xcode installations:"
           ls -d /Applications/Xcode*.app || true
-          LATEST_XCODE=$(find /Applications -maxdepth 1 -name "Xcode_16*.app" | sort -V | tail -n 1)
+          LATEST_XCODE=$(find /Applications -maxdepth 1 -name "Xcode*.app" | sort -V | tail -n 1)
           if [ -n "$LATEST_XCODE" ]; then
             echo "Selecting $LATEST_XCODE"
             sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
