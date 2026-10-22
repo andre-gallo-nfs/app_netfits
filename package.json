@@ -24,7 +24,8 @@
     "format": "prettier --write .",
     "cap:sync": "npx cap sync",
     "cap:open:android": "npx cap open android",
-    "cap:open:ios": "npx cap open ios"
+    "cap:open:ios": "npx cap open ios",
+    "postinstall": "node scripts/patch-ios-spm.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.1",
