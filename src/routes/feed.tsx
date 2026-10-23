@@ -2,7 +2,7 @@ import { WorkoutValidationCard } from "@/components/WorkoutValidationCard";
 import { trackQuizCompleted, trackQuizUnlocked } from "@/lib/analytics";
 import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink, Copy, Trophy, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
 import { useBadges, badgesStore } from "@/lib/badges-store";
 import { ProductDetailSheet } from "@/components/ProductDetailSheet";
@@ -35,10 +35,98 @@ export const Route = createFileRoute("/feed")({
   component: FeedPage,
 });
 
+interface InteractiveFeedCardItem {
+  id: string;
+  quizPostId: string;
+  title: string;
+  badge: string;
+  render: () => React.ReactNode;
+}
+
+const INTERACTIVE_FEED_CARDS: InteractiveFeedCardItem[] = [
+  {
+    id: "dr-franco-forca",
+    quizPostId: "franco-forca-quiz",
+    title: "Dr. Franco Merici — Força & Longevidade",
+    badge: "Dr. Franco Merici",
+    render: () => <DrFrancoQuizCard isDailyChallenge={true} />,
+  },
+  {
+    id: "netfits-proposito",
+    quizPostId: "netfits-purpose-longevity-quiz",
+    title: "Time Netfits — Propósito & Healthspan",
+    badge: "Oficial Netfits",
+    render: () => <NetfitsEducationalCard />,
+  },
+  {
+    id: "mizuno-patrocinado",
+    quizPostId: "quiz-sponsor-mizuno-cap",
+    title: "Mizuno Running — Termorregulação",
+    badge: "Patrocinado",
+    render: () => <MizunoArticleFeedCard />,
+  },
+  {
+    id: "dra-isabella-sono",
+    quizPostId: "isabella-sono-quiz",
+    title: "Dra. Isabella Formigari — Biomarcadores & Sono",
+    badge: "Dra. Isabella Formigari",
+    render: () => <DraIsabellaQuizCard isDailyChallenge={false} />,
+  },
+  {
+    id: "dr-isabella-video",
+    quizPostId: "isabella-protocolo-quiz",
+    title: "Dra. Isabella Formigari — Protocolo Fibios",
+    badge: "Protocolo Fibios",
+    render: () => <DrIsabellaCard />,
+  },
+];
+
 export function FeedPage() {
+  const [sessionCompletedIds, setSessionCompletedIds] = useState<string[]>([]);
+  const [reorderKey, setReorderKey] = useState<number>(0);
+
   useEffect(() => {
     badgesStore.evaluate();
   }, []);
+
+  // Escuta ações de quiz registradas na sessão
+  useEffect(() => {
+    const handleActionRecorded = (e: any) => {
+      if (e.detail?.action === "quiz" && e.detail?.postId) {
+        setSessionCompletedIds((prev) =>
+          prev.includes(e.detail.postId) ? prev : [...prev, e.detail.postId]
+        );
+      }
+    };
+    window.addEventListener("netfits:feed-action-recorded", handleActionRecorded);
+    return () => window.removeEventListener("netfits:feed-action-recorded", handleActionRecorded);
+  }, []);
+
+  // Fila Inteligente: separa pendentes dos já concluídos no carregamento do feed
+  const { pendingCards, completedCards } = useMemo(() => {
+    const pending: InteractiveFeedCardItem[] = [];
+    const completed: InteractiveFeedCardItem[] = [];
+
+    for (const card of INTERACTIVE_FEED_CARDS) {
+      const isClaimed = typeof window !== "undefined" && feedAntifraud.hasClaimed("quiz", card.quizPostId);
+      if (isClaimed) {
+        completed.push(card);
+      } else {
+        pending.push(card);
+      }
+    }
+
+    return { pendingCards: pending, completedCards: completed };
+  }, [reorderKey]);
+
+  const hasNewCompletionsInSession = sessionCompletedIds.some((id) =>
+    pendingCards.some((c) => c.quizPostId === id)
+  );
+
+  const handleRefreshQueue = () => {
+    setReorderKey((prev) => prev + 1);
+    toast.success("Fila do feed atualizada! Desafios concluídos foram movidos para o final.");
+  };
 
   return (
     <div className="pb-8 space-y-4">
@@ -50,22 +138,56 @@ export function FeedPage() {
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
 
-        {/* 2. Desafio Diário Fibios: Dr. Franco Merici (Força & Longevidade) — Topo do Feed com Quiz Ativo 24h (5 NFs) */}
-        <DrFrancoQuizCard isDailyChallenge={true} />
+        {/* Notificação amigável de reordenação se o usuário concluiu um desafio agora */}
+        {hasNewCompletionsInSession && (
+          <div className="mx-1 px-3.5 py-2.5 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2">
+            <span className="flex items-center gap-1.5 font-medium text-primary">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              Você concluiu um desafio agora!
+            </span>
+            <button
+              onClick={handleRefreshQueue}
+              className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground font-semibold text-[11px] shadow-sm hover:opacity-90 active:scale-95 transition-all"
+            >
+              Mover para o fim da fila
+            </button>
+          </div>
+        )}
 
-        {/* 3. Educacional da Plataforma: O Propósito Netfits & Healthspan (Time Netfits) */}
-        <NetfitsEducationalCard />
+        {/* 2. Seção de Posts Pendentes (Topo da Fila Dinâmica) */}
+        {pendingCards.map((card) => (
+          <div key={card.id}>
+            {card.render()}
+          </div>
+        ))}
 
-        {/* 4. Artigo Técnico Patrocinado & Retail Media: Mizuno Running (Termorregulação & Proteção UV50+) */}
-        <MizunoArticleFeedCard />
+        {/* Divisor Elegante de Desafios Concluídos */}
+        {completedCards.length > 0 && (
+          <div className="pt-3 pb-1">
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-muted/40 border border-border/40 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 font-medium text-foreground/80">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Desafios Concluídos Hoje ({completedCards.length})</span>
+              </div>
+              <span className="text-[11px] text-muted-foreground/80">Movidos para o final da fila</span>
+            </div>
+          </div>
+        )}
 
-        {/* 4. Conteúdo Permanente Fibios: Dra. Isabella Formigari (Biomarcadores & Sono — Artigo Histórico sem Quiz) */}
-        <DraIsabellaQuizCard isDailyChallenge={false} />
+        {/* 3. Seção de Posts Concluídos (Fim da Fila de Conteúdo) */}
+        {completedCards.map((card) => (
+          <div key={card.id} className="relative transition-opacity opacity-[0.96]">
+            <div className="mb-2 flex items-center justify-between px-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Desafio respondido (+5 nfs faturados)
+              </span>
+              <span className="text-[10px] text-muted-foreground">Histórico de leitura</span>
+            </div>
+            {card.render()}
+          </div>
+        ))}
 
-        {/* 5. Protocolo Fibios: Dra. Isabella Formigari (Vídeo 4:12 & Agendamento) */}
-        <DrIsabellaCard />
-
-        {/* 7. Clínica & Especialistas Fibios */}
+        {/* 4. Clínica & Especialistas Fibios */}
         {feedItems.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}

@@ -295,5 +295,8 @@ export const feedAntifraud = {
     };
     log.push(newRecord);
     saveActionLog(log);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("netfits:feed-action-recorded", { detail: newRecord }));
+    }
   },
 };
