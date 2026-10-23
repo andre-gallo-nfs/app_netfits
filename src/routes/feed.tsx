@@ -108,31 +108,37 @@ export function FeedPage() {
     return () => window.removeEventListener("netfits:feed-action-recorded", handleActionRecorded);
   }, []);
 
-  // Fila Inteligente com Prioridade Comercial:
-  // 1. Posts Patrocinados: SEMPRE no alto do feed (exposição comercial máxima contínua)
-  // 2. Posts Educacionais Pendentes: Topo da fila de conteúdo (novidade diária)
-  // 3. Posts Educacionais Concluídos: Fim da fila (histórico de aprendizado)
-  const { sponsoredCards, pendingCards, completedCards } = useMemo(() => {
-    const sponsored: InteractiveFeedCardItem[] = [];
-    const pending: InteractiveFeedCardItem[] = [];
+  // Fila Inteligente com Prioridade Comercial nos Pendentes:
+  // 1. Posts Pendentes:
+  //    - Posts Patrocinados NÃO LIDOS: 1º lugar absoluto no topo da fila (máxima prioridade de leitura)
+  //    - Posts Educacionais NÃO LIDOS: logo em seguida (novidade do dia)
+  // 2. Posts Concluídos (Lidos / Quiz respondido):
+  //    - Todos os posts já respondidos (sejam educacionais ou patrocinados) perdem a prioridade de leitura e vão para o FIM da fila!
+  const { pendingCards, completedCards } = useMemo(() => {
+    const pendingSponsored: InteractiveFeedCardItem[] = [];
+    const pendingEducational: InteractiveFeedCardItem[] = [];
     const completed: InteractiveFeedCardItem[] = [];
 
     for (const card of INTERACTIVE_FEED_CARDS) {
-      if (card.isSponsored) {
-        // Garantia comercial: posts patrocinados SEMPRE permanecem no alto do feed!
-        sponsored.push(card);
-        continue;
-      }
-
       const isClaimed = typeof window !== "undefined" && feedAntifraud.hasClaimed("quiz", card.quizPostId);
+      
       if (isClaimed) {
+        // Já lido e respondido: perde prioridade de leitura e vai para o final da fila
         completed.push(card);
       } else {
-        pending.push(card);
+        // Ainda não lido: prioriza patrocinados no topo dos pendentes
+        if (card.isSponsored) {
+          pendingSponsored.push(card);
+        } else {
+          pendingEducational.push(card);
+        }
       }
     }
 
-    return { sponsoredCards: sponsored, pendingCards: pending, completedCards: completed };
+    // Pendentes: Patrocinados no topo, seguidos por Educacionais
+    const pending = [...pendingSponsored, ...pendingEducational];
+
+    return { pendingCards: pending, completedCards: completed };
   }, [reorderKey]);
 
   const hasNewCompletionsInSession = sessionCompletedIds.some((id) =>
@@ -141,7 +147,7 @@ export function FeedPage() {
 
   const handleRefreshQueue = () => {
     setReorderKey((prev) => prev + 1);
-    toast.success("Fila do feed atualizada! Desafios concluídos foram movidos para o final.");
+    toast.success("Fila do feed atualizada! Posts lidos foram movidos para o final.");
   };
 
   return (
@@ -153,13 +159,6 @@ export function FeedPage() {
 
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
-
-        {/* 2. Destaques Patrocinados (SEMPRE no alto do Feed - Prioridade Comercial Garantida) */}
-        {sponsoredCards.map((card) => (
-          <div key={card.id}>
-            {card.render()}
-          </div>
-        ))}
 
         {/* Notificação amigável de reordenação se o usuário concluiu um desafio agora */}
         {hasNewCompletionsInSession && (
@@ -177,7 +176,7 @@ export function FeedPage() {
           </div>
         )}
 
-        {/* 3. Seção de Posts Educacionais Pendentes (Topo da Fila Dinâmica) */}
+        {/* 2. Seção de Posts Pendentes (Patrocinados em 1º lugar, seguidos por Educacionais) */}
         {pendingCards.map((card) => (
           <div key={card.id}>
             {card.render()}
@@ -197,14 +196,16 @@ export function FeedPage() {
           </div>
         )}
 
-        {/* 4. Seção de Posts Educacionais Concluídos (Fim da Fila de Conteúdo) */}
+        {/* 3. Seção de Posts Concluídos (Perdem a prioridade e ficam no fim da fila) */}
         {completedCards.map((card) => (
           <div key={card.id} className="relative transition-opacity opacity-[0.96]">
             <div className="mb-2 flex items-center justify-between px-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
               <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Desafio respondido (+5 nfs faturados)
+                <CheckCircle2 className="w-3 h-3" /> Desafio respondido (+{card.isSponsored ? "10" : "5"} nfs faturados)
               </span>
-              <span className="text-[10px] text-muted-foreground">Histórico de leitura</span>
+              <span className="text-[10px] text-muted-foreground">
+                {card.isSponsored ? "Patrocinado · Concluído" : "Histórico de leitura"}
+              </span>
             </div>
             {card.render()}
           </div>
