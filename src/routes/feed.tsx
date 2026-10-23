@@ -1108,7 +1108,7 @@ function SocialActions({
       title={title}
       isOwnPost={isOwnPost}
       postCategory={postCategory}
-      showViewButton={true}
+      showViewButton={false}
       showLinkButton={true}
     />
   );

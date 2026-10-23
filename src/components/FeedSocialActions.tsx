@@ -57,10 +57,7 @@ export function FeedSocialActions({
   const params = useOperationalParams();
 
   const sharePoints = params.nfsPerShare ?? 1;
-  const viewPoints =
-    postCategory === "sponsored"
-      ? (params.nfsPerSponsoredPostView ?? 10)
-      : (params.nfsPerEducationalPostView ?? 5);
+  const viewPoints = 0; // Leitura de texto/vídeo sempre 0 nfs (pontuação concentrada no Quiz - GEMINI.md)
   const linkPoints = params.nfsPerLinkClick ?? 0;
   const likePoints = params.nfsPerLike ?? 0;
 

@@ -208,12 +208,6 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
             className="w-full object-cover aspect-[524/450] group-hover:scale-[1.01] transition-transform duration-300"
             loading="lazy"
           />
-
-          {/* Badge Indicador de Artigo Clicável */}
-          <div className="absolute top-3 right-3 bg-zinc-950/85 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-purple-600 group-hover:border-purple-500 transition-colors">
-            <BookOpen className="size-3.5 text-lime-400 group-hover:text-white" />
-            <span className="text-[11px] font-bold">Ler artigo · Desafio (+5 nfs)</span>
-          </div>
         </div>
 
         {/* 3. Módulo Condicional: Desafio do Dia (24h) OU Artigo Permanente sem Quiz */}
@@ -432,7 +426,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                     <Clock className="size-3.5" /> 3 min
                   </span>
                   <span className="text-purple-700 font-bold font-mono">
-                    +{feedAntifraud.getRules().pointsPerEducationalView} nfs leitura
+                    Leitura didática
                   </span>
                 </div>
               </div>
@@ -491,13 +485,13 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                         ? `Aguarde ${Math.max(0, minDwellRequired - dwellTimeSeconds)}s para validar leitura`
                         : !isScrollQualified
                         ? "Role o texto até o final para validar a leitura ⬇"
-                        : `Concluir Leitura (+${feedAntifraud.getRules().pointsPerEducationalView} nfs de recompensa)`}
+                        : "Concluir Leitura"}
                     </span>
                   </button>
                 ) : (
                   <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center justify-center gap-2 text-xs font-bold">
                     <CheckCircle2 className="size-4 text-lime-600" />
-                    <span>Leitura auditada e confirmada (+{feedAntifraud.getRules().pointsPerEducationalView} nfs acumulados)</span>
+                    <span>Leitura auditada e confirmada </span>
                   </div>
                 )}
               </div>

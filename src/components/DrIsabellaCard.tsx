@@ -230,7 +230,7 @@ export function DrIsabellaCard() {
         className="w-full bg-zinc-900 text-white text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 cursor-pointer transition hover:bg-zinc-800"
       >
         <Play className="size-4 fill-white" />
-        {videoQualified ? "Reassistir vídeo · 4:12" : "Assistir vídeo · 4:12 (Habilita Quizz +5 nfs)"}
+        {videoQualified ? "Reassistir vídeo · 4:12" : "Assistir vídeo didático · 4:12 (Habilita Quizz)"}
       </button>
 
       {/* Módulo do Quizz do Protocolo Fibios (5 NFs) */}
