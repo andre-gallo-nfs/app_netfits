@@ -40,15 +40,25 @@ interface InteractiveFeedCardItem {
   quizPostId: string;
   title: string;
   badge: string;
+  isSponsored?: boolean;
   render: () => React.ReactNode;
 }
 
 const INTERACTIVE_FEED_CARDS: InteractiveFeedCardItem[] = [
   {
+    id: "mizuno-patrocinado",
+    quizPostId: "quiz-sponsor-mizuno-cap",
+    title: "Mizuno Running — Termorregulação",
+    badge: "Patrocinado",
+    isSponsored: true, // Prioridade comercial permanente: SEMPRE no alto do feed
+    render: () => <MizunoArticleFeedCard />,
+  },
+  {
     id: "dr-franco-forca",
     quizPostId: "franco-forca-quiz",
     title: "Dr. Franco Merici — Força & Longevidade",
     badge: "Dr. Franco Merici",
+    isSponsored: false,
     render: () => <DrFrancoQuizCard isDailyChallenge={true} />,
   },
   {
@@ -56,20 +66,15 @@ const INTERACTIVE_FEED_CARDS: InteractiveFeedCardItem[] = [
     quizPostId: "netfits-purpose-longevity-quiz",
     title: "Time Netfits — Propósito & Healthspan",
     badge: "Oficial Netfits",
+    isSponsored: false,
     render: () => <NetfitsEducationalCard />,
-  },
-  {
-    id: "mizuno-patrocinado",
-    quizPostId: "quiz-sponsor-mizuno-cap",
-    title: "Mizuno Running — Termorregulação",
-    badge: "Patrocinado",
-    render: () => <MizunoArticleFeedCard />,
   },
   {
     id: "dra-isabella-sono",
     quizPostId: "isabella-sono-quiz",
     title: "Dra. Isabella Formigari — Biomarcadores & Sono",
     badge: "Dra. Isabella Formigari",
+    isSponsored: false,
     render: () => <DraIsabellaQuizCard isDailyChallenge={false} />,
   },
   {
@@ -77,6 +82,7 @@ const INTERACTIVE_FEED_CARDS: InteractiveFeedCardItem[] = [
     quizPostId: "isabella-protocolo-quiz",
     title: "Dra. Isabella Formigari — Protocolo Fibios",
     badge: "Protocolo Fibios",
+    isSponsored: false,
     render: () => <DrIsabellaCard />,
   },
 ];
@@ -102,12 +108,22 @@ export function FeedPage() {
     return () => window.removeEventListener("netfits:feed-action-recorded", handleActionRecorded);
   }, []);
 
-  // Fila Inteligente: separa pendentes dos já concluídos no carregamento do feed
-  const { pendingCards, completedCards } = useMemo(() => {
+  // Fila Inteligente com Prioridade Comercial:
+  // 1. Posts Patrocinados: SEMPRE no alto do feed (exposição comercial máxima contínua)
+  // 2. Posts Educacionais Pendentes: Topo da fila de conteúdo (novidade diária)
+  // 3. Posts Educacionais Concluídos: Fim da fila (histórico de aprendizado)
+  const { sponsoredCards, pendingCards, completedCards } = useMemo(() => {
+    const sponsored: InteractiveFeedCardItem[] = [];
     const pending: InteractiveFeedCardItem[] = [];
     const completed: InteractiveFeedCardItem[] = [];
 
     for (const card of INTERACTIVE_FEED_CARDS) {
+      if (card.isSponsored) {
+        // Garantia comercial: posts patrocinados SEMPRE permanecem no alto do feed!
+        sponsored.push(card);
+        continue;
+      }
+
       const isClaimed = typeof window !== "undefined" && feedAntifraud.hasClaimed("quiz", card.quizPostId);
       if (isClaimed) {
         completed.push(card);
@@ -116,7 +132,7 @@ export function FeedPage() {
       }
     }
 
-    return { pendingCards: pending, completedCards: completed };
+    return { sponsoredCards: sponsored, pendingCards: pending, completedCards: completed };
   }, [reorderKey]);
 
   const hasNewCompletionsInSession = sessionCompletedIds.some((id) =>
@@ -138,6 +154,13 @@ export function FeedPage() {
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
 
+        {/* 2. Destaques Patrocinados (SEMPRE no alto do Feed - Prioridade Comercial Garantida) */}
+        {sponsoredCards.map((card) => (
+          <div key={card.id}>
+            {card.render()}
+          </div>
+        ))}
+
         {/* Notificação amigável de reordenação se o usuário concluiu um desafio agora */}
         {hasNewCompletionsInSession && (
           <div className="mx-1 px-3.5 py-2.5 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2">
@@ -154,7 +177,7 @@ export function FeedPage() {
           </div>
         )}
 
-        {/* 2. Seção de Posts Pendentes (Topo da Fila Dinâmica) */}
+        {/* 3. Seção de Posts Educacionais Pendentes (Topo da Fila Dinâmica) */}
         {pendingCards.map((card) => (
           <div key={card.id}>
             {card.render()}
@@ -174,7 +197,7 @@ export function FeedPage() {
           </div>
         )}
 
-        {/* 3. Seção de Posts Concluídos (Fim da Fila de Conteúdo) */}
+        {/* 4. Seção de Posts Educacionais Concluídos (Fim da Fila de Conteúdo) */}
         {completedCards.map((card) => (
           <div key={card.id} className="relative transition-opacity opacity-[0.96]">
             <div className="mb-2 flex items-center justify-between px-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
@@ -187,7 +210,7 @@ export function FeedPage() {
           </div>
         ))}
 
-        {/* 4. Clínica & Especialistas Fibios */}
+        {/* 5. Clínica & Especialistas Fibios */}
         {feedItems.map((item) => (
           <FeedCard key={item.id} item={item} />
         ))}
