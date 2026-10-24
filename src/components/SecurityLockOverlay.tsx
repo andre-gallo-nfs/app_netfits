@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Lock,
   Fingerprint,
@@ -31,30 +31,44 @@ export function SecurityLockOverlay() {
     return null;
   }
 
-  const handleBiometricUnlock = async () => {
+  const handleBiometricUnlock = async (isAutoPrompt = false) => {
     setErrorMessage(null);
     setIsAuthenticatingBio(true);
 
     // Timeout de segurança na camada de UI: desativa o estado de carregamento caso a ponte congele
     const safetyTimer = setTimeout(() => {
       setIsAuthenticatingBio(false);
-      setErrorMessage("Sensor biométrico não respondeu a tempo. Por favor, desbloqueie com sua senha.");
+      if (!isAutoPrompt) {
+        setErrorMessage("Sensor biométrico não respondeu a tempo. Por favor, desbloqueie com sua senha.");
+      }
     }, 6000);
 
     try {
       const res = await appLockStore.unlockWithBiometrics();
       clearTimeout(safetyTimer);
       if (!res.success && res.error) {
-        setErrorMessage(res.error);
+        if (!isAutoPrompt || (!res.error.includes("cancel") && !res.error.includes("exige a versão"))) {
+          setErrorMessage(res.error);
+        }
       }
     } catch (err: any) {
       clearTimeout(safetyTimer);
-      setErrorMessage("Não foi possível acessar a biometria. Desbloqueie com sua senha.");
+      if (!isAutoPrompt) {
+        setErrorMessage("Não foi possível acessar a biometria. Desbloqueie com sua senha.");
+      }
     } finally {
       clearTimeout(safetyTimer);
       setIsAuthenticatingBio(false);
     }
   };
+
+  // Disparo automático inteligente do sensor biométrico nativo ao carregar a tela de bloqueio
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleBiometricUnlock(true);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePasswordUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,7 +144,7 @@ export function SecurityLockOverlay() {
         <div className="space-y-2">
           <button
             type="button"
-            onClick={handleBiometricUnlock}
+            onClick={() => handleBiometricUnlock(false)}
             disabled={isAuthenticatingBio}
             className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 active:scale-98 text-white font-bold text-sm shadow-xl shadow-purple-600/30 flex items-center justify-center gap-3 transition cursor-pointer"
           >
