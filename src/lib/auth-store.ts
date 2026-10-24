@@ -115,6 +115,25 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     userCategory: "atleta",
     registeredAt: "2026-10-15T18:52:14.266Z",
   },
+  {
+    id: "usr_apple_review",
+    fullName: "Avaliador Netfits (Apple Review)",
+    email: "demo@netfits.com.br",
+    phone: "11999992026",
+    cpf: "00000000000",
+    birthDate: "01/01/1990",
+    address: "Av. Paulista, 1000 - Bela Vista, São Paulo · SP",
+    street: "Av. Paulista",
+    number: "1000",
+    neighborhood: "Bela Vista",
+    city: "São Paulo",
+    state: "São Paulo",
+    shortState: "SP",
+    zipcode: "01310100",
+    passwordHash: "Netfits@2026!",
+    userCategory: "atleta",
+    registeredAt: "2026-10-24T00:00:00Z",
+  },
 ];
 
 export function cleanDigits(val: string): string {
