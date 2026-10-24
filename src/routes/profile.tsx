@@ -2,13 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft, Camera, MapPin, Calendar, Mail, Phone, User, Activity,
-  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield, Building2,
+  Heart, Dumbbell, Users, Check, Plus, X, Save, Watch, UserPlus, Sprout, LogOut, Copy, Upload, Image as ImageIcon, Trash2, Sparkles, Share2, CreditCard, Lock, Shield, Building2, Fingerprint,
   FileText, AlertTriangle, ExternalLink, Download
 } from "lucide-react";
 import { validateUserData } from "../lib/user-schema";
 import { toast } from "sonner";
 import { LoyaltyProgramsCard } from "../components/LoyaltyProgramsCard";
 import { sharedSandboxStore } from "../lib/shared-sandbox-store";
+import { passkeyService } from "@/lib/webauthn-passkeys";
 import { appLockStore } from "../lib/app-lock-store";
 import { authStore } from "../lib/auth-store";
 import { isValidCPF } from "../lib/utils";
@@ -982,16 +983,40 @@ function ProfilePage() {
         <Card title="Segurança & Bloqueio do App" icon={Shield}>
           <div className="space-y-3">
             <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
-              Seus dados de acesso e sessão permanecem salvos com segurança neste dispositivo para que você não precise digitar sua senha ou autenticar a todo momento. Se desejar proteger o app imediatamente (por exemplo, ao emprestar o celular), utilize a opção abaixo.
+              Seus dados de acesso e sessão permanecem salvos com segurança neste dispositivo para que você não precise digitar sua senha a todo momento. Você pode ativar e validar sua biometria (impressão digital ou Face ID) abaixo para desbloqueio instantâneo.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
               <button
                 type="button"
+                onClick={async () => {
+                  try {
+                    const res = await passkeyService.registerPasskey(
+                      activeUser.id,
+                      activeUser.fullName,
+                      activeUser.email || activeUser.identifier
+                    );
+                    if (res.success) {
+                      toast.success("🔐 Biometria vinculada e ativa com sucesso neste celular!");
+                    } else if (res.error) {
+                      toast.error(res.error);
+                    }
+                  } catch (e: any) {
+                    toast.error("Não foi possível registrar a biometria no momento.");
+                  }
+                }}
+                className="w-full sm:flex-1 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer active:scale-98"
+              >
+                <Fingerprint className="size-3.5 text-lime-300" />
+                <span>Ativar / Testar Biometria neste Aparelho</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => appLockStore.lock()}
-                className="w-full sm:flex-1 bg-zinc-900 text-white dark:bg-zinc-800 dark:hover:bg-zinc-700 font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-zinc-700 transition cursor-pointer active:scale-98"
+                className="w-full sm:w-auto bg-zinc-900 text-white dark:bg-zinc-800 dark:hover:bg-zinc-700 font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-zinc-700 transition cursor-pointer active:scale-98"
               >
                 <Lock className="size-3.5 text-lime-400" />
-                <span>Bloquear Aplicativo Agora</span>
+                <span>Bloquear Agora</span>
               </button>
             </div>
           </div>
