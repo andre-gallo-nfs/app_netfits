@@ -241,23 +241,13 @@ class PasskeyService {
         if (err.name === "NotAllowedError" || err.message?.includes("cancel")) {
           return { success: false, error: "Validação biométrica cancelada." };
         }
-        if (targetCred) {
-          this.recordSuccessfulAuth();
-          toast.success("✅ Biometria validada com sucesso!");
-          return { success: true, credential: targetCred };
-        }
+        return { success: false, error: "Biometria não reconhecida pelo navegador." };
       }
-    }
-
-    if (targetCred) {
-      this.recordSuccessfulAuth();
-      toast.success("✅ Biometria confirmada com sucesso!");
-      return { success: true, credential: targetCred };
     }
 
     return {
       success: false,
-      error: "Nenhuma biometria cadastrada neste aparelho. Acesse com sua senha para ativar.",
+      error: "Sensor biométrico não disponível ou não configurado neste navegador. Digite sua senha cadastrada.",
     };
   }
 
