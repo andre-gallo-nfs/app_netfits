@@ -232,7 +232,7 @@ export function InstitutionalHomePage() {
             {/* Coluna da Direita: Narrativa da Carta */}
             <div className="lg:col-span-7 space-y-5 text-zinc-300 text-sm sm:text-base leading-relaxed">
               <p>
-                Recebi o diagnóstico de Diabetes Tipo 1 há mais de 30 anos. Se você me perguntasse lá atrás, na juventude, se eu já acordava pensando em disciplina, hábitos saudáveis e longevidade, a resposta sincera seria: <strong className="text-white">não</strong>. Quando somos jovens, carregamos uma sensação ilusória de invencibilidade. Eu demorei a entender o que realmente precisava mudar na minha rotina diária. Não era por falta de informação médica — era quase um bloqueio emocional em aceitar aquela nova condição e encarar de frente as consequências de uma doença crônica silenciosa.
+                Recebi o diagnóstico de Diabetes Tipo 1 há mais de 30 anos. Se você me perguntasse lá atrás, na juventude, se eu já acordava pensando em disciplina, hábitos saudáveis e longevidade, a resposta sincera seria: <strong className="text-white">não</strong>. Quando somos jovens, carregamos uma sensação ilusória de invencibilidade. Eu demorei a entender o que realmente precisava mudar na minha rotina diária. Não era por falta de informação médica, era quase um bloqueio emocional em aceitar aquela nova condição e encarar de frente as consequências de uma doença crônica silenciosa.
               </p>
 
               <p>
@@ -244,7 +244,7 @@ export function InstitutionalHomePage() {
               </p>
 
               <p>
-                Em paralelo a essa jornada nas pistas, construí uma carreira de <strong className="text-white">mais de 25 anos como executivo no mercado financeiro e no setor de fidelidade (loyalty)</strong>. Se há algo que aprendi liderando grandes operações, é que colocar o cliente de verdade no centro dos negócios é a única forma de criar algo perene. Olhando ao redor, via uma comunidade de atletas amadores que não para de crescer ano após ano — pessoas determinadas que investem tempo, suor e recursos para cuidar do corpo e da mente —, mas que continuavam completamente órfãs de uma plataforma pensada sob medida para as suas necessidades.
+                Em paralelo a essa jornada nas pistas, construí uma carreira de <strong className="text-white">mais de 25 anos como executivo no mercado financeiro e no setor de fidelidade (loyalty)</strong>. Se há algo que aprendi liderando grandes operações, é que colocar o cliente de verdade no centro dos negócios é a única forma de criar algo perene. Olhando ao redor, via uma comunidade de atletas amadores que não para de crescer ano após ano, pessoas determinadas que investem tempo, suor e recursos para cuidar do corpo e da mente, mas que continuavam completamente órfãs de uma plataforma pensada sob medida para as suas necessidades.
               </p>
 
               {/* Pull Quote da Brincadeira dos Corredores */}
@@ -259,7 +259,7 @@ export function InstitutionalHomePage() {
               </div>
 
               <p>
-                A gente ri porque é verdade, mas no fundo isso sempre me incomodou. Por que a atitude mais nobre que um ser humano pode ter — que é cuidar ativamente da própria saúde e da longevidade — não gera nenhum retorno tangível de volta? <strong className="text-white">Por que ganhamos pontos nas compras no cartão de crédito, mas ninguém recompensa o seu suor de cada dia?</strong>
+                A gente ri porque é verdade, mas no fundo isso sempre me incomodou. Por que a atitude mais nobre que um ser humano pode ter, que é cuidar ativamente da própria saúde e da longevidade, não gera nenhum retorno tangível de volta? <strong className="text-white">Por que ganhamos pontos nas compras no cartão de crédito, mas ninguém recompensa o seu suor de cada dia?</strong>
               </p>
 
               <p>
