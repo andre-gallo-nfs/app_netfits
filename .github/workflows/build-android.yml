@@ -3,7 +3,8 @@ name: Build Android Release (.aab)
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*' 
 
 jobs:
   build:
