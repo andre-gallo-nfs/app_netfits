@@ -990,18 +990,14 @@ function ProfilePage() {
                 type="button"
                 onClick={async () => {
                   try {
-                    const res = await passkeyService.registerPasskey(
-                      activeUser.id,
-                      activeUser.fullName,
-                      activeUser.email || activeUser.identifier
-                    );
+                    const res = await appLockStore.unlockWithBiometrics();
                     if (res.success) {
-                      toast.success("🔐 Biometria vinculada e ativa com sucesso neste celular!");
+                      toast.success("🔐 Biometria testada e confirmada com sucesso neste aparelho!");
                     } else if (res.error) {
                       toast.error(res.error);
                     }
                   } catch (e: any) {
-                    toast.error("Não foi possível registrar a biometria no momento.");
+                    toast.error("Não foi possível acionar a biometria no momento.");
                   }
                 }}
                 className="w-full sm:flex-1 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer active:scale-98"

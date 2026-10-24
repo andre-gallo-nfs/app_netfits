@@ -76,8 +76,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   // 3. Se o dispositivo JÁ possui conta autenticada e o app estiver bloqueado:
-  // EXIGE BIOMETRIA REAL OU SENHA DO PRÓPRIO USUÁRIO LOGADO NO APP NATIVO
-  if (!isUnlocked && nativeBridge.isNativePlatform()) {
+  // EXIGE BIOMETRIA REAL OU SENHA DO PRÓPRIO USUÁRIO LOGADO
+  if (!isUnlocked && hasSession) {
     return <SecurityLockOverlay />;
   }
 

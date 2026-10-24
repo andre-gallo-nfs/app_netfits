@@ -5,6 +5,7 @@ import { sharedSandboxStore } from "./shared-sandbox-store";
 import { authStore } from "./auth-store";
 import { nativeBridge } from "./native-bridge";
 import { Capacitor } from "@capacitor/core";
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
 const SESSION_UNLOCKED_KEY = "netfits_session_unlocked_v2";
 const APP_EXPLICITLY_LOCKED_KEY = "netfits_app_explicitly_locked";
@@ -215,45 +216,50 @@ class AppLockStore {
     };
 
     try {
-      // 1. Tenta via Plugin Nativo se estiver presente no runtime do app
-      const BiometricAuth =
-        (window as any).Capacitor?.Plugins?.BiometricAuthNative ||
-        (window as any).Capacitor?.Plugins?.BiometricAuth;
-
-      if (BiometricAuth && typeof BiometricAuth.authenticate === "function") {
+      // 1. No aplicativo móvel (Android / iOS): aciona diretamente o sensor de biometria nativo do aparelho
+      if (nativeBridge.isNativePlatform()) {
         try {
-          const check = await withTimeout(BiometricAuth.checkBiometry(), 2500);
+          const check = await withTimeout(BiometricAuth.checkBiometry(), 3000);
           if (check && (check as any).isAvailable) {
             await withTimeout(
               BiometricAuth.authenticate({
                 reason: `Confirme sua digital ou Face ID para acessar sua conta Netfits (${activeUser.fullName})`,
                 cancelTitle: "Cancelar",
               }),
-              7000
+              8000
             );
             this.setUnlocked(true);
             toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
             return { success: true };
+          } else {
+            return {
+              success: false,
+              error: "Sensor biométrico não cadastrado ou não configurado no seu celular. Desbloqueie com sua senha.",
+            };
           }
         } catch (pluginErr: any) {
-          console.warn("[AppLock] Falha no plugin nativo, tentando WebAuthn:", pluginErr);
+          console.warn("[AppLock] Biometria nativa falhou ou cancelada:", pluginErr);
+          const msg = String(pluginErr?.message || "").toLowerCase();
+          if (msg.includes("cancel") || pluginErr?.code === "userCancel" || msg.includes("canceled")) {
+            return { success: false, error: "Validação biométrica cancelada pelo usuário." };
+          }
+          return {
+            success: false,
+            error: "Biometria não reconhecida. Tente novamente ou digite sua senha cadastrada.",
+          };
         }
       }
 
-      // 2. Autenticação Biométrica FIDO2 / Passkey / Biometria do Sistema
+      // 2. No navegador web desktop: utiliza WebAuthn / Passkeys
       const result = await withTimeout(passkeyService.authenticate(activeUser.id), 7000);
       if (result.success) {
         this.setUnlocked(true);
         toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
         return { success: true };
       }
-      if (result.error) {
-        return { success: false, error: result.error };
-      }
-
       return {
         success: false,
-        error: "Sensor biométrico não disponível ou não configurado. Por favor, digite sua senha cadastrada.",
+        error: result.error || "Biometria não reconhecida. Digite sua senha cadastrada.",
       };
     } catch (err: any) {
       console.warn("[AppLock] Biometria falhou ou expirou:", err);
