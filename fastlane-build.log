@@ -1,0 +1,421 @@
+[17:35:28]: fastlane 2.241.1 (Ruby 3.3.13, bundler)
+[17:35:29]: Sending anonymous analytics information
+[17:35:29]: Learn more at https://docs.fastlane.tools/#metrics
+[17:35:29]: No personal or sensitive data is sent.
+[17:35:29]: You can disable this by adding `opt_out_usage` at the top of your Fastfile
+[17:35:29]: [32m------------------------------[0m
+[17:35:29]: [32m--- Step: default_platform ---[0m
+[17:35:29]: [32m------------------------------[0m
+[17:35:29]: [32mDriving the lane 'ios beta' 🚀[0m
+[17:35:29]: [32m---------------------------------------[0m
+[17:35:29]: [32m--- Step: app_store_connect_api_key ---[0m
+[17:35:29]: [32m---------------------------------------[0m
+[17:35:29]: [32m-----------------------------[0m
+[17:35:29]: [32m--- Step: create_keychain ---[0m
+[17:35:29]: [32m-----------------------------[0m
+[17:35:29]: [36m$ security list-keychains -d user[0m
+[17:35:29]: ▸ [35m"/Users/runner/Library/Keychains/build_keychain-db"[0m
+[17:35:29]: [33mFound keychain '/Users/runner/Library/Keychains/build_keychain-db' in list-keychains, adding to search list skipped[0m
+[17:35:29]: [32m--------------------------------[0m
+[17:35:29]: [32m--- Step: import_certificate ---[0m
+[17:35:29]: [32m--------------------------------[0m
+[17:35:29]: Setting key partition list... (this can take a minute if there are a lot of keys installed)
+[17:35:29]: [32m------------------------------[0m
+[17:35:29]: [32m--- Step: get_certificates ---[0m
+[17:35:29]: [32m------------------------------[0m
+
++-----------------------------------------------------------------------------+
+|                          [32mSummary for cert 2.241.1[0m                           |
++-------------------------+---------------------------------------------------+
+| api_key                 | API_KEY_REDACTED                                  |
+| keychain_path           | /Users/runner/Library/Keychains/build_keychain-db |
+| keychain_password       | KEYCHAIN_PASSWORD_REDACTED                        |
+| team_id                 | SA9P4PKNL8                                        |
+| development             | false                                             |
+| force                   | false                                             |
+| generate_apple_certs    | true                                              |
+| skip_set_partition_list | false                                             |
+| platform                | ios                                               |
++-------------------------+---------------------------------------------------+
+
+[17:35:29]: Creating authorization token for App Store Connect API
+[17:35:29]: [32mFound the certificate 8LS9J4SFR6 (Netfits Ltda.) which is installed on the local machine. Using this one.[0m
+[17:35:29]: Verifying the certificate is properly installed locally...
+[17:35:29]: [32mSuccessfully installed certificate 8LS9J4SFR6[0m
+[17:35:29]: [32mUse signing certificate '8LS9J4SFR6' from now on![0m
+[17:35:29]: [32m--------------------------------------[0m
+[17:35:29]: [32m--- Step: get_provisioning_profile ---[0m
+[17:35:29]: [32m--------------------------------------[0m
+
++-----------------------------------------------------------------------------------+
+|                             [32mSummary for sigh 2.241.1[0m                              |
++-------------------------------------+---------------------------------------------+
+| api_key                             | API_KEY_REDACTED                            |
+| app_identifier                      | br.com.netfits.app                          |
+| filename                            | AppStore_br.com.netfits.app.mobileprovision |
+| team_id                             | SA9P4PKNL8                                  |
+| adhoc                               | false                                       |
+| developer_id                        | false                                       |
+| development                         | false                                       |
+| skip_install                        | false                                       |
+| force                               | false                                       |
+| include_mac_in_profiles             | false                                       |
+| offline_profile                     | false                                       |
+| ignore_profiles_with_different_name | false                                       |
+| cert_id                             | 8LS9J4SFR6                                  |
+| skip_fetch_profiles                 | false                                       |
+| include_all_certificates            | false                                       |
+| skip_certificate_verification       | false                                       |
+| platform                            | ios                                         |
+| readonly                            | false                                       |
+| fail_on_name_taken                  | false                                       |
++-------------------------------------+---------------------------------------------+
+
+[17:35:29]: Creating authorization token for App Store Connect API
+[17:35:29]: Fetching profiles...
+[17:35:30]: Provisioning Profile 'br.com.netfits.app AppStore' is not valid, skipping this one...
+[17:35:30]: Provisioning Profile 'br.com.netfits.app AppStore 1792627929' is not valid, skipping this one...
+[17:35:30]: Provisioning Profile cert_id : 'P74HG88N28' does not match given cert_id : '8LS9J4SFR6', skipping this one...
+[17:35:30]: Verifying certificates...
+[17:35:30]: [32mFound 1 matching profile(s)[0m
+[17:35:30]: [33mDownloading provisioning profile...[0m
+[17:35:30]: [32mSuccessfully downloaded provisioning profile...[0m
+[17:35:30]: Installing provisioning profile...
+[32m/Users/runner/work/app_netfits/app_netfits/ios/App/AppStore_br.com.netfits.app.mobileprovision[0m
+[17:35:30]: Setting Provisioning Profile type to 'app-store'
+[17:35:30]: [32m-----------------------------------------[0m
+[17:35:30]: [32m--- Step: update_project_provisioning ---[0m
+[17:35:30]: [32m-----------------------------------------[0m
+[17:35:30]: You’re updating provisioning profiles directly in your project, but have you considered easier ways to do code signing?
+[17:35:30]: https://docs.fastlane.tools/codesigning/GettingStarted/
+[17:35:30]: Downloading root certificate from (https://www.apple.com/appleca/AppleIncRootCertificate.cer) to path '/var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/AppleIncRootCertificate.cer'
+[17:35:30]: Parsing mobile provisioning profile from 'AppStore_br.com.netfits.app.mobileprovision'
+[17:35:30]: [32mGoing to update project 'App.xcodeproj' with UUID[0m
+[17:35:30]: [32mUpdating target App...[0m
+[17:35:30]: [33mSkipping configuration Debug as it doesn't match the filter 'Release'[0m
+[17:35:30]: [32mUpdating configuration Release...[0m
+[17:35:30]: [32mSuccessfully updated project settings in 'App.xcodeproj'[0m
+[17:35:30]: [32m-----------------------[0m
+[17:35:30]: [32m--- Step: build_app ---[0m
+[17:35:30]: [32m-----------------------[0m
+[17:35:30]: [33mResolving Swift Package Manager dependencies...[0m
+[17:35:30]: [36m$ xcodebuild -resolvePackageDependencies -scheme App -project App.xcodeproj -configuration Release[0m
+[17:35:33]: ▸ [35mCommand line invocation:[0m
+[17:35:33]: ▸ [35m    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -resolvePackageDependencies -scheme App -project App.xcodeproj -configuration Release[0m
+[17:35:38]: ▸ [35mResolve Package Graph[0m
+[17:35:47]: ▸ [35mFetching from https://github.com/ionic-team/capacitor-swift-pm.git[0m
+[17:35:48]: ▸ [35mCreating working copy of package ‘capacitor-swift-pm’[0m
+[17:35:48]: ▸ [35mChecking out 8.5.1 of package ‘capacitor-swift-pm’[0m
+[17:35:49]: ▸ [35mResolved source packages:[0m
+[17:35:49]: ▸ [35m  capacitor-swift-pm: https://github.com/ionic-team/capacitor-swift-pm.git @ 8.5.1[0m
+[17:35:49]: ▸ [35m  CapacitorKeyboard: /Users/runner/work/app_netfits/app_netfits/node_modules/@capacitor/keyboard @ local[0m
+[17:35:49]: ▸ [35m  CapacitorApp: /Users/runner/work/app_netfits/app_netfits/node_modules/@capacitor/app @ local[0m
+[17:35:49]: ▸ [35m  CapApp-SPM: /Users/runner/work/app_netfits/app_netfits/ios/App/CapApp-SPM @ local[0m
+[17:35:49]: ▸ [35m2026-10-24 17:35:49.873 xcodebuild[15360:36886] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.[0m
+[17:35:49]: ▸ [35mresolved source packages: capacitor-swift-pm, CapacitorKeyboard, CapacitorApp, CapApp-SPM[0m
+[17:35:49]: [36m$ xcodebuild -showBuildSettings -scheme App -project App.xcodeproj -configuration Release 2>&1[0m
+[17:35:52]: [33mCommand timed out after 3 seconds on try 1 of 4, trying again with a 6 second timeout...[0m
+[17:35:54]: Detected provisioning profile mapping: {:"br.com.netfits.app"=>"br.com.netfits.app AppStore 1792628558"}
+
++--------------------------------------------------------------------------------------------------------------------+
+|                                              [32mSummary for gym 2.241.1[0m                                               |
++--------------------------------------------------------+-----------------------------------------------------------+
+| project                                                | App.xcodeproj                                             |
+| scheme                                                 | App                                                       |
+| configuration                                          | Release                                                   |
+| export_method                                          | app-store                                                 |
+| output_directory                                       | ./build                                                   |
+| output_name                                            | Netfits                                                   |
+| clean                                                  | true                                                      |
+| export_options.signingStyle                            | manual                                                    |
+| export_options.provisioningProfiles.br.com.netfits.app | br.com.netfits.app AppStore 1792628558                    |
+| silent                                                 | false                                                     |
+| skip_package_ipa                                       | false                                                     |
+| skip_package_pkg                                       | false                                                     |
+| build_path                                             | /Users/runner/Library/Developer/Xcode/Archives/2026-10-24 |
+| result_bundle                                          | false                                                     |
+| buildlog_path                                          | ~/Library/Logs/gym                                        |
+| destination                                            | generic/platform=iOS                                      |
+| xcodebuild_formatter                                   | xcbeautify                                                |
+| build_timing_summary                                   | false                                                     |
+| skip_profile_detection                                 | false                                                     |
+| xcodebuild_command                                     | xcodebuild                                                |
+| skip_package_dependencies_resolution                   | false                                                     |
+| disallow_xcodebuild_settings_lookup                    | false                                                     |
+| disable_package_automatic_updates                      | false                                                     |
+| skip_package_repository_fetches                        | false                                                     |
+| use_system_scm                                         | false                                                     |
+| generate_appstore_info                                 | false                                                     |
+| xcode_path                                             | /Applications/Xcode_26.6.0.app                            |
++--------------------------------------------------------+-----------------------------------------------------------+
+
+[17:35:54]: [36m$ set -o pipefail && xcodebuild -scheme App -project App.xcodeproj -configuration Release -destination generic/platform\=iOS -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-24/Netfits\ 2026-10-24\ 17.35.54.xcarchive clean archive | tee /Users/runner/Library/Logs/gym/App-App.log | xcbeautify[0m
+[17:35:54]: ▸ [35m----- xcbeautify -----[0m
+[17:35:54]: ▸ [35mVersion: 3.2.1[0m
+[17:35:54]: ▸ [35m----------------------[0m
+[17:35:55]: ▸ [35m[36;1mResolving Package Graph[0m
+[17:35:55]: ▸ [35m[32;1mResolved source packages[0m
+[17:35:55]: ▸ [35m[36;1mcapacitor-swift-pm[0m - [1mhttps://github.com/ionic-team/capacitor-swift-pm.git[0m @ [32m8.5.1[0m
+[17:35:55]: ▸ [35m2026-10-24 17:35:55.817 xcodebuild[16432:40377] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.[0m
+[17:35:56]: ▸ [35m[32;1mClean Succeeded[0m
+[17:35:56]: ▸ [35m[36;1mnote: [0mBuilding targets in dependency order[0m
+[17:35:56]: ▸ [35m[36;1mnote: [0mTarget dependency graph (9 targets)[0m
+[17:36:00]: ▸ [35m[[36mKeyboardPlugin[0m] [1mWrite Auxiliary File[0m KeyboardPlugin.LinkFileList[0m
+[17:36:00]: ▸ [35m[[36mKeyboardPlugin[0m] [1mWrite Auxiliary File[0m e6072d4f65d7061329687fe24e3d63a7-common-args.resp[0m
+[17:36:00]: ▸ [35m[[36mKeyboardPlugin[0m] [1mWrite Auxiliary File[0m KeyboardPlugin.modulemap[0m
+[17:36:00]: ▸ [35m[[36mKeyboardPlugin[0m] [1mWrite Auxiliary File[0m KeyboardPlugin.DependencyStaticMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mKeyboardPlugin[0m] [1mWrite Auxiliary File[0m KeyboardPlugin.DependencyMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mKeyboardPlugin[0m] [1mCopy[0m KeyboardPlugin.modulemap -> KeyboardPlugin.modulemap[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM_const_extract_protocols.json[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM.SwiftFileList[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM.SwiftConstValuesFileList[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM.LinkFileList[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM-OutputFileMap.json[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM.modulemap[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM.DependencyStaticMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mWrite Auxiliary File[0m CapApp-SPM.DependencyMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mCapApp-SPM[0m] [1mCopy[0m CapApp-SPM.modulemap -> CapApp-SPM.modulemap[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin_const_extract_protocols.json[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin.SwiftFileList[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin.SwiftConstValuesFileList[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin.LinkFileList[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin-OutputFileMap.json[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin.modulemap[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin.DependencyStaticMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mWrite Auxiliary File[0m AppPlugin.DependencyMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mAppPlugin[0m] [1mCopy[0m AppPlugin.modulemap -> AppPlugin.modulemap[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App_const_extract_protocols.json[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App.SwiftFileList[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App.SwiftConstValuesFileList[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App.LinkFileList[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App-OutputFileMap.json[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m Entitlements.plist[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App.hmap[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App.DependencyStaticMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App.DependencyMetadataFileList[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App-project-headers.hmap[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App-own-target-headers.hmap[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App-generated-files.hmap[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App-all-target-headers.hmap[0m
+[17:36:00]: ▸ [35m[[36mApp[0m] [1mWrite Auxiliary File[0m App-all-non-framework-target-headers.hmap[0m
+[17:36:04]: ▸ [35m[[36mKeyboardPlugin[0m] [1mCompiling[0m KeyboardPlugin.m[0m
+[17:36:04]: ▸ [35m[[36mKeyboardPlugin[0m] [1mCompiling[0m Keyboard.m[0m
+[17:36:04]: ▸ [35m[[36mKeyboardPlugin[0m] [1mLinking[0m KeyboardPlugin.o[0m
+[17:36:04]: ▸ [35m[[36mKeyboardPlugin[0m] [1mRegisterExecutionPolicyException[0m KeyboardPlugin.o[0m
+[17:36:05]: ▸ [35m[[36mAppPlugin[0m] [1mCompiling[0m AppPlugin.swift[0m
+[17:36:06]: ▸ [35m[[36mAppPlugin[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> AppPlugin.swiftdoc[0m
+[17:36:06]: ▸ [35m[[36mAppPlugin[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> AppPlugin.swiftmodule[0m
+[17:36:06]: ▸ [35m[[36mAppPlugin[0m] [1mCopy[0m arm64-apple-ios.abi.json -> AppPlugin.abi.json[0m
+[17:36:06]: ▸ [35m[[36mAppPlugin[0m] [1mLinking[0m AppPlugin.o[0m
+[17:36:06]: ▸ [35m[[36mAppPlugin[0m] [1mExtract App Intents Metadata[0m
+[17:36:06]: ▸ [35m[[36mCapApp-SPM[0m] [1mCompiling[0m CapApp-SPM.swift[0m
+[17:36:06]: ▸ [35m[[36mCapApp-SPM[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> CapApp_SPM.swiftmodule[0m
+[17:36:06]: ▸ [35m[[36mCapApp-SPM[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> CapApp_SPM.swiftdoc[0m
+[17:36:06]: ▸ [35m[[36mCapApp-SPM[0m] [1mCopy[0m arm64-apple-ios.abi.json -> CapApp_SPM.abi.json[0m
+[17:36:06]: ▸ [35m[[36mApp[0m] [1mGenerate Asset Symbols[0m Assets.xcassets[0m
+[17:36:15]: ▸ [35m[[36mAppPlugin[0m] [1mRegisterExecutionPolicyException[0m AppPlugin.o[0m
+[17:36:15]: ▸ [35m[[36mCapApp-SPM[0m] [1mLinking[0m CapApp-SPM.o[0m
+[17:36:15]: ▸ [35m[[36mCapApp-SPM[0m] [1mExtract App Intents Metadata[0m
+[17:36:15]: ▸ [35m[[36mCapApp-SPM[0m] [1mRegisterExecutionPolicyException[0m CapApp-SPM.o[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopying[0m public[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopying[0m config.xml[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopying[0m capacitor.config.json[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopy[0m Cordova.framework -> Cordova.framework[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopy[0m Capacitor.framework -> Capacitor.framework[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCompiling[0m Main.storyboard[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCompiling[0m LaunchScreen.storyboard[0m
+[17:36:15]: ▸ [35m[1mSigning[0m Cordova.framework (in target 'App' from project 'App')[0m
+[17:36:15]: ▸ [35m[1mSigning[0m Capacitor.framework (in target 'App' from project 'App')[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopy[0m arm64-apple-ios.swiftmodule -> App.swiftmodule[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopy[0m arm64-apple-ios.swiftdoc -> App.swiftdoc[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mCopy[0m arm64-apple-ios.abi.json -> App.abi.json[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mLinking[0m App[0m
+[17:36:15]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/App-dzzpjanmgbaheyeimshribvhxozr/Build/Intermediates.noindex/ArchiveIntermediates/App/InstallationBuildProductsLocation/Applications/App.app/AppIcon76x76@2x~ipad.png (in target 'App' from project 'App')[0m
+[17:36:15]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/App-dzzpjanmgbaheyeimshribvhxozr/Build/Intermediates.noindex/ArchiveIntermediates/App/InstallationBuildProductsLocation/Applications/App.app/Assets.car (in target 'App' from project 'App')[0m
+[17:36:15]: ▸ [35m[36;1mnote: [0mEmplaced /Users/runner/Library/Developer/Xcode/DerivedData/App-dzzpjanmgbaheyeimshribvhxozr/Build/Intermediates.noindex/ArchiveIntermediates/App/InstallationBuildProductsLocation/Applications/App.app/AppIcon60x60@2x.png (in target 'App' from project 'App')[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mProcessing[0m Info.plist[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mExtract App Intents Metadata[0m
+[17:36:15]: ▸ [35m[[36mApp[0m] [1mGenerating[0m App.app.dSYM[0m
+[17:36:15]: ▸ [35m[1mSigning[0m App.app (in target 'App' from project 'App')[0m
+[17:36:16]: ▸ [35m[[36mApp[0m] [1mRegisterExecutionPolicyException[0m App.app[0m
+[17:36:16]: ▸ [35m[[36mApp[0m] [1mValidate[0m App.app[0m
+[17:36:16]: ▸ [35m[[36mApp[0m] [1mTouching[0m App.app[0m
+[17:36:16]: ▸ [35m[32;1mArchive Succeeded[0m
+[17:36:16]: [33mGenerated plist file with the following values:[0m
+[17:36:16]: ▸ [35m-----------------------------------------[0m
+[17:36:16]: ▸ [35m{[0m
+[17:36:16]: ▸ [35m  "signingStyle": "manual",[0m
+[17:36:16]: ▸ [35m  "provisioningProfiles": {[0m
+[17:36:16]: ▸ [35m    "br.com.netfits.app": "br.com.netfits.app AppStore 1792628558"[0m
+[17:36:16]: ▸ [35m  },[0m
+[17:36:16]: ▸ [35m  "method": "app-store"[0m
+[17:36:16]: ▸ [35m}[0m
+[17:36:16]: ▸ [35m-----------------------------------------[0m
+[17:36:16]: [36m$ /usr/bin/xcrun /Users/runner/hostedtoolcache/Ruby/3.3.13/arm64/lib/ruby/gems/3.3.0/gems/fastlane-2.241.1/gym/lib/assets/wrap_xcodebuild/xcbuild-safe.sh -exportArchive -exportOptionsPlist /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_config20261024-15313-40lkq3.plist -archivePath /Users/runner/Library/Developer/Xcode/Archives/2026-10-24/Netfits\ 2026-10-24\ 17.35.54.xcarchive -exportPath /var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/gym_output20261024-15313-hebqdr [0m
+[17:36:17]: Compressing 3 dSYM(s)
+[17:36:17]: [36m$ cd /Users/runner/Library/Developer/Xcode/Archives/2026-10-24/Netfits\ 2026-10-24\ 17.35.54.xcarchive/dSYMs && zip -r /Users/runner/work/app_netfits/app_netfits/ios/App/build/Netfits.app.dSYM.zip *.dSYM[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/Relocations/aarch64/App.yml (deflated 83%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/DWARF/App (deflated 56%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/Swift/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/Swift/aarch64/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Resources/Swift/aarch64/Capacitor.swiftinterface (deflated 85%)[0m
+[17:36:18]: ▸ [35m  adding: App.app.dSYM/Contents/Info.plist (deflated 52%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Resources/Relocations/aarch64/Capacitor.yml (deflated 86%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Resources/DWARF/Capacitor (deflated 63%)[0m
+[17:36:18]: ▸ [35m  adding: Capacitor.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Resources/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Resources/Relocations/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Resources/Relocations/aarch64/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Resources/Relocations/aarch64/Cordova.yml (deflated 85%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Resources/DWARF/ (stored 0%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Resources/DWARF/Cordova (deflated 60%)[0m
+[17:36:18]: ▸ [35m  adding: Cordova.framework.dSYM/Contents/Info.plist (deflated 52%)[0m
+
+[17:36:18]: [32mSuccessfully exported and compressed dSYM file[0m
+[17:36:18]: [32mSuccessfully exported and signed the ipa file:[0m
+[17:36:18]: /Users/runner/work/app_netfits/app_netfits/ios/App/build/Netfits.ipa
+[17:36:18]: [32m----------------------------------[0m
+[17:36:18]: [32m--- Step: upload_to_testflight ---[0m
+[17:36:18]: [32m----------------------------------[0m
+[17:36:18]: Creating authorization token for App Store Connect API
+[17:36:18]: [32mReady to upload new build to TestFlight (App: 6825550257)...[0m
+[17:36:18]: Going to upload updated app to App Store Connect
+[17:36:18]: [32mThis might take a few minutes. Please don't interrupt the script.[0m
+[17:36:22]: [33m[altool] Running altool at path '/Applications/Xcode_26.6.app/Contents/SharedFrameworks/ContentDelivery.framework/Resources/altool'...
+[0m
+[17:36:22]: [33m[altool] 
+[0m
+[17:36:22]: [33m[altool] 2026-10-24 17:36:22.725 [1m[31mERROR: [ContentDelivery.Uploader.799044440] The provided entity includes an attribute with a value that has already been used (-19232) The bundle version must be higher than the previously uploaded version: ‘1’. (ID: 908a03ad-44da-4efe-80e5-19507556b415)
+[0m
+[17:36:22]: [33m[altool]    NSUnderlyingError : The provided entity includes an attribute with a value that has already been used (-19241) The bundle version must be higher than the previously uploaded version.
+[0m
+[17:36:22]: [33m[altool]       status : 409
+[0m
+[17:36:22]: [33m[altool]       detail : The bundle version must be higher than the previously uploaded version.
+[0m
+[17:36:22]: [33m[altool]       source : 
+[0m
+[17:36:22]: [33m[altool]          pointer : /data/attributes/cfBundleVersion
+[0m
+[17:36:22]: [33m[altool]       id : 908a03ad-44da-4efe-80e5-19507556b415
+[0m
+[17:36:22]: [33m[altool]       code : ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE
+[0m
+[17:36:22]: [33m[altool]       title : The provided entity includes an attribute with a value that has already been used
+[0m
+[17:36:22]: [33m[altool]       meta : 
+[0m
+[17:36:22]: [33m[altool]          previousBundleVersion : 1
+[0m
+[17:36:22]: [33m[altool]    previousBundleVersion : 1
+[0m
+[17:36:22]: [33m[altool]    iris-code : ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE[0m
+[0m
+[17:36:22]: [33m[altool] 2026-10-24 17:36:22.726 [1m[31mERROR: [altool.799044440] Failed to upload package.[0m
+[0m
+[17:36:22]: [33m[altool] Failed to upload archive at '/var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/7bd78f92-891c-4322-bd9f-9b9aec8c1197.ipa'.
+[0m
+[17:36:22]: [33m[altool] 2026-10-24 17:36:22.726 [1m[31mERROR: [altool.799044440] The provided entity includes an attribute with a value that has already been used (-19232) The bundle version must be higher than the previously uploaded version: ‘1’. (ID: 908a03ad-44da-4efe-80e5-19507556b415)
+[0m
+[17:36:22]: [33m[altool]    NSUnderlyingError : The provided entity includes an attribute with a value that has already been used (-19241) The bundle version must be higher than the previously uploaded version.
+[0m
+[17:36:22]: [33m[altool]       status : 409
+[0m
+[17:36:22]: [33m[altool]       detail : The bundle version must be higher than the previously uploaded version.
+[0m
+[17:36:22]: [33m[altool]       source : 
+[0m
+[17:36:22]: [33m[altool]          pointer : /data/attributes/cfBundleVersion
+[0m
+[17:36:22]: [33m[altool]       id : 908a03ad-44da-4efe-80e5-19507556b415
+[0m
+[17:36:22]: [33m[altool]       code : ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE
+[0m
+[17:36:22]: [33m[altool]       title : The provided entity includes an attribute with a value that has already been used
+[0m
+[17:36:22]: [33m[altool]       meta : 
+[0m
+[17:36:22]: [33m[altool]          previousBundleVersion : 1
+[0m
+[17:36:22]: [33m[altool]    previousBundleVersion : 1
+[0m
+[17:36:22]: [33m[altool]    iris-code : ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE
+[0m
+[17:36:22]: [33m[altool] [0m
+[0m
+[17:36:22]: [33m[altool] 2026-10-24 17:36:22.727 [1m[31mERROR: [altool.101432CA0] ExitFailure (31)[0m
+[0m
+[17:36:22]: Application Loader output above ^
+[17:36:22]: [31m[ContentDelivery.Uploader.799044440] The provided entity includes an attribute with a value that has already been used (-19232) The bundle version must be higher than the previously uploaded version: ‘1’. (ID: 908a03ad-44da-4efe-80e5-19507556b415)[0m
+[17:36:22]: [31m[altool.799044440] Failed to upload package.[0m[0m
+[17:36:22]: [31m[altool.799044440] The provided entity includes an attribute with a value that has already been used (-19232) The bundle version must be higher than the previously uploaded version: ‘1’. (ID: 908a03ad-44da-4efe-80e5-19507556b415)[0m
+[17:36:22]: [31m[altool.101432CA0] ExitFailure (31)[0m[0m
+[17:36:22]: [31mThe call to the altool completed with a non-zero exit status: 1. This indicates a failure.[0m
+[17:36:22]: [31mCould not download/upload from App Store Connect![0m
++--------------------------------------------------------------------------------------------------------------------------------+
+|                                                          [33mLane Context[0m                                                          |
++---------------------------+----------------------------------------------------------------------------------------------------+
+| DEFAULT_PLATFORM          | ios                                                                                                |
+| PLATFORM_NAME             | ios                                                                                                |
+| LANE_NAME                 | ios beta                                                                                           |
+| KEYCHAIN_PATH             | ~/Library/Keychains/build_keychain                                                                 |
+| ORIGINAL_DEFAULT_KEYCHAIN | "/Users/runner/Library/Keychains/login.keychain-db"                                                |
+| CERT_FILE_PATH            | /Users/runner/work/app_netfits/app_netfits/ios/App/8LS9J4SFR6.cer                                  |
+| CERT_CERTIFICATE_ID       | 8LS9J4SFR6                                                                                         |
+| SIGH_PROFILE_PATH         | /Users/runner/work/app_netfits/app_netfits/ios/App/AppStore_br.com.netfits.app.mobileprovision     |
+| SIGH_PROFILE_PATHS        | ["/Users/runner/work/app_netfits/app_netfits/ios/App/AppStore_br.com.netfits.app.mobileprovision"] |
+| SIGH_UDID                 | 3940284f-a3a2-48b3-af0e-073d2715bb7f                                                               |
+| SIGH_UUID                 | 3940284f-a3a2-48b3-af0e-073d2715bb7f                                                               |
+| SIGH_NAME                 | br.com.netfits.app AppStore 1792628558                                                             |
+| SIGH_PROFILE_TYPE         | app-store                                                                                          |
+| IPA_OUTPUT_PATH           | /Users/runner/work/app_netfits/app_netfits/ios/App/build/Netfits.ipa                               |
+| XCODEBUILD_ARCHIVE        | /Users/runner/Library/Developer/Xcode/Archives/2026-10-24/Netfits 2026-10-24 17.35.54.xcarchive    |
+| DSYM_OUTPUT_PATH          | /Users/runner/work/app_netfits/app_netfits/ios/App/build/Netfits.app.dSYM.zip                      |
++---------------------------+----------------------------------------------------------------------------------------------------+
+[17:36:22]: [31mCalled from Fastfile at line 75[0m
+[17:36:22]: [31m```[0m
+[17:36:22]: [31m    73:	    )[0m
+[17:36:22]: [31m    74:	[0m
+[17:36:22]: [31m => 75:	    upload_to_testflight([0m
+[17:36:22]: [31m    76:	      api_key: api_key,[0m
+[17:36:22]: [31m    77:	      skip_waiting_for_build_processing: true[0m
+[17:36:22]: [31m```[0m
+
++--------------------------------------------------+
+|                 [32mfastlane summary[0m                 |
++------+-----------------------------+-------------+
+| Step | Action                      | Time (in s) |
++------+-----------------------------+-------------+
+| 1    | default_platform            | 0           |
+| 2    | app_store_connect_api_key   | 0           |
+| 3    | create_keychain             | 0           |
+| 4    | import_certificate          | 0           |
+| 5    | get_certificates            | 0           |
+| 6    | get_provisioning_profile    | 0           |
+| 7    | update_project_provisioning | 0           |
+| 8    | build_app                   | 47          |
+| 💥   | [31mupload_to_testflight[0m        | 4           |
++------+-----------------------------+-------------+
+
+[17:36:22]: [31mfastlane finished with errors[0m
+[31m
+[!] Error uploading ipa file: 
+ [Application Loader Error Output]: [ContentDelivery.Uploader.799044440] The provided entity includes an attribute with a value that has already been used (-19232) The bundle version must be higher than the previously uploaded version: ‘1’. (ID: 908a03ad-44da-4efe-80e5-19507556b415)
+[Application Loader Error Output]: [altool.799044440] Failed to upload package.[0m
+[Application Loader Error Output]: [altool.799044440] The provided entity includes an attribute with a value that has already been used (-19232) The bundle version must be higher than the previously uploaded version: ‘1’. (ID: 908a03ad-44da-4efe-80e5-19507556b415)
+[Application Loader Error Output]: [altool.101432CA0] ExitFailure (31)[0m
+[Application Loader Error Output]: The call to the altool completed with a non-zero exit status: 1. This indicates a failure.[0m
