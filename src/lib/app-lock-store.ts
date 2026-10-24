@@ -240,18 +240,15 @@ class AppLockStore {
         }
       }
 
-      // 2. Autenticação Biométrica FIDO2 / WebAuthn Nativa do Sistema Operacional (Android Biometrics / Face ID)
-      const isPasskeySupported = await passkeyService.isPasskeySupported();
-      if (isPasskeySupported) {
-        const result = await withTimeout(passkeyService.authenticate(activeUser.id), 7000);
-        if (result.success) {
-          this.setUnlocked(true);
-          toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
-          return { success: true };
-        }
-        if (result.error && !result.error.includes("não disponível")) {
-          return { success: false, error: result.error };
-        }
+      // 2. Autenticação Biométrica FIDO2 / Passkey / Biometria do Sistema
+      const result = await withTimeout(passkeyService.authenticate(activeUser.id), 7000);
+      if (result.success) {
+        this.setUnlocked(true);
+        toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
+        return { success: true };
+      }
+      if (result.error) {
+        return { success: false, error: result.error };
       }
 
       return {

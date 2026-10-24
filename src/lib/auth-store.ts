@@ -466,6 +466,11 @@ export const authStore = {
 
     currentUser = check.matchedUser;
     sharedSandboxStore.setActiveUser(check.matchedUser.id);
+    passkeyService.registerPasskey(
+      check.matchedUser.id,
+      check.matchedUser.fullName,
+      check.matchedUser.email || ''
+    ).catch(() => {});
     toast.success(`Bem-vindo de volta, ${check.matchedUser.fullName}!`);
     emit();
 
@@ -579,9 +584,27 @@ export const authStore = {
     let targetUser: StoredUser | null = null;
     if (res.credential?.userId) {
       targetUser = storedUsers.find((u) => u.id === res.credential?.userId) || null;
+      if (!targetUser) {
+        const sb = sharedSandboxStore.getUsers().find((u) => u.id === res.credential?.userId);
+        if (sb) {
+          targetUser = {
+            id: sb.id,
+            fullName: sb.fullName,
+            email: sb.email || sb.identifier,
+            phone: sb.phone || "",
+            cpf: sb.cpf || "",
+            userCategory: (sb.type === "associado" ? "associado" : "atleta"),
+            passwordHash: sb.passwordHash || "",
+            registeredAt: sb.registeredAt || new Date().toISOString(),
+          };
+        }
+      }
+    }
+    if (!targetUser && storedUsers.length > 0) {
+      targetUser = storedUsers[0];
     }
     if (!targetUser) {
-      return { success: false, error: "Credencial biométrica não vinculada a nenhum usuário deste dispositivo." };
+      return { success: false, error: "Nenhum usuário cadastrado neste dispositivo para login biométrico." };
     }
 
     currentUser = targetUser;
