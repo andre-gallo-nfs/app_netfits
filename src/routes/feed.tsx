@@ -1,4 +1,3 @@
-import { WorkoutValidationCard } from "@/components/WorkoutValidationCard";
 import { trackQuizCompleted, trackQuizUnlocked } from "@/lib/analytics";
 import { createFileRoute } from '@tanstack/react-router'
 import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink, Copy, Trophy, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -14,7 +13,6 @@ import { NetfitsEducationalCard } from "@/components/NetfitsEducationalCard";
 import { MizunoArticleFeedCard } from "@/components/MizunoArticleFeedCard";
 import { ScheduledFeedCard, SCHEDULED_POSTS } from "@/components/ScheduledFeedCard";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
-import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import netfitsMark from "@/assets/netfits-mark.png";
 import { wallet } from "@/lib/wallet-store";
 import { toast } from "sonner";
@@ -179,9 +177,6 @@ export function FeedPage() {
     <div className="pb-8 space-y-4">
       {/* Lista Principal de Publicações do Feed — Exclusivo FIBIOS */}
       <div className="space-y-6 pt-2">
-        {/* 0. Card Dinâmico de Telemetria: Ritual Diário de Validação de Treino (Wearables & Smartwatches) */}
-        <WorkoutValidationCard />
-
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
 

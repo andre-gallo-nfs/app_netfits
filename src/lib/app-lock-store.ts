@@ -205,8 +205,7 @@ class AppLockStore {
       };
     }
 
-    // Guardião de Timeout: se qualquer chamada de hardware demorar mais de 6s, aborta
-    const withTimeout = <T>(promise: Promise<T>, timeoutMs = 6000): Promise<T> => {
+    const withTimeout = <T>(promise: Promise<T>, timeoutMs = 7000): Promise<T> => {
       return Promise.race([
         promise,
         new Promise<T>((_, reject) =>
@@ -216,75 +215,59 @@ class AppLockStore {
     };
 
     try {
-      // 1. No aplicativo móvel (Android / iOS)
-      if (nativeBridge.isNativePlatform()) {
-        // Checar se o APK instalado no celular já possui o plugin nativo compilado (v1.0.4+)
-        const hasNativePlugin =
-          typeof Capacitor !== "undefined" &&
-          (Capacitor.isPluginAvailable("BiometricAuthNative") ||
-            Capacitor.isPluginAvailable("BiometricAuth"));
+      // 1. Tenta via Plugin Nativo se estiver presente no runtime do app
+      const BiometricAuth =
+        (window as any).Capacitor?.Plugins?.BiometricAuthNative ||
+        (window as any).Capacitor?.Plugins?.BiometricAuth;
 
-        if (!hasNativePlugin) {
-          return {
-            success: false,
-            error:
-              "O leitor de biometria nativo exige a versão 1.0.4 da Google Play Store. Por favor, digite sua senha para entrar agora.",
-          };
+      if (BiometricAuth && typeof BiometricAuth.authenticate === "function") {
+        try {
+          const check = await withTimeout(BiometricAuth.checkBiometry(), 2500);
+          if (check && (check as any).isAvailable) {
+            await withTimeout(
+              BiometricAuth.authenticate({
+                reason: `Confirme sua digital ou Face ID para acessar sua conta Netfits (${activeUser.fullName})`,
+                cancelTitle: "Cancelar",
+              }),
+              7000
+            );
+            this.setUnlocked(true);
+            toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
+            return { success: true };
+          }
+        } catch (pluginErr: any) {
+          console.warn("[AppLock] Falha no plugin nativo, tentando WebAuthn:", pluginErr);
         }
-
-        const BiometricAuth =
-          (window as any).Capacitor?.Plugins?.BiometricAuthNative ||
-          (window as any).Capacitor?.Plugins?.BiometricAuth;
-
-        if (!BiometricAuth) {
-          return {
-            success: false,
-            error:
-              "Sensor biométrico nativo não disponível neste dispositivo. Por favor, desbloqueie com sua senha cadastrada.",
-          };
-        }
-        const check = await withTimeout(BiometricAuth.checkBiometry(), 3000);
-        if (!check || !(check as any).isAvailable) {
-          return {
-            success: false,
-            error:
-              "Sensor biométrico não cadastrado nas configurações do seu celular. Desbloqueie com sua senha.",
-          };
-        }
-
-        // Abre o diálogo nativo do Android / iOS (BiometricPrompt)
-        await withTimeout(
-          BiometricAuth.authenticate({
-            reason: `Confirme sua digital ou Face ID para acessar sua conta Netfits (${activeUser.fullName})`,
-            cancelTitle: "Cancelar",
-          }),
-          8000
-        );
-
-        this.setUnlocked(true);
-        toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
-        return { success: true };
       }
 
-      // 2. No navegador web desktop
-      const result = await withTimeout(passkeyService.authenticate(activeUser.id), 5000);
-      if (result.success) {
-        this.setUnlocked(true);
-        toast.success(`👋 Olá, ${activeUser.fullName}! Acesso liberado.`);
-        return { success: true };
+      // 2. Autenticação Biométrica FIDO2 / WebAuthn Nativa do Sistema Operacional (Android Biometrics / Face ID)
+      const isPasskeySupported = await passkeyService.isPasskeySupported();
+      if (isPasskeySupported) {
+        const result = await withTimeout(passkeyService.authenticate(activeUser.id), 7000);
+        if (result.success) {
+          this.setUnlocked(true);
+          toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
+          return { success: true };
+        }
+        if (result.error && !result.error.includes("não disponível")) {
+          return { success: false, error: result.error };
+        }
       }
-      return { success: false, error: result.error || "Biometria não reconhecida." };
+
+      return {
+        success: false,
+        error: "Sensor biométrico não disponível ou não configurado. Por favor, digite sua senha cadastrada.",
+      };
     } catch (err: any) {
       console.warn("[AppLock] Biometria falhou ou expirou:", err);
       const msg = String(err?.message || "").toLowerCase();
       if (msg.includes("timeout")) {
         return {
           success: false,
-          error:
-            "O sensor biométrico demorou para responder. Por favor, desbloqueie com sua senha cadastrada.",
+          error: "O sensor biométrico demorou para responder. Por favor, desbloqueie com sua senha cadastrada.",
         };
       }
-      if (msg.includes("cancel") || err?.code === "userCancel" || msg.includes("canceled")) {
+      if (msg.includes("cancel") || err?.code === "userCancel" || msg.includes("canceled") || msg.includes("notallowederror")) {
         return { success: false, error: "Validação biométrica cancelada pelo usuário." };
       }
       return {
