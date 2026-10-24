@@ -1,3 +1,4 @@
+import { WorkoutValidationCard } from "@/components/WorkoutValidationCard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useOperationalParams } from "@/lib/operational-params-store";
@@ -78,6 +79,11 @@ function ActivitiesPage() {
             <Activity className="size-6" />
           </div>
         </div>
+      </section>
+
+      {/* Card Destaque: Ritual Diário de Validação de Treino (Caminho 1 Nativo + Caminho 2 Nuvem) */}
+      <section className="px-4">
+        <WorkoutValidationCard />
       </section>
 
       {/* Card 1: Meta Semanal de Consistência (Gamificação & Streak) */}

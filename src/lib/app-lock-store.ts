@@ -232,8 +232,17 @@ class AppLockStore {
           };
         }
 
-        const BiometricAuth = (window as any).Capacitor?.Plugins?.BiometricAuth;
-        if (!BiometricAuth) { this.setUnlocked(true); return { success: true }; }
+        const BiometricAuth =
+          (window as any).Capacitor?.Plugins?.BiometricAuthNative ||
+          (window as any).Capacitor?.Plugins?.BiometricAuth;
+
+        if (!BiometricAuth) {
+          return {
+            success: false,
+            error:
+              "Sensor biométrico nativo não disponível neste dispositivo. Por favor, desbloqueie com sua senha cadastrada.",
+          };
+        }
         const check = await withTimeout(BiometricAuth.checkBiometry(), 3000);
         if (!check || !(check as any).isAvailable) {
           return {

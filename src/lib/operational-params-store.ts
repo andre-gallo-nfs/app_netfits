@@ -203,7 +203,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v12";
+const STORAGE_KEY = "netfits_operational_params_v14";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;
@@ -211,7 +211,7 @@ function loadInitialParams(): OperationalParams {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...DEFAULT_OPERATIONAL_PARAMS, ...parsed };
+      return { ...DEFAULT_OPERATIONAL_PARAMS, ...parsed, nfsPerEducationalPostView: 0, nfsPerSponsoredPostView: 0, nfsPerPostView: 0 };
     }
   } catch (e) {
     console.error("Error loading operational params from localStorage:", e);
