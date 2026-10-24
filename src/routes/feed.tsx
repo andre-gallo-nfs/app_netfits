@@ -12,6 +12,7 @@ import { DrFrancoQuizCard } from "@/components/DrFrancoQuizCard";
 import { DraIsabellaQuizCard } from "@/components/DraIsabellaQuizCard";
 import { NetfitsEducationalCard } from "@/components/NetfitsEducationalCard";
 import { MizunoArticleFeedCard } from "@/components/MizunoArticleFeedCard";
+import { ScheduledFeedCard, SCHEDULED_POSTS } from "@/components/ScheduledFeedCard";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -44,7 +45,8 @@ interface InteractiveFeedCardItem {
   render: () => React.ReactNode;
 }
 
-const INTERACTIVE_FEED_CARDS: InteractiveFeedCardItem[] = [
+// Posts Iniciais Já Publicados no Feed (Pilotos Ativos)
+const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
   {
     id: "mizuno-patrocinado",
     quizPostId: "quiz-sponsor-mizuno-cap",
@@ -87,6 +89,28 @@ const INTERACTIVE_FEED_CARDS: InteractiveFeedCardItem[] = [
   },
 ];
 
+// Motor de Publicação Diária Automatizada (Às 06:00 de cada dia)
+function getActiveFeedCards(): InteractiveFeedCardItem[] {
+  const now = new Date();
+  const activeCards = [...INITIAL_FEED_CARDS];
+
+  for (const post of SCHEDULED_POSTS) {
+    const pubDate = new Date(post.publishDate);
+    if (now >= pubDate) {
+      activeCards.push({
+        id: post.id,
+        quizPostId: post.quizPostId,
+        title: `${post.author} — ${post.title}`,
+        badge: post.badge,
+        isSponsored: false,
+        render: () => <ScheduledFeedCard key={post.id} post={post} isDailyChallenge={true} />,
+      });
+    }
+  }
+
+  return activeCards;
+}
+
 export function FeedPage() {
   const [sessionCompletedIds, setSessionCompletedIds] = useState<string[]>([]);
   const [reorderKey, setReorderKey] = useState<number>(0);
@@ -119,7 +143,8 @@ export function FeedPage() {
     const pendingEducational: InteractiveFeedCardItem[] = [];
     const completed: InteractiveFeedCardItem[] = [];
 
-    for (const card of INTERACTIVE_FEED_CARDS) {
+    const activeCards = getActiveFeedCards();
+    for (const card of activeCards) {
       const isClaimed = typeof window !== "undefined" && feedAntifraud.hasClaimed("quiz", card.quizPostId);
       
       if (isClaimed) {
