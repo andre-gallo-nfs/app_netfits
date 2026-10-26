@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Trophy,
   Sparkles,
@@ -11,6 +11,9 @@ import {
   Play,
   Film,
   Calendar,
+  Zap,
+  Volume2,
+  ArrowRight,
 } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
 import clinicFibios from "@/assets/clinic-fibios.jpg";
@@ -27,6 +30,18 @@ export interface ScheduledPostOption {
   text: string;
   isCorrect: boolean;
   feedback?: string;
+}
+
+export interface ScheduledVideoScene {
+  sceneNumber: number;
+  startSec: number;
+  endSec: number;
+  title: string;
+  visual: string;
+  voiceover: string;
+  icon?: string;
+  tag?: string;
+  graphicType?: string;
 }
 
 export interface ScheduledPostDef {
@@ -50,6 +65,8 @@ export interface ScheduledPostDef {
   articleContent: string[];
   quizQuestion: string;
   quizOptions: ScheduledPostOption[];
+  videoUrl?: string;
+  videoStoryboard?: ScheduledVideoScene[];
 }
 
 export const SCHEDULED_POSTS: ScheduledPostDef[] = scheduledPostsRaw as ScheduledPostDef[];
@@ -60,94 +77,206 @@ interface ScheduledFeedCardProps {
 }
 
 export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFeedCardProps) {
-  const [selectedOption, setSelectedOption] = useState<string>(post.quizOptions[0]?.id || "");
+  // NENHUMA alternativa pré-selecionada por padrão
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Modais e navegação
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalView, setModalView] = useState<"content" | "quiz">("content");
+
+  // Antifraude e tempos
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
+
+  // Embaralhamento determinístico das alternativas por post (posição aleatória da resposta certa)
+  const shuffledOptions = useMemo(() => {
+    const arr = [...post.quizOptions];
+    let seed = 0;
+    for (let i = 0; i < post.id.length; i++) {
+      seed = (seed * 31 + post.id.charCodeAt(i)) % 2147483647;
+    }
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 16807 + i) % 2147483647;
+      const j = seed % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [post.id, post.quizOptions]);
+
+  // Estados do Player de Vídeo Real HTML5
+  const isVideo = post.format === "video_animation";
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoElapsedSec, setVideoElapsedSec] = useState<number>(0);
+  const [videoTotalDuration, setVideoTotalDuration] = useState<number>(() => {
+    if (!post.duration) return 50;
+    const match = post.duration.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 50;
+  });
+
+  const isStaging = useMemo(() => {
+    if (typeof window === "undefined") return true;
+    const h = window.location.hostname;
+    return (
+      h.includes("staging") ||
+      h.includes("trycloudflare.com") ||
+      h.includes("localhost") ||
+      h.includes("lhr.life") ||
+      window.location.port === "3000" ||
+      window.location.search.includes("homolog=true") ||
+      (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_ENV === "staging")
+    );
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (feedAntifraud.hasClaimed("quiz", post.quizPostId)) {
         setHasSubmitted(true);
       }
-      if (feedAntifraud.hasClaimed("read", post.articlePostId)) {
+      if (feedAntifraud.hasClaimed("read", post.articlePostId) || feedAntifraud.hasClaimed("video_view", post.id)) {
         setReadClaimed(true);
       }
     }
-  }, [post.quizPostId, post.articlePostId]);
+  }, [post.quizPostId, post.articlePostId, post.id]);
 
-  // Cronômetro de Dwell Time Antifraude (10s mínimo auditado)
+  // Autoplay suave quando abrir o modal de vídeo em modo de conteúdo
+  useEffect(() => {
+    if (modalOpen && modalView === "content" && isVideo && videoRef.current) {
+      videoRef.current.play().catch(() => {
+        // Autoplay com som no mobile pode exigir toque direto do usuário
+      });
+    }
+  }, [modalOpen, modalView, isVideo]);
+
+  // Listener de progresso do vídeo
+  const handleVideoTimeUpdate = () => {
+    if (!videoRef.current) return;
+    const v = videoRef.current;
+    if (v.duration && v.duration > 0) {
+      setVideoTotalDuration(Math.round(v.duration));
+      setVideoElapsedSec(Math.round(v.currentTime));
+      const pct = Math.min(100, Math.round((v.currentTime / v.duration) * 100));
+
+      if (pct >= 90 && !readClaimed) {
+        setReadClaimed(true);
+        feedAntifraud.recordAction("read", post.articlePostId, 0);
+        feedAntifraud.recordAction("video_view", post.id, 0);
+        toast.success("🎉 Retenção de 90% do vídeo atingida! O Desafio Quiz (+5 netfits) foi destravado.");
+      }
+    }
+  };
+
+  const handleVideoLoadedMetadata = () => {
+    if (videoRef.current && videoRef.current.duration) {
+      setVideoTotalDuration(Math.round(videoRef.current.duration));
+    }
+  };
+
+  const handleVideoEnded = () => {
+    if (!readClaimed) {
+      setReadClaimed(true);
+      feedAntifraud.recordAction("read", post.articlePostId, 0);
+      feedAntifraud.recordAction("video_view", post.id, 0);
+      toast.success("🎉 Vídeo completo! O Desafio Quiz (+5 netfits) foi destravado.");
+    }
+  };
+
+  // Atalho exclusivo de Homologação (Demo)
+  const handleSkipVideoDemo = () => {
+    if (videoRef.current && videoRef.current.duration) {
+      videoRef.current.currentTime = videoRef.current.duration * 0.91;
+    }
+    setVideoElapsedSec(Math.round(videoTotalDuration * 0.91));
+    setReadClaimed(true);
+    feedAntifraud.recordAction("read", post.articlePostId, 0);
+    feedAntifraud.recordAction("video_view", post.id, 0);
+    toast.success("⚡ [Homologação Demo] Retenção de 90% validada! Quiz liberado.");
+  };
+
+  // Trava Antifraude de Leitura (Para Artigos)
   useEffect(() => {
     let timer: any = null;
-    if (modalOpen && !readClaimed) {
-      setHasScrolledToBottom(false);
-      setDwellTimeSeconds(0);
+    if (modalOpen && modalView === "content" && !isVideo && !readClaimed) {
       timer = setInterval(() => {
-        setDwellTimeSeconds((prev) => prev + 1);
+        setDwellTimeSeconds((prev) => {
+          const next = prev + 1;
+          if (next >= 10 && hasScrolledToBottom) {
+            setReadClaimed(true);
+            feedAntifraud.recordAction("read", post.articlePostId, 0);
+            toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 netfits) foi liberado.");
+            clearInterval(timer);
+          }
+          return next;
+        });
       }, 1000);
     }
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [modalOpen, readClaimed]);
+  }, [modalOpen, modalView, isVideo, readClaimed, hasScrolledToBottom, post.articlePostId]);
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  const handleScrollArticle = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
-    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 35) {
+    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 40;
+    if (isAtBottom && !hasScrolledToBottom) {
       setHasScrolledToBottom(true);
+      if (dwellTimeSeconds >= 10 && !readClaimed) {
+        setReadClaimed(true);
+        feedAntifraud.recordAction("read", post.articlePostId, 0);
+        toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 netfits) foi liberado.");
+      }
     }
   };
 
-  const handleClaimRead = () => {
-    if (readClaimed) {
-      toast.info("Você já concluiu a leitura e destravou o desafio!");
-      return;
+  // Transição automática para o Quiz ao clicar no botão
+  const handleGoToQuiz = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
     }
-
-    const minDwell = feedAntifraud.getRules().minDwellTimeSeconds ?? 10;
-    if (dwellTimeSeconds < minDwell) {
-      toast.warning(`Permaneça mais ${minDwell - dwellTimeSeconds}s no conteúdo para validar sua atenção.`);
-      return;
-    }
-
-    if (feedAntifraud.getRules().requireScrollToBottom && !hasScrolledToBottom) {
-      toast.warning("Role até o final do conteúdo para confirmar a leitura completa.");
-      return;
-    }
-
-    setReadClaimed(true);
-    feedAntifraud.recordAction("read", post.articlePostId, 0);
-    toast.success("👏 Leitura validada! O Desafio Quiz está destravado (0 nfs por leitura / +5 nfs no acerto).");
+    setModalView("quiz");
+    setModalOpen(true);
   };
 
   const handleSubmitQuiz = () => {
-    if (hasSubmitted) {
-      toast.info("Você já respondeu este desafio com sucesso!");
+    if (hasSubmitted) return;
+
+    if (!selectedOption) {
+      toast.warning("Selecione uma das alternativas antes de confirmar.");
       return;
     }
 
-    const option = post.quizOptions.find((o) => o.id === selectedOption);
-    if (!option) return;
+    if (!readClaimed) {
+      toast.error(
+        isVideo
+          ? "🚫 Antifraude Netfits: Assista ao menos 90% do vídeo para liberar a resposta do Quiz."
+          : "🚫 Antifraude Netfits: Você precisa ler o artigo completo por pelo menos 10 segundos antes de responder."
+      );
+      setErrorMsg("Conclua a visualização do conteúdo para destravar a pontuação.");
+      return;
+    }
 
-    if (option.isCorrect) {
-      const validation = feedAntifraud.validateAction("quiz", post.quizPostId);
-      if (!validation.allowed) {
-        toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
-        return;
-      }
+    const selectedOptObj = post.quizOptions.find((opt) => opt.id === selectedOption);
+    if (!selectedOptObj) return;
 
-      const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
-      setErrorMsg(null);
+    if (selectedOptObj.isCorrect) {
+      const amount = 5;
+      wallet.earn(amount, `Quiz Diário Netfits - Dia ${post.originalDay}`, "feed");
+      feedAntifraud.recordAction("quiz", post.quizPostId, amount);
       setHasSubmitted(true);
-      wallet.earn(points, `Quiz Diário: ${post.title}`);
-      feedAntifraud.recordAction("quiz", post.quizPostId, points);
-      toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);
+      setErrorMsg(null);
+      toast.success(`🎉 Parabéns! Você acertou e ganhou +${amount} netfits!`, {
+        description: selectedOptObj.feedback || "Netfits creditados na sua carteira com sucesso.",
+      });
     } else {
-      setErrorMsg(option.feedback || "Resposta incorreta. Revise o conteúdo e tente novamente!");
-      toast.error("Resposta incorreta. Revise o conteúdo e tente novamente!");
+      setErrorMsg(
+        selectedOptObj.feedback ||
+          "Resposta incorreta. Revise o conteúdo do post e tente novamente para absorver o aprendizado."
+      );
+      toast.error("Ops! Resposta incorreta.", {
+        description: selectedOptObj.feedback,
+      });
     }
   };
 
@@ -165,10 +294,25 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
     }
   };
 
-  const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds ?? 10;
-  const isDwellQualified = dwellTimeSeconds >= minDwellRequired;
-  const isScrollQualified = !feedAntifraud.getRules().requireScrollToBottom || hasScrolledToBottom;
-  const canClaim = isDwellQualified && isScrollQualified;
+  const videoProgressPct = Math.min(
+    100,
+    videoTotalDuration > 0 ? Math.round((videoElapsedSec / videoTotalDuration) * 100) : 0
+  );
+
+  const handleOpenContent = () => {
+    setModalView("content");
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    if (isVideo && modalView === "content" && !readClaimed && videoProgressPct < 90) {
+      toast.warning("⚠️ Antifraude: Você precisa assistir ao menos 90% do vídeo para destravar o Quiz de +5 netfits.");
+    }
+    setModalOpen(false);
+  };
 
   return (
     <>
@@ -177,7 +321,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              onClick={() => setModalOpen(true)}
+              onClick={handleOpenContent}
               className="w-10 h-10 rounded-full border border-primary/30 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all bg-card overflow-hidden"
             >
               <img src={getAvatarSrc()} alt={post.author} className="w-full h-full object-cover" />
@@ -185,7 +329,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             <div>
               <div className="flex items-center gap-1.5">
                 <span
-                  onClick={() => setModalOpen(true)}
+                  onClick={handleOpenContent}
                   className="text-sm font-semibold text-foreground hover:text-primary transition-colors cursor-pointer"
                 >
                   {post.author}
@@ -205,14 +349,15 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </div>
         </div>
 
-        {/* Card Visual com Badge & Título */}
+        {/* Card Visual / Thumbnail */}
         <div
-          onClick={() => setModalOpen(true)}
+          onClick={handleOpenContent}
           className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-5 cursor-pointer shadow-sm hover:border-primary/40 transition-all"
         >
+          {/* Tag de Formato & Duração */}
           <div className="flex items-center justify-between gap-2 mb-2.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
-              {post.format === "video_animation" ? (
+              {isVideo ? (
                 <Film className="w-3 h-3 text-primary" />
               ) : (
                 <BookOpen className="w-3 h-3 text-primary" />
@@ -220,11 +365,29 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               {post.badge}
             </span>
 
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <span className="text-[11px] text-muted-foreground flex items-center gap-1 font-mono">
               <Clock className="w-3 h-3" />
-              {post.readTime}
+              {isVideo ? (post.duration || `${videoTotalDuration}s`) : post.readTime}
             </span>
           </div>
+
+          {/* Banner Preview para Vídeos com Botão de Play Real */}
+          {isVideo && (
+            <div className="relative aspect-video rounded-xl overflow-hidden mb-3 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black border border-emerald-500/30 group-hover:border-emerald-500/60 transition-all flex flex-col items-center justify-center p-4 text-center shadow-lg">
+              <div className="size-14 rounded-full bg-emerald-500 text-zinc-950 grid place-items-center shadow-2xl group-hover:scale-110 transition-transform ring-4 ring-emerald-500/30 mb-2">
+                <Play className="size-7 ml-0.5 fill-zinc-950 text-zinc-950" />
+              </div>
+              <span className="text-xs sm:text-sm font-black text-white tracking-tight drop-shadow">
+                Assistir Vídeo Oficial Netfits ({post.duration || `${videoTotalDuration}s`})
+              </span>
+              <span className="text-[10px] text-emerald-300 font-medium mt-0.5 flex items-center gap-1">
+                <Volume2 className="size-3 text-emerald-400" /> Áudio & Locução Narrativa com Voz Real
+              </span>
+              <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-sm text-lime-400 text-[9px] font-bold px-2 py-0.5 rounded-md border border-lime-500/30">
+                🛡️ Antifraude: 90% Dwell
+              </div>
+            </div>
+          )}
 
           <h3 className="text-base sm:text-lg font-bold text-foreground leading-snug group-hover:text-primary transition-colors mb-2">
             {post.title}
@@ -236,9 +399,9 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
 
           <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs font-semibold text-primary">
             <span className="flex items-center gap-1.5">
-              {post.format === "video_animation" ? (
+              {isVideo ? (
                 <>
-                  <Play className="w-3.5 h-3.5 fill-primary" /> Assistir Animação Didática ({post.duration || "60s"})
+                  <Play className="w-3.5 h-3.5 fill-primary" /> Abrir Player de Vídeo
                 </>
               ) : (
                 <>
@@ -247,21 +410,21 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               )}
             </span>
             <span className="text-[11px] text-muted-foreground font-normal">
-              {readClaimed ? "✓ Leitura auditada" : "Trava 10s antifraude"}
+              {readClaimed ? "✓ Conteúdo validado" : isVideo ? "Trava 90% antifraude" : "Trava 10s antifraude"}
             </span>
           </div>
         </div>
 
-        {/* Social Actions (0 nfs por visualização, 1 nf compartilhamento) */}
+        {/* Social Actions */}
         <FeedSocialActions
           id={post.id}
           title={post.title}
           postCategory="educational"
           showViewButton={false}
-          onOpenArticle={() => setModalOpen(true)}
+          onOpenArticle={handleOpenContent}
         />
 
-        {/* Card do Desafio Quiz Diário (+5 nfs) */}
+        {/* Card do Desafio Quiz Diário (+5 netfits) */}
         <div className="rounded-2xl border border-primary/20 bg-primary/[0.03] p-4 sm:p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -280,7 +443,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   )}
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Acerte para creditar <strong className="text-foreground">+5 nfs</strong> na carteira
+                  Acerte para creditar <strong className="text-foreground">+5 netfits</strong> na carteira
                 </p>
               </div>
             </div>
@@ -291,7 +454,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary">
-                <Sparkles className="w-3 h-3" /> +5 nfs
+                <Sparkles className="w-3 h-3" /> +5 netfits
               </span>
             )}
           </div>
@@ -300,9 +463,9 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             {post.quizQuestion}
           </div>
 
-          {/* Opções de Resposta */}
+          {/* Opções de Resposta Embaralhadas (Nenhuma pré-selecionada) */}
           <div className="space-y-2">
-            {post.quizOptions.map((opt) => {
+            {shuffledOptions.map((opt) => {
               const isSelected = selectedOption === opt.id;
               return (
                 <button
@@ -339,116 +502,353 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             </div>
           )}
 
+          {!readClaimed && !hasSubmitted && (
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300 font-medium flex items-center gap-2">
+              <AlertCircle className="size-3.5 shrink-0 text-amber-400" />
+              <span>
+                {isVideo
+                  ? "Assista ao menos 90% do vídeo acima para destravar o botão de confirmação."
+                  : "Abra e leia o artigo completo acima para destravar o botão de confirmação."}
+              </span>
+            </div>
+          )}
+
           {!hasSubmitted ? (
             <button
               onClick={handleSubmitQuiz}
-              className="w-full py-2.5 px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-xs sm:text-sm shadow-sm hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              disabled={!readClaimed || !selectedOption}
+              className={`w-full py-2.5 px-4 rounded-xl font-semibold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 ${
+                readClaimed && selectedOption
+                  ? "bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.99] cursor-pointer"
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
+              }`}
             >
-              <CheckCircle2 className="w-4 h-4" /> Confirmar Resposta & Pontuar (+5 nfs)
+              <CheckCircle2 className="w-4 h-4" /> Confirmar Resposta & Pontuar (+5 netfits)
             </button>
           ) : (
             <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400 font-medium flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Pontos creditados com sucesso! Revise sempre para consolidar seus hábitos.</span>
+              <span>Netfits creditados com sucesso! Revise sempre para consolidar seus hábitos.</span>
             </div>
           )}
         </div>
       </article>
 
-      {/* Modal / Sheet de Leitura Auditada Antifraude */}
+      {/* MODAL GLOBAL: GERENCIA CONTEÚDO (VÍDEO/ARTIGO) E TRANSIÇÃO AUTOMÁTICA PARA O QUIZ */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="bg-card w-full max-w-lg max-h-[88vh] rounded-2xl border border-border shadow-2xl flex flex-col overflow-hidden">
-            {/* Header Modal */}
-            <div className="p-4 border-b border-border flex items-center justify-between bg-muted/20">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-wide">
-                  {post.line}
-                </span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {post.readTime}
-                </span>
-              </div>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Conteúdo com Scroll Listener */}
-            <div onScroll={handleScroll} className="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm leading-relaxed text-foreground/90">
-              <h2 className="text-base sm:text-xl font-bold text-foreground leading-snug">{post.title}</h2>
-              <p className="text-xs sm:text-sm text-primary font-medium">{post.subtitle}</p>
-
-              {post.format === "video_animation" && (
-                <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 flex items-center gap-3 text-xs text-primary">
-                  <Film className="w-5 h-5 shrink-0" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
+          {/* TELA A: QUIZ DEDICADO DENTRO DO MODAL (Abre automaticamente quando o usuário clica em Ir para o Quiz) */}
+          {modalView === "quiz" ? (
+            <div className="bg-zinc-950 w-full max-w-lg rounded-3xl border border-primary/40 shadow-2xl flex flex-col overflow-hidden text-white max-h-[92vh]">
+              {/* Header do Quiz Modal */}
+              <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/90 shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-8 rounded-xl bg-primary/20 text-primary border border-primary/30 grid place-items-center">
+                    <Trophy className="size-4" />
+                  </div>
                   <div>
-                    <div className="font-bold">Vídeo Didático em Produção (Motion 2D)</div>
-                    <div className="text-[11px] text-muted-foreground">
-                      Duração: {post.duration || "60s"} · Roteiro e storyboard homologados para animação vertical.
-                    </div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>Desafio Quiz Netfits · Dia {String(post.originalDay).padStart(2, "0")}</span>
+                      <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-black">
+                        +5 netfits
+                      </span>
+                    </h3>
+                    <p className="text-[10px] text-zinc-400">Responda corretamente para creditar seus netfits</p>
                   </div>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="size-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white grid place-items-center transition cursor-pointer"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
 
-              <div className="space-y-3 pt-2 text-foreground/80">
+              {/* Corpo do Quiz no Modal */}
+              <div className="p-5 overflow-y-auto space-y-4 text-left">
+                <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-xs sm:text-sm font-semibold text-zinc-100 leading-snug">
+                  {post.quizQuestion}
+                </div>
+
+                <div className="space-y-2.5">
+                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                    Selecione a alternativa correta:
+                  </label>
+                  {shuffledOptions.map((opt, i) => {
+                    const isSelected = selectedOption === opt.id;
+                    const letter = String.fromCharCode(65 + i); // A, B, C, D
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        disabled={hasSubmitted}
+                        onClick={() => {
+                          setSelectedOption(opt.id);
+                          setErrorMsg(null);
+                        }}
+                        className={`w-full text-left p-3.5 rounded-2xl border text-xs sm:text-sm transition-all flex items-start gap-3 ${
+                          isSelected
+                            ? "border-primary bg-primary/20 text-white font-medium shadow-md shadow-primary/10"
+                            : "border-zinc-800 hover:border-zinc-700 bg-zinc-900/40 text-zinc-300"
+                        } ${hasSubmitted ? "cursor-default" : "cursor-pointer active:scale-[0.99]"}`}
+                      >
+                        <span
+                          className={`size-6 rounded-lg text-xs font-black grid place-items-center shrink-0 border ${
+                            isSelected
+                              ? "bg-primary border-primary text-zinc-950 font-black"
+                              : "border-zinc-700 bg-zinc-800 text-zinc-400"
+                          }`}
+                        >
+                          {letter}
+                        </span>
+                        <span className="leading-relaxed flex-1 mt-0.5">{opt.text}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {errorMsg && (
+                  <div className="p-3.5 rounded-2xl bg-destructive/15 border border-destructive/30 flex items-start gap-2.5 text-xs text-red-300">
+                    <AlertCircle className="size-4 shrink-0 mt-0.5 text-red-400" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                {hasSubmitted && (
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-300 font-medium flex items-center gap-2.5">
+                    <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
+                    <span>🎉 Parabéns! Seus +5 netfits já foram adicionados com sucesso ao seu extrato.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer do Quiz Modal */}
+              <div className="p-4 border-t border-zinc-800 bg-zinc-900/90 flex items-center justify-between gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setModalView("content")}
+                  className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition cursor-pointer"
+                >
+                  Voltar ao Conteúdo
+                </button>
+
+                {!hasSubmitted ? (
+                  <button
+                    type="button"
+                    onClick={handleSubmitQuiz}
+                    disabled={!selectedOption}
+                    className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-[0.98] ${
+                      selectedOption
+                        ? "bg-primary text-zinc-950 hover:bg-primary/90 shadow-primary/20 cursor-pointer"
+                        : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                    }`}
+                  >
+                    <CheckCircle2 className="size-4" />
+                    <span>Confirmar Resposta (+5 netfits)</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20 cursor-pointer"
+                  >
+                    <span>Concluir & Voltar ao Feed</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : isVideo ? (
+            /* TELA B: PLAYER DE VÍDEO NATIVO MP4 */
+            <div className="bg-zinc-950 w-full max-w-lg rounded-3xl border border-emerald-500/30 shadow-2xl flex flex-col overflow-hidden text-white max-h-[92vh]">
+              {/* Header do Player */}
+              <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/90 shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="size-7 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 grid place-items-center text-xs font-black">
+                    <Film className="size-3.5" />
+                  </span>
+                  <div>
+                    <h3 className="text-xs font-bold text-white line-clamp-1">{post.title}</h3>
+                    <p className="text-[10px] text-zinc-400 flex items-center gap-1">
+                      <Volume2 className="size-3 text-emerald-400" /> Vídeo com Áudio Narrativo & Locução Oficial
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="size-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white grid place-items-center transition cursor-pointer"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+
+              {/* Reprodutor de Vídeo HTML5 Nativo */}
+              <div className="relative aspect-video w-full bg-black overflow-hidden border-b border-zinc-800 flex items-center justify-center">
+                <video
+                  ref={videoRef}
+                  src={post.videoUrl}
+                  playsInline
+                  controls
+                  className="w-full h-full object-contain"
+                  onTimeUpdate={handleVideoTimeUpdate}
+                  onLoadedMetadata={handleVideoLoadedMetadata}
+                  onEnded={handleVideoEnded}
+                />
+              </div>
+
+              {/* Painel Antifraude & Ações */}
+              <div className="p-4 bg-zinc-900/90 space-y-3.5 shrink-0">
+                {/* Barra de Retenção Antifraude */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-zinc-300 font-bold flex items-center gap-1">
+                      <ShieldCheck className={`size-3.5 ${readClaimed ? "text-emerald-400" : "text-amber-400"}`} />
+                      <span>Retenção Auditada: {videoProgressPct}% (Meta: 90%)</span>
+                    </span>
+                    <span className="font-mono text-xs font-bold text-emerald-400">
+                      {Math.floor(videoElapsedSec / 60)}:{String(videoElapsedSec % 60).padStart(2, "0")} / {Math.floor(videoTotalDuration / 60)}:{String(videoTotalDuration % 60).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <div className="h-2.5 w-full bg-zinc-800 rounded-full overflow-hidden p-0.5 border border-zinc-700">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        readClaimed
+                          ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                          : "bg-gradient-to-r from-emerald-500 to-lime-400"
+                      }`}
+                      style={{ width: `${videoProgressPct}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Status do Antifraude */}
+                {readClaimed ? (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
+                      <span>🎉 Retenção de 90% validada! Quiz liberado.</span>
+                    </div>
+                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md font-mono">
+                      +5 netfits
+                    </span>
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] leading-snug flex items-center justify-between">
+                    <span>⚠️ Assista ao menos 90% do vídeo com som para destravar o Quiz.</span>
+                    <span className="font-mono font-bold text-amber-400 shrink-0 ml-2">
+                      Faltam {Math.max(0, Math.round(videoTotalDuration * 0.9 - videoElapsedSec))}s
+                    </span>
+                  </div>
+                )}
+
+                {/* Ações do Modal: Pular Demo (Staging) & Botão que ABRE O QUIZ AUTOMATICAMENTE */}
+                <div className="flex items-center gap-2 pt-1">
+                  {isStaging && !readClaimed && (
+                    <button
+                      type="button"
+                      onClick={handleSkipVideoDemo}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
+                    >
+                      <Zap className="size-3.5 fill-amber-400" />
+                      <span>⚡ Pular 90% (Demo)</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={readClaimed ? handleGoToQuiz : handleCloseModal}
+                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer ${
+                      readClaimed
+                        ? "bg-emerald-500 hover:bg-emerald-600 text-zinc-950 shadow-emerald-500/20"
+                        : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                    }`}
+                  >
+                    {readClaimed ? (
+                      <>
+                        <Trophy className="size-4" />
+                        <span>Abrir o Quiz (+5 netfits)</span>
+                        <ArrowRight className="size-3.5 ml-0.5" />
+                      </>
+                    ) : (
+                      <span>Fechar Player</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* TELA C: LEITURA COMPLETA DO ARTIGO */
+            <div className="bg-card w-full max-w-lg rounded-3xl border border-border shadow-2xl flex flex-col max-h-[90vh] overflow-hidden text-card-foreground">
+              {/* Header do Artigo */}
+              <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full border border-primary/30 flex items-center justify-center overflow-hidden">
+                    <img src={getAvatarSrc()} alt={post.author} className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold text-foreground line-clamp-1">{post.author}</h3>
+                    <p className="text-[10px] text-muted-foreground">{post.authorRole}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Conteúdo com scroll */}
+              <div onScroll={handleScrollArticle} className="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm leading-relaxed">
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-primary tracking-wider uppercase">{post.badge}</span>
+                  <h2 className="text-base sm:text-lg font-bold text-foreground leading-snug">{post.title}</h2>
+                </div>
+
                 {post.articleContent.map((paragraph, idx) => (
-                  <p key={idx} className="whitespace-pre-line">
+                  <p key={idx} className="text-muted-foreground leading-relaxed">
                     {paragraph}
                   </p>
                 ))}
-              </div>
 
-              {/* Pílula de Sabedoria / Longevidade */}
-              <div className="p-3.5 rounded-xl bg-muted/50 border border-border/80 text-xs text-foreground/90 italic">
-                💡 <strong>Dica Oficial:</strong> "{post.pillText}"
-              </div>
-
-              {/* Trava Antifraude Status Bar */}
-              <div className="pt-3 border-t border-border/60">
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-                  <span className="flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Auditoria de Leitura
-                  </span>
-                  <span>
-                    {dwellTimeSeconds}s / {minDwellRequired}s
-                    {hasScrolledToBottom ? " · 100% rolado ✓" : " · role até o fim"}
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-300"
-                    style={{
-                      width: `${Math.min(100, (dwellTimeSeconds / minDwellRequired) * 100)}%`,
-                    }}
-                  />
+                <div className="pt-4 border-t border-border/60">
+                  <div className="p-3 rounded-xl bg-primary/5 border border-primary/10 space-y-1">
+                    <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Pílula de Sabedoria Netfits
+                    </span>
+                    <p className="text-xs font-medium italic text-foreground/90 leading-snug">"{post.pillText}"</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Footer Modal */}
-            <div className="p-4 border-t border-border bg-muted/20 flex items-center justify-between gap-3">
-              <span className="text-[11px] text-muted-foreground">
-                0 nfs por leitura · +5 nfs no Quiz
-              </span>
-              <button
-                disabled={!canClaim || readClaimed}
-                onClick={handleClaimRead}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all ${
-                  readClaimed
-                    ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 cursor-default"
-                    : canClaim
-                    ? "bg-primary text-primary-foreground hover:opacity-90 active:scale-95"
-                    : "bg-muted text-muted-foreground cursor-not-allowed border border-border/40"
-                }`}
-              >
-                {readClaimed ? "✓ Leitura Concluída" : canClaim ? "Concluir Leitura" : "Aguarde a Trava (10s)"}
-              </button>
+              {/* Footer do Artigo com Validação Antifraude e Botão para Ir para o Quiz */}
+              <div className="p-4 border-t border-border bg-muted/20 flex items-center justify-between text-xs gap-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span className="text-muted-foreground">
+                    Tempo lido: <strong className="text-foreground">{dwellTimeSeconds}s</strong> / 10s
+                  </span>
+                </div>
+
+                {readClaimed ? (
+                  <button
+                    type="button"
+                    onClick={handleGoToQuiz}
+                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1.5 shadow-md"
+                  >
+                    <Trophy className="w-4 h-4" /> Abrir o Quiz (+5 netfits)
+                  </button>
+                ) : (
+                  <span className="text-[11px] text-amber-500 font-medium flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" /> Role até o final (10s)
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </>

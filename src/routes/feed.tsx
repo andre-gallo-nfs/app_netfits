@@ -1,5 +1,5 @@
 import { trackQuizCompleted, trackQuizUnlocked } from "@/lib/analytics";
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowRight, MapPin, Lock, Heart, Bookmark, Share2, Play, X, ShoppingBag, Sparkles, Check, Watch, Activity, Building2, Eye, ShieldCheck, ExternalLink, Copy, Trophy, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { feedItems, type FeedItem } from "@/lib/feed-data";
@@ -179,6 +179,37 @@ export function FeedPage() {
       <div className="space-y-6 pt-2">
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
         <InviteFriendsCard />
+
+        {/* Banner de Homologação: Atalho de Curadoria para Próximas Postagens */}
+        {((typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_ENV === "staging") ||
+          (typeof window !== "undefined" &&
+            (window.location.hostname.includes("staging") ||
+              window.location.hostname.includes("trycloudflare.com") ||
+              window.location.hostname.includes("localhost") ||
+              window.location.hostname.includes("lhr.life") ||
+              window.location.port === "3000"))) && (
+            <div className="mx-1 p-3 rounded-2xl bg-gradient-to-r from-purple-950/70 to-zinc-900 border border-purple-500/40 shadow-md flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">🗓️</span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-white">Próximas Postagens</span>
+                    <span className="text-[9px] font-black uppercase tracking-wider bg-purple-500/30 text-purple-300 border border-purple-500/40 px-1.5 py-0.5 rounded-full">
+                      Homolog
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400">10 posts agendados na fila até 05/11</p>
+                </div>
+              </div>
+              <Link
+                to="/feed/proximas-postagens"
+                className="bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl transition shadow active:scale-95 shrink-0 flex items-center gap-1"
+              >
+                <span>Ver Fila</span>
+                <span className="text-xs">&rarr;</span>
+              </Link>
+            </div>
+          )}
 
         {/* Notificação amigável de reordenação se o usuário concluiu um desafio agora */}
         {hasNewCompletionsInSession && (
