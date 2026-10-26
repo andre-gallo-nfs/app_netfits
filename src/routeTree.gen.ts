@@ -25,6 +25,7 @@ import { Route as MarketRouteImport } from './routes/market'
 import { Route as ParceirosRouteImport } from './routes/parceiros'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as FeedProximasPostagensRouteImport } from './routes/feed_.proximas-postagens'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -106,6 +107,11 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedProximasPostagensRoute = FeedProximasPostagensRouteImport.update({
+  id: '/feed_/proximas-postagens',
+  path: '/feed/proximas-postagens',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/parceiros': typeof ParceirosRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
+  '/feed/proximas-postagens': typeof FeedProximasPostagensRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/parceiros': typeof ParceirosRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
+  '/feed/proximas-postagens': typeof FeedProximasPostagensRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/parceiros': typeof ParceirosRoute
   '/profile': typeof ProfileRoute
   '/wallet': typeof WalletRoute
+  '/feed_/proximas-postagens': typeof FeedProximasPostagensRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/parceiros'
     | '/profile'
     | '/wallet'
+    | '/feed/proximas-postagens'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/parceiros'
     | '/profile'
     | '/wallet'
+    | '/feed/proximas-postagens'
   id:
     | '__root__'
     | '/'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/parceiros'
     | '/profile'
     | '/wallet'
+    | '/feed_/proximas-postagens'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   ParceirosRoute: typeof ParceirosRoute
   ProfileRoute: typeof ProfileRoute
   WalletRoute: typeof WalletRoute
+  FeedProximasPostagensRoute: typeof FeedProximasPostagensRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feed_/proximas-postagens': {
+      id: '/feed_/proximas-postagens'
+      path: '/feed/proximas-postagens'
+      fullPath: '/feed/proximas-postagens'
+      preLoaderRoute: typeof FeedProximasPostagensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -372,6 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceirosRoute: ParceirosRoute,
   ProfileRoute: ProfileRoute,
   WalletRoute: WalletRoute,
+  FeedProximasPostagensRoute: FeedProximasPostagensRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
