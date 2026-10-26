@@ -14,7 +14,7 @@
     "title": "Tour Completo pelo App Netfits: Como Navegar e Pontuar",
     "subtitle": "Descubra em 60 segundos como transformar sua rotina esportiva em valor real nas 4 abas do app.",
     "format": "video_animation",
-    "duration": "60s",
+    "duration": "50s",
     "readTime": "1 min",
     "pillText": "A melhor tecnologia é aquela que descomplica sua rotina e dá valor ao seu suor.",
     "articleContent": [
@@ -99,7 +99,8 @@
         "tag": "Desafio Liberado",
         "graphicType": "tour_complete"
       }
-    ]
+    ],
+    "videoUrl": "/videos/netfits-tour-app.mp4"
   },
   {
     "id": "post-cal-dia-04-exercicio-coracao",
@@ -205,7 +206,7 @@
     "title": "Como Comprar no Shop Gera Pontos: 4 nfs por R$ 1 no Extrato",
     "subtitle": "Entenda a matemática do cashback esportivo com take-rate de 6% e acúmulo automático na carteira.",
     "format": "video_animation",
-    "duration": "55s",
+    "duration": "41s",
     "readTime": "2 min",
     "pillText": "Consumo consciente é investimento: quando você compra produtos que apoiam seu treino, seu saldo cresce.",
     "articleContent": [
@@ -280,7 +281,8 @@
         "tag": "Quiz Destravado",
         "graphicType": "quiz_unlock"
       }
-    ]
+    ],
+    "videoUrl": "/videos/netfits-shop-cashback.mp4"
   },
   {
     "id": "post-cal-dia-08-sindrome-reds",
