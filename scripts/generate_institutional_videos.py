@@ -19,7 +19,7 @@ FONT_SEMIBOLD = r"C:\Windows\Fonts\segoeuisl.ttf"
 VIDEOS = [
     {
         "id": "netfits-shop-cashback",
-        "title": "Como Comprar no Shop Gera Pontos: 4 nfs por R$ 1 no Extrato",
+        "title": "Como Comprar no Shop Gera Netfits: 4 netfits por R$ 1 no Extrato",
         "output_file": os.path.join(OUTPUT_DIR, "netfits-shop-cashback.mp4"),
         "scenes": [
             {
@@ -35,67 +35,67 @@ VIDEOS = [
                     ("⚡ EQUIPAMENTOS", "Acessórios e tecnologia para seu ritmo diário"),
                 ],
                 "metric_label": "OBJETIVO",
-                "metric_val": "Transformar consumo essencial em valor real na carteira"
+                "metric_val": "Transformar consumo essencial em saldo de netfits na carteira"
             },
             {
                 "scene_num": 2,
                 "badge": "CENA 2 / 4 · A REGRA DE OURO",
                 "headline": "A Fórmula Oficial de Acúmulo",
-                "tagline": "Cashback direto em pontos nfs a cada real investido",
-                "narration": "No Shop Netfits, cada compra em marcas parceiras devolve valor para você: a cada 1 real gasto, você ganha automaticamente 4 pontos nfs na sua carteira!",
+                "tagline": "Cashback direto em netfits a cada real investido",
+                "narration": "No Shop Netfits, cada compra em marcas parceiras devolve valor para você: a cada um real gasto, você ganha automaticamente 4 netfits na sua carteira!",
                 "visual_type": "highlight_formula",
                 "formula_left": "R$ 1,00 GASTO",
                 "formula_arrow": "➔",
-                "formula_right": "4 nfs GERADOS",
+                "formula_right": "4 NETFITS GERADOS",
                 "cards": [
-                    ("🛡️ Sem Pegadinhas", "Pontos com valor auditado e transparentes"),
+                    ("🛡️ Sem Pegadinhas", "Saldo com valor auditado e transparente"),
                     ("⚡ Crédito Rápido", "Lançamento assim que o pedido é faturado"),
                     ("🏆 Catálogo Integrado", "Parceria oficial Rock Encantech e marcas de ponta")
                 ],
                 "metric_label": "MULTIPLICADOR OFICIAL",
-                "metric_val": "4x o valor da sua compra em pontos de fidelidade"
+                "metric_val": "4 netfits para cada R$ 1,00 gasto no marketplace"
             },
             {
                 "scene_num": 3,
                 "badge": "CENA 3 / 4 · SIMULAÇÃO PRÁTICA",
                 "headline": "Exemplo Real de Compra no Shop",
                 "tagline": "Veja como funciona na ponta do lápis",
-                "narration": "Comprou 250 reais em suplementos certificados? São 1.000 pontos nfs direto para a sua conta, creditados assim que o pedido é faturado.",
+                "narration": "Comprou 250 reais em suplementos certificados? São 1.000 netfits direto para a sua conta, creditados assim que o pedido é faturado.",
                 "visual_type": "receipt",
                 "receipt_title": "PEDIDO DE SUPLEMENTAÇÃO · SIMULAÇÃO",
                 "receipt_rows": [
                     ("Itens do Pedido", "Creatina Creapure + Whey Isolado"),
                     ("Valor Total Faturado", "R$ 250,00"),
-                    ("Regra de Conversão", "4 nfs / R$ 1,00"),
+                    ("Regra de Conversão", "4 netfits / R$ 1,00"),
                 ],
-                "receipt_total": "+1.000 nfs CREDITADOS NA CARTEIRA",
+                "receipt_total": "+1.000 NETFITS CREDITADOS NA CARTEIRA",
                 "cards": [
                     ("✔ Faturamento Confirmado", "Identificação imediata da compra no extrato"),
                     ("🔒 Segurança Transacional", "Conexão criptografada ponta a ponta")
                 ],
                 "metric_label": "SALDO GERADO",
-                "metric_val": "+1.000 nfs para trocar por produtos ou experiências"
+                "metric_val": "+1.000 netfits para resgatar benefícios e experiências"
             },
             {
                 "scene_num": 4,
                 "badge": "CENA 4 / 4 · CONCLUSÃO & QUIZ",
                 "headline": "Economia da Saúde na Prática",
                 "tagline": "Consumir bem é investir na sua longevidade",
-                "narration": "Economia da saúde na prática: consumir bem é investir em você. Assista até o fim e responda ao Quiz para somar mais 5 nfs agora mesmo!",
+                "narration": "Economia da saúde na prática: consumir bem é investir em você. Assista até o fim e responda ao Quiz para somar mais 5 netfits agora mesmo!",
                 "visual_type": "conclusion",
                 "cards": [
-                    ("📅 Validade de 24 Meses", "Algoritmo FEFO protege seus pontos mais antigos"),
+                    ("📅 Validade de 24 Meses", "Algoritmo FEFO protege seus netfits mais antigos"),
                     ("🛡️ Trava de 90% Concluída", "Assista ao vídeo e libere o Quiz do Dia"),
-                    ("🎁 Ganhe +5 nfs", "Responda à pergunta do desafio logo abaixo do vídeo")
+                    ("🎁 Ganhe +5 netfits", "Responda à pergunta do desafio logo abaixo do vídeo")
                 ],
                 "metric_label": "PRÓXIMO PASSO",
-                "metric_val": "Responda ao Quiz abaixo para garantir seus +5 nfs de hoje!"
+                "metric_val": "Responda ao Quiz abaixo para garantir seus +5 netfits de hoje!"
             }
         ]
     },
     {
         "id": "netfits-tour-app",
-        "title": "Tour Completo pelo App Netfits: Como Navegar e Ganhar Pontos em 60 Segundos",
+        "title": "Tour Completo pelo App Netfits: Como Navegar e Ganhar Netfits em 60 Segundos",
         "output_file": os.path.join(OUTPUT_DIR, "netfits-tour-app.mp4"),
         "scenes": [
             {
@@ -108,73 +108,73 @@ VIDEOS = [
                 "cards": [
                     ("🏃 Para Esportistas Amadores", "Corrida, natação, ciclismo, musculação e tênis"),
                     ("🩺 Medicina do Estilo de Vida", "Artigos e curadoria médica com Fibios"),
-                    ("🎁 Moeda Digital de Saúde", "Pontos nfs auditados e protegidos")
+                    ("🎁 Moeda Digital de Saúde", "Seus netfits auditados e protegidos")
                 ],
                 "metric_label": "MISSÃO NETFITS",
-                "metric_val": "Transformar hábitos saudáveis em inteligência e benefícios reais"
+                "metric_val": "Transformar hábitos saudáveis em inteligência e saldo de netfits"
             },
             {
                 "scene_num": 2,
                 "badge": "CENA 2 / 5 · ABA FEED & QUIZZES",
                 "headline": "Aprenda, Treine e Pontue Diariamente",
                 "tagline": "Conteúdo de alta performance com atenção plena",
-                "narration": "Na aba Feed, você encontra artigos rápidos sobre longevidade e hábitos saudáveis. Ao ler e responder ao Quiz diário, você acumula seus primeiros pontos nfs.",
+                "narration": "Na aba Feed, você encontra artigos rápidos sobre longevidade e hábitos saudáveis. Ao ler e responder ao Quiz diário, você acumula seus primeiros netfits.",
                 "visual_type": "cards",
                 "cards": [
                     ("📖 Artigos Rápidos & Diretos", "Estudos clínicos sobre recuperação e nutrição"),
                     ("⏱️ Trava Antifraude de 10s", "Leitura consciente com retenção auditada"),
-                    ("🎯 Quiz Diário: +5 nfs", "Pontuação concentrada no acerto do desafio")
+                    ("🎯 Quiz Diário: +5 netfits", "Pontuação concentrada no acerto do desafio")
                 ],
                 "metric_label": "DESAFIO DIÁRIO",
-                "metric_val": "+5 nfs em quizzes próprios e +10 nfs em patrocinados"
+                "metric_val": "+5 netfits em quizzes próprios e +10 netfits em patrocinados"
             },
             {
                 "scene_num": 3,
                 "badge": "CENA 3 / 5 · ABA SHOP & CASHBACK",
-                "headline": "Suas Compras Viram Cashback em nfs",
+                "headline": "Suas Compras Viram Cashback em netfits",
                 "tagline": "Vitrine curada com as melhores marcas esportivas",
-                "narration": "No Shop, suas compras em marcas parceiras viram cashback em pontos: a cada 1 real investido na sua saúde, você ganha 4 nfs na sua carteira.",
+                "narration": "No Shop, suas compras em marcas parceiras viram cashback: a cada 1 real investido na sua saúde, você ganha 4 netfits na sua carteira.",
                 "visual_type": "highlight_formula",
                 "formula_left": "R$ 1,00 INVESTIDO",
                 "formula_arrow": "➔",
-                "formula_right": "4 nfs NA CARTEIRA",
+                "formula_right": "4 NETFITS NA CARTEIRA",
                 "cards": [
                     ("👟 Equipamentos & Vestuário", "Marcas líderes selecionadas para você"),
-                    ("⚡ Pontos Reais no Extrato", "Sem cupom de desconto temporário que expira"),
+                    ("⚡ Netfits Reais no Extrato", "Sem cupom de desconto temporário que expira"),
                     ("📦 Entrega & Garantia", "Marketplace integrado de ponta a ponta")
                 ],
                 "metric_label": "CASHBACK INTEGRADO",
-                "metric_val": "4 pontos por real gasto em qualquer compra do Shop"
+                "metric_val": "4 netfits por real gasto em qualquer compra do Shop"
             },
             {
                 "scene_num": 4,
                 "badge": "CENA 4 / 5 · EXTRATO & PERFIL",
                 "headline": "Transparência Total e Bônus de Amigos",
                 "tagline": "Gestão segura com algoritmo FEFO de 24 meses",
-                "narration": "No Extrato, você confere cada ponto com transparência total. E no Perfil, você gerencia seus dados e convida amigos ganhando 50 nfs por indicação.",
+                "narration": "No Extrato, você confere seus netfits com transparência total. E no Perfil, você gerencia seus dados e convida amigos ganhando 50 netfits por indicação.",
                 "visual_type": "cards",
                 "cards": [
                     ("📊 Extrato Auditado", "Origem de cada crédito e validade de 24 meses"),
-                    ("🔄 Algoritmo FEFO", "Pontos mais antigos debitados primeiro"),
-                    ("👥 Indicação Amigos (MGM)", "Ganhe +50 nfs por cada amigo que cadastrar")
+                    ("🔄 Algoritmo FEFO", "Netfits mais antigos debitados primeiro"),
+                    ("👥 Indicação Amigos (MGM)", "Ganhe +50 netfits por cada amigo que cadastrar")
                 ],
                 "metric_label": "BÔNUS DE INDICAÇÃO",
-                "metric_val": "+50 nfs por indicação concluída com sucesso"
+                "metric_val": "+50 netfits por indicação concluída com sucesso"
             },
             {
                 "scene_num": 5,
                 "badge": "CENA 5 / 5 · ENCERRAMENTO",
                 "headline": "Pronto para Começar sua Jornada?",
                 "tagline": "Valide seu vídeo e desbloqueie o primeiro Quiz",
-                "narration": "Pronto para começar? Complete este vídeo, responda ao desafio abaixo e garanta seus primeiros pontos nfs de hoje!",
+                "narration": "Pronto para começar? Complete este vídeo, responda ao desafio abaixo e garanta seus primeiros netfits de hoje!",
                 "visual_type": "conclusion",
                 "cards": [
                     ("🛡️ Retenção de 90% Auditada", "Assista ao vídeo para destravar o botão"),
                     ("🎯 Quiz de Boas-Vindas", "Pergunta rápida sobre a barra de navegação"),
-                    ("⭐ Seus Primeiros Pontos", "+5 nfs creditados imediatamente na carteira")
+                    ("⭐ Seus Primeiros Netfits", "+5 netfits creditados imediatamente na carteira")
                 ],
-                "metric_label": "DESTROQUE AGORA",
-                "metric_val": "Responda à pergunta do Quiz abaixo e comece a pontuar!"
+                "metric_label": "DESTRAVE AGORA",
+                "metric_val": "Responda à pergunta do Quiz abaixo e garanta seus +5 netfits!"
             }
         ]
     }
@@ -188,15 +188,14 @@ def render_scene_image(scene, video_title, total_scenes, out_png):
     img = Image.new("RGB", (width, height), color=(10, 10, 15))
     draw = ImageDraw.Draw(img)
 
-    font_huge = ImageFont.truetype(FONT_BOLD, 42)
-    font_large = ImageFont.truetype(FONT_BOLD, 30)
+    font_huge = ImageFont.truetype(FONT_BOLD, 40)
+    font_large = ImageFont.truetype(FONT_BOLD, 28)
     font_med = ImageFont.truetype(FONT_BOLD, 22)
     font_text = ImageFont.truetype(FONT_REGULAR, 20)
     font_small = ImageFont.truetype(FONT_REGULAR, 16)
     font_badge = ImageFont.truetype(FONT_BOLD, 15)
 
     # 1. Subtle Background Gradients / Borders
-    # Top banner bar
     draw.rectangle([(0, 0), (width, 8)], fill=(16, 185, 129)) # Emerald Netfits
     
     # 2. Header Area
@@ -222,30 +221,30 @@ def render_scene_image(scene, video_title, total_scenes, out_png):
         # Left side cards
         card_y = 195
         for title, desc in scene["cards"]:
-            draw_rounded_rect(draw, (40, card_y, 600, card_y + 80), radius=16, fill=(24, 24, 32), outline=(39, 39, 42), width=1)
+            draw_rounded_rect(draw, (40, card_y, 590, card_y + 80), radius=16, fill=(24, 24, 32), outline=(39, 39, 42), width=1)
             draw.text((60, card_y + 14), title, font=font_med, fill=(52, 211, 153))
             draw.text((60, card_y + 44), desc, font=font_small, fill=(212, 212, 216))
             card_y += 95
 
         # Right side big formula showcase
-        draw_rounded_rect(draw, (630, 195, width - 40, 470), radius=24, fill=(16, 28, 24), outline=(16, 185, 129), width=3)
-        draw.text((660, 225), "REGRA MATEMÁTICA INEGOCIÁVEL", font=font_badge, fill=(52, 211, 153))
+        draw_rounded_rect(draw, (620, 195, width - 40, 470), radius=24, fill=(16, 28, 24), outline=(16, 185, 129), width=3)
+        draw.text((650, 225), "REGRA MATEMÁTICA INEGOCIÁVEL", font=font_badge, fill=(52, 211, 153))
         
         # Left formula part
-        draw_rounded_rect(draw, (660, 265, 890, 360), radius=16, fill=(24, 24, 32), outline=(63, 63, 70), width=2)
-        draw.text((680, 285), "R$ 1,00 GASTO", font=font_large, fill=(255, 255, 255))
-        draw.text((680, 325), "no Shop Netfits", font=font_small, fill=(161, 161, 170))
+        draw_rounded_rect(draw, (650, 265, 870, 360), radius=16, fill=(24, 24, 32), outline=(63, 63, 70), width=2)
+        draw.text((670, 285), "R$ 1,00 GASTO", font=font_large, fill=(255, 255, 255))
+        draw.text((670, 325), "no Shop Netfits", font=font_small, fill=(161, 161, 170))
 
         # Arrow
-        draw.text((915, 290), "➔", font=font_huge, fill=(52, 211, 153))
+        draw.text((890, 290), "➔", font=font_huge, fill=(52, 211, 153))
 
         # Right formula part
-        draw_rounded_rect(draw, (970, 265, width - 70, 360), radius=16, fill=(5, 46, 22), outline=(16, 185, 129), width=2)
-        draw.text((995, 285), "+4 nfs", font=font_huge, fill=(52, 211, 153))
-        draw.text((995, 328), "na sua Carteira", font=font_small, fill=(167, 243, 208))
+        draw_rounded_rect(draw, (935, 265, width - 60, 360), radius=16, fill=(5, 46, 22), outline=(16, 185, 129), width=2)
+        draw.text((950, 285), "+4 netfits", font=font_large, fill=(52, 211, 153))
+        draw.text((950, 328), "na sua Carteira", font=font_small, fill=(167, 243, 208))
 
-        draw_rounded_rect(draw, (660, 385, width - 70, 445), radius=12, fill=(24, 24, 32), outline=(39, 39, 42), width=1)
-        draw.text((680, 403), "✨ 400% de retorno em pontos nfs em todas as compras", font=font_text, fill=(250, 204, 21))
+        draw_rounded_rect(draw, (650, 385, width - 60, 445), radius=12, fill=(24, 24, 32), outline=(39, 39, 42), width=1)
+        draw.text((670, 403), "✨ 4 netfits para cada R$ 1,00 em todas as compras", font=font_text, fill=(250, 204, 21))
 
     elif scene.get("visual_type") == "receipt":
         # Left Receipt Card
@@ -290,7 +289,6 @@ def render_scene_image(scene, video_title, total_scenes, out_png):
     
     # Narration text (wrapped)
     narration = scene["narration"]
-    # Break into two lines if needed
     words = narration.split()
     line1 = ""
     line2 = ""
@@ -354,7 +352,6 @@ async def build_single_video(video_def):
         audio_path = os.path.join(vid_temp, f"scene_{idx}.mp3")
         await generate_scene_audio(sc["narration"], audio_path)
         dur = get_audio_duration(audio_path)
-        # Add 1.2s padding so speech breathes naturally
         target_dur = max(dur + 1.2, 5.0)
         print(f"  Áudio gerado: {dur:.2f}s (duração total da cena: {target_dur:.2f}s)")
 
@@ -364,8 +361,6 @@ async def build_single_video(video_def):
 
         # 3. Create MP4 with padded audio
         scene_mp4 = os.path.join(vid_temp, f"scene_{idx}.mp4")
-        
-        # FFmpeg command to loop image and pad audio to target duration
         cmd = [
             FFMPEG, "-y",
             "-loop", "1", "-i", img_path,
@@ -385,7 +380,6 @@ async def build_single_video(video_def):
     concat_list_path = os.path.join(vid_temp, "concat_list.txt")
     with open(concat_list_path, "w", encoding="utf-8") as f:
         for p in scene_mp4s:
-            # Format for ffmpeg concat demuxer: file 'path'
             f.write(f"file '{p.replace('\\', '/')}'\n")
 
     print(f"--- Concatenando {len(scene_mp4s)} cenas no arquivo final... ---")

@@ -19,8 +19,8 @@
     "pillText": "A melhor tecnologia é aquela que descomplica sua rotina e dá valor ao seu suor.",
     "articleContent": [
       "Chegou na Netfits agora? Descubra em 60 segundos como navegar pelo ecossistema que valoriza cada gota de suor do seu treino.",
-      "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 nfs) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 nfs de volta diretamente no seu extrato.\n\n3. Extrato / Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados sob o algoritmo FEFO de 24 meses.\n\n4. Perfil: Gestão dos seus dados cadastrais, conexões com smartwatches (Garmin, Apple Watch, Strava), rituais diários e histórico de evolução.",
-      "Assista ao vídeo didático de 60 segundos até o final para validar a retenção de atenção e destravar o Desafio Quiz Diário (+5 nfs)!"
+      "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 netfits) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 netfits de volta diretamente no seu extrato.\n\n3. Extrato / Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados sob o algoritmo FEFO de 24 meses.\n\n4. Perfil: Gestão dos seus dados cadastrais, conexões com smartwatches (Garmin, Apple Watch, Strava), rituais diários e histórico de evolução.",
+      "Assista ao vídeo didático de 60 segundos até o final para validar a retenção de atenção e destravar o Desafio Quiz Diário (+5 netfits)!"
     ],
     "quizQuestion": "De acordo com o tour guiado do app, quais são as 4 abas principais da barra de navegação da Netfits?",
     "quizOptions": [
@@ -60,8 +60,8 @@
         "startSec": 10,
         "endSec": 25,
         "title": "O Feed e os Quizzes Diários",
-        "visual": "Destaque na aba Feed. Cursor simula rolagem de post e a barra de progresso verde ilumina o Quiz com +5 nfs.",
-        "voiceover": "Na aba Feed, você encontra artigos rápidos sobre longevidade e hábitos saudáveis. Ao ler e responder ao Quiz diário, você acumula seus primeiros pontos nfs.",
+        "visual": "Destaque na aba Feed. Cursor simula rolagem de post e a barra de progresso verde ilumina o Quiz com +5 netfits.",
+        "voiceover": "Na aba Feed, você encontra artigos rápidos sobre longevidade e hábitos saudáveis. Ao ler e responder ao Quiz diário, você acumula seus primeiros netfits.",
         "icon": "BookOpen",
         "tag": "Feed & Quizzes",
         "graphicType": "feed_tour"
@@ -70,9 +70,9 @@
         "sceneNumber": 3,
         "startSec": 25,
         "endSec": 40,
-        "title": "O Shop e o Cashback em nfs",
-        "visual": "A tela transiciona para a aba Shop. Produtos aparecem com tag dourada R$ 1 = 4 nfs!",
-        "voiceover": "No Shop, suas compras em marcas parceiras viram cashback em pontos: a cada um real investido na sua saúde, você ganha 4 nfs na sua carteira.",
+        "title": "O Shop e o Cashback em netfits",
+        "visual": "A tela transiciona para a aba Shop. Produtos aparecem com tag dourada R$ 1 = 4 netfits!",
+        "voiceover": "No Shop, suas compras em marcas parceiras viram cashback em pontos: a cada um real investido na sua saúde, você ganha 4 netfits na sua carteira.",
         "icon": "ShoppingBag",
         "tag": "Shop Netfits",
         "graphicType": "shop_tour"
@@ -82,8 +82,8 @@
         "startSec": 40,
         "endSec": 50,
         "title": "Extrato FEFO e Perfil Seguro",
-        "visual": "Transição para Extrato mostrando saldo auditado e validade FEFO de 24 meses; depois Perfil com botão Convidar Amigos (+50 nfs).",
-        "voiceover": "No Extrato, você confere cada ponto com transparência total. E no Perfil, você gerencia seus dados e convida amigos ganhando 50 nfs por indicação.",
+        "visual": "Transição para Extrato mostrando saldo auditado e validade FEFO de 24 meses; depois Perfil com botão Convidar Amigos (+50 netfits).",
+        "voiceover": "No Extrato, você confere cada ponto com transparência total. E no Perfil, você gerencia seus dados e convida amigos ganhando 50 netfits por indicação.",
         "icon": "ShieldCheck",
         "tag": "Transparência FEFO",
         "graphicType": "wallet_profile"
@@ -93,8 +93,8 @@
         "startSec": 50,
         "endSec": 60,
         "title": "Encerramento e Chamada para o Quiz",
-        "visual": "Cronômetro atinge Retenção Completa (90%) e o botão Responder Quiz (+5 nfs) pulsa em destaque.",
-        "voiceover": "Pronto para começar? Complete este vídeo, responda ao desafio abaixo e garanta seus primeiros pontos nfs de hoje!",
+        "visual": "Cronômetro atinge Retenção Completa (90%) e o botão Responder Quiz (+5 netfits) pulsa em destaque.",
+        "voiceover": "Pronto para começar? Complete este vídeo, responda ao desafio abaixo e garanta seus primeiros netfits de hoje!",
         "icon": "Trophy",
         "tag": "Desafio Liberado",
         "graphicType": "tour_complete"
@@ -160,26 +160,26 @@
     "authorAvatar": "netfits",
     "badge": "Mecânica do Feed · Dwell Time",
     "title": "Como o Feed Funciona: Dwell Time, Scroll e a Lógica dos Quizzes",
-    "subtitle": "Por que a leitura tem 0 nfs diretos e o acerto no Quiz premia quem realmente absorveu o conteúdo.",
+    "subtitle": "Por que a leitura tem 0 netfits diretos e o acerto no Quiz premia quem realmente absorveu o conteúdo.",
     "format": "article",
     "readTime": "2 min",
     "pillText": "Informação com atenção plena é o primeiro remédio: premiamos conhecimento de fato absorvido.",
     "articleContent": [
       "Em um mundo repleto de feeds infinitos desenhados para prender sua atenção com estímulos vazios, a Netfits escolheu valorizar o que realmente importa: atenção plena e letramento em saúde.",
-      "Nossa mecânica de pontuação no Feed é inteligente, transparente e protegida contra robôs:\n• A Trava de Leitura (0 nfs): A leitura em si não gera pontos diretamente. Ao abrir um artigo, nosso sistema audita que você permaneceu pelo menos 10 segundos no texto e realizou a rolagem completa (100% scroll) até o fim. Esse processo valida que o conteúdo foi lido e destrava o desafio diário.\n• Desafio Quiz Netfits (+5 nfs): Ao responder corretamente à pergunta do post educativo da Netfits ou da Fibios, você ganha 5 nfs na hora (limitado a 1 acerto bonificado por dia).\n• Quizzes Patrocinados (+10 nfs): Quando uma marca parceira homologada veicula um post patrocinado, o quiz correspondente premia você com 10 nfs pelo acerto.\n• Compartilhamento (+1 nf): Espalhar conhecimento com amigos gera 1 nf por envio.",
-      "Curtidas e toques em links externos têm 0 nfs. Aqui, o ponto nasce do conhecimento de fato absorvido!"
+      "Nossa mecânica de pontuação no Feed é inteligente, transparente e protegida contra robôs:\n• A Trava de Leitura (0 netfits): A leitura em si não gera pontos diretamente. Ao abrir um artigo, nosso sistema audita que você permaneceu pelo menos 10 segundos no texto e realizou a rolagem completa (100% scroll) até o fim. Esse processo valida que o conteúdo foi lido e destrava o desafio diário.\n• Desafio Quiz Netfits (+5 netfits): Ao responder corretamente à pergunta do post educativo da Netfits ou da Fibios, você ganha 5 netfits na hora (limitado a 1 acerto bonificado por dia).\n• Quizzes Patrocinados (+10 netfits): Quando uma marca parceira homologada veicula um post patrocinado, o quiz correspondente premia você com 10 netfits pelo acerto.\n• Compartilhamento (+1 nf): Espalhar conhecimento com amigos gera 1 nf por envio.",
+      "Curtidas e toques em links externos têm 0 netfits. Aqui, o ponto nasce do conhecimento de fato absorvido!"
     ],
     "quizQuestion": "Como funciona a distribuição de pontos no Feed Netfits entre a leitura do artigo e a resposta correta do Quiz?",
     "quizOptions": [
       {
         "id": "opt-1",
-        "text": "A leitura exige 10s e 100% de scroll para destravar o Quiz (0 nfs diretos), e o acerto no Quiz dos posts Netfits/Fibios concede 5 nfs (sendo 10 nfs em posts patrocinados).",
+        "text": "A leitura exige 10s e 100% de scroll para destravar o Quiz (0 netfits diretos), e o acerto no Quiz dos posts Netfits/Fibios concede 5 netfits (sendo 10 netfits em posts patrocinados).",
         "isCorrect": true,
         "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
       },
       {
         "id": "opt-2",
-        "text": "A leitura concede 100 nfs instantâneos apenas ao abrir a tela sem precisar rolar.",
+        "text": "A leitura concede 100 netfits instantâneos apenas ao abrir a tela sem precisar rolar.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
@@ -202,8 +202,8 @@
     "author": "Time Netfits",
     "authorRole": "Economia de Saúde & Marketplace",
     "authorAvatar": "netfits",
-    "badge": "Shop Netfits · 4 nfs por R$ 1",
-    "title": "Como Comprar no Shop Gera Pontos: 4 nfs por R$ 1 no Extrato",
+    "badge": "Shop Netfits · 4 netfits por R$ 1",
+    "title": "Como Comprar no Shop Gera Pontos: 4 netfits por R$ 1 no Extrato",
     "subtitle": "Entenda a matemática do cashback esportivo com take-rate de 6% e acúmulo automático na carteira.",
     "format": "video_animation",
     "duration": "41s",
@@ -211,15 +211,15 @@
     "pillText": "Consumo consciente é investimento: quando você compra produtos que apoiam seu treino, seu saldo cresce.",
     "articleContent": [
       "Você sabia que suas escolhas de suplementação, vestuário técnico e calçados podem financiar sua saúde futura?",
-      "No Shop Netfits, cada compra realizada em marcas parceiras homologadas gera 4 nfs para cada R$ 1,00 gasto.\n\nExemplo prático: ao adquirir um par de tênis de performance ou seu estoque mensal de suplementos por R$ 500,00, você recebe automaticamente +2.000 nfs na sua carteira.",
+      "No Shop Netfits, cada compra realizada em marcas parceiras homologadas gera 4 netfits para cada R$ 1,00 gasto.\n\nExemplo prático: ao adquirir um par de tênis de performance ou seu estoque mensal de suplementos por R$ 500,00, você recebe automaticamente +2.000 netfits na sua carteira.",
       "Essa economia circula em um modelo auditado de take-rate líquido de 6%, gerando um círculo virtuoso onde seu cuidado diário reduz custos de consultas e serviços de longevidade na rede credenciada.",
-      "Conclua a leitura e responda ao Desafio Quiz (+5 nfs) para testar sua fixação sobre as regras do Shop!"
+      "Conclua a leitura e responda ao Desafio Quiz (+5 netfits) para testar sua fixação sobre as regras do Shop!"
     ],
-    "quizQuestion": "Qual é a taxa oficial de conversão de pontos nfs ao realizar compras de produtos parceiros no Shop Netfits?",
+    "quizQuestion": "Qual é a taxa oficial de conversão de netfits ao realizar compras de produtos parceiros no Shop Netfits?",
     "quizOptions": [
       {
         "id": "opt-1",
-        "text": "4 nfs para cada R$ 1,00 gasto em produtos no marketplace.",
+        "text": "4 netfits para cada R$ 1,00 gasto em produtos no marketplace.",
         "isCorrect": true,
         "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
       },
@@ -252,9 +252,9 @@
         "sceneNumber": 2,
         "startSec": 12,
         "endSec": 28,
-        "title": "A Fórmula 4 nfs por R$ 1",
-        "visual": "Uma nota estilizada de R$ 1,00 se divide em 4 moedas cintilantes com o símbolo nfs fluindo diretamente para a carteira.",
-        "voiceover": "No Shop Netfits, cada compra em marcas parceiras devolve valor para você: a cada 1 real gasto, você ganha automaticamente 4 pontos nfs na sua carteira!",
+        "title": "A Fórmula 4 netfits por R$ 1",
+        "visual": "Uma nota estilizada de R$ 1,00 se divide em 4 moedas cintilantes com o símbolo netfits fluindo diretamente para a carteira.",
+        "voiceover": "No Shop Netfits, cada compra em marcas parceiras devolve valor para você: a cada 1 real gasto, você ganha automaticamente 4 netfits na sua carteira!",
         "icon": "Coins",
         "tag": "Conversão Oficial",
         "graphicType": "cashback_formula"
@@ -264,8 +264,8 @@
         "startSec": 28,
         "endSec": 42,
         "title": "Simulação Prática de Compra",
-        "visual": "Card de pedido de suplementação de R$ 250,00 com selo Compra Confirmada creditando +1.000 nfs na carteira instantaneamente.",
-        "voiceover": "Comprou 250 reais em suplementos certificados? São 1.000 pontos nfs direto para a sua conta, creditados assim que o pedido é faturado.",
+        "visual": "Card de pedido de suplementação de R$ 250,00 com selo Compra Confirmada creditando +1.000 netfits na carteira instantaneamente.",
+        "voiceover": "Comprou 250 reais em suplementos certificados? São 1.000 netfits direto para a sua conta, creditados assim que o pedido é faturado.",
         "icon": "Receipt",
         "tag": "Exemplo Real",
         "graphicType": "order_simulation"
@@ -276,7 +276,7 @@
         "endSec": 55,
         "title": "Conclusão e Desafio do Quiz",
         "visual": "Moedas acumuladas na carteira. O selo de retenção atinge 90% e o botão do Quiz se ativa com brilho dourado.",
-        "voiceover": "Economia da saúde na prática: consumir bem é investir em você. Assista até o fim e responda ao Quiz para somar mais 5 nfs agora mesmo!",
+        "voiceover": "Economia da saúde na prática: consumir bem é investir em você. Assista até o fim e responda ao Quiz para somar mais 5 netfits agora mesmo!",
         "icon": "Trophy",
         "tag": "Quiz Destravado",
         "graphicType": "quiz_unlock"
@@ -478,10 +478,10 @@
     "pillText": "Transparência de dados não é benefício extra; é o alicerce fundamental de confiança na economia do suor.",
     "articleContent": [
       "Toda moeda com valor real precisa de auditoria transparente. Na Netfits, você nunca precisa adivinhar de onde vieram seus pontos ou quando eles vão expirar.",
-      "Acessando a sua Carteira / Extrato, você tem visão cirúrgica de cada movimentação:\n1. Identificação Clara da Origem: Cada crédito aponta exatamente a ação correspondente — Desafio Quiz Diário (+5 nfs), Quiz Patrocinado (+10 nfs), Bônus de Cadastro (+50 nfs), Indicação de Amigo MGM (+50 nfs) ou Cashback do Shop (4 nfs/R$ 1).\n2. Data e Hora do Lançamento: Registro cronológico auditado em tempo real.\n3. Prazo de Validade Amplo (24 meses): Seus pontos têm validade generosa de 2 anos a partir do momento em que foram gerados.\n4. Algoritmo FEFO (First Expire, First Out): Em qualquer resgate futuro, o sistema debita automaticamente os pontos mais antigos primeiro, protegendo seu saldo contra perdas por expiração.",
+      "Acessando a sua Carteira / Extrato, você tem visão cirúrgica de cada movimentação:\n1. Identificação Clara da Origem: Cada crédito aponta exatamente a ação correspondente — Desafio Quiz Diário (+5 netfits), Quiz Patrocinado (+10 netfits), Bônus de Cadastro (+50 netfits), Indicação de Amigo MGM (+50 netfits) ou Cashback do Shop (4 netfits/R$ 1).\n2. Data e Hora do Lançamento: Registro cronológico auditado em tempo real.\n3. Prazo de Validade Amplo (24 meses): Seus pontos têm validade generosa de 2 anos a partir do momento em que foram gerados.\n4. Algoritmo FEFO (First Expire, First Out): Em qualquer resgate futuro, o sistema debita automaticamente os pontos mais antigos primeiro, protegendo seu saldo contra perdas por expiração.",
       "Transparência e segurança matemática para você acumular com total confiança."
     ],
-    "quizQuestion": "Qual é o prazo de validade oficial dos pontos nfs acumulados na sua carteira Netfits e qual algoritmo protege os pontos mais antigos?",
+    "quizQuestion": "Qual é o prazo de validade oficial dos netfits acumulados na sua carteira Netfits e qual algoritmo protege os pontos mais antigos?",
     "quizOptions": [
       {
         "id": "opt-1",
@@ -644,8 +644,8 @@
     "author": "Time Netfits",
     "authorRole": "Segurança, Onboarding & LGPD",
     "authorAvatar": "netfits",
-    "badge": "Perfil Campeão · +50 nfs",
-    "title": "Cadastro 100% Completo: Segurança LGPD e +50 nfs Imediatos",
+    "badge": "Perfil Campeão · +50 netfits",
+    "title": "Cadastro 100% Completo: Segurança LGPD e +50 netfits Imediatos",
     "subtitle": "Como preencher seu perfil com CEP e preferências esportivas destrava bônus e ofertas personalizadas.",
     "format": "article",
     "duration": "55s",
@@ -653,14 +653,14 @@
     "pillText": "Um perfil completo é o mapa que orienta nossa tecnologia para cuidar de você com precisão e segurança.",
     "articleContent": [
       "Quando você cria sua conta na Netfits, preencher nome, data de nascimento, objetivos esportivos e preferências não é mera formalidade: é o alicerce para customizar sua jornada.",
-      "Manter o cadastro 100% completo traz três vantagens imediatas:\n• Bônus de Cadastro (+50 nfs): Novos usuários que concluem o onboarding e preenchem seus dados recebem 50 nfs de boas-vindas imediatamente na carteira.\n• Curadoria de Ofertas e Conteúdos: Saber se sua rotina envolve corrida, musculação, ciclismo ou natação permite que o Shop exiba os produtos de nutrição e equipamentos mais adequados para a sua realidade.\n• Segurança e Conformidade LGPD: Seus dados são criptografados e protegidos rigorosamente sob a Lei Geral de Proteção de Dados. Eles jamais são comercializados com terceiros e servem unicamente para autenticar seus pontos e garantir que sua conta permaneça inviolável.",
+      "Manter o cadastro 100% completo traz três vantagens imediatas:\n• Bônus de Cadastro (+50 netfits): Novos usuários que concluem o onboarding e preenchem seus dados recebem 50 netfits de boas-vindas imediatamente na carteira.\n• Curadoria de Ofertas e Conteúdos: Saber se sua rotina envolve corrida, musculação, ciclismo ou natação permite que o Shop exiba os produtos de nutrição e equipamentos mais adequados para a sua realidade.\n• Segurança e Conformidade LGPD: Seus dados são criptografados e protegidos rigorosamente sob a Lei Geral de Proteção de Dados. Eles jamais são comercializados com terceiros e servem unicamente para autenticar seus pontos e garantir que sua conta permaneça inviolável.",
       "Abra a aba Perfil, revise seus dados e garanta que sua conta esteja blindada e pronta para aproveitar cada oportunidade!"
     ],
-    "quizQuestion": "Qual bônus em pontos nfs o usuário destrava ao concluir seu cadastro e onboarding completo no app Netfits?",
+    "quizQuestion": "Qual bônus em netfits o usuário destrava ao concluir seu cadastro e onboarding completo no app Netfits?",
     "quizOptions": [
       {
         "id": "opt-1",
-        "text": "+50 nfs de bônus creditados na carteira, além de receber recomendações personalizadas no Shop e proteção LGPD.",
+        "text": "+50 netfits de bônus creditados na carteira, além de receber recomendações personalizadas no Shop e proteção LGPD.",
         "isCorrect": true,
         "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
       },

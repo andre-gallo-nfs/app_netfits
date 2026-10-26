@@ -142,7 +142,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
         setReadClaimed(true);
         feedAntifraud.recordAction("read", post.articlePostId, 0);
         feedAntifraud.recordAction("video_view", post.id, 0);
-        toast.success("🎉 Retenção de 90% do vídeo atingida! O Desafio Quiz (+5 nfs) foi destravado.");
+        toast.success("🎉 Retenção de 90% do vídeo atingida! O Desafio Quiz (+5 netfits) foi destravado.");
       }
     }
   };
@@ -158,7 +158,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
       setReadClaimed(true);
       feedAntifraud.recordAction("read", post.articlePostId, 0);
       feedAntifraud.recordAction("video_view", post.id, 0);
-      toast.success("🎉 Vídeo completo! O Desafio Quiz (+5 nfs) foi destravado.");
+      toast.success("🎉 Vídeo completo! O Desafio Quiz (+5 netfits) foi destravado.");
     }
   };
 
@@ -184,7 +184,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           if (next >= 10 && hasScrolledToBottom) {
             setReadClaimed(true);
             feedAntifraud.recordAction("read", post.articlePostId, 0);
-            toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 nfs) foi liberado.");
+            toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 netfits) foi liberado.");
             clearInterval(timer);
           }
           return next;
@@ -204,7 +204,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
       if (dwellTimeSeconds >= 10 && !readClaimed) {
         setReadClaimed(true);
         feedAntifraud.recordAction("read", post.articlePostId, 0);
-        toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 nfs) foi liberado.");
+        toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 netfits) foi liberado.");
       }
     }
   };
@@ -273,7 +273,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
       videoRef.current.pause();
     }
     if (isVideo && !readClaimed && videoProgressPct < 90) {
-      toast.warning("⚠️ Antifraude: Você precisa assistir ao menos 90% do vídeo para destravar o Quiz de +5 nfs.");
+      toast.warning("⚠️ Antifraude: Você precisa assistir ao menos 90% do vídeo para destravar o Quiz de +5 netfits.");
     }
     setModalOpen(false);
   };
@@ -388,7 +388,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           onOpenArticle={handleOpenContent}
         />
 
-        {/* Card do Desafio Quiz Diário (+5 nfs) */}
+        {/* Card do Desafio Quiz Diário (+5 netfits) */}
         <div className="rounded-2xl border border-primary/20 bg-primary/[0.03] p-4 sm:p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -407,7 +407,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   )}
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Acerte para creditar <strong className="text-foreground">+5 nfs</strong> na carteira
+                  Acerte para creditar <strong className="text-foreground">+5 netfits</strong> na carteira
                 </p>
               </div>
             </div>
@@ -418,7 +418,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary">
-                <Sparkles className="w-3 h-3" /> +5 nfs
+                <Sparkles className="w-3 h-3" /> +5 netfits
               </span>
             )}
           </div>
@@ -487,7 +487,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
               }`}
             >
-              <CheckCircle2 className="w-4 h-4" /> Confirmar Resposta & Pontuar (+5 nfs)
+              <CheckCircle2 className="w-4 h-4" /> Confirmar Resposta & Pontuar (+5 netfits)
             </button>
           ) : (
             <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400 font-medium flex items-center gap-2">
@@ -572,7 +572,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                     <span>🎉 Retenção de 90% validada! Quiz liberado.</span>
                   </div>
                   <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md font-mono">
-                    +5 nfs Prontos
+                    +5 netfits Prontos
                   </span>
                 </div>
               ) : (
@@ -605,7 +605,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   {readClaimed ? (
                     <>
                       <Trophy className="size-3.5" />
-                      <span>Ir para o Quiz (+5 nfs)</span>
+                      <span>Ir para o Quiz (+5 netfits)</span>
                     </>
                   ) : (
                     <span>Fechar Player</span>
