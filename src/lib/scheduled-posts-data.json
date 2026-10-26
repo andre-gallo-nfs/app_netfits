@@ -32,15 +32,72 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Loja virtual, Bate-papo aberto, Jogos de aposta e Notícias de TV.",
+        "text": "Loja virtual, Bate-papo aberto, Jogos de aposta e Notícias de TV.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Apenas uma tela de compras sem feed ou extrato de pontos.",
+        "text": "Apenas uma tela de compras sem feed ou extrato de pontos.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+      }
+    ],
+    "videoStoryboard": [
+      {
+        "sceneNumber": 1,
+        "startSec": 0,
+        "endSec": 10,
+        "title": "Abertura e Boas-Vindas",
+        "visual": "Smartphone flutuante em 3D sutil; logotipo da Netfits pulsa e abre com ilustrações animadas de atletas.",
+        "voiceover": "Bem-vindo à Netfits! Aqui, cada escolha que você faz para cuidar da sua saúde gera valor real. Vamos conhecer o seu novo app?",
+        "icon": "Sparkles",
+        "tag": "Início do Tour",
+        "graphicType": "welcome_3d"
+      },
+      {
+        "sceneNumber": 2,
+        "startSec": 10,
+        "endSec": 25,
+        "title": "O Feed e os Quizzes Diários",
+        "visual": "Destaque na aba Feed. Cursor simula rolagem de post e a barra de progresso verde ilumina o Quiz com +5 nfs.",
+        "voiceover": "Na aba Feed, você encontra artigos rápidos sobre longevidade e hábitos saudáveis. Ao ler e responder ao Quiz diário, você acumula seus primeiros pontos nfs.",
+        "icon": "BookOpen",
+        "tag": "Feed & Quizzes",
+        "graphicType": "feed_tour"
+      },
+      {
+        "sceneNumber": 3,
+        "startSec": 25,
+        "endSec": 40,
+        "title": "O Shop e o Cashback em nfs",
+        "visual": "A tela transiciona para a aba Shop. Produtos aparecem com tag dourada R$ 1 = 4 nfs!",
+        "voiceover": "No Shop, suas compras em marcas parceiras viram cashback em pontos: a cada um real investido na sua saúde, você ganha 4 nfs na sua carteira.",
+        "icon": "ShoppingBag",
+        "tag": "Shop Netfits",
+        "graphicType": "shop_tour"
+      },
+      {
+        "sceneNumber": 4,
+        "startSec": 40,
+        "endSec": 50,
+        "title": "Extrato FEFO e Perfil Seguro",
+        "visual": "Transição para Extrato mostrando saldo auditado e validade FEFO de 24 meses; depois Perfil com botão Convidar Amigos (+50 nfs).",
+        "voiceover": "No Extrato, você confere cada ponto com transparência total. E no Perfil, você gerencia seus dados e convida amigos ganhando 50 nfs por indicação.",
+        "icon": "ShieldCheck",
+        "tag": "Transparência FEFO",
+        "graphicType": "wallet_profile"
+      },
+      {
+        "sceneNumber": 5,
+        "startSec": 50,
+        "endSec": 60,
+        "title": "Encerramento e Chamada para o Quiz",
+        "visual": "Cronômetro atinge Retenção Completa (90%) e o botão Responder Quiz (+5 nfs) pulsa em destaque.",
+        "voiceover": "Pronto para começar? Complete este vídeo, responda ao desafio abaixo e garanta seus primeiros pontos nfs de hoje!",
+        "icon": "Trophy",
+        "tag": "Desafio Liberado",
+        "graphicType": "tour_complete"
       }
     ]
   },
@@ -77,13 +134,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Treinar intensamente apenas 1 vez por mês durante 5 horas seguidas.",
+        "text": "Treinar intensamente apenas 1 vez por mês durante 5 horas seguidas.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Manter repouso contínuo sem nunca elevar a frequência cardíaca.",
+        "text": "Manter repouso contínuo sem nunca elevar a frequência cardíaca.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -121,13 +178,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: A leitura concede 100 nfs instantâneos apenas ao abrir a tela sem precisar rolar.",
+        "text": "A leitura concede 100 nfs instantâneos apenas ao abrir a tela sem precisar rolar.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Apenas quem curtir e clicar nos links externos recebe pontos no app.",
+        "text": "Apenas quem curtir e clicar nos links externos recebe pontos no app.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -167,15 +224,61 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: 1 nf a cada R$ 10,00 gastos, independentemente do produto.",
+        "text": "1 nf a cada R$ 10,00 gastos, independentemente do produto.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: As compras no Shop não geram pontos, apenas cupons temporários.",
+        "text": "As compras no Shop não geram pontos, apenas cupons temporários.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+      }
+    ],
+    "videoStoryboard": [
+      {
+        "sceneNumber": 1,
+        "startSec": 0,
+        "endSec": 12,
+        "title": "O Consumo do Atleta Consciente",
+        "visual": "Personagem animado organizando sua rotina: tênis de corrida, garrafa de água, pote de creatina e vestuário esportivo.",
+        "voiceover": "Você já parou para calcular quanto gasta todo mês para manter seus treinos e sua alimentação equilibrada? Esse consumo faz parte da sua longevidade.",
+        "icon": "ShoppingBag",
+        "tag": "Consumo Ativo",
+        "graphicType": "gear_routine"
+      },
+      {
+        "sceneNumber": 2,
+        "startSec": 12,
+        "endSec": 28,
+        "title": "A Fórmula 4 nfs por R$ 1",
+        "visual": "Uma nota estilizada de R$ 1,00 se divide em 4 moedas cintilantes com o símbolo nfs fluindo diretamente para a carteira.",
+        "voiceover": "No Shop Netfits, cada compra em marcas parceiras devolve valor para você: a cada 1 real gasto, você ganha automaticamente 4 pontos nfs na sua carteira!",
+        "icon": "Coins",
+        "tag": "Conversão Oficial",
+        "graphicType": "cashback_formula"
+      },
+      {
+        "sceneNumber": 3,
+        "startSec": 28,
+        "endSec": 42,
+        "title": "Simulação Prática de Compra",
+        "visual": "Card de pedido de suplementação de R$ 250,00 com selo Compra Confirmada creditando +1.000 nfs na carteira instantaneamente.",
+        "voiceover": "Comprou 250 reais em suplementos certificados? São 1.000 pontos nfs direto para a sua conta, creditados assim que o pedido é faturado.",
+        "icon": "Receipt",
+        "tag": "Exemplo Real",
+        "graphicType": "order_simulation"
+      },
+      {
+        "sceneNumber": 4,
+        "startSec": 42,
+        "endSec": 55,
+        "title": "Conclusão e Desafio do Quiz",
+        "visual": "Moedas acumuladas na carteira. O selo de retenção atinge 90% e o botão do Quiz se ativa com brilho dourado.",
+        "voiceover": "Economia da saúde na prática: consumir bem é investir em você. Assista até o fim e responda ao Quiz para somar mais 5 nfs agora mesmo!",
+        "icon": "Trophy",
+        "tag": "Quiz Destravado",
+        "graphicType": "quiz_unlock"
       }
     ]
   },
@@ -212,13 +315,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: O consumo excessivo de vitaminas que acelera o metabolismo sem controle.",
+        "text": "O consumo excessivo de vitaminas que acelera o metabolismo sem controle.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: A prática de exercícios leves que não consomem calorias suficientes.",
+        "text": "A prática de exercícios leves que não consomem calorias suficientes.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -254,13 +357,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: A constatação de que apenas atletas de alta performance deveriam ter acesso a benefícios saudáveis.",
+        "text": "A constatação de que apenas atletas de alta performance deveriam ter acesso a benefícios saudáveis.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: A ideia de que treinar apenas aos fins de semana é suficiente para manter a longevidade.",
+        "text": "A ideia de que treinar apenas aos fins de semana é suficiente para manter a longevidade.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -298,13 +401,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Porque serve apenas para competir com outros atletas em rankings públicos agressivos.",
+        "text": "Porque serve apenas para competir com outros atletas em rankings públicos agressivos.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Para obrigar o usuário a treinar sem descanso todos os dias do ano.",
+        "text": "Para obrigar o usuário a treinar sem descanso todos os dias do ano.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -342,13 +445,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Ficar em repouso absoluto na cama por 60 dias sem contrair a musculatura.",
+        "text": "Ficar em repouso absoluto na cama por 60 dias sem contrair a musculatura.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Aplicar calor e voltar a correr na intensidade máxima no mesmo dia.",
+        "text": "Aplicar calor e voltar a correr na intensidade máxima no mesmo dia.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -386,13 +489,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Os pontos expiram em apenas 30 dias se o usuário não fizer compras.",
+        "text": "Os pontos expiram em apenas 30 dias se o usuário não fizer compras.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Os pontos não têm registro no extrato e expiram aleatoriamente todo mês.",
+        "text": "Os pontos não têm registro no extrato e expiram aleatoriamente todo mês.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -430,13 +533,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Porque a água pura contém excesso de açúcar que desacelera a digestão.",
+        "text": "Porque a água pura contém excesso de açúcar que desacelera a digestão.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Porque os rins param de funcionar caso o atleta beba água durante o treino.",
+        "text": "Porque os rins param de funcionar caso o atleta beba água durante o treino.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -472,13 +575,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Porque o corpo humano só queima calorias se for exposto a treinos de pelo menos 4 horas contínuas.",
+        "text": "Porque o corpo humano só queima calorias se for exposto a treinos de pelo menos 4 horas contínuas.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Porque treinar intensamente de vez em quando substitui todos os benefícios de uma boa noite de sono.",
+        "text": "Porque treinar intensamente de vez em quando substitui todos os benefícios de uma boa noite de sono.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -516,13 +619,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Aumento repentino da disposição e facilidade para acordar descansado.",
+        "text": "Aumento repentino da disposição e facilidade para acordar descansado.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: Ganho imediato de força sem qualquer esforço.",
+        "text": "Ganho imediato de força sem qualquer esforço.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
@@ -542,7 +645,7 @@
     "badge": "Perfil Campeão · +50 nfs",
     "title": "Cadastro 100% Completo: Segurança LGPD e +50 nfs Imediatos",
     "subtitle": "Como preencher seu perfil com CEP e preferências esportivas destrava bônus e ofertas personalizadas.",
-    "format": "video_animation",
+    "format": "article",
     "duration": "55s",
     "readTime": "2 min",
     "pillText": "Um perfil completo é o mapa que orienta nossa tecnologia para cuidar de você com precisão e segurança.",
@@ -561,13 +664,13 @@
       },
       {
         "id": "opt-2",
-        "text": "✖ Distrator 1: Nenhum ponto, o cadastro serve apenas para enviar e-mails de propaganda.",
+        "text": "Nenhum ponto, o cadastro serve apenas para enviar e-mails de propaganda.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       },
       {
         "id": "opt-3",
-        "text": "✖ Distrator 2: +500 reais em dinheiro vivo enviados pelo correio.",
+        "text": "+500 reais em dinheiro vivo enviados pelo correio.",
         "isCorrect": false,
         "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
       }
