@@ -181,12 +181,13 @@ export function FeedPage() {
         <InviteFriendsCard />
 
         {/* Banner de Homologação: Atalho de Curadoria para Próximas Postagens */}
-        {typeof window !== "undefined" &&
-          (window.location.hostname.includes("staging") ||
-            window.location.hostname.includes("localhost") ||
-            window.location.hostname.includes("lhr.life") ||
-            window.location.port === "3000" ||
-            (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_ENV === "staging")) && (
+        {((typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_ENV === "staging") ||
+          (typeof window !== "undefined" &&
+            (window.location.hostname.includes("staging") ||
+              window.location.hostname.includes("trycloudflare.com") ||
+              window.location.hostname.includes("localhost") ||
+              window.location.hostname.includes("lhr.life") ||
+              window.location.port === "3000"))) && (
             <div className="mx-1 p-3 rounded-2xl bg-gradient-to-r from-purple-950/70 to-zinc-900 border border-purple-500/40 shadow-md flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">🗓️</span>
