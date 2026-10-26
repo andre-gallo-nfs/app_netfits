@@ -22,25 +22,31 @@
       "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 netfits) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 netfits de volta diretamente no seu extrato.\n\n3. Extrato / Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados sob o algoritmo FEFO de 24 meses.\n\n4. Perfil: Gestão dos seus dados cadastrais, conexões com smartwatches (Garmin, Apple Watch, Strava), rituais diários e histórico de evolução.",
       "Assista ao vídeo didático de 60 segundos até o final para validar a retenção de atenção e destravar o Desafio Quiz Diário (+5 netfits)!"
     ],
-    "quizQuestion": "De acordo com o tour guiado do app, quais são as 4 abas principais da barra de navegação da Netfits?",
+    "quizQuestion": "De acordo com o tour guiado oficial do app, quais são as 4 abas estruturais da barra de navegação da Netfits?",
     "quizOptions": [
       {
-        "id": "opt-1",
+        "id": "dia01-opt-correct",
         "text": "Feed, Shop, Extrato/Carteira e Perfil do Usuário.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Corretíssimo! Com essas 4 abas na barra inferior, você navega pelos conteúdos, realiza compras com cashback, audita seus pontos e gerencia sua conta."
       },
       {
-        "id": "opt-2",
-        "text": "Loja virtual, Bate-papo aberto, Jogos de aposta e Notícias de TV.",
+        "id": "dia01-opt-d1",
+        "text": "Feed, Treinos Conectados, Resgates e Comunidade de Atletas.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A integração com wearables e treinos pertence a fases futuras; a navegação atual é dividida em Feed, Shop, Extrato e Perfil."
       },
       {
-        "id": "opt-3",
-        "text": "Apenas uma tela de compras sem feed ou extrato de pontos.",
+        "id": "dia01-opt-d2",
+        "text": "Início, Desafios Diários, Marketplace e Configurações de Conta.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A nomenclatura e a arquitetura oficial do app utilizam Feed, Shop, Extrato e Perfil."
+      },
+      {
+        "id": "dia01-opt-d3",
+        "text": "Feed de Notícias, Loja de Cupons, Carteira de Pontos e Ajustes Biomédicos.",
+        "isCorrect": false,
+        "feedback": "Incorreto. O app Netfits não trabalha com 'loja de cupons', mas sim com o Shop e cashback direto em netfits."
       }
     ],
     "videoStoryboard": [
@@ -125,25 +131,31 @@
       "A American Heart Association (AHA) recomenda pelo menos 150 minutos semanais de atividade aeróbica moderada — como caminhada rápida ou bicicleta — ou 75 minutos de atividade intensa, como corrida. Também é recomendado realizar exercícios de fortalecimento muscular pelo menos duas vezes por semana.",
       "E você não precisa ser atleta de elite: pequenas mudanças, como caminhar diariamente, trocar o elevador por escadas e reduzir o tempo sentado, já geram impactos profundos."
     ],
-    "quizQuestion": "Qual é a recomendação mínima semanal da American Heart Association para proteger o coração e a longevidade através do exercício aeróbico?",
+    "quizQuestion": "Qual é a recomendação mínima semanal da American Heart Association (AHA) para proteção cardiovascular e longevidade através do exercício aeróbico?",
     "quizOptions": [
       {
-        "id": "opt-1",
+        "id": "dia04-opt-correct",
         "text": "Pelo menos 150 minutos de atividade aeróbica moderada ou 75 minutos de atividade intensa por semana.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Perfeito! Essa dose semanal é o padrão-ouro validado pela ciência para otimizar o perfil lipídico, reduzir pressão arterial e diminuir o risco cardiovascular global."
       },
       {
-        "id": "opt-2",
-        "text": "Treinar intensamente apenas 1 vez por mês durante 5 horas seguidas.",
+        "id": "dia04-opt-d1",
+        "text": "300 minutos de treinos exclusivamente em alta intensidade (HIIT) fracionados em no mínimo 6 dias por semana.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. 300 minutos em alta intensidade sem descanso prévio excede a recomendação basal e pode induzir fadiga crônica ou lesão articular."
       },
       {
-        "id": "opt-3",
-        "text": "Manter repouso contínuo sem nunca elevar a frequência cardíaca.",
+        "id": "dia04-opt-d2",
+        "text": "60 minutos diários contínuos de corrida ou ciclismo com permanência obrigatória na zona 4 de frequência cardíaca.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A AHA preconiza estímulo predominantemente moderado (Zona 2), e não permanência diária em zona 4 (anaeróbica)."
+      },
+      {
+        "id": "dia04-opt-d3",
+        "text": "100 minutos semanais combinados de musculação, sem necessidade de estímulo cardiovascular dedicado.",
+        "isCorrect": false,
+        "feedback": "Incorreto. Embora o treino resistido seja indispensável para a massa muscular, as diretrizes da AHA exigem o componente aeróbico dedicado de 150 minutos."
       }
     ]
   },
@@ -169,25 +181,31 @@
       "Nossa mecânica de pontuação no Feed é inteligente, transparente e protegida contra robôs:\n• A Trava de Leitura (0 netfits): A leitura em si não gera pontos diretamente. Ao abrir um artigo, nosso sistema audita que você permaneceu pelo menos 10 segundos no texto e realizou a rolagem completa (100% scroll) até o fim. Esse processo valida que o conteúdo foi lido e destrava o desafio diário.\n• Desafio Quiz Netfits (+5 netfits): Ao responder corretamente à pergunta do post educativo da Netfits ou da Fibios, você ganha 5 netfits na hora (limitado a 1 acerto bonificado por dia).\n• Quizzes Patrocinados (+10 netfits): Quando uma marca parceira homologada veicula um post patrocinado, o quiz correspondente premia você com 10 netfits pelo acerto.\n• Compartilhamento (+1 nf): Espalhar conhecimento com amigos gera 1 nf por envio.",
       "Curtidas e toques em links externos têm 0 netfits. Aqui, o ponto nasce do conhecimento de fato absorvido!"
     ],
-    "quizQuestion": "Como funciona a distribuição de pontos no Feed Netfits entre a leitura do artigo e a resposta correta do Quiz?",
+    "quizQuestion": "Como funciona a distribuição oficial de netfits no Feed entre o consumo do conteúdo e a resposta do Quiz?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "A leitura exige 10s e 100% de scroll para destravar o Quiz (0 netfits diretos), e o acerto no Quiz dos posts Netfits/Fibios concede 5 netfits (sendo 10 netfits em posts patrocinados).",
+        "id": "dia05-opt-correct",
+        "text": "A leitura exige 10s e 100% de scroll para destravar o Quiz (0 netfits diretos), e o acerto no Quiz concede 5 netfits (ou 10 netfits em posts patrocinados).",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Exato! A pontuação fica 100% concentrada no acerto do Quiz (+5 ou +10 netfits), garantindo que os usuários absorvam o aprendizado e não apenas rolem a tela passivamente."
       },
       {
-        "id": "opt-2",
-        "text": "A leitura concede 100 netfits instantâneos apenas ao abrir a tela sem precisar rolar.",
+        "id": "dia05-opt-d1",
+        "text": "A rolagem completa concede 3 netfits automáticos de leitura, e o Quiz adiciona outros 2 netfits complementares no acerto.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A leitura/vídeo não gera pontuação direta (0 netfits); a pontuação total de 5 netfits é obtida exclusivamente no acerto do Quiz."
       },
       {
-        "id": "opt-3",
-        "text": "Apenas quem curtir e clicar nos links externos recebe pontos no app.",
+        "id": "dia05-opt-d2",
+        "text": "O Quiz pode ser respondido a qualquer momento sem travas de tempo, creditando 5 netfits fixos independente da leitura prévia.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. O botão do Quiz permanece bloqueado até que a trava antifraude de permanência e scroll completo seja cumprida."
+      },
+      {
+        "id": "dia05-opt-d3",
+        "text": "O tempo de tela acumula 1 netfit a cada 30 segundos adicionais de leitura ativa, limitado ao teto de 10 netfits por post.",
+        "isCorrect": false,
+        "feedback": "Incorreto. A Netfits não remunera tempo de tela passivo para evitar fraudes; os pontos são concedidos pela precisão no Quiz."
       }
     ]
   },
@@ -215,25 +233,31 @@
       "Essa economia circula em um modelo auditado de take-rate líquido de 6%, gerando um círculo virtuoso onde seu cuidado diário reduz custos de consultas e serviços de longevidade na rede credenciada.",
       "Conclua a leitura e responda ao Desafio Quiz (+5 netfits) para testar sua fixação sobre as regras do Shop!"
     ],
-    "quizQuestion": "Qual é a taxa oficial de conversão de netfits ao realizar compras de produtos parceiros no Shop Netfits?",
+    "quizQuestion": "Qual é a taxa oficial de conversão de netfits ao realizar compras de produtos de parceiros no Shop Netfits?",
     "quizOptions": [
       {
-        "id": "opt-1",
+        "id": "dia07-opt-correct",
         "text": "4 netfits para cada R$ 1,00 gasto em produtos no marketplace.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Corretíssimo! Cada real investido na sua saúde em marcas parceiras credita 4 netfits auditados diretamente na sua carteira digital."
       },
       {
-        "id": "opt-2",
-        "text": "1 nf a cada R$ 10,00 gastos, independentemente do produto.",
+        "id": "dia07-opt-d1",
+        "text": "1 netfit para cada R$ 1,00 gasto, com multiplicador de 2x apenas para assinantes do Clube.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A taxa base do Shop é de 4 netfits por R$ 1,00 para todos os usuários cadastrados da plataforma."
       },
       {
-        "id": "opt-3",
-        "text": "As compras no Shop não geram pontos, apenas cupons temporários.",
+        "id": "dia07-opt-d2",
+        "text": "10 netfits a cada R$ 5,00 gastos exclusivamente em compras parceladas no cartão de crédito.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A mecânica não depende da forma de pagamento ou parcelamento; a conversão é de 4 netfits por R$ 1,00 no valor total faturado."
+      },
+      {
+        "id": "dia07-opt-d3",
+        "text": "Conversão dinâmica de 2,5% do valor total da nota fiscal convertido pela cotação diária do ponto.",
+        "isCorrect": false,
+        "feedback": "Incorreto. A regra do Business Case é clara e fixa: 4 netfits por R$ 1,00, sem flutuação diária de câmbio."
       }
     ],
     "videoStoryboard": [
@@ -310,22 +334,28 @@
     "quizQuestion": "O que caracteriza a síndrome de Deficiência Energética Relativa no Esporte (REDs), alertada pelo Comitê Olímpico Internacional?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "A ingestão insuficiente de energia em relação ao gasto dos treinos, comprometendo hormônios, imunidade e saúde óssea.",
+        "id": "dia08-opt-correct",
+        "text": "A ingestão insuficiente de energia em relação ao gasto dos treinos, comprometendo funções hormonais, imunidade e saúde óssea.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Perfeito! A baixa disponibilidade energética crônica compromete a tireoide, o eixo gonadal, reduz a densidade mineral óssea e prejudica gravemente o rendimento esportivo."
       },
       {
-        "id": "opt-2",
-        "text": "O consumo excessivo de vitaminas que acelera o metabolismo sem controle.",
+        "id": "dia08-opt-d1",
+        "text": "O acúmulo excessivo de lactato no pós-treino gerado pela carência aguda de carboidratos de absorção ultra-rápida.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. Lactato é substrato energético fisiológico e não a causa da REDs. REDs decorre de déficit calórico crônico sistêmico."
       },
       {
-        "id": "opt-3",
-        "text": "A prática de exercícios leves que não consomem calorias suficientes.",
+        "id": "dia08-opt-d2",
+        "text": "A incapacidade genética do organismo de metabolizar lipídios como fonte energética primária em treinos submáximos.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A REDs não é uma anomalia genética de oxidação de gorduras, mas sim uma desproporção entre consumo calórico e volume de treino."
+      },
+      {
+        "id": "dia08-opt-d3",
+        "text": "Um desequilíbrio transitório na absorção renal de eletrólitos causado pelo uso crônico de suplementação hiperproteica.",
+        "isCorrect": false,
+        "feedback": "Incorreto. A fisiopatologia da REDs é primariamente energética e endócrina, não uma nefropatia por excesso proteico."
       }
     ]
   },
@@ -349,25 +379,31 @@
     "articleContent": [
       "Texto do Artigo (Leitura no Modal com Scroll e Dwell Time 10s):\nHá mais de 30 anos, nosso fundador, André Gallo, recebeu um diagnóstico que mudaria o rumo de sua vida: Diabetes Tipo 1. Diante da necessidade vital de monitoramento contínuo, insulina e disciplina diária, o esporte e o autocuidado deixaram de ser hobbies e se tornaram ferramentas inegociáveis de sobrevivência e liberdade.\n\nAnos mais tarde, essa disciplina o levou a cruzar a linha de chegada de um Ironman 70.3. Mas foi durante essa trajetória que uma pergunta desconfortável ecoou: Por que os programas de fidelidade convencionais nos premiam quando gastamos dinheiro no cartão de crédito, mas ninguém nos reconhece quando investimos nosso tempo, energia e disciplina cuidando do bem mais precioso que temos: o nosso próprio corpo?\n\nA Netfits nasceu dessa provocação. Ela não é apenas um aplicativo; é um movimento criado para reconhecer, valorizar e recompensar cada escolha consciente que você faz pela sua vitalidade. Aqui, sua busca por longevidade ganha reconhecimento real."
     ],
-    "quizQuestion": "Qual percepção do fundador da Netfits, após mais de 30 anos convivendo com Diabetes Tipo 1 e completando um Ironman 70.3, inspirou a criação da plataforma?",
+    "quizQuestion": "Qual percepção do fundador da Netfits, após mais de 30 anos com Diabetes Tipo 1 e completando um Ironman 70.3, inspirou a criação da plataforma?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "O fato de que os programas tradicionais premiam gastos financeiros, mas não valorizam o esforço diário de quem cuida da própria saúde.",
+        "id": "dia09-opt-correct",
+        "text": "A constatação de que os programas de fidelidade premiam apenas gastos financeiros, ignorando o esforço diário de quem cuida da própria saúde.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Exato! A Netfits nasceu para transformar o suor e a disciplina do praticante amador em uma moeda digital com benefícios reais para sua longevidade."
       },
       {
-        "id": "opt-2",
-        "text": "A constatação de que apenas atletas de alta performance deveriam ter acesso a benefícios saudáveis.",
+        "id": "dia09-opt-d1",
+        "text": "A intenção de criar um prontuário médico fechado para prescrição automatizada de insulina e dietas esportivas.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A tese central da Netfits é engajamento e fidelidade esportiva, e não medicina prescritiva ou diagnóstico clínico."
       },
       {
-        "id": "opt-3",
-        "text": "A ideia de que treinar apenas aos fins de semana é suficiente para manter a longevidade.",
+        "id": "dia09-opt-d2",
+        "text": "A necessidade de montar uma rede social com rankings públicos agressivos de quilometragem entre atletas amadores.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A plataforma foca em longevidade sustentável, comunidade colaborativa e benefícios, e não em ranqueamento predatório."
+      },
+      {
+        "id": "dia09-opt-d3",
+        "text": "A percepção de que cupons temporários de desconto eram suficientes para motivar o praticante de esportes a longo prazo.",
+        "isCorrect": false,
+        "feedback": "Incorreto. O manifesto Netfits combate justamente a efemeridade e ineficiência dos cupons, substituindo-os por netfits com valor real."
       }
     ]
   },
@@ -393,25 +429,31 @@
       "Muito além de números isolados, o app registra a sua trajetória de consistência:\n• Sequência de Leituras e Quizzes: Veja quantos dias seguidos você dedicou alguns minutos para aprender algo novo sobre longevidade e saúde preventiva.\n• Badges e Marcos de Conquista: Desbloqueie selos conforme atinge marcas históricas de pontos acumulados e engajamento no ecossistema.\n• Metas de Frequência: Lembre-se de que a meta recomendada é manter uma regularidade sustentável — a constância diária supera qualquer esforço heroico esporádico.",
       "Consultar sua evolução semanalmente reforça o compromisso com você mesmo e torna visível o impacto das pequenas escolhas diárias."
     ],
-    "quizQuestion": "Por que acompanhar regularmente seu histórico e consistência na aba Perfil é fundamental para a sua longevidade?",
+    "quizQuestion": "Por que acompanhar regularmente o histórico de consistência e selos na aba Perfil é fundamental para a sua longevidade?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "Porque visualizar a regularidade de hábitos e conquistas reforça o compromisso de longo prazo e evita o abandono por falta de clareza.",
+        "id": "dia11-opt-correct",
+        "text": "Porque visualizar a regularidade de hábitos e conquistas reforça o compromisso de longo prazo e evita o abandono por falta de percepção de progresso.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Excelente! A psicologia do hábito comprova que mensurar pequenas vitórias diárias mantém a dopamina equilibrada e ancora a disciplina de longo prazo."
       },
       {
-        "id": "opt-2",
-        "text": "Porque serve apenas para competir com outros atletas em rankings públicos agressivos.",
+        "id": "dia11-opt-d1",
+        "text": "Para emitir relatórios contábeis obrigatórios que abatam as despesas de treinos e suplementação do imposto de renda.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A função do perfil é acompanhamento pessoal e retenção comportamental, não emissão de comprovantes fiscais tributários."
       },
       {
-        "id": "opt-3",
-        "text": "Para obrigar o usuário a treinar sem descanso todos os dias do ano.",
+        "id": "dia11-opt-d2",
+        "text": "Porque a falta de abertura diária do perfil gera expiração automática dos netfits acumulados no mês anterior.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. Os netfits têm validade de 24 meses (FEFO) e não são confiscados por inatividade esporádica."
+      },
+      {
+        "id": "dia11-opt-d3",
+        "text": "Para submeter os dados de treino à auditoria de outros atletas por sistema de votação pública obrigatória.",
+        "isCorrect": false,
+        "feedback": "Incorreto. Seus dados de perfil são protegidos pela LGPD e servem à sua evolução pessoal, sem exposição obrigatória a júri público."
       }
     ]
   },
@@ -437,25 +479,31 @@
       "A ciência ortopédica contemporânea nos ensina: tendão odeia repouso absoluto. O tendão é um tecido denso de colágeno que responde ao estímulo mecânico (mecanotransdução). Quando você o priva completamente de carga, ele perde tenacidade elástica e fica ainda mais vulnerável.",
       "O tratamento padrão-ouro para tendinopatias crônicas envolve exercícios isométricos e de força lenta e pesada (Heavy Slow Resistance), que estimulam o reagrupamento das fibras de colágeno sem gerar impacto ou estiramento brusco. Articulação saudável é articulação que aprende a suportar carga com técnica e progressão."
     ],
-    "quizQuestion": "Qual é a abordagem moderna recomendada pela medicina esportiva para o tratamento e recuperação de tendinopatias crônicas?",
+    "quizQuestion": "Qual é a abordagem terapêutica moderna recomendada pela medicina esportiva para o manejo de tendinopatias crônicas?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "Exercícios de força com carga controlada e progressiva (isometria e resistência lenta), estimulando o remodelamento das fibras de colágeno.",
+        "id": "dia12-opt-correct",
+        "text": "Exercícios de força com carga mecânica controlada e progressiva (isometria e contração lenta), estimulando o remodelamento das fibras de colágeno.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Corretíssimo! O tendão necessita de estresse mecânico controlado para sinalizar aos tenócitos a síntese de colágeno tipo 1 e recuperar a capacidade elástica."
       },
       {
-        "id": "opt-2",
-        "text": "Ficar em repouso absoluto na cama por 60 dias sem contrair a musculatura.",
+        "id": "dia12-opt-d1",
+        "text": "Imobilização articular estrita por 4 semanas associada ao uso contínuo de anti-inflamatórios para paralisar a resposta celular.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. O repouso absoluto desorganiza as fibras colágenas, atrofia a junção miotendínea e piora a tolerância à carga do tendão."
       },
       {
-        "id": "opt-3",
-        "text": "Aplicar calor e voltar a correr na intensidade máxima no mesmo dia.",
+        "id": "dia12-opt-d2",
+        "text": "Alongamentos balísticos intensos e massagem por atrito profundo diretamente sobre o tendão na fase aguda inflamatória.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. Alongamentos balísticos aumentam a carga compressiva na inserção do tendão, agravando o processo de degeneração."
+      },
+      {
+        "id": "dia12-opt-d3",
+        "text": "Eliminação definitiva de treinos de força, mantendo apenas hidroterapia passiva sem resistência gravitacional.",
+        "isCorrect": false,
+        "feedback": "Incorreto. Sem a reaplicação gradual de carga e impacto, o tendão não recupera sua rigidez estrutural para atividades diárias ou corrida."
       }
     ]
   },
@@ -481,25 +529,31 @@
       "Acessando a sua Carteira / Extrato, você tem visão cirúrgica de cada movimentação:\n1. Identificação Clara da Origem: Cada crédito aponta exatamente a ação correspondente — Desafio Quiz Diário (+5 netfits), Quiz Patrocinado (+10 netfits), Bônus de Cadastro (+50 netfits), Indicação de Amigo MGM (+50 netfits) ou Cashback do Shop (4 netfits/R$ 1).\n2. Data e Hora do Lançamento: Registro cronológico auditado em tempo real.\n3. Prazo de Validade Amplo (24 meses): Seus pontos têm validade generosa de 2 anos a partir do momento em que foram gerados.\n4. Algoritmo FEFO (First Expire, First Out): Em qualquer resgate futuro, o sistema debita automaticamente os pontos mais antigos primeiro, protegendo seu saldo contra perdas por expiração.",
       "Transparência e segurança matemática para você acumular com total confiança."
     ],
-    "quizQuestion": "Qual é o prazo de validade oficial dos netfits acumulados na sua carteira Netfits e qual algoritmo protege os pontos mais antigos?",
+    "quizQuestion": "Qual é o prazo de validade oficial dos netfits e qual modelo de débito é utilizado para proteger seus pontos?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "Validade de 24 meses (2 anos), operando sob o algoritmo FEFO (o ponto mais antigo a expirar é o primeiro a ser debitado).",
+        "id": "dia13-opt-correct",
+        "text": "Validade de 24 meses (2 anos), operando sob o algoritmo FEFO (First Expire, First Out: os pontos que vencem primeiro são debitados primeiro).",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Perfeito! Com 24 meses de vigência e o modelo FEFO, o sistema prioriza sempre os netfits mais antigos nos resgates, evitando expirações acidentais."
       },
       {
-        "id": "opt-2",
-        "text": "Os pontos expiram em apenas 30 dias se o usuário não fizer compras.",
+        "id": "dia13-opt-d1",
+        "text": "Validade de 12 meses renovável somente mediante a realização de pelo menos uma compra por trimestre no Shop.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A validade oficial do Business Case é de 24 meses para cada crédito, sem obrigatoriedade de compras recorrentes."
       },
       {
-        "id": "opt-3",
-        "text": "Os pontos não têm registro no extrato e expiram aleatoriamente todo mês.",
+        "id": "dia13-opt-d2",
+        "text": "Validade de 36 meses utilizando o algoritmo LIFO (Last In, First Out), no qual os netfits mais recentes são consumidos antes.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. O modelo da Netfits é FEFO (First Expire, First Out), protegendo a antiguidade do saldo do usuário."
+      },
+      {
+        "id": "dia13-opt-d3",
+        "text": "Validade indeterminada vitalícia enquanto o usuário não ultrapassar o saldo máximo permitido de 50.000 netfits.",
+        "isCorrect": false,
+        "feedback": "Incorreto. Todo programa de pontos solvente possui provisionamento e prazo de validade técnica, fixado na Netfits em 24 meses."
       }
     ]
   },
@@ -525,25 +579,31 @@
       "Se você consome grandes volumes de água pura sem repor sódio, o sangue se dilui excessivamente, provocando uma condição clínica perigosa chamada hiponatremia (baixa concentração de sódio sérico), que causa dores de cabeça, náuseas, cãibras severas e confusão mental.",
       "Em treinos moderados a intensos com mais de uma hora de duração, a estratégia médica indicada é incluir bebidas isotônicas ou cápsulas de eletrólitos com cerca de 400 a 700 mg de sódio por litro de líquido ingerido. Hidratação inteligente não é apenas sobre matar a sede; é sobre manter a pressão osmótica das suas células."
     ],
-    "quizQuestion": "Por que treinos com duração superior a 60 minutos sob calor exigem mais do que água pura para uma hidratação segura?",
+    "quizQuestion": "Por que treinos com duração superior a 60 minutos sob calor exigem reposição de eletrólitos além de água pura?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "Porque o suor elimina eletrólitos essenciais (como sódio e potássio), e repor apenas água pura pode diluir o sangue e causar hiponatremia.",
+        "id": "dia14-opt-correct",
+        "text": "Porque o suor elimina sódio e minerais; ingerir apenas água pura em excesso pode diluir a concentração plasmática de sódio e desencadear hiponatremia.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Corretíssimo! A hiponatremia dilucional pode causar cefaleia, confusão mental, náuseas e até colapso em atletas que bebem grandes volumes de água pura sem sódio."
       },
       {
-        "id": "opt-2",
-        "text": "Porque a água pura contém excesso de açúcar que desacelera a digestão.",
+        "id": "dia14-opt-d1",
+        "text": "Porque a água pura sem minerais acelera o esvaziamento gástrico, induzindo hipoglicemia reativa e bloqueio imediato do rendimento.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A água pura não causa hipoglicemia de rebote; o perigo fisiológico primário da super-hidratação sem sódio é a hiponatremia."
       },
       {
-        "id": "opt-3",
-        "text": "Porque os rins param de funcionar caso o atleta beba água durante o treino.",
+        "id": "dia14-opt-d2",
+        "text": "Porque o oxigênio celular depende exclusivamente de uma concentração de potássio superior a 15% em cada gole ingerido.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. O transporte de oxigênio é mediado pela hemoglobina e pelo volume sanguíneo, não pela ingestão contínua de potássio concentrado."
+      },
+      {
+        "id": "dia14-opt-d3",
+        "text": "Porque a água mineral comercial inibe o centro hipotalâmico de controle da temperatura corporal, interrompendo a sudorese.",
+        "isCorrect": false,
+        "feedback": "Incorreto. A sudorese é controlada pelo sistema autônomo em resposta à temperatura central, e não bloqueada pela composição de água mineral."
       }
     ]
   },
@@ -567,25 +627,31 @@
     "articleContent": [
       "Texto do Artigo (Leitura no Modal com Scroll e Dwell Time 10s):\nA cultura tradicional do fitness costuma glorificar o esgotamento extremo: sessões extenuantes de treino, dor paralisante no dia seguinte e a ideia de que 'se não doer, não funciona'. A ciência moderna da fisiologia demonstra exatamente o inverso: o choque esporádico eleva os riscos de lesões articulares, estresse oxidativo e abandono precoce por esgotamento (burnout).\n\nNosso organismo evoluiu para responder à consistência. Trinta minutos de movimento consciente e moderado praticados de forma regular ao longo da semana promovem adaptações cardiovasculares superiores, melhor regulação da glicemia e modulação autonômica sem sobrecarregar tendões e ligamentos.\n\nA Netfits prega o fim dos excessos autodestrutivos. O segredo da longevidade não está em vencer uma maratona esgotante uma vez por ano, mas em manter um relacionamento harmonioso e ininterrupto com o seu bem-estar todos os dias."
     ],
-    "quizQuestion": "De acordo com a fisiologia moderna do exercício, por que a prática regular é preferível a choques de esforço esporádicos e extremos?",
+    "quizQuestion": "De acordo com a fisiologia moderna do exercício, por que a frequência regular e sustentável é superior a choques esporádicos de intensidade extrema?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "Porque a regularidade estimula adaptações cardiovasculares e metabólicas contínuas com risco significativamente menor de lesões e esgotamento.",
+        "id": "dia15-opt-correct",
+        "text": "Porque a regularidade induz biogênese mitocondrial e angiogênese cumulativas sem sobrecarregar cronicamente o eixo neuroimunoendócrino.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Exato! Pequenos estímulos frequentes mantêm a adaptação celular sem provocar o pico crônico de citocinas inflamatórias que leva a lesões e burnout."
       },
       {
-        "id": "opt-2",
-        "text": "Porque o corpo humano só queima calorias se for exposto a treinos de pelo menos 4 horas contínuas.",
+        "id": "dia15-opt-d1",
+        "text": "Porque choques esporádicos de alta carga inibem de forma irreversível a síntese de proteínas musculares por mais de 45 dias consecutivos.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A síntese proteica é retomada após o reparo tecidual, mas treinos isolados causam inflamação desproporcional e alto risco de lesão musculoesquelética."
       },
       {
-        "id": "opt-3",
-        "text": "Porque treinar intensamente de vez em quando substitui todos os benefícios de uma boa noite de sono.",
+        "id": "dia15-opt-d2",
+        "text": "Porque o efeito EPOC (queima calórica pós-exercício) só é fisiologicamente ativado se o indivíduo treinar 6 dias por semana sem falhar.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. O EPOC é proporcional à intensidade de qualquer sessão e não exige frequência de 6 dias por semana para ocorrer."
+      },
+      {
+        "id": "dia15-opt-d3",
+        "text": "Porque treinos moderados impedem a queima de glicogênio muscular, forçando a utilização exclusiva de gordura visceral.",
+        "isCorrect": false,
+        "feedback": "Incorreto. Qualquer intensidade utiliza glicogênio em alguma proporção; a vantagem da consistência é o equilíbrio na recuperação sistêmica."
       }
     ]
   },
@@ -611,25 +677,31 @@
       "Fique atento a quatro sinais clínicos fundamentais: 1) Elevação inexplicável da frequência cardíaca de repouso pela manhã; 2) Dificuldade para pegar no sono mesmo estando exausto (insônia paradoxal por excesso simpático); 3) Irritabilidade, oscilações bruscas de humor e perda de apetite; 4) Queda persistente de rendimento que não melhora mesmo após dois dias de descanso.",
       "O repouso programado (semana de deload) não é fraqueza: é a única janela onde ocorre a supercompensação muscular. O campeão não é quem nunca para, mas quem sabe a hora exata de recuar para saltar mais longe."
     ],
-    "quizQuestion": "Qual das seguintes alternativas é um sinal clínico clássico de sobrecarga de treinamento (overreaching / overtraining)?",
+    "quizQuestion": "Qual das seguintes alternativas descreve um conjunto de sinais clínicos clássicos da síndrome de sobretreinamento crônico (Overtraining / OTS)?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "Elevação anormal da frequência cardíaca de repouso, insônia paradoxal e queda persistente de rendimento físico.",
+        "id": "dia16-opt-correct",
+        "text": "Elevação anormal da frequência cardíaca de repouso, insônia paradoxal, irritabilidade e queda sustentada de rendimento físico resistente ao descanso.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Perfeito! A desregulação do sistema nervoso autônomo somada à fadiga persistente e perda de potência caracterizam o estágio avançado de OTS."
       },
       {
-        "id": "opt-2",
-        "text": "Aumento repentino da disposição e facilidade para acordar descansado.",
+        "id": "dia16-opt-d1",
+        "text": "Bradicardia intensa apenas no pico do esforço, acompanhada de apetite voraz e ganho rápido de massa muscular involuntária.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. Overtraining acarreta perda de rendimento, supressão de apetite e catabolismo tecidual, e não ganho de massa."
       },
       {
-        "id": "opt-3",
-        "text": "Ganho imediato de força sem qualquer esforço.",
+        "id": "dia16-opt-d2",
+        "text": "Hipotermia periférica imediata combinada a picos de pressão arterial exclusivamente no período pós-prandial.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. Esses não são critérios clínicos diagnósticos de overtraining esportivo."
+      },
+      {
+        "id": "dia16-opt-d3",
+        "text": "Dor muscular tardia localizada que surge em 24h e desaparece completamente após 72h de repouso passivo.",
+        "isCorrect": false,
+        "feedback": "Incorreto. Essa é a resposta fisiológica normal de adaptação ao treino (DMIT), diferente do overtraining que perdura por semanas ou meses."
       }
     ]
   },
@@ -656,25 +728,31 @@
       "Manter o cadastro 100% completo traz três vantagens imediatas:\n• Bônus de Cadastro (+50 netfits): Novos usuários que concluem o onboarding e preenchem seus dados recebem 50 netfits de boas-vindas imediatamente na carteira.\n• Curadoria de Ofertas e Conteúdos: Saber se sua rotina envolve corrida, musculação, ciclismo ou natação permite que o Shop exiba os produtos de nutrição e equipamentos mais adequados para a sua realidade.\n• Segurança e Conformidade LGPD: Seus dados são criptografados e protegidos rigorosamente sob a Lei Geral de Proteção de Dados. Eles jamais são comercializados com terceiros e servem unicamente para autenticar seus pontos e garantir que sua conta permaneça inviolável.",
       "Abra a aba Perfil, revise seus dados e garanta que sua conta esteja blindada e pronta para aproveitar cada oportunidade!"
     ],
-    "quizQuestion": "Qual bônus em netfits o usuário destrava ao concluir seu cadastro e onboarding completo no app Netfits?",
+    "quizQuestion": "Quais benefícios oficiais o usuário destrava ao concluir seu cadastro e onboarding com perfil 100% preenchido na Netfits?",
     "quizOptions": [
       {
-        "id": "opt-1",
-        "text": "+50 netfits de bônus creditados na carteira, além de receber recomendações personalizadas no Shop e proteção LGPD.",
+        "id": "dia17-opt-correct",
+        "text": "Crédito imediato do Bônus de Cadastro (+50 netfits), curadoria personalizada de produtos no Shop e blindagem de segurança sob a LGPD.",
         "isCorrect": true,
-        "feedback": "Exato! Resposta correta de acordo com as diretrizes oficiais da Netfits e Fibios."
+        "feedback": "Corretíssimo! O cadastro completo concede 50 netfits na hora, personaliza as ofertas esportivas de acordo com a sua rotina e protege sua privacidade."
       },
       {
-        "id": "opt-2",
-        "text": "Nenhum ponto, o cadastro serve apenas para enviar e-mails de propaganda.",
+        "id": "dia17-opt-d1",
+        "text": "Isenção perpétua de taxas de entrega em todas as compras do Shop e desconto fixo de 50% em calçados de corrida.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. O onboarding garante o Bônus de 50 netfits e personalização, mas as condições de frete e preços seguem as regras de cada parceiro."
       },
       {
-        "id": "opt-3",
-        "text": "+500 reais em dinheiro vivo enviados pelo correio.",
+        "id": "dia17-opt-d2",
+        "text": "Multiplicador especial de 8 netfits por R$ 1,00 válido para qualquer compra no marketplace durante o primeiro ano.",
         "isCorrect": false,
-        "feedback": "Incorreto. Leia a dica do post com atenção e tente novamente."
+        "feedback": "Incorreto. A taxa oficial e sustentável do marketplace é de 4 netfits por R$ 1,00 para todos os cadastrados."
+      },
+      {
+        "id": "dia17-opt-d3",
+        "text": "Agendamento automático de consultas clínicas presenciais gratuitas em hospitais conveniados da rede pública.",
+        "isCorrect": false,
+        "feedback": "Incorreto. A Netfits é uma plataforma de engajamento e fidelidade em longevidade, não uma operadora de plano de saúde hospitalar."
       }
     ]
   }
