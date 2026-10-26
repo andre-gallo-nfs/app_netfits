@@ -60,6 +60,7 @@ function ProximasPostagensPage() {
     const hostname = window.location.hostname;
     return (
       hostname.includes("staging") ||
+      hostname.includes("trycloudflare.com") ||
       hostname.includes("localhost") ||
       hostname.includes("lhr.life") ||
       window.location.port === "3000" ||
@@ -67,6 +68,17 @@ function ProximasPostagensPage() {
       (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_ENV === "staging")
     );
   }, []);
+
+  // Blindagem de Produção: Se alguém acessar em produção (www.netfits.com.br), redireciona imediatamente para o feed
+  useEffect(() => {
+    if (typeof window !== "undefined" && !isStaging) {
+      navigate({ to: "/feed", replace: true });
+    }
+  }, [isStaging, navigate]);
+
+  if (!isStaging) {
+    return null;
+  }
 
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-zinc-950 text-white flex flex-col pb-32">
