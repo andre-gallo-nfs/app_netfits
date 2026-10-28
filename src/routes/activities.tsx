@@ -5,6 +5,9 @@ import { useOperationalParams } from "@/lib/operational-params-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { useLevel } from "@/lib/level-store";
 import { WearableSyncSheet } from "@/components/WearableSyncSheet";
+import { WearablesHub } from "@/components/WearablesHub";
+import { clubModalStore } from "@/lib/club-modal-store";
+import { Crown } from "lucide-react";
 import {
   Activity, Flame, ShieldCheck, Award, Sparkles, Clock, HeartPulse,
   CheckCircle2, Watch, Check, ChevronRight, Zap, Plus
@@ -29,6 +32,7 @@ function ActivitiesPage() {
   const activeUser = sharedSandboxStore.useActiveUser();
   const userLevel = useLevel();
   const [showSyncSheet, setShowSyncSheet] = useState(false);
+  const [viewMode, setViewMode] = useState<"workouts" | "wearables">("workouts");
 
   // Obtém exclusivamente as atividades reais registradas para o usuário ativo (zero dados mockados)
   const userWorkoutTxs = sharedSandboxStore
@@ -80,6 +84,68 @@ function ActivitiesPage() {
           </div>
         </div>
       </section>
+
+      {/* Seletor de Visão: Treinos vs Wearables Terra API */}
+      <section className="px-4">
+        <div className="flex rounded-2xl bg-zinc-100 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800 text-xs font-bold shadow-inner">
+          <button
+            type="button"
+            onClick={() => setViewMode("workouts")}
+            className={`flex-1 py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer ${
+              viewMode === "workouts"
+                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs font-black"
+                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <Activity className="size-4 text-lime-500" />
+            <span>Treinos &amp; Metas</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("wearables")}
+            className={`flex-1 py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer ${
+              viewMode === "wearables"
+                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs font-black"
+                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            <Watch className="size-4 text-purple-500" />
+            <span>Dispositivos Terra API</span>
+            <span className="size-1.5 rounded-full bg-lime-400 animate-pulse" />
+          </button>
+        </div>
+      </section>
+
+      {/* Visão de Dispositivos Terra API */}
+      {viewMode === "wearables" ? (
+        <section className="px-4">
+          <WearablesHub />
+        </section>
+      ) : (
+        <>
+          {/* Banner Promocional do Clube Netfits se não for associado */}
+          {!isClubMember && (
+            <section className="px-4">
+              <div className="rounded-2xl bg-gradient-to-r from-amber-500/15 via-zinc-900 to-zinc-900 border border-amber-500/30 p-3.5 flex items-center justify-between text-white shadow-md">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-9 rounded-xl bg-amber-400/20 text-amber-400 grid place-items-center shrink-0">
+                    <Crown className="size-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-black text-amber-300">Clube Netfits • +1.000 nfs/mês</h3>
+                    <p className="text-[11px] text-zinc-300">Desbloqueie pontuação de treinos e benefícios no Shop por R$ 19,90/mês.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => clubModalStore.open()}
+                  className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs shrink-0 transition active:scale-95 cursor-pointer shadow-sm"
+                >
+                  Conhecer
+                </button>
+              </div>
+            </section>
+          )}
 
       {/* Card Destaque: Ritual Diário de Validação de Treino (Caminho 1 Nativo + Caminho 2 Nuvem) */}
       <section className="px-4">
@@ -317,6 +383,9 @@ function ActivitiesPage() {
           </ul>
         )}
       </section>
+
+      </>
+      )}
 
       {/* Sheet de Conexão de Wearables */}
       {showSyncSheet && (
