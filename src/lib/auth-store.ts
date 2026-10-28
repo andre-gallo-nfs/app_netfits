@@ -441,7 +441,7 @@ export const authStore = {
     if (!check.exists || !check.matchedUser) {
       return {
         success: false,
-        error: "Usuário não encontrado. Verifique os dados digitados ou faça seu cadastro inicial.",
+        error: "Usuário não encontrado. Verifique seu e-mail, celular ou CPF digitado.",
       };
     }
 

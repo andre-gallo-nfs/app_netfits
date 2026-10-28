@@ -6,6 +6,41 @@
 
 export const DEFAULT_PRESEEDED_USERS = [
   {
+    "id": "usr_apple_review",
+    "fullName": "Avaliador Netfits (Apple Review)",
+    "email": "demo@netfits.com.br",
+    "phone": "(11) 99999-2026",
+    "cpf": "000.000.000-00",
+    "birthDate": "01/01/1990",
+    "address": "Av. Paulista, 1000 - Bela Vista, São Paulo · SP",
+    "street": "Av. Paulista",
+    "number": "1000",
+    "neighborhood": "Bela Vista",
+    "city": "São Paulo",
+    "state": "São Paulo",
+    "shortState": "SP",
+    "zipcode": "01310100",
+    "sports": [
+      "Corrida de rua",
+      "Ciclismo",
+      "Musculação"
+    ],
+    "healthPlan": "Sem plano",
+    "gym": "Academia Smart Fit",
+    "coaching": "Assessoria Esportiva Netfits",
+    "wearable": "Apple Watch Ultra",
+    "nfsBalance": 1500,
+    "userCategory": "atleta",
+    "registeredAt": "2026-10-24T00:00:00Z",
+    "identifier": "demo@netfits.com.br",
+    "type": "athlete",
+    "plan": "club",
+    "isClubMember": true,
+    "isClubSubscriber": true,
+    "referralCode": "REVIEW-NETFITS",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
     "id": "usr_andre",
     "fullName": "André Gallo",
     "email": "aacgallo@hotmail.com",
@@ -183,6 +218,51 @@ export const DEFAULT_PRESEEDED_USERS = [
 ];
 
 export const DEFAULT_PRESEEDED_TRANSACTIONS = [
+  {
+    "id": "tx-apple-review-welcome",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 50,
+    "description": "Boas-vindas à Netfits! Bônus de Cadastro Inicial",
+    "category": "welcome",
+    "timestamp": "2026-10-24T10:00:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-club",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 1000,
+    "description": "Mensalidade Clube Netfits: Pontuação Recorrente",
+    "category": "associado_bonus",
+    "timestamp": "2026-10-24T10:05:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-feed",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 5,
+    "description": "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-10-24T10:10:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-referral",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 50,
+    "description": "Indicação de Amigo: Bônus MGM Concluído",
+    "category": "referral",
+    "timestamp": "2026-10-24T10:15:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-shop",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 395,
+    "description": "Cashback Shopping Netfits: Compra Pontuada",
+    "category": "shop",
+    "timestamp": "2026-10-24T10:20:00.000Z"
+  },
   {
     "id": "tx-1792096301675-472",
     "userId": "usr_andre",

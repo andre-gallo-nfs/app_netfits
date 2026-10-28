@@ -55,7 +55,14 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const [mode, setMode] = useState<"register" | "login">("register");
+  const [mode, setMode] = useState<"register" | "login">(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mode") === "register") return "register";
+      if (params.get("ref") || params.get("code") || params.get("referral")) return "register";
+    }
+    return "login";
+  });
 
   useEffect(() => {
     if (mode === "register") {
@@ -1045,6 +1052,8 @@ function AuthPage() {
                 value={loginIdentifier}
                 onChange={(e) => setLoginIdentifier(e.target.value)}
                 placeholder="Seu e-mail, celular ou CPF"
+                autoComplete="username"
+                autoCapitalize="none"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
@@ -1072,6 +1081,8 @@ function AuthPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Sua senha"
+                autoComplete="current-password"
+                autoCapitalize="none"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-10 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
