@@ -12,7 +12,9 @@ import {
   DollarSign,
   FileText,
   Handshake,
+  LifeBuoy,
   Lock,
+  MessageSquare,
   Rss,
   Send,
   ShoppingBag,
@@ -44,6 +46,8 @@ import { AdminFeedTab } from "@/components/admin/AdminFeedTab";
 import { AdminMarketplaceTab } from "@/components/admin/AdminMarketplaceTab";
 import { AdminPartnersTab } from "@/components/admin/AdminPartnersTab";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
+import { AdminTicketsTab } from "@/components/admin/AdminTicketsTab";
+import { AdminSupportModal } from "@/components/admin/AdminSupportModal";
 
 
 export const Route = createFileRoute("/admin")({
@@ -97,7 +101,7 @@ export function normalizeOrderPaymentMethod(raw?: string | null): "CREDIT_CARD" 
   return "UNKNOWN";
 }
 
-type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "mkplace" | "interactions";
+type TabType = "overview" | "results" | "xml" | "qa" | "controls" | "activities" | "users" | "associados" | "partners" | "params" | "points" | "feed" | "market" | "mkplace" | "interactions" | "tickets";
 
 export interface AdminPillarDef {
   id: string;
@@ -131,7 +135,7 @@ export const ADMIN_PILLARS: AdminPillarDef[] = [
     subtitle: "Base Oficial de Usuários & Sócios",
     emoji: "👥",
     color: "text-amber-400 border-amber-500/30 bg-amber-950/40",
-    tabIds: ["users", "associados", "partners"],
+    tabIds: ["users", "associados", "partners", "tickets"],
   },
   {
     id: "operations",
@@ -155,6 +159,7 @@ const TAB_DEFINITIONS: { id: TabType; label: string; iconEmoji: string; icon: Re
   { id: "users", label: "Base de Usuários Oficiais", iconEmoji: "👥", icon: Users, category: "Comunidade", pillarId: "community" },
   { id: "associados", label: "Gestão de Associados (10%)", iconEmoji: "👑", icon: Award, category: "Prescritores", pillarId: "community" },
   { id: "partners", label: "Parceiros & Assessorias B2B", iconEmoji: "🤝", icon: Handshake, category: "Ecossistema", pillarId: "community" },
+  { id: "tickets", label: "Central de Chamados & SAC", iconEmoji: "💬", icon: MessageSquare, category: "Atendimento & SAC", pillarId: "community" },
 
   { id: "params", label: "Parâmetros da Operação", iconEmoji: "⚙️", icon: Sliders, category: "Regras de Negócio", pillarId: "operations" },
   { id: "points", label: "Programa de Pontos nfs", iconEmoji: "🪙", icon: Coins, category: "Fidelidade & Passivo", pillarId: "operations" },
@@ -570,6 +575,7 @@ function AdminDashboardPage() {
 
   // Estado do Modal de Apresentação de Investidores (Pitch Deck)
   const [showPitchDeckModal, setShowPitchDeckModal] = useState<boolean>(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState<boolean>(false);
   const [pitchSlide, setPitchSlide] = useState<number>(1);
 
   // Métricas Detalhadas do Marketplace (Banco Real)
@@ -671,6 +677,17 @@ function AdminDashboardPage() {
 
           <button
             onClick={() => {
+              setIsSupportModalOpen(true);
+            }}
+            className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 hover:text-rose-100 border border-rose-500/40 text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-sm shadow-rose-950/50"
+            title="Canais de Suporte, SOS & Contatos Estratégicos"
+          >
+            <LifeBuoy className="size-3.5 text-rose-400" />
+            <span className="hidden sm:inline">SOS &amp; Suporte</span>
+          </button>
+
+          <button
+            onClick={() => {
               setShowPitchDeckModal(true);
               toast.info("Pitch Deck Estratégico para Investidores aberto!");
             }}
@@ -706,7 +723,7 @@ function AdminDashboardPage() {
               4 Pilares de Gestão
             </span>
             <span className="text-[10px] font-mono text-purple-400 font-bold bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">
-              14 Módulos
+              15 Módulos
             </span>
           </div>
 
@@ -941,6 +958,11 @@ function AdminDashboardPage() {
           />
         )}
 
+        {/* Tab: Central de Chamados & SAC */}
+        {activeTab === "tickets" && (
+          <AdminTicketsTab shortLabel={currentPeriodObj.shortLabel} />
+        )}
+
         {(activeTab === "controls" || activeTab === "results") && (
           <AdminDreFinOpsTab
             activeTab={activeTab as "controls" | "results"}
@@ -961,6 +983,12 @@ function AdminDashboardPage() {
         )}
       </main>
       </div>
+
+      {/* Modal de Suporte do Administrador & SOS */}
+      <AdminSupportModal
+        isOpen={isSupportModalOpen}
+        onClose={() => setIsSupportModalOpen(false)}
+      />
     </div>
   );
 }

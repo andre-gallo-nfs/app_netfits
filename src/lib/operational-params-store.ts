@@ -38,7 +38,7 @@ export type OperationalParams = {
   // Atividades Físicas, Wearables & Regras Sweat-to-Earn
   // IMPORTANTE: Pontuação por treino realizada é SOMENTE válida para membros do Clube Netfits.
   // Mesmo essa pontuação exclusiva de membros do clube ainda está PENDENTE de aprovação da diretoria da empresa.
-  nfsPerWorkout: number; // nfs por atividade executada (20 nfs para membros do clube, condicionado à aprovação da diretoria)
+  nfsPerWorkout: number; // nfs por atividade executada (25 nfs para membros do clube)
   workoutRewardClubOnly: boolean; // Trava de produto: somente membros do Clube Netfits elegíveis
   workoutRewardBoardApproved: boolean; // Trava de governança: pendente de aprovação formal da diretoria
   weeklyMaxRewardedWorkouts: number; // Máximo de atividades pontuáveis por semana (5 treinos)
@@ -162,7 +162,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   duplicateMediaFilterActive: true,
 
   // Atividades Físicas, Wearables & Regras Sweat-to-Earn
-  nfsPerWorkout: 20, // 20 nfs por atividade executada (somente Clube Netfits)
+  nfsPerWorkout: 25, // 25 nfs por atividade executada (somente Clube Netfits)
   workoutRewardClubOnly: true, // Trava: exclusivo para assinantes do Clube
   workoutRewardBoardApproved: false, // Governança: PENDENTE DE APROVAÇÃO DA DIRETORIA
   weeklyMaxRewardedWorkouts: 5, // Limite de 5 treinos por semana

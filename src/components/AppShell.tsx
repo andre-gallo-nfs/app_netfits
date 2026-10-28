@@ -6,6 +6,9 @@ import profileAvatar from "@/assets/profile-avatar.jpg";
 import { useWallet } from "@/lib/wallet-store";
 import { useBadges, badgesStore } from "@/lib/badges-store";
 import { NetfitAiAssistant } from "./NetfitAiAssistant";
+import { ClubMembershipModal } from "./ClubMembershipModal";
+import { clubModalStore } from "@/lib/club-modal-store";
+import { Crown } from "lucide-react";
 
 const tabs = [
   { to: "/feed", label: "Feed", icon: Home },
@@ -92,6 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {path !== "/profile" && <TopBar />}
         <main className={`flex-1 ${path === "/market" ? "overflow-hidden pb-16" : "overflow-y-auto pb-28"}`}>{children}</main>
         <NetfitAiAssistant />
+        <ClubMembershipModal />
         {/* Footer Navigation Bar (Cor Branco Sólido com Safe Area Inferior para Gestos e Home Bar) */}
         <nav
           className="fixed bottom-0 w-full max-w-md bg-white text-zinc-600 border-t border-zinc-200 px-6 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] flex items-center justify-between z-40 shadow-lg"
@@ -164,6 +168,21 @@ function TopBar() {
         )}
       </Link>
       <div className="flex items-center gap-1.5 shrink-0">
+        <button
+          type="button"
+          onClick={() => clubModalStore.open()}
+          title="Clube Netfits — Benefícios VIP"
+          aria-label="Abrir modal do Clube Netfits"
+          className={`min-h-[36px] px-2.5 py-1 rounded-full flex items-center gap-1.5 transition active:scale-95 cursor-pointer text-[11px] font-black tracking-tight ${
+            activeUser.isClubMember || activeUser.userCategory === "associado"
+              ? "bg-amber-400/20 text-amber-800 border border-amber-400/50 shadow-xs"
+              : "bg-amber-50 text-amber-700 border border-amber-300/60 hover:bg-amber-100"
+          }`}
+        >
+          <Crown className="size-3.5 text-amber-600 shrink-0" />
+          <span>Clube</span>
+        </button>
+
         <Link
           to="/wallet"
           aria-label={`Carteira Netfits: ${balance.toLocaleString("pt-BR")} nfs`}

@@ -14,6 +14,8 @@ import { appLockStore } from "../lib/app-lock-store";
 import { authStore } from "../lib/auth-store";
 import { isValidCPF } from "../lib/utils";
 import { badgesStore } from "../lib/badges-store";
+import { clubModalStore } from "@/lib/club-modal-store";
+import { Crown } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -468,6 +470,40 @@ function ProfilePage() {
                   {isReferred ? `Indicado por ${activeUser.referredBy}` : "Orgânico"}
                 </span>
               </div>
+
+              {/* Botão / Card de Acesso ao Clube Netfits */}
+              <button
+                type="button"
+                onClick={() => clubModalStore.open()}
+                className={`mt-3 w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition active:scale-[0.99] cursor-pointer shadow-xs ${
+                  activeUser.isClubMember || activeUser.userCategory === "associado"
+                    ? "bg-amber-400/15 border-amber-400/40 hover:bg-amber-400/20"
+                    : "bg-gradient-to-r from-amber-500/10 to-purple-600/10 border-amber-500/30 hover:border-amber-400"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="size-8 rounded-lg bg-amber-400/20 text-amber-500 grid place-items-center shrink-0">
+                    <Crown className="size-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-black text-foreground flex items-center gap-1.5">
+                      {activeUser.isClubMember || activeUser.userCategory === "associado" ? (
+                        <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-emerald-500" /></>
+                      ) : (
+                        <>Clube Netfits • Até +1.000 nfs/mês</>
+                      )}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground block">
+                      {activeUser.isClubMember || activeUser.userCategory === "associado"
+                        ? "Até +1.000 nfs/mês (250 fixos + 25 por treino) • Telemetria liberada"
+                        : "250 nfs na assinatura e mensalidade + 25 nfs por treino validado"}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                  {activeUser.isClubMember || activeUser.userCategory === "associado" ? "Gerenciar ➔" : "Conhecer ➔"}
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -944,6 +980,18 @@ function ProfilePage() {
               />
             </Field>
           )}
+          <div className="pt-2 border-t border-border">
+            <Link
+              to="/activities"
+              className="w-full py-2 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xs font-bold text-foreground flex items-center justify-between transition active:scale-98"
+            >
+              <div className="flex items-center gap-2">
+                <Watch className="size-4 text-purple-600" />
+                <span>Abrir Hub de Wearables Terra API (12 Marcas)</span>
+              </div>
+              <span className="text-[10px] text-purple-600 font-black">Acessar ➔</span>
+            </Link>
+          </div>
         </Card>
 
         {/* Coaching */}
