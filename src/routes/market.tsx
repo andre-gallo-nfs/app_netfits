@@ -15,6 +15,8 @@ import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { getMkplaceStoreUrl, launchMkplaceShop } from "@/lib/integrations/mkplace-client";
 import { badgesStore } from "@/lib/badges-store";
 import { shopSelectionStore } from "@/lib/shop-selection-store";
+import { ROCK_BRIDGE_JS } from "@/lib/integrations/rock-bridge";
+import { appLockStore } from "@/lib/app-lock-store";
 
 export interface MarketSearch {
   product?: string;
@@ -50,6 +52,108 @@ function MarketEmbeddedPage() {
   const [hasError, setHasError] = useState<boolean>(false);
   const [reloadKey, setReloadKey] = useState<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Tolerância de checkout ativa enquanto na tela do Shop
+  useEffect(() => {
+    appLockStore.enterCheckoutMode();
+    return () => {
+      appLockStore.exitCheckoutMode();
+    };
+  }, []);
+
+  // Ponte de Renovação de Sessão Oficial da Rock (Manual v1.1 - 27/10/2026)
+  useEffect(() => {
+    const LOJA = "https://loja.netfits.com.br";
+
+    // Função unificada para renovar o token e responder à loja da Rock
+    const handleTokenRenewal = async (requestId: string) => {
+      try {
+        const res = await fetch("/api/marketplace/mkplace/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: activeUser.id }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const newToken = data.token;
+          if (newToken) {
+            // 1. Responde via postMessage se houver iframe montado
+            if (iframeRef.current?.contentWindow) {
+              iframeRef.current.contentWindow.postMessage(
+                {
+                  type: "NETFITS_BRIDGE_REPLY",
+                  id: requestId,
+                  resultado: { access_token: newToken },
+                  erro: null,
+                },
+                LOJA
+              );
+            }
+            // 2. Responde via injeção direta no window global se rodando na mesma janela nativa
+            if (typeof (window as any).__webBridgeReply === "function") {
+              (window as any).__webBridgeReply(requestId, { access_token: newToken }, null);
+            }
+            toast.success("Sessão da Loja Oficial sincronizada com sucesso.", {
+              duration: 2500,
+            });
+          }
+        } else {
+          // Em caso de falha no backend, responde vazio para a loja tratar conforme contrato
+          if (iframeRef.current?.contentWindow) {
+            iframeRef.current.contentWindow.postMessage(
+              {
+                type: "NETFITS_BRIDGE_REPLY",
+                id: requestId,
+                resultado: {},
+                erro: "Falha na renovação",
+              },
+              LOJA
+            );
+          }
+        }
+      } catch (err) {
+        console.warn("[RockBridge] Erro ao renovar token da loja:", err);
+      }
+    };
+
+    // 1. Escuta chamadas postMessage originadas pelo script da ponte dentro da loja
+    const onMessage = (event: MessageEvent) => {
+      const origin = event.origin || "";
+      if (!origin.includes("loja.netfits.com.br") && origin !== window.location.origin) {
+        return;
+      }
+
+      let msg = event.data;
+      if (typeof msg === "string") {
+        try {
+          msg = JSON.parse(msg);
+        } catch {
+          return;
+        }
+      }
+
+      if (msg && msg.event === "rock_token" && msg.id) {
+        handleTokenRenewal(msg.id);
+      }
+    };
+
+    // 2. Escuta chamadas nativas do Android/iOS através do CustomEvent
+    const onNativeEvent = (e: any) => {
+      const reqId = e.detail?.id;
+      if (reqId) {
+        handleTokenRenewal(reqId);
+      }
+    };
+
+    window.addEventListener("message", onMessage);
+    window.addEventListener("netfits:native-rock-token-request", onNativeEvent as EventListener);
+
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.removeEventListener("netfits:native-rock-token-request", onNativeEvent as EventListener);
+    };
+  }, [activeUser.id]);
 
   // Determina o caminho específico do produto se houver seleção
   const targetProductPath = (() => {
