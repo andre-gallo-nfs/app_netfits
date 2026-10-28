@@ -621,3 +621,42 @@ GRANT EXECUTE ON FUNCTION rpc_debit_points_fefo(UUID, INTEGER, VARCHAR, VARCHAR)
 
 REVOKE EXECUTE ON FUNCTION archive_expired_wallet_transactions(INTERVAL) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION archive_expired_wallet_transactions(INTERVAL) TO service_role;
+
+
+-- ============================================================
+-- 9. TABELA DE ATENDIMENTO, SAC E TICKETS DE CONTATO
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS contact_tickets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    ticket_number VARCHAR(30) UNIQUE NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(30),
+    subject VARCHAR(255) NOT NULL,
+    category VARCHAR(30) NOT NULL DEFAULT 'suporte' CHECK (category IN ('suporte', 'comercial', 'associado', 'duvida')),
+    message TEXT NOT NULL,
+    status VARCHAR(30) NOT NULL DEFAULT 'aberto' CHECK (status IN ('aberto', 'em_andamento', 'resolvido')),
+    reply_note TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_tickets_status ON contact_tickets(status);
+CREATE INDEX IF NOT EXISTS idx_contact_tickets_category ON contact_tickets(category);
+CREATE INDEX IF NOT EXISTS idx_contact_tickets_created_at ON contact_tickets(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contact_tickets_email ON contact_tickets(email);
+
+ALTER TABLE contact_tickets ENABLE ROW LEVEL SECURITY;
+
+-- Inserção pública permitida para o formulário /contato
+DROP POLICY IF EXISTS "contact_tickets_public_insert" ON contact_tickets;
+CREATE POLICY "contact_tickets_public_insert" ON contact_tickets
+    FOR INSERT WITH CHECK (true);
+
+-- Leitura e gerenciamento restritos aos administradores (service_role)
+DROP POLICY IF EXISTS "contact_tickets_admin_all" ON contact_tickets;
+CREATE POLICY "contact_tickets_admin_all" ON contact_tickets
+    FOR ALL USING (
+        auth.jwt() ->> 'role' = 'service_role'
+    );

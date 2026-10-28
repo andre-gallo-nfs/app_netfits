@@ -159,6 +159,8 @@ export interface SandboxTicket {
   message: string;
   status: "aberto" | "em_andamento" | "resolvido";
   createdAt: string;
+  replyNote?: string;
+  resolvedAt?: string;
 }
 
 export interface SandboxOrderItem {
@@ -1025,7 +1027,59 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
   },
 ];
 
-const INITIAL_TICKETS: SandboxTicket[] = [];
+const INITIAL_TICKETS: SandboxTicket[] = [
+  {
+    id: "tkt-001",
+    ticketNumber: "#NET-20841",
+    name: "Marcos Vinicius",
+    email: "marcos.vinicius@atleta.netfits.com.br",
+    phone: "(11) 98455-2210",
+    subject: "Duvida sobre expiracao FEFO de 24 meses",
+    category: "suporte",
+    message: "Ola equipe Netfits! Pratico corrida e acumulei 1.450 nfs em treinos. Como funciona a regra FEFO de validade de 24 meses se eu fizer um resgate parcial no Shop Rock agora?",
+    status: "aberto",
+    createdAt: "2026-10-27T14:32:00.000Z",
+  },
+  {
+    id: "tkt-002",
+    ticketNumber: "#NET-20915",
+    name: "Renato Silveira (IronMind Assessoria)",
+    email: "contato@ironmindassessoria.com.br",
+    phone: "(11) 97120-4499",
+    subject: "Parceria de Associado e Link Exclusivo para 120 Atletas",
+    category: "associado",
+    message: "Somos uma assessoria de triathlon em SP com 120 atletas ativos. Queremos cadastrar nosso clube no programa de associados Netfits para receber os 10% de repasse de comissao sobre as compras do shop. Qual o proximo passo?",
+    status: "em_andamento",
+    createdAt: "2026-10-26T10:15:00.000Z",
+    replyNote: "Contato inicial realizado via WhatsApp pelo time de parcerias. Enviando minuta de credenciamento.",
+  },
+  {
+    id: "tkt-003",
+    ticketNumber: "#NET-21044",
+    name: "Juliana Mendes (TrackMax Suplementos)",
+    email: "comercial@trackmaxsports.com.br",
+    phone: "(19) 99311-8800",
+    subject: "Integracao de Catalogo no Marketplace Rock",
+    category: "comercial",
+    message: "Trabalhamos com nutricao esportiva e hidratacao. Gostariamos de saber como plugar nossos produtos no Netfits Shop atraves do catalogo da Rock Encantech e quais as taxas de comissionamento.",
+    status: "aberto",
+    createdAt: "2026-10-25T16:45:00.000Z",
+  },
+  {
+    id: "tkt-004",
+    ticketNumber: "#NET-21102",
+    name: "Beatriz Lima",
+    email: "beatriz.lima.run@gmail.com",
+    phone: "(21) 98844-3321",
+    subject: "Sincronizacao Apple Health e Garmin",
+    category: "duvida",
+    message: "Tenho um Apple Watch Ultra e Garmin Forerunner. A sincronizacao de treinos no app pontua automaticamente ou preciso aprovar cada corrida manualmente?",
+    status: "resolvido",
+    createdAt: "2026-10-24T09:20:00.000Z",
+    replyNote: "Explicado que o Sentinel Shield valida e aprova a pontuacao em tempo real ao sincronizar o treino.",
+    resolvedAt: "2026-10-24T11:40:00.000Z",
+  },
+];
 
 const INITIAL_ORDERS: SandboxOrder[] = [
   {
@@ -1933,7 +1987,11 @@ class HomologationSandboxStore {
     return this.state.partners;
   }
 
-  public getTickets() {
+  public getTickets(): SandboxTicket[] {
+    if (!this.state.tickets || this.state.tickets.length === 0) {
+      this.state.tickets = JSON.parse(JSON.stringify(INITIAL_TICKETS));
+      this.saveToStorage();
+    }
     return this.state.tickets;
   }
 
@@ -2379,6 +2437,36 @@ class HomologationSandboxStore {
     this.saveToStorage();
     toast.success(`📩 Solicitação ${newTicket.ticketNumber} registrada com sucesso!`);
     return newTicket;
+  }
+
+  // 12. Atualizar Status e Nota de Ticket
+  public updateTicketStatus(
+    ticketId: string,
+    status: "aberto" | "em_andamento" | "resolvido",
+    replyNote?: string
+  ): boolean {
+    const ticket = this.state.tickets.find((t) => t.id === ticketId || t.ticketNumber === ticketId);
+    if (!ticket) return false;
+    ticket.status = status;
+    if (replyNote !== undefined) {
+      ticket.replyNote = replyNote;
+    }
+    if (status === "resolvido" && !ticket.resolvedAt) {
+      ticket.resolvedAt = new Date().toISOString();
+    }
+    this.saveToStorage();
+    toast.success(`Ticket ${ticket.ticketNumber} atualizado para "${status}"!`);
+    return true;
+  }
+
+  // 13. Excluir Ticket
+  public deleteTicket(ticketId: string): boolean {
+    const index = this.state.tickets.findIndex((t) => t.id === ticketId || t.ticketNumber === ticketId);
+    if (index === -1) return false;
+    const removed = this.state.tickets.splice(index, 1)[0];
+    this.saveToStorage();
+    toast.success(`Ticket ${removed.ticketNumber} removido.`);
+    return true;
   }
 
   // RESET TOTAL DO BANCO PROVISÓRIO
