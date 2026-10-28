@@ -164,7 +164,7 @@ export function WearablesHub() {
   const params = useOperationalParams();
 
   const isClubMember = Boolean(activeUser.isClubMember === true || activeUser.userCategory === "associado");
-  const pointsPerWorkout = params.nfsPerWorkout || 20;
+  const pointsPerWorkout = isClubMember ? 25 : (params.nfsPerWorkout || 25);
 
   const [connectingBrand, setConnectingBrand] = useState<WearableBrand | null>(null);
   const [isSimulatingSync, setIsSimulatingSync] = useState(false);

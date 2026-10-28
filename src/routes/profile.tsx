@@ -490,13 +490,13 @@ function ProfilePage() {
                       {activeUser.isClubMember || activeUser.userCategory === "associado" ? (
                         <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-emerald-500" /></>
                       ) : (
-                        <>Clube Netfits • +1.000 nfs/mês</>
+                        <>Clube Netfits • Até +1.000 nfs/mês</>
                       )}
                     </span>
                     <span className="text-[10px] text-muted-foreground block">
                       {activeUser.isClubMember || activeUser.userCategory === "associado"
-                        ? "1.000 nfs recorrentes • Telemetria de treinos liberada"
-                        : "Assine por R$ 19,90/mês para desbloquear treinos e pontos"}
+                        ? "Até +1.000 nfs/mês (250 fixos + 25 por treino) • Telemetria liberada"
+                        : "250 nfs na assinatura e mensalidade + 25 nfs por treino validado"}
                     </span>
                   </div>
                 </div>

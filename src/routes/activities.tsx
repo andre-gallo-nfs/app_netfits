@@ -132,8 +132,8 @@ function ActivitiesPage() {
                     <Crown className="size-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black text-amber-300">Clube Netfits • +1.000 nfs/mês</h3>
-                    <p className="text-[11px] text-zinc-300">Desbloqueie pontuação de treinos e benefícios no Shop por R$ 19,90/mês.</p>
+                    <h3 className="text-xs font-black text-amber-300">Clube Netfits • Até +1.000 nfs/mês</h3>
+                    <p className="text-[11px] text-zinc-300">250 nfs na assinatura e mensalidade + 25 nfs por treino validado por R$ 19,90/mês.</p>
                   </div>
                 </div>
                 <button

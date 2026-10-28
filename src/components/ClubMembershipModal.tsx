@@ -60,7 +60,7 @@ export function ClubMembershipModal() {
 
       // 2. Atualiza o estado do usuário no store local/nuvem
       const nowIso = new Date().toISOString();
-      const clubBonusAmount = 1000;
+      const clubBonusAmount = 250;
 
       sharedSandboxStore.updateUser(activeUser.id, {
         isClubMember: true,
@@ -75,12 +75,12 @@ export function ClubMembershipModal() {
         userId: activeUser.id,
         userName: activeUser.fullName || "Assinante Clube Netfits",
         amount: clubBonusAmount,
-        description: "👑 Mensalidade Clube Netfits: Pontuação Recorrente (1.000 nfs)",
+        description: "👑 Assinatura Clube Netfits: Mensalidade (250 nfs)",
         category: "welcome", // Categoria mapeada para créditos garantidos
         timestamp: nowIso,
       });
 
-      toast.success("🎉 Bem-vindo ao Clube Netfits! +1.000 nfs creditados na sua carteira.", {
+      toast.success("🎉 Bem-vindo ao Clube Netfits! +250 nfs creditados na sua carteira. Agora cada treino validado rende +25 nfs.", {
         duration: 5000,
       });
 
@@ -189,14 +189,14 @@ export function ClubMembershipModal() {
               <div className="text-right">
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-black">
                   <Coins className="size-3.5" />
-                  +1.000 nfs / mês
+                  Até +1.000 nfs / mês
                 </span>
-                <p className="text-[10px] text-zinc-400 mt-1">creditados automaticamente</p>
+                <p className="text-[10px] text-zinc-400 mt-1">250 na mensalidade + 25 por treino</p>
               </div>
             </div>
 
             <p className="text-xs text-zinc-300 leading-relaxed">
-              O acelerador oficial para quem vive em movimento. Ganhe pontos garantidos todo mês, desbloqueie a pontuação de treinos com relógio e tenha benefícios no Shop.
+              O acelerador oficial para quem vive em movimento. Ganhe até +1.000 nfs por mês (250 nfs na assinatura e a cada pagamento de mensalidade + 25 nfs por treino validado) e aproveite benefícios exclusivos.
             </p>
 
             {isMember && (
@@ -247,9 +247,9 @@ export function ClubMembershipModal() {
                   <Coins className="size-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white">1.000 netfits todo mês</h4>
+                  <h4 className="text-xs font-black text-white">Até +1.000 netfits por mês</h4>
                   <p className="text-[11px] text-zinc-400 leading-relaxed mt-0.5">
-                    Saldo garantido direto na carteira todo dia 1º de cada ciclo, pronto para abater compras de suplementos e vestuário no Shop.
+                    250 nfs na assinatura e a cada pagamento de mensalidade + 25 nfs por treino validado via relógio ou app, direto na sua carteira.
                   </p>
                 </div>
               </div>
@@ -260,9 +260,9 @@ export function ClubMembershipModal() {
                   <Watch className="size-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white">Telemetria de Treinos Liberada</h4>
+                  <h4 className="text-xs font-black text-white">+25 nfs por Treino Validado</h4>
                   <p className="text-[11px] text-zinc-400 leading-relaxed mt-0.5">
-                    Sincronização de corridas, pedaladas e treinos com Garmin, Strava e Apple Watch (via Terra API) elegíveis para recompensas físicas.
+                    Sincronização de corridas, pedaladas e treinos com Garmin, Strava e Apple Watch (via Terra API) com +25 nfs por treino auditado por sensores ópticos.
                   </p>
                 </div>
               </div>
@@ -331,9 +331,9 @@ export function ClubMembershipModal() {
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
-                <h5 className="font-bold text-white mb-1">Quando recebo os 1.000 netfits?</h5>
+                <h5 className="font-bold text-white mb-1">Como funciona a pontuação do Clube?</h5>
                 <p className="text-zinc-400 leading-relaxed">
-                  Os primeiros 1.000 nfs são creditados instantaneamente na sua carteira assim que o pagamento for aprovado, e depois renovados a cada 30 dias.
+                  Você recebe 250 nfs na confirmação da assinatura e a cada pagamento de mensalidade. Além disso, cada treino validado com relógio ou app credita +25 nfs na sua carteira, totalizando até +1.000 nfs por mês.
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
