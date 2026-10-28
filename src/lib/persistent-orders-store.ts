@@ -766,6 +766,10 @@ export function getConfiguredWebhookKeys(): string[] {
   keys.add("nfs-mkplace-rsa-v1");
   keys.add("netfits-store-prod");
 
+  // Tolerância e retrocompatibilidade histórica com credenciais da Rock Encantech (05/10/2026)
+  keys.add("iphh7snu8W");
+  keys.add("RhOFkbZJIN");
+
   return Array.from(keys);
 }
 
