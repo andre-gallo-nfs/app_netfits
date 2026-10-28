@@ -1377,12 +1377,18 @@ class HomologationSandboxStore {
 
           // Alinha a lista de usuários local estritamente com os usuários válidos do servidor
           // removendo personas legadas que foram expurgadas da nuvem permanente
+          const initialUserIds = new Set(INITIAL_USERS.map((u) => u.id));
+          const initialUserEmails = new Set(
+            INITIAL_USERS.map((u) => u.email?.trim().toLowerCase()).filter(Boolean)
+          );
           const validServerIds = new Set(serverUsers.map((su) => su.id));
           const validServerEmails = new Set(
             serverUsers.map((su) => su.email?.trim().toLowerCase()).filter(Boolean)
           );
           const localActive = this.getActiveUser();
           this.state.users = this.state.users.filter((u) => {
+            if (initialUserIds.has(u.id)) return true;
+            if (u.email && initialUserEmails.has(u.email.trim().toLowerCase())) return true;
             if (validServerIds.has(u.id)) return true;
             if (u.email && validServerEmails.has(u.email.trim().toLowerCase())) return true;
             // Preserva se for um novo usuário local ativo aguardando sincronização
@@ -1840,7 +1846,10 @@ class HomologationSandboxStore {
     if (typeof window !== "undefined") {
       const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
       if (deviceUserId) {
-        return this.state.users.some((u) => u.id === deviceUserId);
+        return (
+          this.state.users.some((u) => u.id === deviceUserId) ||
+          INITIAL_USERS.some((u) => u.id === deviceUserId)
+        );
       }
     }
     return false;
@@ -1955,12 +1964,21 @@ class HomologationSandboxStore {
 
   // --- ACTIONS ---
   public setActiveUser(userId: string) {
-    const found = this.state.users.find((u) => u.id === userId);
+    let found = this.state.users.find((u) => u.id === userId);
+    if (!found) {
+      const fallback = INITIAL_USERS.find((u) => u.id === userId);
+      if (fallback) {
+        this.state.users.push(fallback);
+        found = fallback;
+        this.saveToStorageLocally();
+      }
+    }
     if (found) {
       if (typeof window !== "undefined") {
         localStorage.setItem(DEVICE_SESSION_KEY, found.id);
       }
       this.state.activeUserId = found.id;
+      this.saveToStorageLocally();
       this.notify();
       toast.success(`Sessão alterada para: ${found.fullName} (${found.type.toUpperCase()})`);
     }
