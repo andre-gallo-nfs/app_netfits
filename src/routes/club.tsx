@@ -36,7 +36,7 @@ export const Route = createFileRoute("/club")({
       { title: "Clube Netfits — Experiência VIP & Longevidade Ativa" },
       {
         name: "description",
-        content: "Acelere sua vida em movimento. Até 1.000 nfs por mês, telemetria de relógios e benefícios no Shop.",
+        content: "Acelere sua vida em movimento. 250 nfs por mês + 25 nfs por treino validado, telemetria de relógios e benefícios no Shop.",
       },
       { property: "og:title", content: "Clube Netfits — Experiência VIP" },
     ],
@@ -290,7 +290,7 @@ export function ClubPage() {
             </span>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black shadow-xs">
               <Coins className="size-3.5" />
-              Até +1.000 nfs / mês
+              250 nfs/mês + 25 nfs por treino
             </span>
           </div>
 
@@ -304,7 +304,7 @@ export function ClubPage() {
               <span className="text-[11px] text-[#5F6270] block mt-0.5">Sem fidelidade ou carência</span>
             </div>
             <div className="text-right">
-              <span className="text-xs font-bold text-[#35106E] block">250 nfs fixos</span>
+              <span className="text-xs font-bold text-[#35106E] block">250 nfs todo mês</span>
               <span className="text-[11px] text-[#5F6270]">+ 25 nfs por treino validado</span>
             </div>
           </div>
@@ -318,7 +318,7 @@ export function ClubPage() {
                   Pontos Acumulados no Ciclo
                 </span>
                 <span className="font-mono font-black text-[#6B2AD9]">
-                  {totalPointsThisCycle} / 1.000 nfs
+                  {totalPointsThisCycle} nfs acumulados
                 </span>
               </div>
               <div className="w-full bg-[#F5F5F7] h-2.5 rounded-full overflow-hidden p-0.5 border border-zinc-200">
@@ -526,10 +526,10 @@ export function ClubPage() {
                 <Coins className="size-5" />
               </div>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
-                Até +1.000 nfs
+                250 nfs + 25 nfs/treino
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127] pt-1">Pontuação Híbrida Recorrente</h3>
+            <h3 className="text-sm font-black text-[#202127] pt-1">250 nfs/mês + 25 nfs por Treino</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
               250 nfs garantidos todo mês na assinatura e mensalidade + 25 nfs creditados por cada treino validado com sensores.
             </p>
@@ -593,8 +593,8 @@ export function ClubPage() {
 
         {[
           {
-            q: "Como funciona a pontuação de até +1.000 nfs por mês?",
-            a: "Você recebe 250 nfs garantidos no momento da assinatura e a cada renovação mensal (a cada 30 dias). Além disso, cada treino físico validado via relógio ou app pontua +25 nfs diretamente na sua carteira, até atingir o limite mensal de 1.000 nfs.",
+            q: "Como funciona a pontuação do Clube Netfits?",
+            a: "Você recebe 250 nfs garantidos no momento da assinatura e a cada renovação mensal (a cada 30 dias). Além disso, cada treino físico validado via relógio ou app pontua +25 nfs diretamente na sua carteira.",
           },
           {
             q: "Como os meus treinos são auditados e validados?",

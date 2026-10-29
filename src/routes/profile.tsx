@@ -485,12 +485,12 @@ function ProfilePage() {
                       {activeUser.isClubMember || activeUser.userCategory === "associado" ? (
                         <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-[#5D7600]" /></>
                       ) : (
-                        <>Clube Netfits • Até +1.000 nfs/mês</>
+                        <>Clube Netfits • 250 nfs/mês + 25 nfs por treino</>
                       )}
                     </span>
                     <span className="text-[10px] text-[#5F6270] block mt-0.5">
                       {activeUser.isClubMember || activeUser.userCategory === "associado"
-                        ? "Até +1.000 nfs/mês (250 fixos + 25 por treino) • Telemetria liberada"
+                        ? "250 nfs na mensalidade + 25 nfs por treino validado • Telemetria liberada"
                         : "250 nfs na mensalidade + 25 nfs por treino validado"}
                     </span>
                   </div>

@@ -34,7 +34,7 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 | **Custo por Ponto (CPP) — Provisionamento** | **R$ 0,010** por ponto |
 | **Validade dos Pontos (FEFO)** | **24 meses** (taxa média de expiração projetada de 5%) |
 | **Assinatura do Clube Netfits (Fase 2)** | **R$ 19,90 / mês** |
-| **Pontos do Clube Netfits (Fase 2)** | **Até +1.000 nfs / mês** (250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado) |
+| **Pontos do Clube Netfits (Fase 2)** | **250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado** |
 | **Público-Alvo Primário Brasil** | **30,7 milhões** de praticantes de renda média/alta |
 
 ---
