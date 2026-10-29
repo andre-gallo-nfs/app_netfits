@@ -9,7 +9,7 @@ function Run-TunnelOnce {
   Write-Host "[Tunnel] Iniciando túnel SSH com localhost.run..."
   $processInfo = New-Object System.Diagnostics.ProcessStartInfo
   $processInfo.FileName = "ssh"
-  $processInfo.Arguments = "-R 80:localhost:$LocalPort -o StrictHostKeyChecking=no -o ServerAliveInterval=15 -o ServerAliveCountMax=4 nokey@localhost.run"
+  $processInfo.Arguments = "-R 80:127.0.0.1:$LocalPort -o StrictHostKeyChecking=no -o ServerAliveInterval=15 -o ServerAliveCountMax=4 nokey@localhost.run"
   $processInfo.RedirectStandardOutput = $true
   $processInfo.RedirectStandardError = $true
   $processInfo.UseShellExecute = $false

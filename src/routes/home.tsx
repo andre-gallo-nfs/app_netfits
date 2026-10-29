@@ -126,7 +126,7 @@ export function InstitutionalHomePage() {
             <div className="size-12 rounded-2xl bg-amber-400/20 border border-amber-400/30 grid place-items-center text-amber-400">
               <Award className="size-6" />
             </div>
-            <h3 className="text-xl font-bold text-white">3. Netfits Club (Fase 2)</h3>
+            <h3 className="text-xl font-bold text-white">3. Netfits Club</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
               Clube de vantagens por assinatura mensal que concede cupons exclusivos, condições especiais no marketplace, conteúdos aprofundados e acessos VIP a eventos e corridas de rua.
             </p>

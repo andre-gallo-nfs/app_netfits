@@ -599,7 +599,7 @@ export function AdminDreFinOpsTab({
                 </div>
               </div>
 
-              {/* Header Card com Seletor de Fases (Fase 1 Launch vs Fase 2 Com Clube) */}
+              {/* Header Card com Seletor de Cenários (Launch Sem Clube vs Com Clube Netfits) */}
               <div className="bg-gradient-to-r from-purple-950/60 via-zinc-900 to-zinc-900 border border-purple-500/30 rounded-2xl p-4 shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
                   <span className="text-[9px] font-extrabold uppercase tracking-wider text-lime-400">
@@ -610,7 +610,7 @@ export function AdminDreFinOpsTab({
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     <span>{isReal ? "📊 DRE Realizado — Netfits Ltda." : "📈 DRE Financeiro Proforma — Netfits Ltda."}</span>
                     <span className="text-xs bg-lime-400/20 text-lime-300 border border-lime-400/30 px-2.5 py-0.5 rounded-full font-mono font-bold">
-                      {isReal ? "Banco de Dados em Produção" : `EBITDA: ${adjustedEbitdaMarginPct.toFixed(1)}% (${isFase2 ? "Fase 2 Com Clube" : "Fase 1 Launch"})`}
+                      {isReal ? "Banco de Dados em Produção" : `EBITDA: ${adjustedEbitdaMarginPct.toFixed(1)}% (${isFase2 ? "Com Clube Netfits" : "Sem Clube"})`}
                     </span>
                   </h3>
                 </div>
@@ -620,7 +620,7 @@ export function AdminDreFinOpsTab({
                   <button
                     onClick={() => {
                       setDrePhase("fase1");
-                      toast.info("DRE alternado para Fase 1: Launch Inicial (Sem Clube)");
+                      toast.info("DRE alternado para Cenário Base (Sem Clube)");
                     }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
                       !isFase2
@@ -628,12 +628,12 @@ export function AdminDreFinOpsTab({
                         : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                     }`}
                   >
-                    <span>🚀 Fase 1 (Launch)</span>
+                    <span>🚀 Sem Clube (Base)</span>
                   </button>
                   <button
                     onClick={() => {
                       setDrePhase("fase2");
-                      toast.success("DRE alternado para Fase 2: Com Netfits Club (R$ 29,90/mês)");
+                      toast.success("DRE alternado para Cenário com Clube Netfits (R$ 19,90/mês)");
                     }}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
                       isFase2
@@ -641,7 +641,7 @@ export function AdminDreFinOpsTab({
                         : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                     }`}
                   >
-                    <span>⭐ Fase 2 (Com Clube)</span>
+                    <span>⭐ Com Clube Netfits</span>
                   </button>
                 </div>
               </div>
@@ -727,7 +727,7 @@ export function AdminDreFinOpsTab({
                     </p>
                   </div>
                   <span className="text-xs font-mono text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
-                    {isReal ? "Banco Oficial Ativo" : (isFase2 ? "Fase 2: Com Clube" : "Fase 1: Launch Sem Clube")}
+                    {isReal ? "Banco Oficial Ativo" : (isFase2 ? "Com Clube Netfits" : "Sem Clube")}
                   </span>
                 </div>
 
@@ -984,7 +984,7 @@ export function AdminDreFinOpsTab({
                 </div>
               </div>
 
-              {/* Tabela Sintética Comparativa do Business Case v1 (Fase 1 vs Fase 2) */}
+              {/* Tabela Sintética Comparativa do Business Case v1 (Sem Clube vs Com Clube) */}
               <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl space-y-4 w-full">
                 <div className="flex items-center justify-between border-b border-zinc-800 pb-3 flex-wrap gap-2">
                   <div>
@@ -994,7 +994,7 @@ export function AdminDreFinOpsTab({
                         Planilha Modelo Oficial
                       </span>
                     </h4>
-                    <p className="text-xs text-zinc-400">Comparativo direto da estrutura da DRE do Launch Inicial (Fase 1) versus Expansão com Clube de Benefícios (Fase 2 R$29,90/mês).</p>
+                    <p className="text-xs text-zinc-400">Comparativo direto da estrutura da DRE do Launch Inicial versus Expansão com Clube de Benefícios (R$ 19,90/mês).</p>
                   </div>
                 </div>
 
@@ -1005,8 +1005,8 @@ export function AdminDreFinOpsTab({
                         <th className="py-3 px-4">Linha DRE Sintética</th>
                         <th className="py-3 px-4 text-right text-lime-400">Fase 1 Launch (R$)</th>
                         <th className="py-3 px-4 text-right text-lime-400">Fase 1 (%)</th>
-                        <th className="py-3 px-4 text-right text-purple-400">Fase 2 Clube (R$)</th>
-                        <th className="py-3 px-4 text-right text-purple-400">Fase 2 (%)</th>
+                        <th className="py-3 px-4 text-right text-purple-400">Com Clube Netfits (R$)</th>
+                        <th className="py-3 px-4 text-right text-purple-400">Com Clube (%)</th>
                         <th className="py-3 px-4 text-center">Variação / Impacto</th>
                       </tr>
                     </thead>
@@ -1440,7 +1440,7 @@ export function AdminDreFinOpsTab({
                         <p className="text-zinc-400">Taxa de conveniência em ingressos de corridas e provas esportivas.</p>
                       </div>
                       <div className="bg-zinc-900 p-4 rounded-2xl border border-lime-400/30 space-y-1">
-                        <h4 className="font-bold text-lime-400 text-xs">Netfits Club (Fase 2)</h4>
+                        <h4 className="font-bold text-lime-400 text-xs">Clube Netfits</h4>
                         <p className="text-zinc-400">R$ 19,90/mês por clube premium de pontos multiplicados.</p>
                       </div>
                     </div>
@@ -1477,7 +1477,7 @@ export function AdminDreFinOpsTab({
                       </div>
                       <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 flex justify-between">
                         <span className="text-zinc-400 font-bold">ARPU Múltiplo:</span>
-                        <span className="text-purple-300 font-mono">Fase 1: R$ 1,78/mês ➔ Fase 2 (Clube): R$ 3,58/mês</span>
+                        <span className="text-purple-300 font-mono">Sem Clube: R$ 1,78/mês ➔ Com Clube: R$ 3,58/mês</span>
                       </div>
                       <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 flex justify-between">
                         <span className="text-zinc-400 font-bold">Custo TI / MAU:</span>
@@ -1680,7 +1680,7 @@ export function AdminDreFinOpsTab({
                         <p className="text-zinc-400">10.000 MAU │ 50 Academias Credenciadas │ App Web/PWA &amp; Squad IA Ativos.</p>
                       </div>
                       <div className="bg-zinc-900 p-3.5 rounded-2xl border border-purple-500/30 space-y-1">
-                        <span className="text-purple-300 font-bold">Fase 2: Conexão Wearables &amp; Clube (Meses 7 a 12)</span>
+                        <span className="text-purple-300 font-bold">Lançamento: Wearables &amp; Clube (14 de Novembro)</span>
                         <p className="text-zinc-400">100.000 MAU │ Conexão Smartwatches (Garmin/Strava/Apple) │ Netfits Club (R$ 19,90/mês).</p>
                       </div>
                       <div className="bg-zinc-900 p-3.5 rounded-2xl border border-emerald-400/30 space-y-1">

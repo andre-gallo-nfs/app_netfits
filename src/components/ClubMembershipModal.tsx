@@ -155,7 +155,7 @@ export function ClubMembershipModal() {
             <div>
               <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1">
                 <Sparkles className="size-3" />
-                Fase 2 • Experiência VIP
+                Experiência VIP
               </span>
               <h2 id="club-modal-title" className="text-lg font-black tracking-tight text-white">
                 Clube Netfits

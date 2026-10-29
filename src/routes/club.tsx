@@ -269,7 +269,7 @@ export function ClubPage() {
             <Crown className="size-4" />
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9]">
-            Clube Netfits • Fase 2
+            Clube Netfits • Assinatura Oficial
           </span>
         </div>
         <h1 className="text-2xl font-black tracking-tight text-[#202127]">

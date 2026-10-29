@@ -33,8 +33,8 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 | **Custo por Ponto (CPP) — Resgate** | **R$ 0,010** por ponto |
 | **Custo por Ponto (CPP) — Provisionamento** | **R$ 0,010** por ponto |
 | **Validade dos Pontos (FEFO)** | **24 meses** (taxa média de expiração projetada de 5%) |
-| **Assinatura do Clube Netfits (Fase 2)** | **R$ 19,90 / mês** |
-| **Pontos do Clube Netfits (Fase 2)** | **250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado** |
+| **Assinatura do Clube Netfits** | **R$ 19,90 / mês** |
+| **Pontos do Clube Netfits** | **250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado** |
 | **Bônus de Compras no Shop (Clube)** | **20% mais pontos a cada compra** (4,8 nfs / R$ 1,00) |
 | **Comissão MGM de Compras (Clube)** | **10% dos pontos ganhos nas compras no shop de todos os seus indicados** |
 | **Público-Alvo Primário Brasil** | **30,7 milhões** de praticantes de renda média/alta |
@@ -43,10 +43,10 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 
 ## 3. 💼 PLANO DE NEGÓCIOS (BUSINESS PLAN GALLO V2)
 * **Arquivo Oficial**: `01_Estrategia_e_Negocios/Business Plan Netfits - v2 Gallo.docx`
-1. **Fases de Expansão**:
-   * **Fase 1 (Launch & MVP)**: Feed de conteúdo com gamificação de Quizzes (5 nfs/10 nfs), Marketplace curado (Rock Encantech / 4 nfs por R$ 1) e Clube de fidelidade.
-   * **Fase 2 (Club & Serviços)**: Assinatura de R$ 19,90/mês, integração com assessorias esportivas, academias e consultas especializadas.
-   * **Fase 3 (Ecossistema Integrado de Longevidade)**: Parcerias corporativas, telemetria avançada de wearables (Apple Health, Garmin, Strava) e marketplace ampliado de serviços de saúde preventiva.
+1. **Lançamento Oficial (14 de Novembro de 2026)**:
+   * **Ecossistema Unificado no Lançamento**: Feed de conteúdo com gamificação de Quizzes (5 nfs/10 nfs), Marketplace curado (Rock Encantech / 4 nfs por R$ 1) e **Clube Netfits** com assinatura mensal de R$ 19,90/mês (250 nfs garantidos/mês + 25 nfs por treino validado com relógio/sensores via Terra API + 20% mais pontos no Shop + 10% de bônus por compras de indicados).
+   * **Expansão de Serviços**: Integração com assessorias esportivas credenciadas, academias e consultas especializadas da rede parceira.
+   * **Ecossistema Integrado de Longevidade**: Parcerias corporativas B2B e marketplace ampliado de serviços de saúde preventiva e medicina do estilo de vida (Fibios).
 2. **Exclusividade Cloudflare**:
    * A infraestrutura oficial é o **Cloudflare** (`www.netfits.com.br`). O uso de Vercel foi descomissionado.
 
@@ -62,7 +62,7 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 
 ## 5. 🛑 PROTOCOLO OBRIGATÓRIO DE DEPLOY EM PRODUÇÃO (ISOLAMENTO CIRÚRGICO E GATE DE CONFIRMAÇÃO)
 * **Regra Inegociável — PROIBIÇÃO ABSOLUTA DE TOMBAMENTO INDISCRIMINADO (`git merge staging`)**:
-  O branch `staging` é um ambiente de homologação contínua que frequentemente contém recursos em teste, protótipos, telas da Fase 2 (ex.: Clube Netfits, Hub de Wearables) e experimentos não autorizados para o público geral.
+  O branch `staging` é um ambiente de homologação contínua que frequentemente contém recursos em teste, protótipos, telas em validação interna (ex.: Hub avançado de Wearables) e experimentos não autorizados para o público geral.
   **É TERMINANTEMENTE PROIBIDO realizar `git merge staging` direto para `main` ou qualquer comando que "tombe" a homologação inteira para produção.** As subidas em produção DEVEM refletir **EXCLUSIVAMENTE as alterações determinadas e aprovadas**.
 
 * **Rito Operacional Obrigatório para Produção**:
