@@ -34,7 +34,7 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 | **Custo por Ponto (CPP) — Provisionamento** | **R$ 0,010** por ponto |
 | **Validade dos Pontos (FEFO)** | **24 meses** (taxa média de expiração projetada de 5%) |
 | **Assinatura do Clube Netfits (Fase 2)** | **R$ 19,90 / mês** |
-| **Pontos Mensais Assinante Clube** | **1.000 nfs** |
+| **Pontos do Clube Netfits (Fase 2)** | **Até +1.000 nfs / mês** (250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado) |
 | **Público-Alvo Primário Brasil** | **30,7 milhões** de praticantes de renda média/alta |
 
 ---
@@ -58,9 +58,23 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 
 ---
 
-## 5. 🛑 PROTOCOLO OBRIGATÓRIO DE DEPLOY EM PRODUÇÃO (GATE DE CONFIRMAÇÃO EXPLICITA)
-* **Regra Inegociável**: Mesmo após comandos diretos ou genéricos como *"pode subir tudo em produção"*, *"roda em produção"*, *"sobe para prod"* ou semelhantes, o agente **JAMAIS** executará deploy ou merge direto para produção sem antes cumprir o seguinte rito:
-  1. **Diff e Inventário Cirúrgico**: Listar detalhadamente e em formato de tópicos todas as alterações de código, telas, regras de negócio e componentes que pretendem subir para produção.
-  2. **Identificação de Impacto**: Deixar explicitamente claro se há componentes novos, remoção de funcionalidades ou alterações de layout/fluxo.
-  3. **Pedido Formal de Confirmação**: Solicitar validação explícita do usuário: *"Por favor, confirme se são EXCLUSIVAMENTE estas alterações que devem subir para produção."*
-  4. **Execução Apenas Após o 'Sim'**: O deploy (merge para `main` e `wrangler deploy`) só poderá ser disparado após o usuário responder positivamente àquela listagem exata. Qualquer item não aprovado deve ser retido ou revertido antes da publicação.
+## 5. 🛑 PROTOCOLO OBRIGATÓRIO DE DEPLOY EM PRODUÇÃO (ISOLAMENTO CIRÚRGICO E GATE DE CONFIRMAÇÃO)
+* **Regra Inegociável — PROIBIÇÃO ABSOLUTA DE TOMBAMENTO INDISCRIMINADO (`git merge staging`)**:
+  O branch `staging` é um ambiente de homologação contínua que frequentemente contém recursos em teste, protótipos, telas da Fase 2 (ex.: Clube Netfits, Hub de Wearables) e experimentos não autorizados para o público geral.
+  **É TERMINANTEMENTE PROIBIDO realizar `git merge staging` direto para `main` ou qualquer comando que "tombe" a homologação inteira para produção.** As subidas em produção DEVEM refletir **EXCLUSIVAMENTE as alterações determinadas e aprovadas**.
+
+* **Rito Operacional Obrigatório para Produção**:
+  1. **Seleção Cirúrgica de Alterações (Cherry-Pick / Branch Dedicado)**:
+     - Isolar as alterações autorizadas utilizando `git cherry-pick <commit-hash>` dos commits específicos aprovados, OU criar uma branch de release a partir de `main` aplicando cirurgicamente apenas os arquivos autorizados.
+     - Garantir que nenhum outro commit, tela em teste ou funcionalidade de homologação seja arrastada.
+  2. **Auditoria de Contaminação (Sanitização do Diff)**:
+     - Executar auditoria de diff antes da subida (`git diff main...HEAD` ou `git log main..HEAD`).
+     - Certificar-se de que 100% dos arquivos alterados pertencem estritamente ao escopo aprovado pelo usuário.
+  3. **Diff e Inventário Cirúrgico**:
+     - Listar detalhadamente e em formato de tópicos todas as alterações de código, telas, regras de negócio e componentes que pretendem subir para produção.
+  4. **Identificação de Impacto**:
+     - Deixar explicitamente claro se há componentes novos, remoção de funcionalidades ou alterações de layout/fluxo.
+  5. **Pedido Formal de Confirmação**:
+     - Solicitar validação explícita do usuário: *"Por favor, confirme se são EXCLUSIVAMENTE estas alterações que devem subir para produção."*
+  6. **Execução Apenas Após o 'Sim' Explícito**:
+     - O deploy (merge/push para `main` e `wrangler deploy`) só poderá ser disparado após o usuário responder positivamente àquela listagem exata. Qualquer item não aprovado deve ser retido antes da publicação.
