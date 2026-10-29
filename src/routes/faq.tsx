@@ -97,7 +97,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Dispositivos & Wearables",
     question: "Como conectar smartwatches e wearables como Garmin, Strava ou Apple Watch?",
     answer:
-      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) para acompanhar seu histórico, zonas de esforço e badges de constância esportiva. (A concessão de pontos por treino é exclusiva para membros do Clube Netfits e está em fase de deliberação pela diretoria)."
+      "No aplicativo Netfits, acesse a aba 'Atividades' (/activities) e clique em 'Conectar Wearable'. O app permite a sincronização com 1 toque das suas métricas de treino (corrida, ciclismo, musculação) para acompanhar seu histórico, zonas de esforço e badges de constância esportiva. (A concessão de pontos por treino é exclusiva para membros do Clube Netfits)."
   },
   {
     id: "faq_7",
@@ -105,7 +105,7 @@ const FAQ_ITEMS: FaqItem[] = [
     categoryLabel: "Netfits Club",
     question: "O que é o Netfits Club e quais são as vantagens da assinatura de R$ 19,90/mês?",
     answer:
-      "O Netfits Club é o clube de benefícios e saúde da Fase 2 do ecossistema Netfits. Por R$ 19,90/mês, os membros contam com benefícios exclusivos, descontos em exames de check-up e prioridade em inscrições de corridas de rua e eventos esportivos credenciados."
+      "O Netfits Club é o clube oficial de benefícios e saúde por assinatura do ecossistema Netfits. Por R$ 19,90/mês, os membros contam com benefícios exclusivos, descontos em exames de check-up e prioridade em inscrições de corridas de rua e eventos esportivos credenciados."
   }
 ];
 

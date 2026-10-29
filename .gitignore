@@ -34,3 +34,6 @@ scripts/staging_url.txt
 
 cloudflared.log
 staging_url.txt
+
+cloudflared.exe
+

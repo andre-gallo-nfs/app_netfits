@@ -1,5 +1,5 @@
 import { WorkoutValidationCard } from "@/components/WorkoutValidationCard";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useOperationalParams } from "@/lib/operational-params-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
@@ -126,23 +126,22 @@ function ActivitiesPage() {
           {/* Banner Promocional do Clube Netfits se não for associado */}
           {!isClubMember && (
             <section className="px-4">
-              <div className="rounded-2xl bg-gradient-to-r from-amber-500/15 via-zinc-900 to-zinc-900 border border-amber-500/30 p-3.5 flex items-center justify-between text-white shadow-md">
+              <div className="rounded-2xl bg-[#F2ECFD] border border-purple-200/80 p-3.5 flex items-center justify-between shadow-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-9 rounded-xl bg-amber-400/20 text-amber-400 grid place-items-center shrink-0">
+                  <div className="size-9 rounded-xl bg-[#35106E] text-[#C8F135] grid place-items-center shrink-0 shadow-xs">
                     <Crown className="size-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black text-amber-300">Clube Netfits • Até +1.000 nfs/mês</h3>
-                    <p className="text-[11px] text-zinc-300">250 nfs na assinatura e mensalidade + 25 nfs por treino validado por R$ 19,90/mês.</p>
+                    <h3 className="text-xs font-black text-[#35106E]">Clube Netfits • 250 nfs/mês + 25 nfs por treino</h3>
+                    <p className="text-[11px] text-[#5F6270]">250 nfs na mensalidade + 25 nfs por treino validado por R$ 19,90/mês.</p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => clubModalStore.open()}
-                  className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs shrink-0 transition active:scale-95 cursor-pointer shadow-sm"
+                <Link
+                  to="/club"
+                  className="px-3 py-1.5 rounded-xl bg-[#6B2AD9] hover:bg-[#5821b5] text-white font-black text-xs shrink-0 transition active:scale-95 cursor-pointer shadow-xs"
                 >
                   Conhecer
-                </button>
+                </Link>
               </div>
             </section>
           )}

@@ -58,8 +58,9 @@ export type OperationalParams = {
   associadoShareOfNetfitsRevenuePct: number; // 10% de repasse das receitas da Carteira Compartilhada aos Associados
   normalUserNewReferralBonusNfs: number; // Pontos por indicação de novo usuário (usuário comum: 50 nfs, premiação única)
   newUserRegistrationBonusNfs: number; // Pontos por novo cadastro no app (onboarding boas-vindas: 50 nfs)
-  clubMemberReferralShopPointsPct: number; // Comissão de pontos por compras no shop de indicados (assinante Netfits Club: 10%)
+  clubMemberReferralShopPointsPct: number; // 10% dos pontos ganhos nas compras no shop de todos os seus indicados
   normalUserReferralSharePct: number; // Legado sincronizado com clubMemberReferralShopPointsPct
+  clubShopBonusPointsPct: number; // 20% mais pontos a cada compra no Shop para membros do Clube
 
   // Point Economics
   cppAcumuloBrl: number;
@@ -181,15 +182,16 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   associadoShareOfNetfitsRevenuePct: 10.0,
   normalUserNewReferralBonusNfs: 50,
   newUserRegistrationBonusNfs: 50,
-  clubMemberReferralShopPointsPct: 0.0, // Desativada (0%). Será avaliada exclusivamente no futuro lançamento do Clube Netfits.
-  normalUserReferralSharePct: 0.0, // Desativada (0%). Usuário comum NÃO recebe comissão sobre compras de amigos.
+  clubMemberReferralShopPointsPct: 10.0, // 10% dos pontos ganhos nas compras no shop de todos os seus indicados para membros do Clube
+  normalUserReferralSharePct: 0.0, // Usuário comum NÃO recebe comissão sobre compras de amigos.
+  clubShopBonusPointsPct: 20.0, // 20% mais pontos a cada compra no Shop para membros do Clube
 
   cppAcumuloBrl: 0.015, // R$ 0,015 por ponto de acúmulo (atualizado conforme diretriz executiva)
   cppResgateBrl: 0.01,
   costPerProvisionedPointBrl: 0.01, // R$ 0,010 por ponto provisionado
   netfitsClubMonthlyFeeBrl: 19.90,
   nfsEarnedPerBrlSpent: 4.0,
-  clubShopPointsMultiplier: 1.0, // Neste momento o assinante do clube NÃO ganha o dobro no Shop (1.0x = 4 nfs/R$)
+  clubShopPointsMultiplier: 1.20, // 1.20x (+20% mais pontos a cada compra: 4,8 nfs/R$ 1,00 para membros do Clube)
   nfsEarnedPerBrlSpentDouble: 4.0, // Legado alinhado com 1.0x
   shopFirstPurchaseBonusNfs: 0, // Bônus 1ª compra inicialmente zerado (0 nfs)
   pointsValidityMonths: 24, // Expiração de 24 meses (730 dias)
@@ -203,7 +205,7 @@ export const DEFAULT_OPERATIONAL_PARAMS: OperationalParams = {
   finOpsAnnualGainBrl: 138930.0,
 };
 
-const STORAGE_KEY = "netfits_operational_params_v14";
+const STORAGE_KEY = "netfits_operational_params_v15";
 
 function loadInitialParams(): OperationalParams {
   if (typeof window === "undefined") return DEFAULT_OPERATIONAL_PARAMS;

@@ -687,7 +687,7 @@ export function processMkplaceOrderNotification(
 
   // Diretrizes Operacionais de 2026
   const baseRate = customParams?.baseRate ?? 4.0;
-  const clubMultiplier = isClubMember ? (customParams?.clubMultiplier ?? 1.0) : 1.0;
+  const clubMultiplier = isClubMember ? (customParams?.clubMultiplier ?? 1.20) : 1.0;
   const effectiveRate = baseRate * clubMultiplier;
 
   // Trava de Proteção de Margem: se uso de pontos >= 10% do valor de produtos, cashback é 0 nfs
