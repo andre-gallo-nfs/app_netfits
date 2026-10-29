@@ -472,38 +472,33 @@ function ProfilePage() {
               </div>
 
               {/* Botão / Card de Acesso ao Clube Netfits */}
-              <button
-                type="button"
-                onClick={() => clubModalStore.open()}
-                className={`mt-3 w-full p-2.5 rounded-xl border flex items-center justify-between text-left transition active:scale-[0.99] cursor-pointer shadow-xs ${
-                  activeUser.isClubMember || activeUser.userCategory === "associado"
-                    ? "bg-amber-400/15 border-amber-400/40 hover:bg-amber-400/20"
-                    : "bg-gradient-to-r from-amber-500/10 to-purple-600/10 border-amber-500/30 hover:border-amber-400"
-                }`}
+              <Link
+                to="/club"
+                className="mt-3 w-full p-3 rounded-2xl border border-purple-200/80 bg-[#F2ECFD] hover:bg-[#eae0fb] flex items-center justify-between text-left transition active:scale-[0.99] cursor-pointer shadow-xs"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="size-8 rounded-lg bg-amber-400/20 text-amber-500 grid place-items-center shrink-0">
+                  <div className="size-8 rounded-xl bg-[#35106E] text-[#C8F135] grid place-items-center shrink-0 shadow-xs">
                     <Crown className="size-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-black text-foreground flex items-center gap-1.5">
+                    <span className="text-xs font-black text-[#202127] flex items-center gap-1.5">
                       {activeUser.isClubMember || activeUser.userCategory === "associado" ? (
-                        <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-emerald-500" /></>
+                        <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-[#5D7600]" /></>
                       ) : (
                         <>Clube Netfits • Até +1.000 nfs/mês</>
                       )}
                     </span>
-                    <span className="text-[10px] text-muted-foreground block">
+                    <span className="text-[10px] text-[#5F6270] block mt-0.5">
                       {activeUser.isClubMember || activeUser.userCategory === "associado"
                         ? "Até +1.000 nfs/mês (250 fixos + 25 por treino) • Telemetria liberada"
-                        : "250 nfs na assinatura e mensalidade + 25 nfs por treino validado"}
+                        : "250 nfs na mensalidade + 25 nfs por treino validado"}
                     </span>
                   </div>
                 </div>
-                <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                <span className="text-[11px] font-black text-[#6B2AD9]">
                   {activeUser.isClubMember || activeUser.userCategory === "associado" ? "Gerenciar ➔" : "Conhecer ➔"}
                 </span>
-              </button>
+              </Link>
             </div>
           </div>
         </div>

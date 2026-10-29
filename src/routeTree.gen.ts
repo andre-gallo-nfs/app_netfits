@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AssociadoRouteImport } from './routes/associado'
 import { Route as AssociadosRouteImport } from './routes/associados'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ClubRouteImport } from './routes/club'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -55,6 +56,11 @@ const AssociadosRoute = AssociadosRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClubRoute = ClubRouteImport.update({
+  id: '/club',
+  path: '/club',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/associado': typeof AssociadoRoute
   '/associados': typeof AssociadosRoute
   '/auth': typeof AuthRoute
+  '/club': typeof ClubRoute
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/associado': typeof AssociadoRoute
   '/associados': typeof AssociadosRoute
   '/auth': typeof AuthRoute
+  '/club': typeof ClubRoute
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/associado': typeof AssociadoRoute
   '/associados': typeof AssociadosRoute
   '/auth': typeof AuthRoute
+  '/club': typeof ClubRoute
   '/contato': typeof ContatoRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/associado'
     | '/associados'
     | '/auth'
+    | '/club'
     | '/contato'
     | '/download'
     | '/faq'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/associado'
     | '/associados'
     | '/auth'
+    | '/club'
     | '/contato'
     | '/download'
     | '/faq'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/associado'
     | '/associados'
     | '/auth'
+    | '/club'
     | '/contato'
     | '/download'
     | '/faq'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   AssociadoRoute: typeof AssociadoRoute
   AssociadosRoute: typeof AssociadosRoute
   AuthRoute: typeof AuthRoute
+  ClubRoute: typeof ClubRoute
   ContatoRoute: typeof ContatoRoute
   DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/club': {
+      id: '/club'
+      path: '/club'
+      fullPath: '/club'
+      preLoaderRoute: typeof ClubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -382,6 +402,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssociadoRoute: AssociadoRoute,
   AssociadosRoute: AssociadosRoute,
   AuthRoute: AuthRoute,
+  ClubRoute: ClubRoute,
   ContatoRoute: ContatoRoute,
   DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,
