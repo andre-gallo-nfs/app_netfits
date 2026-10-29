@@ -40,6 +40,7 @@ interface InteractiveFeedCardItem {
   title: string;
   badge: string;
   isSponsored?: boolean;
+  publishDate: string; // ISO 8601 string para ordenação cronológica decrescente
   render: () => React.ReactNode;
 }
 
@@ -51,6 +52,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Mizuno Running — Termorregulação",
     badge: "Patrocinado",
     isSponsored: true, // Prioridade comercial permanente: SEMPRE no alto do feed
+    publishDate: "2026-10-24T06:00:00-03:00",
     render: () => <MizunoArticleFeedCard />,
   },
   {
@@ -59,6 +61,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Dr. Franco Merici — Força & Longevidade",
     badge: "Dr. Franco Merici",
     isSponsored: false,
+    publishDate: "2026-10-23T06:00:00-03:00",
     render: () => <DrFrancoQuizCard isDailyChallenge={true} />,
   },
   {
@@ -67,6 +70,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Time Netfits — Propósito & Healthspan",
     badge: "Oficial Netfits",
     isSponsored: false,
+    publishDate: "2026-10-22T06:00:00-03:00",
     render: () => <NetfitsEducationalCard />,
   },
   {
@@ -75,6 +79,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Dra. Isabella Formigari — Biomarcadores & Sono",
     badge: "Dra. Isabella Formigari",
     isSponsored: false,
+    publishDate: "2026-10-21T06:00:00-03:00",
     render: () => <DraIsabellaQuizCard isDailyChallenge={false} />,
   },
   {
@@ -83,6 +88,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Dra. Isabella Formigari — Protocolo Fibios",
     badge: "Protocolo Fibios",
     isSponsored: false,
+    publishDate: "2026-10-20T06:00:00-03:00",
     render: () => <DrIsabellaCard />,
   },
 ];
@@ -90,7 +96,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
 // Motor de Publicação Diária Automatizada (Às 06:00 de cada dia)
 function getActiveFeedCards(): InteractiveFeedCardItem[] {
   const now = new Date();
-  const activeCards = [...INITIAL_FEED_CARDS];
+  const activeCards: InteractiveFeedCardItem[] = [...INITIAL_FEED_CARDS];
 
   for (const post of SCHEDULED_POSTS) {
     const pubDate = new Date(post.publishDate);
@@ -101,6 +107,7 @@ function getActiveFeedCards(): InteractiveFeedCardItem[] {
         title: `${post.author} — ${post.title}`,
         badge: post.badge,
         isSponsored: false,
+        publishDate: post.publishDate,
         render: () => <ScheduledFeedCard key={post.id} post={post} isDailyChallenge={true} />,
       });
     }
@@ -157,6 +164,17 @@ export function FeedPage() {
         }
       }
     }
+
+    // Ordenação do feed: do post mais recente acima para o post mais antigo abaixo (ordem cronológica decrescente)
+    const sortByDateDesc = (a: InteractiveFeedCardItem, b: InteractiveFeedCardItem) => {
+      const timeA = new Date(a.publishDate).getTime();
+      const timeB = new Date(b.publishDate).getTime();
+      return timeB - timeA;
+    };
+
+    pendingSponsored.sort(sortByDateDesc);
+    pendingEducational.sort(sortByDateDesc);
+    completed.sort(sortByDateDesc);
 
     // Pendentes: Patrocinados no topo, seguidos por Educacionais
     const pending = [...pendingSponsored, ...pendingEducational];
