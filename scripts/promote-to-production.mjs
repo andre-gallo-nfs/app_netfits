@@ -50,7 +50,7 @@ run("git checkout main", "Alternando para a branch 'main' (Produção)");
 run("git pull origin main --rebase || git pull origin main", "Atualizando 'main' com o repositório remoto");
 
 // 6. Fazer o merge explícito de staging para main
-run('git merge staging --no-ff -m "chore(release): tombar homologacao para producao [aprovado]"', "Mesclando staging em main (Merge Commit Oficial)");
+run('git merge staging --no-ff -m "chore(release): reposicionamento do clube, kv oficial, telemetria e reordenamento do feed [aprovado]"', "Mesclando staging em main (Merge Commit Oficial)");
 
 // 7. Revalidar main com o build final
 run("npm run validate", "Validando integridade pós-merge na branch main");
