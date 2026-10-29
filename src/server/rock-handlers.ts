@@ -342,7 +342,7 @@ export async function handleRockRoutes(
 
         const result = processMkplaceOrderNotification(rawOrder, isClubMember, {
           baseRate: serverState.operationalParams.nfsEarnedPerBrlSpent || 4.0,
-          clubMultiplier: serverState.operationalParams.clubShopPointsMultiplier ?? 1.0,
+          clubMultiplier: serverState.operationalParams.clubShopPointsMultiplier ?? 1.20,
           firstPurchaseBonus: serverState.operationalParams.shopFirstPurchaseBonusNfs ?? 0,
           takeRatePct: serverState.operationalParams.netfitsTakeRatePctFromGmv || 6.0,
         });
@@ -454,6 +454,32 @@ export async function handleRockRoutes(
                 category: "shop",
                 timestamp: requestTimestamp,
               });
+
+              // Bônus Clube Netfits: 10% dos pontos ganhos nas compras no shop de indicados
+              const referralShopPct = serverState.operationalParams.clubMemberReferralShopPointsPct ?? 10.0;
+              if (referralShopPct > 0 && user.referredBy) {
+                const referrer = serverState.users.find(
+                  (u) =>
+                    (u.referralCode && u.referralCode.toUpperCase() === user.referredBy?.toUpperCase()) ||
+                    u.id === user.referredBy
+                );
+                const isReferrerClub = referrer?.isClubMember === true || referrer?.userCategory === "associado";
+                if (referrer && isReferrerClub) {
+                  const refPoints = Math.floor(result.nfsEarned * (referralShopPct / 100));
+                  if (refPoints > 0) {
+                    referrer.nfsBalance = (referrer.nfsBalance || 0) + refPoints;
+                    serverState.transactions.unshift({
+                      id: `tx-mkp-ref-bonus-${orderId}`,
+                      userId: referrer.id,
+                      userName: referrer.fullName || "Membro Clube Netfits",
+                      amount: refPoints,
+                      description: `👥 Bônus Clube (10%): Compra de indicado (${user.fullName || "Atleta"}) Pedido #${orderId}`,
+                      category: "referral",
+                      timestamp: requestTimestamp,
+                    });
+                  }
+                }
+              }
 
               serverState.touchSync();
             } else if (alreadyCreditedCashback) {
@@ -807,13 +833,13 @@ export async function handleRockRoutes(
         ],
         operationalRules: {
           cashbackNormalNfsPerBrl: serverState.operationalParams.nfsEarnedPerBrlSpent || 4.0,
-          clubShopMultiplier: serverState.operationalParams.clubShopPointsMultiplier ?? 1.0,
-          cashbackClubNfsPerBrl: (serverState.operationalParams.nfsEarnedPerBrlSpent || 4.0) * (serverState.operationalParams.clubShopPointsMultiplier ?? 1.0),
+          clubShopMultiplier: serverState.operationalParams.clubShopPointsMultiplier ?? 1.20,
+          cashbackClubNfsPerBrl: (serverState.operationalParams.nfsEarnedPerBrlSpent || 4.0) * (serverState.operationalParams.clubShopPointsMultiplier ?? 1.20),
           firstPurchaseBonusNfs: serverState.operationalParams.shopFirstPurchaseBonusNfs ?? 0,
           newUserRegistrationBonusNfs: serverState.operationalParams.newUserRegistrationBonusNfs ?? 50,
           cppAcumuloBrl: serverState.operationalParams.cppAcumuloBrl ?? 0.015,
           cppResgateBrl: serverState.operationalParams.cppResgateBrl ?? 0.01,
-          friendCommissionPct: 0.0,
+          friendCommissionPct: serverState.operationalParams.clubMemberReferralShopPointsPct ?? 10.0,
           netfitsTakeRatePct: serverState.operationalParams.netfitsTakeRatePctFromGmv || 6.0,
           settlementPeriodDays: 14,
         },

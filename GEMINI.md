@@ -35,6 +35,8 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 | **Validade dos Pontos (FEFO)** | **24 meses** (taxa média de expiração projetada de 5%) |
 | **Assinatura do Clube Netfits (Fase 2)** | **R$ 19,90 / mês** |
 | **Pontos do Clube Netfits (Fase 2)** | **250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado** |
+| **Bônus de Compras no Shop (Clube)** | **20% mais pontos a cada compra** (4,8 nfs / R$ 1,00) |
+| **Comissão MGM de Compras (Clube)** | **10% dos pontos ganhos nas compras no shop de todos os seus indicados** |
 | **Público-Alvo Primário Brasil** | **30,7 milhões** de praticantes de renda média/alta |
 
 ---

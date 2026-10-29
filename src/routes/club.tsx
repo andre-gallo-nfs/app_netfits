@@ -7,6 +7,7 @@ import { WEARABLE_BRANDS, type WearableBrand } from "@/components/WearablesHub";
 import { toast } from "sonner";
 import {
   Crown,
+  Users,
   Sparkles,
   CheckCircle2,
   Watch,
@@ -542,12 +543,12 @@ export function ClubPage() {
                 <Watch className="size-5" />
               </div>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E]">
-                12 Marcas
+                Sensores &amp; GPS
               </span>
             </div>
             <h3 className="text-sm font-black text-[#202127] pt-1">Telemetria de Wearables</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
-              Integração em nuvem com Apple Watch, Garmin, Strava, Polar e Coros via Terra API com auditoria biométrica antifraude.
+              Integração em nuvem com relógios e monitores esportivos via Terra API com auditoria biométrica antifraude.
             </p>
           </div>
 
@@ -558,16 +559,32 @@ export function ClubPage() {
                 <ShoppingBag className="size-5" />
               </div>
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
-                Shop VIP
+                +20% Pontos
               </span>
             </div>
             <h3 className="text-sm font-black text-[#202127] pt-1">Vantagens Exclusivas no Shop</h3>
-            <p className="text-xs text-[#5F6270] leading-relaxed">
-              Condições especiais, frete reduzido e ofertas em primeira mão com lojistas parceiros credenciados na plataforma.
+            <p className="text-xs text-[#202127] leading-relaxed font-bold">
+              20% mais pontos a cada compra.
             </p>
           </div>
 
-          {/* Pilar 4: Longevidade Ativa & Fibios */}
+          {/* Pilar 4: Bônus por Compras de Indicados */}
+          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
+                <Users className="size-5" />
+              </div>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
+                10% Indicados
+              </span>
+            </div>
+            <h3 className="text-sm font-black text-[#202127] pt-1">Indicações no Shop</h3>
+            <p className="text-xs text-[#202127] leading-relaxed font-bold">
+              10% dos pontos ganhos nas compras no shop de todos os seus indicados.
+            </p>
+          </div>
+
+          {/* Pilar 5: Longevidade Ativa & Fibios */}
           <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
