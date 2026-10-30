@@ -158,7 +158,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
 
   return (
     <>
-      <article className="px-4 space-y-3.5">
+      <article className="px-4 space-y-3.5 min-h-[560px]">
         {/* 1. Header do Especialista */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -198,7 +198,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
         {/* 2. Banner Principal Clicável em Alta Resolução */}
         <div 
           onClick={() => setArticleOpen(true)}
-          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200 bg-zinc-950 aspect-[524/450] cursor-pointer group active:scale-[0.99] transition-all"
+          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200 bg-zinc-950 aspect-[4/5] max-h-[460px] cursor-pointer group active:scale-[0.99] transition-all"
           role="button"
           tabIndex={0}
           aria-label="Toque para ler o conteúdo completo da Dra. Isabella"

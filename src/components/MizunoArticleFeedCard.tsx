@@ -206,7 +206,7 @@ export function MizunoArticleFeedCard() {
         </div>
 
         {/* 3. Imagem de Alta Qualidade do Produto em Estúdio com Badge Informativo */}
-        <div className="relative rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 aspect-[16/9] sm:aspect-[21/9]">
+        <div className="relative rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 aspect-[4/5] max-h-[460px]">
           <img
             src={productMizunoCap}
             alt="Boné Aba Curva Mizuno Run Sky com proteção UV50+"

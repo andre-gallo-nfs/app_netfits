@@ -157,7 +157,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
 
   return (
     <>
-      <article className="px-4 space-y-3.5">
+      <article className="px-4 space-y-3.5 min-h-[560px]">
         {/* 1. Header do Especialista */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -205,7 +205,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
           <img
             src={drFrancoBanner}
             alt="Dr. Franco Merici - Por que a força muscular importa para a longevidade?"
-            className="w-full object-cover aspect-[524/450] group-hover:scale-[1.01] transition-transform duration-300"
+            className="w-full object-cover aspect-[4/5] max-h-[460px] group-hover:scale-[1.01] transition-transform duration-300"
             loading="lazy"
           />
         </div>

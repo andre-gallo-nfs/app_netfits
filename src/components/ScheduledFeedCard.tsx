@@ -387,10 +387,10 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </div>
         </div>
 
-        {/* 3. Hero Banner Fotográfico em Alta Resolução (Proporção 16:9) */}
+        {/* 3. Hero Banner Fotográfico em Alta Resolução (Proporção Vertical 4:5 Mobile-First) */}
         <div
           onClick={handleOpenContent}
-          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200/90 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[16/9]"
+          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200/90 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[460px]"
           role="button"
           tabIndex={0}
         >
@@ -699,7 +699,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               </div>
 
               {/* Reprodutor de Vídeo HTML5 */}
-              <div className="relative aspect-video w-full bg-black overflow-hidden border-b border-zinc-800 flex items-center justify-center">
+              <div className="relative aspect-[9/16] max-h-[62vh] w-full bg-black overflow-hidden border-b border-zinc-800 flex items-center justify-center mx-auto">
                 <video
                   ref={videoRef}
                   src={post.videoUrl}
@@ -827,7 +827,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                 </div>
 
                 {/* Banner de apoio dentro do artigo */}
-                <div className="relative rounded-2xl overflow-hidden aspect-[16/9] border border-zinc-200 dark:border-zinc-800">
+                <div className="relative rounded-2xl overflow-hidden aspect-[4/5] max-h-[380px] border border-zinc-200 dark:border-zinc-800">
                   <img src={getPostBannerSrc(post)} alt={post.title} className="w-full h-full object-cover" />
                 </div>
 
