@@ -38,9 +38,9 @@ export const Route = createFileRoute("/home")({
       {
         name: "description",
         content:
-          "Fazer cada movimento valer mais. Conheça a Netfits: feed de saúde, marketplace com cashback, ecossistema de parceiros e programa de fidelidade.",
+          "A vida em movimento vale mais. Conheça a Netfits: feed de saúde, marketplace com cashback, ecossistema de parceiros e programa de fidelidade.",
       },
-      { property: "og:title", content: "Netfits Ltda. — Fazer cada movimento valer mais" },
+      { property: "og:title", content: "Netfits Ltda. — A vida em movimento vale mais" },
     ],
   }),
   component: InstitutionalHomePage,
@@ -64,9 +64,9 @@ export function InstitutionalHomePage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-tight">
-            Fazer cada movimento <br />
+            A vida em movimento <br />
             <span className="bg-gradient-to-r from-lime-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
-              valer mais.
+              vale mais.
             </span>
           </h1>
 
@@ -273,7 +273,7 @@ export function InstitutionalHomePage() {
               <p className="text-base md:text-lg font-bold text-white pt-2">
                 O nosso lema nunca foi uma frase de efeito de marketing:{" "}
                 <span className="text-lime-400 underline decoration-lime-400/50 decoration-2 underline-offset-4">
-                  Fazer cada movimento valer mais
+                  A vida em movimento vale mais
                 </span>{" "}
                 é a nossa missão de vida e o compromisso que assumimos com você.
               </p>
@@ -376,7 +376,7 @@ export function InstitutionalHomePage() {
 
         <div className="max-w-6xl mx-auto pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4 text-zinc-600 text-[11px]">
           <p>© 2026 Netfits Ltda. Todos os direitos reservados.</p>
-          <p>Slogan Oficial: "Fazer cada movimento valer mais."</p>
+          <p>Slogan Oficial: "A vida em movimento vale mais."</p>
         </div>
       </footer>
     </div>
