@@ -167,7 +167,7 @@ export function MizunoArticleFeedCard() {
 
   return (
     <>
-      <article className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-5">
+      <article className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-5 min-h-[560px]">
         {/* 1. Header do Card: Identificação da Marca e Badge de Patrocínio */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

@@ -329,7 +329,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
 
   return (
     <>
-      <article className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-4">
+      <article className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-4 min-h-[560px]">
         {/* 1. Header Canônico: Logo Verde no Fundo Preto + Tag Editorial + Pílula Verde-Limão */}
         <div className="flex items-center justify-between pb-1">
           <div className="flex items-center gap-2">
