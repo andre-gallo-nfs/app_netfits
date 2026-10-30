@@ -31,68 +31,10 @@ export function ClubMembershipModal() {
 
   const isMember = Boolean(activeUser.isClubMember === true || activeUser.userCategory === "associado");
 
-  // Ativação da assinatura do Clube (simulação completa de homologação)
-  const handleSubscribe = async () => {
-    setIsProcessing(true);
-    try {
-      // 1. Tenta notificar o webhook oficial de assinatura do servidor
-      try {
-        await fetch("/api/club/subscription-webhook", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            event: "subscription.created",
-            subscriptionId: `sub_netfits_${Date.now()}`,
-            userId: activeUser.id,
-            email: activeUser.email,
-            cpf: activeUser.cpf,
-            planId: "club_monthly",
-            planName: "Clube Netfits Mensal",
-            amountBrl: 19.9,
-            status: "active",
-            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
-            gateway: "rock_encantech",
-          }),
-        });
-      } catch (err) {
-        console.warn("[ClubModal] Fallback local para ativação do clube:", err);
-      }
-
-      // 2. Atualiza o estado do usuário no store local/nuvem
-      const nowIso = new Date().toISOString();
-      const clubBonusAmount = 250;
-
-      sharedSandboxStore.updateUser(activeUser.id, {
-        isClubMember: true,
-        userCategory: "associado",
-        nfsBalance: (activeUser.nfsBalance || 0) + clubBonusAmount,
-      });
-
-      // 3. Adiciona a transação no extrato
-      const subTxId = `tx-club-sub-${Date.now()}`;
-      sharedSandboxStore.addTransaction({
-        id: subTxId,
-        userId: activeUser.id,
-        userName: activeUser.fullName || "Assinante Clube Netfits",
-        amount: clubBonusAmount,
-        description: "👑 Assinatura Clube Netfits: Mensalidade (250 nfs)",
-        category: "welcome", // Categoria mapeada para créditos garantidos
-        timestamp: nowIso,
-      });
-
-      toast.success("🎉 Bem-vindo ao Clube Netfits! +250 nfs creditados na sua carteira. Agora cada treino validado rende +25 nfs.", {
-        duration: 5000,
-      });
-
-      // Fecha o modal após pequeno delay
-      setTimeout(() => {
-        clubModalStore.close();
-      }, 1200);
-    } catch (e: any) {
-      toast.error("Não foi possível processar a assinatura no momento.");
-    } finally {
-      setIsProcessing(false);
-    }
+  // Ativação da assinatura do Clube: Checkout pendente de definição
+  const handleSubscribe = () => {
+    clubModalStore.close();
+    toast.info("A tela de checkout da assinatura está pendente de definição dos gateways bancários. Nenhum valor foi cobrado e nenhum ponto foi creditado.");
   };
 
   // Cancelamento de teste em homologação

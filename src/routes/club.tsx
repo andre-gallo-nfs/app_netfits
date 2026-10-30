@@ -48,13 +48,11 @@ export const Route = createFileRoute("/club")({
 export function ClubPage() {
   const activeUser = sharedSandboxStore.useActiveUser();
   const params = useOperationalParams();
-  const [isProcessing, setIsProcessing] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Estados de Wearables
-  const [connectingBrand, setConnectingBrand] = useState<WearableBrand | null>(null);
-  const [isSimulatingSync, setIsSimulatingSync] = useState(false);
-  const [selectedSport, setSelectedSport] = useState<"running" | "cycling" | "swimming" | "strength">("running");
+  // Modais de Governança & Blindagem de Produção
+  const [showCheckoutPendingModal, setShowCheckoutPendingModal] = useState(false);
+  const [wearableModalState, setWearableModalState] = useState<"no_wearable" | "no_workout" | null>(null);
 
   const isMember = Boolean(activeUser.isClubMember === true || activeUser.userCategory === "associado");
   const pointsPerWorkout = isMember ? 25 : (params.nfsPerWorkout || 25);
@@ -68,191 +66,35 @@ export function ClubPage() {
   const progressPct = Math.min(100, Math.round((totalPointsThisCycle / 1000) * 100));
 
   // Identificação do dispositivo conectado
-  const connectedBrandId = WEARABLE_BRANDS.find(
-    (b) =>
-      b.name.toLowerCase() === (activeUser.wearable || "").toLowerCase() ||
-      b.id.toLowerCase() === (activeUser.wearable || "").toLowerCase()
-  )?.id || (activeUser.wearable?.toLowerCase().includes("garmin") ? "garmin" : null);
+  const hasRealWearable = Boolean(
+    activeUser.wearable &&
+    activeUser.wearable !== "Nenhum" &&
+    activeUser.wearable.trim().length > 0
+  );
 
-  const activeConnectedBrand = WEARABLE_BRANDS.find((b) => b.id === connectedBrandId) || WEARABLE_BRANDS[0];
+  const connectedBrandId = hasRealWearable
+    ? WEARABLE_BRANDS.find(
+        (b) =>
+          b.name.toLowerCase() === (activeUser.wearable || "").toLowerCase() ||
+          b.id.toLowerCase() === (activeUser.wearable || "").toLowerCase()
+      )?.id || null
+    : null;
 
-  // Ativação da assinatura do Clube
-  const handleSubscribe = async () => {
-    setIsProcessing(true);
-    try {
-      try {
-        await fetch("/api/club/subscription-webhook", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            event: "subscription.created",
-            subscriptionId: `sub_netfits_${Date.now()}`,
-            userId: activeUser.id,
-            email: activeUser.email,
-            cpf: activeUser.cpf,
-            planId: "club_monthly",
-            planName: "Clube Netfits Mensal",
-            amountBrl: 19.9,
-            status: "active",
-            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
-            gateway: "rock_encantech",
-          }),
-        });
-      } catch (err) {
-        console.warn("[ClubPage] Fallback local para ativação:", err);
-      }
+  const activeConnectedBrand = connectedBrandId
+    ? (WEARABLE_BRANDS.find((b) => b.id === connectedBrandId) || WEARABLE_BRANDS[0])
+    : null;
 
-      const nowIso = new Date().toISOString();
-      const clubBonusAmount = 250;
-
-      sharedSandboxStore.updateUser(activeUser.id, {
-        isClubMember: true,
-        userCategory: "associado",
-        nfsBalance: (activeUser.nfsBalance || 0) + clubBonusAmount,
-      });
-
-      const subTxId = `tx-club-sub-${Date.now()}`;
-      sharedSandboxStore.addTransaction({
-        id: subTxId,
-        userId: activeUser.id,
-        userName: activeUser.fullName || "Assinante Clube Netfits",
-        amount: clubBonusAmount,
-        description: "👑 Assinatura Clube Netfits: Mensalidade (250 nfs)",
-        category: "welcome",
-        timestamp: nowIso,
-      });
-
-      toast.success("🎉 Bem-vindo ao Clube Netfits! +250 nfs creditados na sua carteira. Agora cada treino validado rende +25 nfs.", {
-        duration: 5000,
-      });
-    } catch {
-      toast.error("Não foi possível processar a assinatura no momento.");
-    } finally {
-      setIsProcessing(false);
-    }
+  // Clique no botão de Assinar: Checkout pendente de definição
+  const handleSubscribe = () => {
+    setShowCheckoutPendingModal(true);
   };
 
-  // Cancelamento de teste em homologação
-  const handleCancelSubscription = async () => {
-    setIsProcessing(true);
-    try {
-      try {
-        await fetch("/api/club/subscription-webhook", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            event: "subscription.canceled",
-            subscriptionId: `sub_cancel_${Date.now()}`,
-            userId: activeUser.id,
-            email: activeUser.email,
-            planId: "club_monthly",
-            planName: "Clube Netfits Mensal",
-            amountBrl: 19.9,
-            status: "canceled",
-            currentPeriodEnd: new Date().toISOString(),
-          }),
-        });
-      } catch (err) {
-        console.warn("[ClubPage] Fallback local para cancelamento:", err);
-      }
-
-      sharedSandboxStore.updateUser(activeUser.id, {
-        isClubMember: false,
-        userCategory: "atleta",
-      });
-
-      toast.info("Assinatura do Clube suspensa em homologação. Você retornou ao plano padrão Atleta.");
-    } catch {
-      toast.error("Erro ao suspender assinatura de teste.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Conexão Terra API
-  const handleConfirmTerraConnect = () => {
-    if (!connectingBrand) return;
-    setIsSimulatingSync(true);
-
-    setTimeout(() => {
-      sharedSandboxStore.updateUser(activeUser.id, { wearable: connectingBrand.name });
-      setIsSimulatingSync(false);
-      setConnectingBrand(null);
-      toast.success(`🎉 ${connectingBrand.name} conectado com sucesso via Terra API! Telemetria e GPS ativos.`);
-    }, 1000);
-  };
-
-  const handleDisconnectWearable = () => {
-    sharedSandboxStore.updateUser(activeUser.id, { wearable: "Nenhum" });
-    toast.info("Dispositivo desvinculado. Você pode reconectar a qualquer momento.");
-  };
-
-  // Simulação de treino com sensores ópticos
-  const handleSimulateWorkout = async () => {
-    setIsSimulatingSync(true);
-    try {
-      const nowIso = new Date().toISOString();
-      let mockName = "Corrida Matinal com Sensor Óptico";
-      let mockDist = 10.2;
-      let mockDur = 48;
-      let mockCals = 590;
-      let mockHr = 152;
-
-      if (selectedSport === "cycling") {
-        mockName = "Treino de Ciclismo de Estrada (Terra API)";
-        mockDist = 32.5;
-        mockDur = 68;
-        mockCals = 780;
-        mockHr = 142;
-      } else if (selectedSport === "swimming") {
-        mockName = "Natação em Piscina / Águas Abertas";
-        mockDist = 1.5;
-        mockDur = 35;
-        mockCals = 440;
-        mockHr = 136;
-      } else if (selectedSport === "strength") {
-        mockName = "Treino de Força e Musculação";
-        mockDist = 0;
-        mockDur = 45;
-        mockCals = 380;
-        mockHr = 128;
-      }
-
-      const normalizedMock = {
-        id: `mock-terra-${Date.now()}`,
-        fingerprintHash: `fp-terra-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-        sport: selectedSport,
-        title: mockName,
-        startTime: nowIso,
-        durationMinutes: mockDur,
-        distanceKm: mockDist,
-        calories: mockCals,
-        avgHeartRate: mockHr,
-        maxHeartRate: mockHr + 20,
-        hasHardwareSensors: true,
-        isManualEntry: false,
-        sourceDevice: activeConnectedBrand?.name || "Garmin",
-        sourceChannel: "terra_api" as const,
-      };
-
-      const result = await healthBridge.validateDailyWorkout(
-        normalizedMock as any,
-        activeUser.id,
-        pointsPerWorkout
-      );
-
-      if (result.success) {
-        toast.success(
-          `🏃 Treino validado via Terra API! +${result.pointsAwarded} nfs creditados na sua carteira.`,
-          { duration: 4000 }
-        );
-      } else {
-        toast.error(result.message);
-      }
-    } catch {
-      toast.error("Erro ao simular webhook da Terra API.");
-    } finally {
-      setIsSimulatingSync(false);
+  // Clique no Box/Banner de Wearables: Avalia presença de hardware e treinos reais
+  const handleWearableInteraction = () => {
+    if (!hasRealWearable) {
+      setWearableModalState("no_wearable");
+    } else {
+      setWearableModalState("no_workout");
     }
   };
 
@@ -336,18 +178,17 @@ export function ClubPage() {
               <div className="pt-2 flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => toast.success("Seus benefícios do Clube Netfits estão 100% ativos!")}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#F2ECFD] text-[#35106E] font-extrabold text-xs border border-purple-200 transition active:scale-95 text-center"
+                  onClick={() => toast.success("Seus benefícios do Clube Netfits estão ativos!")}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#F2ECFD] text-[#35106E] font-extrabold text-xs border border-purple-200 transition active:scale-95 text-center cursor-pointer"
                 >
                   Benefícios Ativos
                 </button>
                 <button
                   type="button"
-                  disabled={isProcessing}
-                  onClick={handleCancelSubscription}
-                  className="py-2.5 px-3 rounded-xl bg-zinc-100 text-[#5F6270] hover:text-red-600 font-semibold text-xs border border-zinc-200 transition active:scale-95"
+                  onClick={() => toast.info("A gestão de cobrança da assinatura estará disponível na central de pagamentos no lançamento oficial em 14 de Novembro.")}
+                  className="py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] font-semibold text-xs border border-zinc-200 transition active:scale-95 cursor-pointer"
                 >
-                  {isProcessing ? "Processando..." : "Suspender (Teste)"}
+                  Gerenciar Plano
                 </button>
               </div>
             </div>
@@ -355,25 +196,15 @@ export function ClubPage() {
             <div className="pt-2">
               <button
                 type="button"
-                disabled={isProcessing}
                 onClick={handleSubscribe}
                 className="w-full py-3.5 px-4 rounded-2xl bg-[#C8F135] hover:bg-[#bfe830] text-[#202127] font-black text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer"
               >
-                {isProcessing ? (
-                  <>
-                    <RefreshCw className="size-4 animate-spin text-[#202127]" />
-                    Ativando Assinatura em Homologação...
-                  </>
-                ) : (
-                  <>
-                    <Crown className="size-4 text-[#202127]" />
-                    Assinar Clube Netfits — R$ 19,90/mês
-                    <ArrowRight className="size-4 text-[#202127] ml-1" />
-                  </>
-                )}
+                <Crown className="size-4 text-[#202127]" />
+                Assinar Clube Netfits — R$ 19,90/mês
+                <ArrowRight className="size-4 text-[#202127] ml-1" />
               </button>
               <p className="text-[10px] text-center text-[#5F6270] mt-2">
-                Ambiente de Homologação • Zero impacto fiscal • Cancelamento a qualquer momento
+                Lançamento Oficial em 14 de Novembro • Pagamento Seguro • Sem Fidelidade
               </p>
             </div>
           )}
@@ -397,49 +228,65 @@ export function ClubPage() {
             </div>
           </div>
           <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E] border border-purple-200">
-            Sandbox
+            Terra API Cloud
           </span>
         </div>
 
-        {/* Card do Dispositivo Conectado */}
-        <div className="rounded-3xl bg-white border border-zinc-200 p-4 space-y-3 shadow-xs">
+        {/* Card do Dispositivo & Status de Telemetria (Clicável para Verificação) */}
+        <div
+          onClick={handleWearableInteraction}
+          className="rounded-3xl bg-white border border-purple-200/80 p-4 space-y-3 shadow-xs cursor-pointer hover:border-purple-400 transition"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
                 className="size-11 rounded-2xl grid place-items-center font-black text-sm shadow-xs"
-                style={{ backgroundColor: activeConnectedBrand.color, color: activeConnectedBrand.fg }}
+                style={{
+                  backgroundColor: activeConnectedBrand ? activeConnectedBrand.color : "#35106E",
+                  color: activeConnectedBrand ? activeConnectedBrand.fg : "#C8F135",
+                }}
               >
                 <Watch className="size-5" />
               </div>
               <div>
-                <h4 className="text-sm font-black text-[#202127]">{activeConnectedBrand.brandTitle}</h4>
-                <span className="text-[11px] text-[#5D7600] font-bold flex items-center gap-1 mt-0.5">
-                  <CheckCircle2 className="size-3.5" />
-                  {connectedBrandId ? "Conexão em Nuvem Ativa" : "Pronto para Conectar"}
+                <h4 className="text-sm font-black text-[#202127]">
+                  {activeConnectedBrand ? activeConnectedBrand.brandTitle : "Dispositivos Esportivos"}
+                </h4>
+                <span className="text-[11px] text-[#5F6270] font-bold flex items-center gap-1 mt-0.5">
+                  {hasRealWearable ? (
+                    <>
+                      <CheckCircle2 className="size-3.5 text-[#5D7600]" />
+                      <span className="text-[#5D7600]">Dispositivo Registrado</span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="size-3.5 text-[#6B2AD9]" />
+                      <span>Nenhum Dispositivo Integrado</span>
+                    </>
+                  )}
                 </span>
               </div>
             </div>
 
-            {connectedBrandId ? (
-              <button
-                type="button"
-                onClick={handleDisconnectWearable}
-                className="px-2.5 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-red-600 text-xs font-bold transition active:scale-95 cursor-pointer border border-zinc-200"
-              >
-                Desconectar
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setConnectingBrand(activeConnectedBrand)}
-                className="px-3 py-1.5 rounded-xl bg-[#6B2AD9] text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-xs"
-              >
-                Conectar
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleWearableInteraction();
+              }}
+              className="px-3 py-1.5 rounded-xl bg-[#6B2AD9] hover:bg-[#5821b5] text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-xs"
+            >
+              {hasRealWearable ? "Sincronizar" : "Conectar"}
+            </button>
           </div>
 
-          {/* Métricas Auditadas */}
+          {/* Marcas Homologadas na Nuvem */}
+          <div className="pt-1 flex items-center justify-between text-[11px] text-[#5F6270] bg-[#F5F5F7] px-3 py-2 rounded-xl border border-zinc-200">
+            <span>Compatibilidade:</span>
+            <span className="font-extrabold text-[#35106E]">Apple Watch • Garmin • Strava • Polar • Coros</span>
+          </div>
+
+          {/* Métricas Auditadas por Hardware */}
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 text-center">
             <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
               <Satellite className="size-3.5 text-[#5D7600] mx-auto mb-1" />
@@ -456,58 +303,6 @@ export function ClubPage() {
               <span className="text-[10px] text-[#5F6270] block font-medium">Calorias</span>
               <span className="text-xs font-mono font-bold text-[#202127]">Biológicas</span>
             </div>
-          </div>
-
-          {/* Simulador de Treino em Homologação */}
-          <div className="pt-2 space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-[#202127]">Simular Webhook de Treino</span>
-              <span className="font-extrabold text-[#6B2AD9]">+{pointsPerWorkout} nfs</span>
-            </div>
-
-            <div className="grid grid-cols-4 gap-1.5 text-xs font-bold">
-              {(["running", "cycling", "swimming", "strength"] as const).map((sport) => {
-                const labels = {
-                  running: "🏃 Corrida",
-                  cycling: "🚴 Bike",
-                  swimming: "🏊 Natação",
-                  strength: "🏋️ Força",
-                };
-                return (
-                  <button
-                    key={sport}
-                    type="button"
-                    onClick={() => setSelectedSport(sport)}
-                    className={`py-2 px-1 rounded-xl transition text-center cursor-pointer ${
-                      selectedSport === sport
-                        ? "bg-[#35106E] text-[#C8F135] shadow-xs"
-                        : "bg-[#F5F5F7] text-[#5F6270] hover:text-[#202127] border border-zinc-200"
-                    }`}
-                  >
-                    {labels[sport]}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              disabled={isSimulatingSync}
-              onClick={handleSimulateWorkout}
-              className="w-full py-2.5 px-3 rounded-xl bg-[#35106E] hover:bg-[#2a0c58] active:scale-[0.99] text-white font-extrabold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-xs"
-            >
-              {isSimulatingSync ? (
-                <>
-                  <RefreshCw className="size-3.5 animate-spin text-[#C8F135]" />
-                  Processando Webhook Terra API...
-                </>
-              ) : (
-                <>
-                  <Zap className="size-3.5 text-[#C8F135]" />
-                  Disparar Treino Auditado via Terra (+{pointsPerWorkout} nfs)
-                </>
-              )}
-            </button>
           </div>
         </div>
       </section>
@@ -650,75 +445,139 @@ export function ClubPage() {
         })}
       </section>
 
-      {/* Modal / Sheet do Terra Connect Widget (Simulação Turnkey) */}
-      {connectingBrand && (
+      {/* Modal 1: Aviso de Checkout da Assinatura Pendente de Definição */}
+      {showCheckoutPendingModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-sm bg-white text-[#202127] rounded-3xl border border-purple-200 p-5 space-y-4 shadow-2xl relative">
+          <div className="w-full max-w-sm bg-white text-[#202127] rounded-3xl border border-purple-200 p-6 space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9] flex items-center gap-1">
-                <Radio className="size-3" />
-                Terra Connect Widget
-              </span>
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded-md bg-[#35106E] text-[#C8F135]">
+                  <Crown className="size-4" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9]">
+                  Assinatura do Clube Netfits
+                </span>
+              </div>
               <button
                 type="button"
-                onClick={() => setConnectingBrand(null)}
+                onClick={() => setShowCheckoutPendingModal(false)}
                 className="size-7 rounded-full bg-zinc-100 text-[#5F6270] hover:text-[#202127] grid place-items-center cursor-pointer"
+                aria-label="Fechar modal"
               >
                 <X className="size-3.5" />
               </button>
             </div>
 
             <div className="text-center py-2 space-y-2">
-              <div
-                className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black shadow-sm"
-                style={{ backgroundColor: connectingBrand.color, color: connectingBrand.fg }}
-              >
-                <Watch className="size-7" />
+              <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-sm">
+                <Crown className="size-7" />
               </div>
               <h3 className="text-base font-black text-[#202127]">
-                Autorizar Conexão com {connectingBrand.name}
+                Checkout em Fase de Integração
               </h3>
               <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                A Terra API solicitará permissão segura para ler suas atividades esportivas (duração, distância, frequência cardíaca e calorias).
+                A tela oficial de pagamento da assinatura mensal (R$ 19,90/mês) está pendente de definição dos gateways bancários para o lançamento oficial em 14 de Novembro de 2026.
               </p>
             </div>
 
-            <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1.5 text-[#5F6270]">
-              <div className="flex items-center justify-between">
-                <span>Protocolo:</span>
-                <span className="font-mono text-[#35106E] text-[11px] font-bold">{connectingBrand.protocol}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Ambiente:</span>
-                <span className="font-mono text-[#6B2AD9] text-[11px] font-bold">Terra Sandbox v2</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Privacidade:</span>
-                <span className="text-[#5D7600] text-[11px] font-bold">Auditado &amp; LGPD Compliant</span>
+            <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="size-4 text-[#5D7600] shrink-0 mt-0.5" />
+                <p className="text-[11px] leading-relaxed">
+                  Nenhum valor será cobrado no momento. A atribuição de todos os benefícios (inclusive os <b>250 nfs garantidos</b>) ocorrerá exclusivamente após a confirmação do pagamento no checkout oficial.
+                </p>
               </div>
             </div>
 
             <button
               type="button"
-              disabled={isSimulatingSync}
-              onClick={handleConfirmTerraConnect}
-              className="w-full py-3 px-4 rounded-xl bg-[#C8F135] hover:bg-[#bfe830] active:scale-[0.99] text-[#202127] font-black text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-sm"
+              onClick={() => setShowCheckoutPendingModal(false)}
+              className="w-full py-3 px-4 rounded-xl bg-[#35106E] hover:bg-[#2a0c58] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
             >
-              {isSimulatingSync ? (
-                <>
-                  <RefreshCw className="size-4 animate-spin text-[#202127]" />
-                  Autorizando Handshake OAuth...
-                </>
-              ) : (
-                <>
-                  Autorizar Conexão na Terra API
-                  <ArrowRight className="size-4 text-[#202127]" />
-                </>
-              )}
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 2: Aviso de Wearables (Nenhum Integrado OU Nenhum Treino Novo) */}
+      {wearableModalState && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-sm bg-white text-[#202127] rounded-3xl border border-purple-200 p-6 space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9] flex items-center gap-1">
+                <Radio className="size-3" />
+                Telemetria de Wearables
+              </span>
+              <button
+                type="button"
+                onClick={() => setWearableModalState(null)}
+                className="size-7 rounded-full bg-zinc-100 text-[#5F6270] hover:text-[#202127] grid place-items-center cursor-pointer"
+                aria-label="Fechar aviso"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+
+            {wearableModalState === "no_wearable" ? (
+              <>
+                <div className="text-center py-2 space-y-2">
+                  <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-sm">
+                    <Watch className="size-7" />
+                  </div>
+                  <h3 className="text-base font-black text-[#202127]">
+                    Nenhum Wearable Integrado
+                  </h3>
+                  <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
+                    Você ainda não possui nenhum relógio esportivo ou monitor cardíaco vinculado à sua conta.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
+                  <p className="text-[11px] leading-relaxed">
+                    Para validar treinos e pontuar no Clube (+25 nfs), é necessário integrar um dispositivo compatível (Apple Watch, Garmin, Strava, Polar ou Coros) com sensores ópticos de frequência cardíaca e GPS auditado.
+                  </p>
+                  <p className="text-[11px] font-bold text-[#35106E] border-t border-zinc-200 pt-1.5">
+                    As conexões estarão disponíveis com a integração oficial da Terra API no lançamento da plataforma.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-center py-2 space-y-2">
+                  <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-sm">
+                    <Activity className="size-7" />
+                  </div>
+                  <h3 className="text-base font-black text-[#202127]">
+                    Nenhum Treino Novo para Validar
+                  </h3>
+                  <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
+                    Não foram encontrados novos treinos auditados nas últimas 24 horas para o seu dispositivo {activeUser.wearable}.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
+                  <p className="text-[11px] leading-relaxed">
+                    Pratique sua atividade esportiva utilizando seu relógio com monitoramento de frequência cardíaca contínuo para que o treino seja sincronizado e auditado automaticamente pela plataforma.
+                  </p>
+                </div>
+              </>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setWearableModalState(null)}
+              className="w-full py-3 px-4 rounded-xl bg-[#35106E] hover:bg-[#2a0c58] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+            >
+              Entendido
             </button>
           </div>
         </div>
