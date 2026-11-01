@@ -21,6 +21,7 @@ import {
   Share2,
   Heart
 } from "lucide-react";
+import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import draIsabellaAvatar from "@/assets/dra-isabella-avatar.jpg";
 import draIsabellaImg from "@/assets/dra-isabella.jpeg";
 import { wallet } from "@/lib/wallet-store";
@@ -185,14 +186,25 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => toast.info("Publicação oficial curada pela Fibios")}
-            className="text-zinc-500 hover:text-zinc-800 p-1 rounded-full transition"
-            aria-label="Opções"
-          >
-            <MoreVertical className="size-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-auto bg-black rounded-lg px-2 py-0.5 flex items-center justify-center border border-zinc-800 shadow-xs">
+              <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
+            </div>
+            <button
+              type="button"
+              onClick={() => toast.info("Publicação oficial curada pela Fibios")}
+              className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 p-1 rounded-full transition"
+              aria-label="Opções"
+            >
+              <MoreVertical className="size-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Barra Bipartida Institucional Netfits (Roxo #6B2AD9 + Verde-Limão #C8F135) */}
+        <div className="h-0.5 w-full rounded-full flex overflow-hidden">
+          <div className="w-1/2 bg-[#6B2AD9]" />
+          <div className="w-1/2 bg-[#C8F135]" />
         </div>
 
         {/* 2. Banner Principal Clicável em Alta Resolução */}
@@ -379,6 +391,8 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           title="Dra. Isabella Formigari — Como os biomarcadores e o sono transformam a longevidade? (Fibios)"
           onOpenArticle={() => setArticleOpen(true)}
         />
+        {/* Divisor Elegante de Postagem */}
+        <div className="h-px bg-zinc-200/80 dark:bg-zinc-800/80 my-4" />
       </article>
 
       {/* 5. Modal de Leitura Completa da Postagem */}

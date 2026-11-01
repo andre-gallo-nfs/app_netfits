@@ -16,6 +16,7 @@ import {
   Share2
 } from "lucide-react";
 import netfitsMark from "@/assets/netfits-mark.png";
+import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
@@ -152,7 +153,7 @@ export function NetfitsEducationalCard() {
 
   return (
     <>
-      <article className="px-4 space-y-3.5">
+      <article className="px-4 space-y-3.5 min-h-[560px]">
         {/* 1. Header Oficial do Netfits */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -180,14 +181,19 @@ export function NetfitsEducationalCard() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => toast.info("Publicação oficial sobre o propósito e princípios do Netfits")}
-            className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-full transition"
-            aria-label="Opções"
-          >
-            <MoreVertical className="size-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-auto bg-black rounded-lg px-2 py-0.5 flex items-center justify-center border border-zinc-800 shadow-xs">
+              <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
+            </div>
+            <button
+              type="button"
+              onClick={() => toast.info("Publicação oficial sobre o propósito e princípios do Netfits")}
+              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-full transition"
+              aria-label="Opções"
+            >
+              <MoreVertical className="size-4" />
+            </button>
+          </div>
         </div>
 
         {/* 2. Banner Visual 4:5 estilo Editorial da Plataforma */}
@@ -244,6 +250,12 @@ export function NetfitsEducationalCard() {
           </div>
 
           <div className="absolute inset-0 bg-radial from-transparent via-black/20 to-black/80 pointer-events-none" />
+        </div>
+
+        {/* Barra Bipartida Institucional Netfits (Roxo #6B2AD9 + Verde-Limão #C8F135) */}
+        <div className="h-0.5 w-full rounded-full flex overflow-hidden">
+          <div className="w-1/2 bg-[#6B2AD9]" />
+          <div className="w-1/2 bg-[#C8F135]" />
         </div>
 
         {/* 3. Módulo Interativo "Desafio Netfits" (Quiz-to-Earn) */}
@@ -358,6 +370,8 @@ export function NetfitsEducationalCard() {
           title="Netfits — O Propósito: Longevidade, Saúde & Bem-Estar"
           onOpenArticle={() => setArticleOpen(true)}
         />
+        {/* Divisor Elegante de Postagem */}
+        <div className="h-px bg-zinc-200/80 dark:bg-zinc-800/80 my-4" />
       </article>
 
       {/* MODAL DE LEITURA COMPLETA COM AUDITORIA DWELL TIME E SCROLL TOTAL */}

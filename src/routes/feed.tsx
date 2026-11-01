@@ -52,7 +52,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Mizuno Running — Termorregulação",
     badge: "Patrocinado",
     isSponsored: true, // Prioridade comercial permanente: SEMPRE no alto do feed
-    publishDate: "2026-10-24T06:00:00-03:00",
+    publishDate: "2026-11-01T09:00:00-03:00",
     render: () => <MizunoArticleFeedCard />,
   },
   {
@@ -61,7 +61,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Dr. Franco Merici — Força & Longevidade",
     badge: "Dr. Franco Merici",
     isSponsored: false,
-    publishDate: "2026-10-23T06:00:00-03:00",
+    publishDate: "2026-11-01T08:00:00-03:00",
     render: () => <DrFrancoQuizCard isDailyChallenge={true} />,
   },
   {
@@ -70,7 +70,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Time Netfits — Propósito & Healthspan",
     badge: "Oficial Netfits",
     isSponsored: false,
-    publishDate: "2026-10-22T06:00:00-03:00",
+    publishDate: "2026-11-01T07:30:00-03:00",
     render: () => <NetfitsEducationalCard />,
   },
   {
@@ -79,7 +79,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Dra. Isabella Formigari — Biomarcadores & Sono",
     badge: "Dra. Isabella Formigari",
     isSponsored: false,
-    publishDate: "2026-10-21T06:00:00-03:00",
+    publishDate: "2026-11-01T07:00:00-03:00",
     render: () => <DraIsabellaQuizCard isDailyChallenge={false} />,
   },
   {
@@ -88,7 +88,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     title: "Dra. Isabella Formigari — Protocolo Fibios",
     badge: "Protocolo Fibios",
     isSponsored: false,
-    publishDate: "2026-10-20T06:00:00-03:00",
+    publishDate: "2026-11-01T06:30:00-03:00",
     render: () => <DrIsabellaCard />,
   },
 ];

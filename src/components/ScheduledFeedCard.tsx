@@ -1,20 +1,19 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import {
-  Trophy,
-  Sparkles,
-  BookOpen,
-  Clock,
-  X,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-  Play,
-  Film,
-  Calendar,
-  Zap,
-  Volume2,
-  ArrowRight,
-  Flame,
+import { useState, useRef, useEffect, useMemo } from "react";
+import { 
+  Trophy, 
+  Sparkles, 
+  MoreVertical, 
+  CheckCircle2, 
+  ArrowRight, 
+  AlertCircle, 
+  BookOpen, 
+  Clock, 
+  X, 
+  Play, 
+  ShieldCheck, 
+  Calendar, 
+  Flame, 
+  Volume2 
 } from "lucide-react";
 import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -31,6 +30,8 @@ import gearWatch from "@/assets/gear-watch.jpg";
 import drFrancoAvatar from "@/assets/dr-franco-avatar.png";
 import drFrancoBanner from "@/assets/dr-franco-banner.png";
 import draIsabellaAvatar from "@/assets/dra-isabella-avatar.jpg";
+import draIsabella from "@/assets/dra-isabella.jpeg";
+import andreGalloIronmanImg from "@/assets/andre-gallo-ironman.jpg";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
@@ -85,13 +86,16 @@ export const SCHEDULED_POSTS: ScheduledPostDef[] = scheduledPostsRaw as Schedule
 
 function getPostBannerSrc(post: ScheduledPostDef): string {
   const text = `${post.title} ${post.badge} ${post.line}`.toLowerCase();
-  if (text.includes("sono") || text.includes("recupera") || text.includes("stress")) return spotStudio;
+  if (post.authorAvatar === "dr_franco") return drFrancoBanner;
+  if (post.authorAvatar === "dra_isabella") return draIsabella;
+  if (text.includes("tour") || text.includes("app")) return andreGalloIronmanImg;
+  if (text.includes("sono") || text.includes("recupera") || text.includes("stress") || text.includes("cortisol")) return spotStudio;
   if (text.includes("cicl") || text.includes("bike") || text.includes("pedal")) return feedCyclist;
   if (text.includes("montanha") || text.includes("outdoor") || text.includes("trail") || text.includes("altitude")) return feedMountain;
-  if (text.includes("força") || text.includes("músculo") || text.includes("hipertrofia") || text.includes("franco")) return drFrancoBanner;
-  if (text.includes("clínica") || text.includes("fibios") || text.includes("biomarcador") || text.includes("isabella")) return clinicFibios;
+  if (text.includes("força") || text.includes("músculo") || text.includes("hipertrofia") || text.includes("proteína")) return drFrancoBanner;
+  if (text.includes("clínica") || text.includes("fibios") || text.includes("biomarcador") || text.includes("inflamação")) return clinicFibios;
   if (text.includes("tênis") || text.includes("equipamento") || text.includes("calçado")) return asicsNovablast;
-  if (text.includes("relógio") || text.includes("frequência") || text.includes("cardíac") || text.includes("gps")) return gearWatch;
+  if (text.includes("relógio") || text.includes("frequência") || text.includes("cardíac") || text.includes("gps") || text.includes("zona 2")) return gearWatch;
   if (text.includes("maratona") || text.includes("prova") || text.includes("pace")) return raceMarathon;
 
   const mod = (post.originalDay || 1) % 4;
@@ -141,12 +145,10 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
     return match ? parseInt(match[1], 10) : 50;
   });
 
-  const isStaging = useMemo(() => {
-    if (typeof window === "undefined") return true;
+  const isHomologEnv = useMemo(() => {
+    if (typeof window === "undefined") return false;
     const h = window.location.hostname;
     return (
-      h.includes("staging") ||
-      h.includes("trycloudflare.com") ||
       h.includes("localhost") ||
       h.includes("lhr.life") ||
       window.location.port === "3000" ||
@@ -244,14 +246,6 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
     }
   };
 
-  const handleGoToQuiz = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
-    setModalView("quiz");
-    setModalOpen(true);
-  };
-
   const handleSubmitQuiz = () => {
     if (hasSubmitted) return;
 
@@ -260,26 +254,22 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
       return;
     }
 
-    if (!readClaimed) {
-      toast.error(
-        isVideo
-          ? "🚫 Antifraude Netfits: Assista ao menos 90% do vídeo para liberar a resposta do Quiz."
-          : "🚫 Antifraude Netfits: Você precisa ler o artigo completo por pelo menos 10 segundos antes de responder."
-      );
-      setErrorMsg("Conclua a visualização do conteúdo para destravar a pontuação.");
-      return;
-    }
-
     const selectedOptObj = post.quizOptions.find((opt) => opt.id === selectedOption);
     if (!selectedOptObj) return;
 
     if (selectedOptObj.isCorrect) {
+      const validation = feedAntifraud.validateAction("quiz", post.quizPostId);
+      if (!validation.allowed) {
+        toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
+        return;
+      }
+
       const amount = 5;
-      wallet.earn(amount, `Quiz Diário Netfits - Dia ${post.originalDay}`, "feed");
+      wallet.earn(amount, `Quiz Diário: ${post.title} (${post.author})`, "feed");
       feedAntifraud.recordAction("quiz", post.quizPostId, amount);
       setHasSubmitted(true);
       setErrorMsg(null);
-      toast.success(`🎉 Parabéns! Você acertou e ganhou +${amount} netfits!`, {
+      toast.success(`🎉 Parabéns! Resposta correta (+${amount} nfs creditados na sua carteira)`, {
         description: selectedOptObj.feedback || "Netfits creditados na sua carteira com sucesso.",
       });
     } else {
@@ -287,7 +277,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
         selectedOptObj.feedback ||
           "Resposta incorreta. Revise o conteúdo do post e tente novamente para absorver o aprendizado."
       );
-      toast.error("Ops! Resposta incorreta.", {
+      toast.error("Resposta incorreta. Leia o feedback e tente novamente!", {
         description: selectedOptObj.feedback,
       });
     }
@@ -321,78 +311,90 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
     if (videoRef.current) {
       videoRef.current.pause();
     }
-    if (isVideo && modalView === "content" && !readClaimed && videoProgressPct < 90) {
-      toast.warning("⚠️ Antifraude: Você precisa assistir ao menos 90% do vídeo para destravar o Quiz de +5 netfits.");
-    }
     setModalOpen(false);
   };
 
   return (
     <>
-      <article className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-4 min-h-[560px]">
-        {/* 1. Header Canônico: Logo Verde no Fundo Preto + Tag Editorial + Pílula Verde-Limão */}
-        <div className="flex items-center justify-between pb-1">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-auto bg-black rounded-lg px-2 py-1 flex items-center justify-center border border-zinc-800 shadow-sm shrink-0">
-              <img src={netfitsLogoDark} alt="Netfits" className="h-4.5 w-auto object-contain" />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9] bg-[#F2ECFD] px-2.5 py-0.5 rounded-md border border-purple-200">
-              {post.line || "Curadoria Fibios"}
-            </span>
-          </div>
-
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black shadow-xs tracking-tight">
-            <Sparkles className="size-3.5" />
-            +5 netfits
-          </span>
-        </div>
-
-        {/* Barra Bipartida Institucional Netfits (Roxo #6B2AD9 + Verde-Limão #C8F135) */}
-        <div className="h-1 w-full rounded-full flex overflow-hidden">
-          <div className="w-1/2 bg-[#6B2AD9]" />
-          <div className="w-1/2 bg-[#C8F135]" />
-        </div>
-
-        {/* 2. Header do Autor com Avatar e Status */}
-        <div className="flex items-center justify-between pt-0.5">
+      <article className="px-4 space-y-3.5 min-h-[560px]">
+        {/* 1. Header do Especialista / Autor com Marca Canônica Netfits */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
               onClick={handleOpenContent}
-              className="size-11 rounded-full ring-2 ring-[#6B2AD9]/30 flex items-center justify-center cursor-pointer hover:ring-[#6B2AD9] transition-all bg-card overflow-hidden shadow-sm"
+              className="size-11 rounded-full ring-2 ring-[#6B2AD9]/30 flex items-center justify-center cursor-pointer hover:ring-[#6B2AD9] transition-all bg-card overflow-hidden shadow-sm shrink-0"
             >
               <img src={getAvatarSrc()} alt={post.author} className="w-full h-full object-cover" />
             </div>
-            <div>
+            <div className="cursor-pointer" onClick={handleOpenContent}>
               <div className="flex items-center gap-2">
-                <h4
-                  onClick={handleOpenContent}
-                  className="text-sm font-bold text-[#202127] dark:text-white hover:text-[#6B2AD9] transition-colors cursor-pointer"
-                >
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white leading-tight hover:text-[#6B2AD9] transition-colors">
                   {post.author}
-                </h4>
+                </h3>
                 {isDailyChallenge && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-tight">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-400 text-[10px] font-black uppercase tracking-tight">
                     <Flame className="size-3 text-amber-500 fill-amber-500 animate-pulse" />
                     Desafio do Dia
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-[#5F6270] dark:text-zinc-400 line-clamp-1">{post.authorRole}</p>
+              <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-medium">
+                por {post.line || "Fibios"} · {post.formattedDate}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#5F6270] dark:text-zinc-400 bg-[#F5F5F7] dark:bg-zinc-800/80 px-2.5 py-1 rounded-full border border-zinc-200 dark:border-zinc-700">
-            <Calendar className="size-3 text-[#6B2AD9]" />
-            <span>{post.formattedDate}</span>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-auto bg-black rounded-lg px-2 py-0.5 flex items-center justify-center border border-zinc-800 shadow-xs">
+              <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
+            </div>
+            <button
+              type="button"
+              onClick={() => toast.info(`Publicação oficial curada pela Fibios & Netfits`)}
+              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-full transition"
+              aria-label="Opções"
+            >
+              <MoreVertical className="size-4" />
+            </button>
           </div>
+        </div>
+
+        {/* 2. Chamada Principal e Introdução Editorial (Tipografia Limpa Fora da Foto) */}
+        <div className="space-y-1.5 cursor-pointer" onClick={handleOpenContent}>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#C8F135] text-[#202127] font-mono tracking-wider shadow-xs">
+              {post.badge}
+            </span>
+            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium flex items-center gap-1">
+              {isVideo ? (
+                <>
+                  <Play className="size-3 text-[#6B2AD9] fill-[#6B2AD9]" />
+                  <span>Vídeo ({post.duration || `${videoTotalDuration}s`})</span>
+                </>
+              ) : (
+                <>
+                  <BookOpen className="size-3 text-[#6B2AD9]" />
+                  <span>Artigo ({post.readTime})</span>
+                </>
+              )}
+            </span>
+          </div>
+
+          <h2 className="text-lg sm:text-xl font-black text-zinc-950 dark:text-white leading-tight hover:text-[#6B2AD9] transition-colors">
+            {post.title}
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
+            {post.subtitle}
+          </p>
         </div>
 
         {/* 3. Hero Banner Fotográfico em Alta Resolução (Proporção Vertical 4:5 Mobile-First) */}
         <div
           onClick={handleOpenContent}
-          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200/90 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[460px]"
+          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[460px]"
           role="button"
           tabIndex={0}
+          aria-label={`Toque para ver o conteúdo: ${post.title}`}
         >
           <img
             src={getPostBannerSrc(post)}
@@ -400,69 +402,74 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+
+          {/* Botão de Ação Central em Vídeos */}
+          {isVideo && (
+            <div className="absolute inset-0 grid place-items-center">
+              <div className="size-16 rounded-full bg-white/95 text-zinc-950 shadow-2xl grid place-items-center ring-4 ring-[#C8F135]/40 group-hover:scale-110 transition-transform">
+                <Play className="size-7 ml-1 text-zinc-950 fill-zinc-950" />
+              </div>
+            </div>
+          )}
 
           {/* Badge Flutuante Superior */}
-          <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-[#6B2AD9] transition-colors">
+          <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-[#6B2AD9] transition-colors">
             {isVideo ? (
               <>
-                <Play className="size-3 text-[#C8F135] fill-[#C8F135] group-hover:text-white group-hover:fill-white" />
+                <Play className="size-3 text-[#C8F135] fill-[#C8F135]" />
                 <span className="text-[10px] font-bold">Assistir ({post.duration || `${videoTotalDuration}s`})</span>
               </>
             ) : (
               <>
-                <BookOpen className="size-3 text-[#C8F135] group-hover:text-white" />
+                <BookOpen className="size-3 text-[#C8F135]" />
                 <span className="text-[10px] font-bold">Ler artigo ({post.readTime})</span>
               </>
             )}
           </div>
 
-          {/* Destaque Inferior sobre a Imagem */}
-          <div className="absolute bottom-3 left-3 right-3 text-white">
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#C8F135] text-[#202127] font-mono tracking-wider shadow">
-              {post.badge}
+          {/* Rodapé Interno do Banner */}
+          <div className="absolute bottom-3 left-4 right-4 text-white flex items-end justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#C8F135]">
+                {post.line || "Curadoria Fibios"}
+              </p>
+              <p className="text-xs text-zinc-300 font-medium line-clamp-1">
+                {post.author} · {post.authorRole}
+              </p>
+            </div>
+            <span className="text-[10px] bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-white font-mono">
+              Netfits
             </span>
-            <h3 className="text-sm sm:text-base font-black mt-1.5 leading-snug drop-shadow line-clamp-2">
-              {post.title}
-            </h3>
           </div>
         </div>
 
-        {/* 4. Subtítulo / Lead Explicativo */}
-        <p className="text-xs sm:text-sm text-[#5F6270] dark:text-zinc-300 leading-relaxed font-normal">
-          {post.subtitle}
-        </p>
+        {/* Barra Bipartida Institucional Netfits (Roxo #6B2AD9 + Verde-Limão #C8F135) */}
+        <div className="h-0.5 w-full rounded-full flex overflow-hidden">
+          <div className="w-1/2 bg-[#6B2AD9]" />
+          <div className="w-1/2 bg-[#C8F135]" />
+        </div>
 
-        {/* 5. Ações Sociais */}
-        <FeedSocialActions
-          id={post.id}
-          title={post.title}
-          postCategory="educational"
-          showViewButton={true}
-          onOpenArticle={handleOpenContent}
-        />
-
-        {/* 6. Módulo de Desafio Quiz Diário (+5 netfits) com Microinterações e Feedback */}
-        <div className="rounded-2xl border border-purple-200/80 dark:border-purple-900/60 bg-[#F2ECFD]/50 dark:bg-purple-950/20 p-4 sm:p-5 space-y-4">
+        {/* 4. Módulo Interativo: Desafio do Dia / Quiz de Fixação Pedagógica (+5 NFs) */}
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+          {/* Cabeçalho do Quiz */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="size-9 rounded-xl bg-[#35106E] text-[#C8F135] flex items-center justify-center font-bold text-xs shadow-xs">
-                <Trophy className="size-4.5" />
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 dark:text-purple-400 grid place-items-center shrink-0">
+                <Trophy className="size-5" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-xs sm:text-sm font-black text-[#202127] dark:text-white">
-                    Desafio do Dia {String(post.originalDay).padStart(2, "0")}
-                  </h4>
-                  {isDailyChallenge && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30">
-                      24h
-                    </span>
-                  )}
+                <span className="text-[10px] font-black tracking-widest text-purple-600 dark:text-purple-400 uppercase block">
+                  DESAFIO FIBIOS & NETFITS
+                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                    Responda e ganhe
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#C8F135] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
+                    5 NFs
+                  </span>
                 </div>
-                <p className="text-[11px] text-[#5F6270] dark:text-zinc-400">
-                  Acerte para creditar <strong className="text-[#35106E] dark:text-[#C8F135]">+5 netfits</strong> na sua carteira
-                </p>
               </div>
             </div>
 
@@ -477,205 +484,124 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             )}
           </div>
 
-          <div className="text-xs sm:text-sm font-bold text-[#202127] dark:text-white leading-snug">
+          {/* Pergunta */}
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug">
             {post.quizQuestion}
-          </div>
+          </h4>
 
-          {/* Opções de Resposta Embaralhadas */}
-          <div className="space-y-2">
+          {/* Lista de Alternativas (Radio Buttons) */}
+          <div className="space-y-2.5">
             {shuffledOptions.map((opt) => {
               const isSelected = selectedOption === opt.id;
+              const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+
               return (
                 <button
                   key={opt.id}
                   type="button"
-                  disabled={hasSubmitted}
                   onClick={() => {
-                    setSelectedOption(opt.id);
-                    setErrorMsg(null);
+                    if (!hasSubmitted) {
+                      setSelectedOption(opt.id);
+                      setErrorMsg(null);
+                    }
                   }}
-                  className={`w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition-all flex items-start gap-3 ${
-                    isSelected
-                      ? "border-[#6B2AD9] bg-white dark:bg-zinc-800 text-[#202127] dark:text-white font-bold shadow-sm ring-1 ring-[#6B2AD9]/30"
-                      : "border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-800 text-[#5F6270] dark:text-zinc-300"
-                  } ${hasSubmitted ? "cursor-default" : "cursor-pointer"}`}
+                  disabled={hasSubmitted}
+                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
+                    isFinishedCorrect
+                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 dark:text-white font-semibold"
+                      : isSelected
+                      ? "bg-lime-50 dark:bg-lime-950/30 border-lime-500/80 text-zinc-950 dark:text-white font-semibold shadow-xs"
+                      : "bg-zinc-50/90 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-600"
+                  } ${hasSubmitted ? "cursor-default" : ""}`}
                 >
                   <div
-                    className={`size-4.5 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${
-                      isSelected ? "border-[#6B2AD9] bg-[#6B2AD9] text-white" : "border-zinc-400 dark:border-zinc-600"
+                    className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
+                      isFinishedCorrect || isSelected
+                        ? "border-lime-600 bg-lime-500/20"
+                        : "border-zinc-400 dark:border-zinc-500"
                     }`}
                   >
-                    {isSelected && <div className="size-1.5 rounded-full bg-white" />}
+                    {(isFinishedCorrect || isSelected) && (
+                      <div className="size-2 rounded-full bg-lime-600" />
+                    )}
                   </div>
-                  <span className="leading-relaxed flex-1">{opt.text}</span>
+                  <span className="flex-1 font-medium">{opt.text}</span>
                 </button>
               );
             })}
           </div>
 
+          {/* Mensagem de Erro / Feedback Educativo */}
           {errorMsg && (
-            <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-2 text-xs text-destructive">
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs animate-in fade-in">
               <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <span>{errorMsg}</span>
+              <p>{errorMsg}</p>
             </div>
           )}
 
-          {!readClaimed && !hasSubmitted && (
-            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-400 font-medium flex items-center gap-2">
-              <AlertCircle className="size-3.5 shrink-0 text-amber-500" />
-              <span>
-                {isVideo
-                  ? "Assista ao menos 90% do vídeo para destravar o botão de pontuação."
-                  : "Abra e leia o artigo completo por 10s para destravar o botão de pontuação."}
-              </span>
-            </div>
-          )}
-
+          {/* Botão de Ação / Conclusão */}
           {!hasSubmitted ? (
             <button
+              type="button"
               onClick={handleSubmitQuiz}
-              disabled={!readClaimed || !selectedOption}
-              className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 ${
-                readClaimed && selectedOption
-                  ? "bg-[#6B2AD9] hover:bg-[#581c87] text-white active:scale-[0.99] cursor-pointer shadow-purple-500/20"
-                  : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed opacity-60"
-              }`}
+              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
             >
-              <CheckCircle2 className="size-4" /> Confirmar Resposta & Pontuar (+5 netfits)
+              <span>Responder e conquistar 5 NFs</span>
+              <ArrowRight className="size-4" />
             </button>
           ) : (
-            <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-800 dark:text-emerald-300 font-bold flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-              <span>Netfits creditados com sucesso! Revise sempre para consolidar seus hábitos.</span>
+            <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 dark:text-white flex items-center gap-2.5 animate-in fade-in">
+              <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
+              <div className="flex-1 text-xs">
+                <span className="font-bold text-lime-700 dark:text-lime-400 block">
+                  Desafio conquistado!
+                </span>
+                <span className="text-zinc-800 dark:text-zinc-200 font-medium">
+                  +5 NFs foram creditados na sua carteira Netfits.
+                </span>
+              </div>
+              <Sparkles className="size-4 text-lime-600 shrink-0" />
             </div>
           )}
         </div>
+
+        {/* 5. Pílula de Sabedoria / Takeaway no Rodapé */}
+        <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-purple-950 border border-zinc-800 rounded-2xl p-4 text-white flex items-center gap-3.5 shadow-sm">
+          <div className="size-9 rounded-full bg-lime-400/10 border border-lime-400/20 grid place-items-center shrink-0">
+            <Sparkles className="size-4 text-lime-400" />
+          </div>
+          <p className="text-xs sm:text-sm text-zinc-300 leading-snug">
+            <strong className="text-lime-400 font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
+              Pílula de Sabedoria Fibios & Netfits
+            </strong>
+            "{post.pillText || 'A constância diária é o maior investimento na sua longevidade ativa.'}"
+          </p>
+        </div>
+
+        {/* 6. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar */}
+        <FeedSocialActions
+          id={post.articlePostId || post.id}
+          title={`${post.author} — ${post.title}`}
+          onOpenArticle={handleOpenContent}
+        />
+
+        {/* Divisor Elegante de Postagem */}
+        <div className="h-px bg-zinc-200/80 dark:bg-zinc-800/80 my-4" />
       </article>
 
-      {/* MODAL GLOBAL: CONTEÚDO (VÍDEO/ARTIGO) E TRANSIÇÃO AUTOMÁTICA PARA O QUIZ */}
+      {/* Modal de Conteúdo Expandido (Vídeo 9:16 ou Artigo Completo) */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 animate-in fade-in">
-          {modalView === "quiz" ? (
-            <div className="bg-zinc-950 w-full max-w-lg rounded-3xl border border-[#6B2AD9]/40 shadow-2xl flex flex-col overflow-hidden text-white max-h-[92vh]">
-              {/* Header do Quiz Modal com Logo Verde em Fundo Preto */}
-              <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/90 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="h-7 w-auto bg-black rounded-lg px-2 py-1 flex items-center justify-center border border-zinc-800">
-                    <img src={netfitsLogoDark} alt="Netfits" className="h-4.5 w-auto object-contain" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                      <span>Desafio Quiz Netfits · Dia {String(post.originalDay).padStart(2, "0")}</span>
-                      <span className="text-[10px] bg-[#C8F135] text-[#202127] px-2 py-0.5 rounded-full font-black">
-                        +5 netfits
-                      </span>
-                    </h3>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="size-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white grid place-items-center transition cursor-pointer"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-
-              {/* Corpo do Quiz no Modal */}
-              <div className="p-5 overflow-y-auto space-y-4 text-left">
-                <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-xs sm:text-sm font-semibold text-zinc-100 leading-snug">
-                  {post.quizQuestion}
-                </div>
-
-                <div className="space-y-2.5">
-                  <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                    Selecione a alternativa correta:
-                  </label>
-                  {shuffledOptions.map((opt, i) => {
-                    const isSelected = selectedOption === opt.id;
-                    const letter = String.fromCharCode(65 + i);
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        disabled={hasSubmitted}
-                        onClick={() => {
-                          setSelectedOption(opt.id);
-                          setErrorMsg(null);
-                        }}
-                        className={`w-full text-left p-3.5 rounded-2xl border text-xs sm:text-sm transition-all flex items-start gap-3 ${
-                          isSelected
-                            ? "border-[#6B2AD9] bg-[#6B2AD9]/20 text-white font-medium shadow-md shadow-purple-900/20"
-                            : "border-zinc-800 hover:border-zinc-700 bg-zinc-900/40 text-zinc-300"
-                        } ${hasSubmitted ? "cursor-default" : "cursor-pointer active:scale-[0.99]"}`}
-                      >
-                        <span
-                          className={`size-6 rounded-lg text-xs font-black grid place-items-center shrink-0 border ${
-                            isSelected
-                              ? "bg-[#C8F135] border-[#C8F135] text-zinc-950 font-black"
-                              : "border-zinc-700 bg-zinc-800 text-zinc-400"
-                          }`}
-                        >
-                          {letter}
-                        </span>
-                        <span className="leading-relaxed flex-1 mt-0.5">{opt.text}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {errorMsg && (
-                  <div className="p-3.5 rounded-2xl bg-destructive/15 border border-destructive/30 flex items-start gap-2.5 text-xs text-red-300">
-                    <AlertCircle className="size-4 shrink-0 mt-0.5 text-red-400" />
-                    <span>{errorMsg}</span>
-                  </div>
-                )}
-
-                {hasSubmitted && (
-                  <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-300 font-medium flex items-center gap-2.5">
-                    <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
-                    <span>🎉 Parabéns! Seus +5 netfits já foram adicionados com sucesso ao seu extrato.</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer do Quiz Modal */}
-              <div className="p-4 border-t border-zinc-800 bg-zinc-900/90 flex items-center justify-between gap-3 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setModalView("content")}
-                  className="py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition cursor-pointer"
-                >
-                  Voltar ao Conteúdo
-                </button>
-
-                {!hasSubmitted ? (
-                  <button
-                    type="button"
-                    onClick={handleSubmitQuiz}
-                    disabled={!selectedOption}
-                    className={`flex-1 py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-[0.98] ${
-                      selectedOption
-                        ? "bg-[#C8F135] text-zinc-950 hover:bg-[#b5db2e] shadow-lime-500/20 cursor-pointer"
-                        : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
-                    }`}
-                  >
-                    <CheckCircle2 className="size-4" />
-                    <span>Confirmar Resposta (+5 netfits)</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-zinc-950 font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/20 cursor-pointer"
-                  >
-                    <span>Concluir & Voltar ao Feed</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : isVideo ? (
-            <div className="bg-zinc-950 w-full max-w-lg rounded-3xl border border-emerald-500/30 shadow-2xl flex flex-col overflow-hidden text-white max-h-[92vh]">
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={handleCloseModal}
+          role="dialog"
+          aria-modal="true"
+        >
+          {isVideo ? (
+            <div
+              className="bg-zinc-950 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-emerald-500/30 shadow-2xl flex flex-col overflow-hidden text-white max-h-[92vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Header do Player com Logo Verde em Fundo Preto */}
               <div className="p-3.5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/90 shrink-0">
                 <div className="flex items-center gap-2.5">
@@ -685,7 +611,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   <div>
                     <h3 className="text-xs font-bold text-white line-clamp-1">{post.title}</h3>
                     <p className="text-[10px] text-zinc-400 flex items-center gap-1">
-                      <Volume2 className="size-3 text-emerald-400" /> Vídeo com Áudio Narrativo & Locução Oficial
+                      <Volume2 className="size-3 text-emerald-400" /> Vídeo Narrativo Imersivo
                     </p>
                   </div>
                 </div>
@@ -698,7 +624,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                 </button>
               </div>
 
-              {/* Reprodutor de Vídeo HTML5 */}
+              {/* Reprodutor de Vídeo HTML5 (Formato 9:16 Vertical Imersivo Mobile-First) */}
               <div className="relative aspect-[9/16] max-h-[62vh] w-full bg-black overflow-hidden border-b border-zinc-800 flex items-center justify-center mx-auto">
                 <video
                   ref={videoRef}
@@ -748,75 +674,46 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                     </span>
                   </div>
                 ) : (
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] leading-snug flex items-center justify-between">
-                    <span>⚠️ Assista ao menos 90% do vídeo com som para destravar o Quiz.</span>
-                    <span className="font-mono font-bold text-amber-400 shrink-0 ml-2">
-                      Faltam {Math.max(0, Math.round(videoTotalDuration * 0.9 - videoElapsedSec))}s
-                    </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[11px] text-zinc-400">
+                      Assista até 90% para validar o dwell time e liberar a pontuação.
+                    </p>
+                    {isHomologEnv && (
+                      <button
+                        type="button"
+                        onClick={handleSkipVideoDemo}
+                        className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-600/40 px-2.5 py-1 rounded-lg shrink-0 cursor-pointer transition active:scale-95"
+                      >
+                        ⚡ Avançar 90% (Demo)
+                      </button>
+                    )}
                   </div>
                 )}
-
-                <div className="flex items-center gap-2 pt-1">
-                  {isStaging && !readClaimed && (
-                    <button
-                      type="button"
-                      onClick={handleSkipVideoDemo}
-                      className="flex-1 py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-amber-500/30 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-                    >
-                      <Zap className="size-3.5 fill-amber-400" />
-                      <span>⚡ Pular 90% (Demo)</span>
-                    </button>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={readClaimed ? handleGoToQuiz : handleCloseModal}
-                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer ${
-                      readClaimed
-                        ? "bg-[#C8F135] hover:bg-[#b5db2e] text-zinc-950 shadow-lime-500/20"
-                        : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
-                    }`}
-                  >
-                    {readClaimed ? (
-                      <>
-                        <Trophy className="size-4" />
-                        <span>Abrir o Quiz (+5 netfits)</span>
-                        <ArrowRight className="size-3.5 ml-0.5" />
-                      </>
-                    ) : (
-                      <span>Fechar Player</span>
-                    )}
-                  </button>
-                </div>
               </div>
             </div>
           ) : (
-            /* TELA C: LEITURA COMPLETA DO ARTIGO EM FORMATO REVISTA */
-            <div className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden text-[#202127] dark:text-white">
+            <div
+              className="bg-white dark:bg-zinc-900 w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col overflow-hidden max-h-[92vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Header do Artigo */}
-              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-[#F5F5F7] dark:bg-zinc-800/60">
-                <div className="flex items-center gap-2.5">
+              <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-[#F5F5F7] dark:bg-zinc-800/80 shrink-0">
+                <div className="flex items-center gap-3">
                   <div className="h-7 w-auto bg-black rounded-lg px-2 py-1 flex items-center justify-center border border-zinc-800">
                     <img src={netfitsLogoDark} alt="Netfits" className="h-4.5 w-auto object-contain" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-[#202127] dark:text-white line-clamp-1">{post.author}</h3>
-                    <p className="text-[10px] text-[#5F6270] dark:text-zinc-400">{post.authorRole}</p>
+                    <h3 className="text-xs font-bold text-[#202127] dark:text-white line-clamp-1">{post.title}</h3>
+                    <p className="text-[10px] text-[#5F6270] dark:text-zinc-400">{post.author} · {post.authorRole}</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="p-1.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition cursor-pointer"
+                  className="size-8 rounded-full bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200 grid place-items-center transition cursor-pointer"
                 >
                   <X className="size-4" />
                 </button>
-              </div>
-
-              {/* Barra Bipartida */}
-              <div className="h-1 w-full flex overflow-hidden">
-                <div className="w-1/2 bg-[#6B2AD9]" />
-                <div className="w-1/2 bg-[#C8F135]" />
               </div>
 
               {/* Conteúdo com scroll */}
@@ -826,7 +723,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   <h2 className="text-base sm:text-lg font-black text-[#202127] dark:text-white leading-snug">{post.title}</h2>
                 </div>
 
-                {/* Banner de apoio dentro do artigo */}
+                {/* Banner de apoio dentro do artigo (Proporção Vertical 4:5) */}
                 <div className="relative rounded-2xl overflow-hidden aspect-[4/5] max-h-[380px] border border-zinc-200 dark:border-zinc-800">
                   <img src={getPostBannerSrc(post)} alt={post.title} className="w-full h-full object-cover" />
                 </div>
@@ -847,7 +744,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                 </div>
               </div>
 
-              {/* Footer do Artigo com Validação Antifraude e Botão para o Quiz */}
+              {/* Footer do Artigo */}
               <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-[#F5F5F7] dark:bg-zinc-800/60 flex items-center justify-between text-xs gap-3">
                 <div className="flex items-center gap-2">
                   <Clock className="size-4 text-[#6B2AD9]" />
@@ -856,19 +753,13 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   </span>
                 </div>
 
-                {readClaimed ? (
-                  <button
-                    type="button"
-                    onClick={handleGoToQuiz}
-                    className="px-4 py-2 rounded-xl bg-[#C8F135] text-[#202127] font-black hover:brightness-105 transition cursor-pointer flex items-center gap-1.5 shadow-md"
-                  >
-                    <Trophy className="size-4 text-[#202127]" /> Abrir o Quiz (+5 netfits)
-                  </button>
-                ) : (
-                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
-                    <AlertCircle className="size-3.5" /> Role até o final (10s)
-                  </span>
-                )}
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition cursor-pointer"
+                >
+                  Concluir Leitura
+                </button>
               </div>
             </div>
           )}
