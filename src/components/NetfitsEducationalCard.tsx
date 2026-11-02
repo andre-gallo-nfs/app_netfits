@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Trophy, 
   Sparkles, 
@@ -32,21 +32,27 @@ interface QuizOption {
 const PURPOSE_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: "purpose-opt-1",
-    text: "Viver mais anos com plena mobilidade, autonomia e saúde metabólica através do hábito diário.",
+    text: "Expandir o healthspan: viver com plena mobilidade, lucidez e autonomia através da regularidade diária.",
     isCorrect: true,
-    feedback: "Exato! O Netfits existe para expandir o Healthspan: garantir que sua capacidade física acompanhe sua longevidade com vitalidade.",
+    feedback: "Exato! A Netfits existe para garantir que sua capacidade física acompanhe os anos de vida com autonomia plena e vitalidade biológica.",
   },
   {
     id: "purpose-opt-2",
-    text: "Treinar até a exaustão máxima todos os dias sem tempo de descanso.",
+    text: "Estimular o esgotamento físico com treinos de altíssima intensidade sem dias de descanso.",
     isCorrect: false,
-    feedback: "Nossa abordagem rejeita o burnout. O corpo humano floresce na constância regular e consciente, não em choques destrutivos.",
+    feedback: "Nossa metodologia rejeita a exaustão destrutiva. O corpo floresce na constância regular e sustentável, não em choques provocadores de burnout.",
   },
   {
     id: "purpose-opt-3",
-    text: "Apenas acumular pontos virtuais sem necessidade de praticar exercícios reais.",
+    text: "Acumular pontos puramente digitais sem necessidade de registrar esforço físico real.",
     isCorrect: false,
-    feedback: "Cada ponto nfs é lastreado em suor comprovado por sensores, garantindo valor real e acesso sustentável à medicina de ponta.",
+    feedback: "Cada netfit é lastreado no movimento real validado por wearables e sensores, garantindo valor concreto e sustentável.",
+  },
+  {
+    id: "purpose-opt-4",
+    text: "Focar em metas estéticas imediatistas e dietas restritivas de curto prazo.",
+    isCorrect: false,
+    feedback: "Metas de curto prazo causam abandono do hábito. O propósito da Netfits é construir sustentabilidade de saúde ao longo de décadas.",
   },
 ];
 
@@ -54,13 +60,24 @@ const QUIZ_POST_ID = "netfits-purpose-longevity-quiz";
 const ARTICLE_POST_ID = "netfits-purpose-longevity-artigo";
 
 export function NetfitsEducationalCard() {
-  const [selectedOption, setSelectedOption] = useState<string>("purpose-opt-1");
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
+  const shuffledOptions = useMemo(() => {
+    const arr = [...PURPOSE_QUIZ_OPTIONS];
+    let seed = 101;
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 16807 + i) % 2147483647;
+      const j = seed % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -101,6 +118,7 @@ export function NetfitsEducationalCard() {
       return;
     }
 
+    if (!selectedOption) { toast.warning("Selecione uma alternativa antes de confirmar!"); return; }
     const option = PURPOSE_QUIZ_OPTIONS.find((o) => o.id === selectedOption);
     if (!option) return;
 
@@ -271,7 +289,7 @@ export function NetfitsEducationalCard() {
             </div>
             <span className="text-[11px] font-bold text-lime-400 bg-lime-400/10 border border-lime-400/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
               <Sparkles className="size-3" />
-              <span>Responda e ganhe 5 NFs</span>
+              <span>Responda e ganhe 5 netfits</span>
             </span>
           </div>
 
@@ -331,7 +349,7 @@ export function NetfitsEducationalCard() {
             <div className="p-3 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-lime-400" />
-                <span>Desafio concluído com sucesso! (+5 nfs creditados)</span>
+                <span>Desafio concluído com sucesso! (+5 netfits creditados)</span>
               </div>
               <span className="text-[10px] bg-lime-400/20 px-2 py-0.5 rounded text-lime-300 font-mono">
                 Carteira Atualizada
@@ -343,7 +361,7 @@ export function NetfitsEducationalCard() {
               onClick={handleSubmit}
               className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition-all active:scale-[0.99] cursor-pointer"
             >
-              <span>Responder e conquistar 5 NFs</span>
+              <span>Responder e conquistar 5 netfits</span>
               <ArrowRight className="size-4" />
             </button>
           )}
@@ -453,7 +471,7 @@ export function NetfitsEducationalCard() {
 
               {readClaimed ? (
                 <div className="p-3 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold text-center">
-                  ✅ Leitura e rolagem validadas! Responda o Desafio no card para conquistar +5 NFs.
+                  ✅ Leitura e rolagem validadas! Responda o Desafio no card para conquistar +5 netfits.
                 </div>
               ) : (
                 <button

@@ -13,7 +13,15 @@ import {
   ShieldCheck, 
   Calendar, 
   Flame, 
-  Volume2 
+  Volume2,
+  Heart,
+  HeartPulse,
+  ShoppingBag,
+  BadgeCheck,
+  Apple,
+  Droplets,
+  Moon,
+  Activity
 } from "lucide-react";
 import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -75,6 +83,8 @@ export interface ScheduledPostDef {
   duration?: string;
   readTime: string;
   pillText: string;
+  heroPills?: { label: string; icon?: string }[];
+  takeaway?: string;
   articleContent: string[];
   quizQuestion: string;
   quizOptions: ScheduledPostOption[];
@@ -103,6 +113,46 @@ function getPostBannerSrc(post: ScheduledPostDef): string {
   if (mod === 1) return feedVoturuna;
   if (mod === 2) return raceTrail;
   return feedMountain;
+}
+
+
+function renderHeroPillIcon(iconName?: string) {
+  switch (iconName) {
+    case "Heart":
+      return <Heart className="size-3 text-[#C8F135]" />;
+    case "HeartPulse":
+      return <HeartPulse className="size-3 text-[#C8F135]" />;
+    case "Flame":
+      return <Flame className="size-3 text-orange-400" />;
+    case "Activity":
+      return <Activity className="size-3 text-[#38BDF8]" />;
+    case "ShieldCheck":
+      return <ShieldCheck className="size-3 text-[#C8F135]" />;
+    case "Clock":
+      return <Clock className="size-3 text-purple-400" />;
+    case "Sparkles":
+      return <Sparkles className="size-3 text-[#C8F135]" />;
+    case "ShoppingBag":
+      return <ShoppingBag className="size-3 text-emerald-400" />;
+    case "BadgeCheck":
+      return <BadgeCheck className="size-3 text-[#38BDF8]" />;
+    case "AlertCircle":
+      return <AlertCircle className="size-3 text-amber-400" />;
+    case "Apple":
+      return <Apple className="size-3 text-lime-400" />;
+    case "Calendar":
+      return <Calendar className="size-3 text-purple-400" />;
+    case "Trophy":
+      return <Trophy className="size-3 text-amber-400" />;
+    case "BookOpen":
+      return <BookOpen className="size-3 text-[#C8F135]" />;
+    case "Droplets":
+      return <Droplets className="size-3 text-blue-400" />;
+    case "Moon":
+      return <Moon className="size-3 text-indigo-400" />;
+    default:
+      return <Sparkles className="size-3 text-[#C8F135]" />;
+  }
 }
 
 interface ScheduledFeedCardProps {
@@ -359,42 +409,13 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </div>
         </div>
 
-        {/* 2. Chamada Principal e Introdução Editorial (Tipografia Limpa Fora da Foto) */}
-        <div className="space-y-1.5 cursor-pointer" onClick={handleOpenContent}>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#C8F135] text-[#202127] font-mono tracking-wider shadow-xs">
-              {post.badge}
-            </span>
-            <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium flex items-center gap-1">
-              {isVideo ? (
-                <>
-                  <Play className="size-3 text-[#6B2AD9] fill-[#6B2AD9]" />
-                  <span>Vídeo ({post.duration || `${videoTotalDuration}s`})</span>
-                </>
-              ) : (
-                <>
-                  <BookOpen className="size-3 text-[#6B2AD9]" />
-                  <span>Artigo ({post.readTime})</span>
-                </>
-              )}
-            </span>
-          </div>
-
-          <h2 className="text-lg sm:text-xl font-black text-zinc-950 dark:text-white leading-tight hover:text-[#6B2AD9] transition-colors">
-            {post.title}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
-            {post.subtitle}
-          </p>
-        </div>
-
-        {/* 3. Hero Banner Fotográfico em Alta Resolução (Proporção Vertical 4:5 Mobile-First) */}
+        {/* 2. Hero Banner Fotográfico Editorial (4:5 Mobile-First - Padrão Ouro de Poster) */}
         <div
           onClick={handleOpenContent}
-          className="relative overflow-hidden rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[460px]"
+          className="relative overflow-hidden rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[480px]"
           role="button"
           tabIndex={0}
-          aria-label={`Toque para ver o conteúdo: ${post.title}`}
+          aria-label={`Toque para ver o conteúdo completo: ${post.title}`}
         >
           <img
             src={getPostBannerSrc(post)}
@@ -402,45 +423,80 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+          {/* Gradiente Escuro Profundo para Contraste Máximo */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/75 to-black/35" />
 
           {/* Botão de Ação Central em Vídeos */}
           {isVideo && (
-            <div className="absolute inset-0 grid place-items-center">
-              <div className="size-16 rounded-full bg-white/95 text-zinc-950 shadow-2xl grid place-items-center ring-4 ring-[#C8F135]/40 group-hover:scale-110 transition-transform">
+            <div className="absolute inset-0 grid place-items-center z-10 pointer-events-none">
+              <div className="size-16 rounded-full bg-white/95 text-zinc-950 shadow-2xl grid place-items-center ring-4 ring-[#C8F135]/60 group-hover:scale-110 transition-transform">
                 <Play className="size-7 ml-1 text-zinc-950 fill-zinc-950" />
               </div>
             </div>
           )}
 
-          {/* Badge Flutuante Superior */}
-          <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg group-hover:bg-[#6B2AD9] transition-colors">
-            {isVideo ? (
-              <>
-                <Play className="size-3 text-[#C8F135] fill-[#C8F135]" />
-                <span className="text-[10px] font-bold">Assistir ({post.duration || `${videoTotalDuration}s`})</span>
-              </>
-            ) : (
-              <>
-                <BookOpen className="size-3 text-[#C8F135]" />
-                <span className="text-[10px] font-bold">Ler artigo ({post.readTime})</span>
-              </>
-            )}
-          </div>
+          {/* Conteúdo Editorial Sobreposto (Contraste Máximo & Vidro Fosco) */}
+          <div className="absolute inset-0 p-5 flex flex-col justify-between text-white z-20 pointer-events-none">
+            {/* Topo do Poster */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#C8F135] text-[#202127] text-[10px] font-black uppercase tracking-widest shadow-sm font-mono">
+                {post.badge}
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow-sm">
+                {isVideo ? (
+                  <>
+                    <Play className="size-3 text-[#C8F135] fill-[#C8F135]" />
+                    <span>Vídeo ({post.duration || `${videoTotalDuration}s`})</span>
+                  </>
+                ) : (
+                  <>
+                    <BookOpen className="size-3 text-[#C8F135]" />
+                    <span>Artigo ({post.readTime})</span>
+                  </>
+                )}
+              </span>
+            </div>
 
-          {/* Rodapé Interno do Banner */}
-          <div className="absolute bottom-3 left-4 right-4 text-white flex items-end justify-between">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-[#C8F135]">
-                {post.line || "Curadoria Fibios"}
-              </p>
-              <p className="text-xs text-zinc-300 font-medium line-clamp-1">
-                {post.author} · {post.authorRole}
+            {/* Centro / Título e Gancho Editorial */}
+            <div className="space-y-2 my-auto">
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+                {post.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-snug drop-shadow-md line-clamp-3">
+                {post.subtitle}
               </p>
             </div>
-            <span className="text-[10px] bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-white font-mono">
-              Netfits
-            </span>
+
+            {/* Rodapé do Poster: Pílulas Temáticas & Assinatura */}
+            <div className="space-y-3">
+              {/* Pílulas de Conceitos-Chave (Glassmorphism) */}
+              {post.heroPills && post.heroPills.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {post.heroPills.map((pill, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900/90 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white shadow-sm"
+                    >
+                      {renderHeroPillIcon(pill.icon)}
+                      <span>{pill.label}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Assinatura Médica / Institucional com Barra de Acento */}
+              <div className="flex items-center gap-2 pt-1.5 border-t border-white/20">
+                <div className="w-1 h-7 bg-[#C8F135] rounded-full shrink-0" />
+                <div className="min-w-0">
+                  <span className="font-bold text-xs text-white block truncate">
+                    {post.author}
+                  </span>
+                  <span className="text-[10px] text-zinc-300 block truncate">
+                    {post.authorRole}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -467,7 +523,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                     Responda e ganhe
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-[#C8F135] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-                    5 NFs
+                    5 netfits
                   </span>
                 </div>
               </div>
@@ -546,7 +602,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               onClick={handleSubmitQuiz}
               className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
             >
-              <span>Responder e conquistar 5 NFs</span>
+              <span>Responder e conquistar 5 netfits</span>
               <ArrowRight className="size-4" />
             </button>
           ) : (
@@ -557,7 +613,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                   Desafio conquistado!
                 </span>
                 <span className="text-zinc-800 dark:text-zinc-200 font-medium">
-                  +5 NFs foram creditados na sua carteira Netfits.
+                  +5 netfits foram creditados na sua carteira Netfits.
                 </span>
               </div>
               <Sparkles className="size-4 text-lime-600 shrink-0" />
@@ -574,7 +630,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             <strong className="text-lime-400 font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
               Pílula de Sabedoria Fibios & Netfits
             </strong>
-            "{post.pillText || 'A constância diária é o maior investimento na sua longevidade ativa.'}"
+            "{post.takeaway || post.pillText || 'A constância diária é o maior investimento na sua longevidade ativa.'}"
           </p>
         </div>
 

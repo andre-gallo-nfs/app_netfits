@@ -30,7 +30,7 @@ export function InviteFriendsCard() {
   const activeUser = sharedSandboxStore.useActiveUser();
   const inviteCode = activeUser.referralCode;
   const inviteUrl = `https://www.netfits.com.br/auth?ref=${inviteCode}`;
-  const shareText = `Vem pro Netfits comigo! Cadastre-se pelo meu link de convite e ganhe +50 nfs bônus de boas-vindas: ${inviteUrl}`;
+  const shareText = `Vem pro Netfits comigo! Cadastre-se pelo meu link de convite e ganhe +50 netfits bônus de boas-vindas: ${inviteUrl}`;
 
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -110,14 +110,14 @@ export function InviteFriendsCard() {
           </div>
 
           <h2 className="text-[22px] font-semibold leading-tight text-balance mb-2">
-            {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe <span className="text-brand">+50 nfs</span> por amigo.
+            {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe <span className="text-brand">+50 netfits</span> por amigo.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">
-            Todo amigo que se cadastrar com seu código ou link ganha +50 nfs de boas-vindas e você ganha +50 nfs na hora na sua carteira com vínculo permanente!
+            Todo amigo que se cadastrar com seu código ou link ganha +50 netfits de boas-vindas e você ganha +50 netfits na hora na sua carteira com vínculo permanente!
           </p>
 
           <div className="grid grid-cols-2 gap-2 mb-5">
-            <Stat icon={<Users className="size-3.5" />} value="+50" label="nfs / amigo" />
+            <Stat icon={<Users className="size-3.5" />} value="+50" label="netfits / amigo" />
             <Stat icon={<Sparkles className="size-3.5" />} value="Vínculo" label="permanente" />
           </div>
 
@@ -143,7 +143,7 @@ export function InviteFriendsCard() {
             className="w-full bg-brand text-brand-foreground text-sm font-bold py-3 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform cursor-pointer"
           >
             <Share2 className="size-4" />
-            Compartilhar convite (+50 nfs)
+            Compartilhar convite (+50 netfits)
           </button>
         </div>
       </article>
@@ -171,7 +171,7 @@ export function InviteFriendsCard() {
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-4">
-              Cada amigo que entrar pelo seu link ganha +50 nfs e você ganha +50 nfs.
+              Cada amigo que entrar pelo seu link ganha +50 netfits e você ganha +50 netfits.
             </p>
 
             <div className="flex items-center gap-2 bg-muted rounded-full pl-4 pr-1 py-1 mb-5 ring-1 ring-black/5">

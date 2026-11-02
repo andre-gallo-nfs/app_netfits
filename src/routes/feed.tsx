@@ -195,7 +195,7 @@ export function FeedPage() {
     <div className="pb-8 space-y-4">
       {/* Lista Principal de Publicações do Feed — Exclusivo FIBIOS */}
       <div className="space-y-6 pt-2">
-        {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 nfs por amigo) */}
+        {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 netfits por amigo) */}
         <InviteFriendsCard />
 
         {/* Banner de Homologação: Atalho de Curadoria para Próximas Postagens */}
@@ -270,7 +270,7 @@ export function FeedPage() {
           <div key={card.id} className="relative transition-opacity opacity-[0.96]">
             <div className="mb-2 flex items-center justify-between px-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
               <span className="flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Desafio respondido (+{card.isSponsored ? "10" : "5"} nfs faturados)
+                <CheckCircle2 className="w-3 h-3" /> Desafio respondido (+{card.isSponsored ? "10" : "5"} netfits faturados)
               </span>
               <span className="text-[10px] text-muted-foreground">
                 {card.isSponsored ? "Patrocinado · Concluído" : "Histórico de leitura"}
@@ -316,7 +316,7 @@ function WearableSurveyHero() {
     }
     const voteDesc = wantsToConnect === "sim" ? `Sim (${deviceName})` : "Não";
     wallet.earn(10, `Pesquisa de Sincronia: ${voteDesc}`);
-    toast.success("Voto registrado! (+10 nfs creditados)");
+    toast.success("Voto registrado! (+10 netfits creditados)");
   };
 
   const finalDeviceLabel =
@@ -332,7 +332,7 @@ function WearableSurveyHero() {
             Pesquisa de Integração
           </span>
           <span className="text-[10px] font-bold text-purple-400 font-mono">
-            +10 nfs bônus
+            +10 netfits bônus
           </span>
         </div>
 
@@ -428,7 +428,7 @@ function WearableSurveyHero() {
               Voto Registrado: {wantsToConnect === "sim" ? `Sim (${finalDeviceLabel})` : "Não"}
             </p>
             <p className="text-[11px] text-zinc-400">
-              Obrigado! Sua resposta foi gravada com sucesso e +10 nfs foram creditados.
+              Obrigado! Sua resposta foi gravada com sucesso e +10 netfits foram creditados.
             </p>
           </div>
         )}
@@ -524,7 +524,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
       wallet.earn(points, `Desafio Patrocinado: ${item.title}`);
       feedAntifraud.recordAction("quiz", quizId, points);
       trackQuizCompleted(quizId, item.title, true, points, true);
-      toast.success(`🎉 Resposta correta! +${points} NFs patrocinados creditados na sua carteira.`);
+      toast.success(`🎉 Resposta correta! +${points} netfits patrocinados creditados na sua carteira.`);
     } else {
       setErrorMsg("Resposta incorreta. A Fibios oferece medicina integrativa completa para atletas.");
       toast.error("Resposta incorreta. Tente novamente!");
@@ -559,7 +559,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
         </div>
       </div>
 
-      {/* Quizz Patrocinado (10 NFs) */}
+      {/* Quiz Patrocinado (+10 netfits) */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
           <div className="flex items-center gap-2">
@@ -576,7 +576,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
             </div>
           </div>
           <span className="px-2.5 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-            10 NFs
+            10 netfits
           </span>
         </div>
 
@@ -641,13 +641,13 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
               onClick={handleSubmit}
               className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition cursor-pointer"
             >
-              <span>Responder e conquistar 10 NFs</span>
+              <span>Responder e conquistar 10 netfits</span>
               <ArrowRight className="size-4" />
             </button>
           ) : (
             <div className="p-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-600 text-xs flex items-center justify-center gap-2">
               <Lock className="size-3.5 text-zinc-400" />
-              <span>Aguarde {Math.max(0, minDwell - dwellSeconds)}s de leitura para liberar o Quizz (+10 NFs).</span>
+              <span>Aguarde {Math.max(0, minDwell - dwellSeconds)}s de leitura para liberar o Quizz (+10 netfits).</span>
             </div>
           )
         ) : (
@@ -655,7 +655,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
             <CheckCircle2 className="size-4 text-lime-600 shrink-0" />
             <div className="flex-1 text-xs">
               <span className="font-bold text-lime-700 block">Desafio Patrocinado Conquistado!</span>
-              <span className="text-zinc-800 font-medium">+10 NFs foram creditados na sua carteira Netfits.</span>
+              <span className="text-zinc-800 font-medium">+10 netfits foram creditados na sua carteira Netfits.</span>
             </div>
             <Sparkles className="size-4 text-lime-600 shrink-0" />
           </div>
@@ -716,7 +716,7 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
       setErrorMsg(null);
       wallet.earn(points, `Desafio Patrocinado: Consulta ${item.name}`);
       feedAntifraud.recordAction("quiz", quizId, points);
-      toast.success(`🎉 Resposta correta! +${points} NFs patrocinados creditados na sua carteira.`);
+      toast.success(`🎉 Resposta correta! +${points} netfits patrocinados creditados na sua carteira.`);
     } else {
       setErrorMsg("Resposta incorreta. A consulta clínica foca em biomarcadores, sono e longevidade.");
       toast.error("Resposta incorreta. Tente novamente!");
@@ -757,7 +757,7 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
           </div>
         </div>
 
-        {/* Quizz Patrocinado da Consulta (10 NFs) */}
+        {/* Quizz Patrocinado da Consulta (10 netfits) */}
         <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
             <div className="flex items-center gap-2">
@@ -774,7 +774,7 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[10px] tracking-tight shadow-xs">
-              10 NFs
+              10 netfits
             </span>
           </div>
 
@@ -839,13 +839,13 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
                 onClick={handleSubmit}
                 className="w-full py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
               >
-                <span>Responder e conquistar 10 NFs</span>
+                <span>Responder e conquistar 10 netfits</span>
                 <ArrowRight className="size-3.5" />
               </button>
             ) : (
               <div className="p-2 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-600 text-[11px] flex items-center justify-center gap-1.5">
                 <Lock className="size-3 text-zinc-400" />
-                <span>Aguarde {Math.max(0, minDwell - dwellSeconds)}s de leitura para liberar o Quizz (+10 NFs).</span>
+                <span>Aguarde {Math.max(0, minDwell - dwellSeconds)}s de leitura para liberar o Quizz (+10 netfits).</span>
               </div>
             )
           ) : (
@@ -853,7 +853,7 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
               <CheckCircle2 className="size-3.5 text-lime-600 shrink-0" />
               <div className="flex-1 text-[11px]">
                 <span className="font-bold text-lime-700 block">Desafio Patrocinado Conquistado!</span>
-                <span className="text-zinc-800 font-medium">+10 NFs creditados na sua carteira.</span>
+                <span className="text-zinc-800 font-medium">+10 netfits creditados na sua carteira.</span>
               </div>
               <Sparkles className="size-3.5 text-lime-600 shrink-0" />
             </div>
@@ -890,7 +890,7 @@ function ProductFeedCard({
         const points = params.nfsPerLinkClick || 10;
         sharedSandboxStore.rewardEngagement("click", item.title, points);
         feedAntifraud.recordAction("link_click", item.id, points);
-        toast.success(`🎉 +${points} nfs acumulados por acessar o link do produto! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
+        toast.success(`🎉 +${points} netfits acumulados por acessar o link do produto! (${validation.dailyCount + 1}/${validation.dailyLimit} hoje)`);
       } else if (validation.reason) {
         toast.warning(validation.reason);
       }
@@ -935,7 +935,7 @@ function ProductFeedCard({
           className="w-full mb-3 bg-foreground text-background text-xs font-bold py-2.5 rounded-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
         >
           <ShoppingBag className="size-4" />
-          Ver produto · {item.price} (+{params.nfsPerLinkClick || 10} nfs)
+          Ver produto · {item.price} (+{params.nfsPerLinkClick || 10} netfits)
         </button>
         <SocialActions id={item.id} title={item.title} />
       </article>
