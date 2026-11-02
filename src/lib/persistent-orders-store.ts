@@ -90,6 +90,9 @@ export interface PersistentOrderRecord {
     cashbackCredited: boolean;
     pointsDebited: boolean;
     httpStatusReturned: number;
+    orderEmailSent?: boolean;
+    cashbackEmailSent?: boolean;
+    npsEmailSent?: boolean;
   };
   rawPayload?: any;
 }
