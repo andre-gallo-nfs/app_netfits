@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Lock,
   Fingerprint,
@@ -21,6 +21,7 @@ export function SecurityLockOverlay() {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticatingBio, setIsAuthenticatingBio] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Se não houver usuário autenticado no dispositivo, nunca exibir overlay de bloqueio.
   // Redireciona imediatamente para a tela limpa de login
@@ -32,14 +33,23 @@ export function SecurityLockOverlay() {
   }
 
   const handleBiometricUnlock = async (isAutoPrompt = false) => {
+    // Se a biometria nativa não estiver disponível no binário do aparelho, não tenta chamada no bridge
+    if (!appLockStore.isBiometricsAvailable()) {
+      if (!isAutoPrompt) {
+        setErrorMessage("Sensor biométrico não suportado neste aparelho. Digite sua senha cadastrada.");
+        inputRef.current?.focus();
+      }
+      return;
+    }
+
     setErrorMessage(null);
     setIsAuthenticatingBio(true);
 
-    // Timeout de segurança: nunca trava o restante da tela
     const safetyTimer = setTimeout(() => {
       setIsAuthenticatingBio(false);
       if (!isAutoPrompt) {
         setErrorMessage("Sensor biométrico não respondeu a tempo. Digite sua senha cadastrada.");
+        inputRef.current?.focus();
       }
     }, 2500);
 
@@ -62,12 +72,20 @@ export function SecurityLockOverlay() {
     }
   };
 
-  // Disparo automático inteligente do sensor biométrico nativo (Face ID / Digital) ao abrir
+  // Disparo automático inteligente da biometria: APENAS se o hardware nativo suportar comprovadamente
   useEffect(() => {
-    const timer = setTimeout(() => {
-      handleBiometricUnlock(true);
-    }, 300);
-    return () => clearTimeout(timer);
+    if (appLockStore.isBiometricsAvailable()) {
+      const timer = setTimeout(() => {
+        handleBiometricUnlock(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      // Se não houver biometria nativa registrada, foca diretamente no campo de senha para digitação
+      const focusTimer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300);
+      return () => clearTimeout(focusTimer);
+    }
   }, []);
 
   const handlePasswordUnlock = (e: React.FormEvent) => {
@@ -172,12 +190,17 @@ export function SecurityLockOverlay() {
         </div>
 
         {/* Action 2: Formulário de Senha (100% responsivo ao toque no iOS e Android) */}
-        <form onSubmit={handlePasswordUnlock} className="space-y-3">
-          <div className="relative">
+        <form onSubmit={handlePasswordUnlock} className="space-y-3 text-left">
+          <div
+            onClick={() => inputRef.current?.focus()}
+            onTouchStart={() => inputRef.current?.focus()}
+            className="relative cursor-text"
+          >
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
               <KeyRound className="size-4" />
             </div>
             <input
+              ref={inputRef}
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -185,10 +208,16 @@ export function SecurityLockOverlay() {
               className="w-full pl-10 pr-10 py-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition select-text"
               style={{ WebkitUserSelect: "text", userSelect: "text" }}
               autoComplete="current-password"
+              inputMode="text"
+              autoCapitalize="none"
+              autoCorrect="off"
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPassword(!showPassword);
+              }}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition cursor-pointer p-1"
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -217,7 +246,7 @@ export function SecurityLockOverlay() {
         </button>
 
         <span className="text-[10px] text-zinc-600">
-          Netfits Guard v1.1
+          Netfits Guard v1.2
         </span>
       </div>
     </div>

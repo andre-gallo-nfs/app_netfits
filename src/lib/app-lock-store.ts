@@ -150,6 +150,15 @@ class AppLockStore {
     }
   }
 
+  public isBiometricsAvailable(): boolean {
+    if (typeof window === "undefined") return false;
+    const cap = (window as any).Capacitor;
+    if (cap && typeof cap.isPluginAvailable === "function") {
+      return cap.isPluginAvailable("BiometricAuth");
+    }
+    return false;
+  }
+
   public isUnlocked(): boolean {
     return this.unlocked;
   }
@@ -240,6 +249,18 @@ class AppLockStore {
       // 1. No aplicativo móvel (Android / iOS)
       if (nativeBridge.isNativePlatform()) {
         try {
+          const cap = (window as any).Capacitor;
+          const isPluginAvail = cap && typeof cap.isPluginAvailable === "function"
+            ? cap.isPluginAvailable("BiometricAuth")
+            : false;
+
+          if (!isPluginAvail) {
+            return {
+              success: false,
+              error: "Sensor biométrico não suportado no binário deste aparelho. Desbloqueie com sua senha cadastrada.",
+            };
+          }
+
           if (!BiometricAuth || typeof BiometricAuth.checkBiometry !== "function") {
             return {
               success: false,
