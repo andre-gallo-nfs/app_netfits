@@ -1,5 +1,5 @@
 import { trackArticleRead } from "@/lib/analytics";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Trophy, 
   Leaf, 
@@ -38,22 +38,28 @@ interface QuizOption {
 
 const QUIZ_OPTIONS: QuizOption[] = [
   {
-    id: "opt-1",
-    text: "Sono reparador e ingestão proteica equilibrada.",
+    id: "isabella-opt-1",
+    text: "Sono profundo regenerador com regulação do cortisol e aporte proteico equilibrado.",
     isCorrect: true,
-    feedback: "Perfeito! Durante as fases de sono profundo ocorre o pico de GH e recuperação tecidual, essenciais para o healthspan.",
+    feedback: "Perfeito! No sono de ondas lentas ocorre o pico fisiológico de GH, clearance mitocondrial e recuperação da matriz extracelular para praticantes e atletas.",
   },
   {
-    id: "opt-2",
-    text: "Treinar em exaustão diária sem dias de descanso.",
+    id: "isabella-opt-2",
+    text: "Treinos extenuantes diários combinados com restrição calórica contínua severa.",
     isCorrect: false,
-    feedback: "O excesso sem recuperação eleva cronicamente o cortisol, favorece o catabolismo muscular e aumenta o risco de overtraining.",
+    feedback: "O excesso de estímulo sem aporte energético deflagra a síndrome REDs, eleva o cortisol sérico de repouso e causa degradação óssea precoce.",
   },
   {
-    id: "opt-3",
-    text: "Substituir refeições sólidas por estimulantes.",
+    id: "isabella-opt-3",
+    text: "Uso contínuo de estimulantes do SNC para compensar noites mal dormidas.",
     isCorrect: false,
-    feedback: "Estimulantes apenas mascaram a fadiga celular e sobrecarregam o sistema cardiovascular sem fornecer substratos nutricionais.",
+    feedback: "Estimulantes apenas mascaram temporariamente os sinais de fadiga central, enquanto a inflamação subclínica crônica segue danificando os tecidos.",
+  },
+  {
+    id: "isabella-opt-4",
+    text: "Repouso passivo total com eliminação de qualquer atividade aeróbica leve.",
+    isCorrect: false,
+    feedback: "A recuperação ativa de baixa intensidade favorece a circulação capilar e acelera a depuração de metabólitos, sendo superior à inatividade absoluta.",
   },
 ];
 
@@ -61,13 +67,24 @@ const QUIZ_POST_ID = "isabella-sono-quiz";
 const ARTICLE_POST_ID = "isabella-sono-artigo";
 
 export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChallenge?: boolean }) {
-  const [selectedOption, setSelectedOption] = useState<string>("opt-1");
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
+  const shuffledOptions = useMemo(() => {
+    const arr = [...QUIZ_OPTIONS];
+    let seed = 88;
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 16807 + i) % 2147483647;
+      const j = seed % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -109,6 +126,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       return;
     }
 
+    if (!selectedOption) { toast.warning("Selecione uma alternativa antes de confirmar!"); return; }
     const option = QUIZ_OPTIONS.find((o) => o.id === selectedOption);
     if (!option) return;
 
@@ -126,7 +144,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
       toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);
     } else {
-      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus NFs!");
+      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus netfits!");
       toast.error("Resposta incorreta. Leia a dica e tente novamente!");
     }
   };
@@ -271,7 +289,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           </div>
         </div>
 
-        {/* 3. Módulo de Desafio / Quiz Educativo Permanente (5 NFs) */}
+        {/* 3. Módulo de Desafio / Quiz Educativo Permanente (5 netfits) */}
         <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
           {/* Cabeçalho do Quiz */}
           <div className="flex items-center gap-3">
@@ -287,7 +305,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                   Responda e ganhe
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-                  5 NFs
+                  5 netfits
                 </span>
               </div>
             </div>
@@ -300,7 +318,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
 
           {/* Lista de Alternativas (Radio Buttons) */}
           <div className="space-y-2.5">
-            {QUIZ_OPTIONS.map((opt) => {
+            {shuffledOptions.map((opt) => {
               const isSelected = selectedOption === opt.id;
               const isFinishedCorrect = hasSubmitted && opt.isCorrect;
 
@@ -355,7 +373,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
               onClick={handleSubmit}
               className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
             >
-              <span>Responder e conquistar 5 NFs</span>
+              <span>Responder e conquistar 5 netfits</span>
               <ArrowRight className="size-4" />
             </button>
           ) : (
@@ -365,7 +383,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                 <span className="font-bold text-lime-700 block">
                   Desafio conquistado!
                 </span>
-                <span className="text-zinc-800 font-medium">+5 NFs foram creditados na sua carteira Netfits.</span>
+                <span className="text-zinc-800 font-medium">+5 netfits foram creditados na sua carteira Netfits.</span>
               </div>
               <Sparkles className="size-4 text-lime-600 shrink-0" />
             </div>

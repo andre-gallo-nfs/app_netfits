@@ -1,5 +1,5 @@
 import { trackQuizCompleted, trackArticleRead, trackQuizUnlocked } from "@/lib/analytics";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Trophy, 
   Leaf, 
@@ -35,22 +35,28 @@ interface QuizOption {
 
 const QUIZ_OPTIONS: QuizOption[] = [
   {
-    id: "opt-1",
-    text: "Treinar força regularmente.",
+    id: "franco-opt-1",
+    text: "Treinamento resistido regular com progressão adequada de sobrecarga.",
     isCorrect: true,
-    feedback: "Exato! O treinamento resistido estimula a síntese proteica, preserva a densidade óssea e mantém a autonomia funcional.",
+    feedback: "Exato! O treinamento resistido estimula a síntese proteica, preserva a densidade óssea, atenua a sarcopenia e mantém a autonomia funcional ao longo das décadas.",
   },
   {
-    id: "opt-2",
-    text: "Evitar qualquer esforço físico.",
+    id: "franco-opt-2",
+    text: "Exercício puramente aeróbico em jejum sem estímulo mecânico de força.",
     isCorrect: false,
-    feedback: "O repouso excessivo acelera a perda de massa muscular (sarcopenia) e reduz a capacidade cardiorrespiratória.",
+    feedback: "O estímulo aeróbico é excelente para a aptidão cardiorrespiratória, mas isoladamente é insuficiente para deter a atrofia muscular e a osteopenia associadas ao envelhecimento.",
   },
   {
-    id: "opt-3",
-    text: "Tomar suplementos sem orientação.",
+    id: "franco-opt-3",
+    text: "Ingestão isolada de aminoácidos sem contração muscular contra resistência.",
     isCorrect: false,
-    feedback: "Suplementação sem acompanhamento médico e nutricional não substitui o estímulo mecânico do treinamento de força.",
+    feedback: "O aporte nutricional sem a mecanotransdução gerada pela sobrecarga mecânica não ativa a via mTOR nem previne o declínio da massa magra.",
+  },
+  {
+    id: "franco-opt-4",
+    text: "Repouso preventivo prolongado para evitar microlesões osteoarticulares.",
+    isCorrect: false,
+    feedback: "O desuso crônico acelera a degradação proteica, diminui a sensibilidade à insulina e enfraquece os tendões, piorando o prognóstico de longevidade.",
   },
 ];
 
@@ -58,13 +64,24 @@ const QUIZ_POST_ID = "franco-forca-quiz";
 const ARTICLE_POST_ID = "franco-forca-artigo";
 
 export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge?: boolean }) {
-  const [selectedOption, setSelectedOption] = useState<string>("opt-1");
+  const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [articleOpen, setArticleOpen] = useState<boolean>(false);
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
+  const shuffledOptions = useMemo(() => {
+    const arr = [...QUIZ_OPTIONS];
+    let seed = 42;
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 16807 + i) % 2147483647;
+      const j = seed % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -106,6 +123,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
       return;
     }
 
+    if (!selectedOption) { toast.warning("Selecione uma alternativa antes de confirmar!"); return; }
     const option = QUIZ_OPTIONS.find((o) => o.id === selectedOption);
     if (!option) return;
 
@@ -124,7 +142,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
       trackQuizCompleted(QUIZ_POST_ID, "Força & Longevidade (Dr. Franco Merici)", true, points, false);
       toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);
     } else {
-      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus NFs!");
+      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente para conquistar seus netfits!");
       trackQuizCompleted(QUIZ_POST_ID, "Força & Longevidade (Dr. Franco Merici)", false, 0, false);
       toast.error("Resposta incorreta. Leia a dica e tente novamente!");
     }
@@ -239,7 +257,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                     Responda e ganhe
                   </span>
                   <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-                    5 NFs
+                    5 netfits
                   </span>
                 </div>
               </div>
@@ -252,7 +270,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
 
             {/* Lista de Alternativas (Radio Buttons) */}
             <div className="space-y-2.5">
-              {QUIZ_OPTIONS.map((opt) => {
+              {shuffledOptions.map((opt) => {
                 const isSelected = selectedOption === opt.id;
                 const isFinishedCorrect = hasSubmitted && opt.isCorrect;
 
@@ -307,7 +325,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                 onClick={handleSubmit}
                 className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
               >
-                <span>Responder e conquistar 5 NFs</span>
+                <span>Responder e conquistar 5 netfits</span>
                 <ArrowRight className="size-4" />
               </button>
             ) : (
@@ -317,7 +335,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                   <span className="font-bold text-lime-700 block">
                     Desafio conquistado!
                   </span>
-                  <span className="text-zinc-800 font-medium">+5 NFs foram creditados na sua carteira Netfits.</span>
+                  <span className="text-zinc-800 font-medium">+5 netfits foram creditados na sua carteira Netfits.</span>
                 </div>
                 <Sparkles className="size-4 text-lime-600 shrink-0" />
               </div>

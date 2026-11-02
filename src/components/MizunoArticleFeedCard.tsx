@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Trophy,
   Sparkles,
@@ -38,24 +38,31 @@ interface QuizOption {
 const MIZUNO_QUIZ_OPTIONS: QuizOption[] = [
   {
     id: "mz-opt-1",
-    text: "Reter o calor corporal no topo da cabeça para acelerar a queima calórica forçada.",
+    text: "Reter calor na calota craniana para elevar forçadamente o gasto metabólico basal.",
     isCorrect: false,
     feedback:
-      "Incorreto. A retenção de calor na cabeça provoca superaquecimento (hipertermia), colapso precoce de pace e risco à saúde. O objetivo do boné técnico é dissipar calor.",
+      "Incorreto. A retenção excessiva de calor craniano deflagra estresse térmico no SNC, acelera a fadiga neuromuscular e expõe o corredor a risco de choque térmico.",
   },
   {
     id: "mz-opt-2",
-    text: "Auxiliar na termorregulação craniana, reduzir a fadiga térmica do sistema nervoso central e absorver o suor antes que atinja os olhos.",
+    text: "Auxiliar na termorregulação craniana, reduzir a fadiga térmica do SNC e drenar a sudorese ocular.",
     isCorrect: true,
     feedback:
-      "Perfeito! A proteção solar na cabeça combinada ao tecido de rápida evaporação estabiliza a temperatura craniana, protege os olhos e preserva o foco do atleta.",
+      "Perfeito! A proteção solar na cabeça aliada a microperfurações de evaporação rápida estabiliza a temperatura craniana, protege a córnea e preserva a clareza decisória do atleta.",
   },
   {
     id: "mz-opt-3",
-    text: "Substituir o consumo de água e eletrólitos ao longo de treinos longos de corrida.",
+    text: "Substituir a necessidade de ingestão periódica de água e eletrólitos ao longo do treino.",
     isCorrect: false,
     feedback:
-      "Incorreto. A hidratação oral contínua com reposição de sódio e minerais é insubstituível em atividades ao ar livre.",
+      "Incorreto. O equipamento esportivo auxilia na termorregulação externa, mas o equilíbrio hídrico e osmótico interno depende exclusivamente da reposição de fluidos.",
+  },
+  {
+    id: "mz-opt-4",
+    text: "Bloquear totalmente a ventilação convectiva para evitar contato do ar úmido com a pele.",
+    isCorrect: false,
+    feedback:
+      "Incorreto. A tecnologia têxtil de performance busca justamente o oposto: máxima respirabilidade e rápida convecção térmica.",
   },
 ];
 
@@ -72,6 +79,17 @@ export function MizunoArticleFeedCard() {
   const [readClaimed, setReadClaimed] = useState<boolean>(false);
   const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
+  const shuffledOptions = useMemo(() => {
+    const arr = [...MIZUNO_QUIZ_OPTIONS];
+    let seed = 77;
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 16807 + i) % 2147483647;
+      const j = seed % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, []);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -110,7 +128,7 @@ export function MizunoArticleFeedCard() {
   const handleCloseArticle = () => {
     // Validação antifraude de leitura: mínimo 12s de leitura e scroll até o fim
     if (dwellTimeSeconds >= 12 && hasScrolledToBottom && !readClaimed) {
-      feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0); // 0 nfs conforme regra de leitura GEMINI.md
+      feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0); // 0 netfits conforme regra de leitura GEMINI.md
       setReadClaimed(true);
       toast.success("✓ Leitura técnica concluída e auditada no ecossistema Netfits!");
     }
@@ -132,12 +150,12 @@ export function MizunoArticleFeedCard() {
     if (!opt) return;
 
     if (opt.isCorrect) {
-      // 10 nfs para post patrocinado (conforme GEMINI.md)
+      // 10 netfits para post patrocinado (conforme GEMINI.md)
       wallet.earn(10, "Quiz Patrocinado: Mizuno Running");
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, 10);
       setHasSubmittedQuiz(true);
       setQuizErrorMsg(null);
-      toast.success("🎉 Resposta correta! +10 nfs adicionados à sua carteira digital.");
+      toast.success("🎉 Resposta correta! +10 netfits adicionados à sua carteira digital.");
     } else {
       setQuizErrorMsg(opt.feedback);
       toast.error("Resposta incorreta. Leia o artigo técnico acima e tente novamente!");
@@ -147,14 +165,14 @@ export function MizunoArticleFeedCard() {
   const handleBuyProduct = () => {
     trackProductSelect("2FU-9629-205", "Boné Aba Curva Mizuno Run Sky — Off White", "R$ 89,46");
     toast.success("Abrindo produto no Shop Netfits...", {
-      description: "Mizuno Run Sky · Ganhe +358 nfs (4 nfs por R$ 1,00)",
+      description: "Mizuno Run Sky · Ganhe +358 netfits (4 netfits por R$ 1,00)",
     });
 
     shopSelectionStore.setProduct({
       id: "2FU-9629-205",
       title: "Boné Aba Curva Mizuno Run Sky — Off White",
       price: "R$ 89,46",
-      cashback: "+358 nfs",
+      cashback: "+358 netfits",
       seller: "Mizuno Oficial",
       image: productMizunoCap,
       targetPath: "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky",
@@ -196,7 +214,7 @@ export function MizunoArticleFeedCard() {
               <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
             </div>
             <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 px-2.5 py-1 rounded-full border border-purple-200 dark:border-purple-800">
-              Quiz: +10 nfs
+              Quiz: +10 netfits
             </span>
           </div>
         </div>
@@ -243,7 +261,7 @@ export function MizunoArticleFeedCard() {
               className="shrink-0 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg transition active:scale-95 cursor-pointer"
             >
               <ShoppingBag className="size-3.5" />
-              <span>Ver no Shop (+358 nfs)</span>
+              <span>Ver no Shop (+358 netfits)</span>
             </button>
           </div>
         </div>
@@ -307,7 +325,7 @@ export function MizunoArticleFeedCard() {
           </button>
         </div>
 
-        {/* 6. Quiz Patrocinado Integrado (+10 nfs) */}
+        {/* 6. Quiz Patrocinado Integrado (+10 netfits) */}
         <div className="p-4 sm:p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -317,7 +335,7 @@ export function MizunoArticleFeedCard() {
               </span>
             </div>
             <span className="text-[10px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
-              Vale +10 nfs
+              Vale +10 netfits
             </span>
           </div>
 
@@ -372,7 +390,7 @@ export function MizunoArticleFeedCard() {
           {hasSubmittedQuiz ? (
             <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
               <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>Parabéns! Você concluiu este desafio e garantiu seus +10 nfs.</span>
+              <span>Parabéns! Você concluiu este desafio e garantiu seus +10 netfits.</span>
             </div>
           ) : (
             <button
@@ -387,7 +405,7 @@ export function MizunoArticleFeedCard() {
             >
               <span>
                 {selectedOption
-                  ? "Confirmar Resposta (+10 nfs)"
+                  ? "Confirmar Resposta (+10 netfits)"
                   : "Selecione uma alternativa para responder"}
               </span>
               {selectedOption && <ArrowRight className="size-3.5" />}
@@ -413,7 +431,7 @@ export function MizunoArticleFeedCard() {
                 </span>
               </div>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                <strong className="text-zinc-900 dark:text-white font-bold">R$ 89,46</strong> · Ganhe <strong className="text-purple-600 dark:text-purple-400 font-bold">+358 nfs</strong> (4 nfs por R$ 1)
+                <strong className="text-zinc-900 dark:text-white font-bold">R$ 89,46</strong> · Ganhe <strong className="text-purple-600 dark:text-purple-400 font-bold">+358 netfits</strong> (4 netfits por R$ 1)
               </p>
             </div>
           </div>
@@ -568,7 +586,7 @@ export function MizunoArticleFeedCard() {
                   className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow transition active:scale-95 cursor-pointer shrink-0"
                 >
                   <ShoppingBag className="size-3.5" />
-                  <span>Comprar por R$ 89,46 (+358 nfs)</span>
+                  <span>Comprar por R$ 89,46 (+358 netfits)</span>
                 </button>
               </div>
             </div>
