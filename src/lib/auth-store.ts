@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { wallet } from "./wallet-store";
 import { sharedSandboxStore } from "./shared-sandbox-store";
 import { passkeyService } from "./webauthn-passkeys";
+import { nativeBridge } from "./native-bridge";
+import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
 export type StoredUser = {
   id: string;
@@ -595,6 +597,59 @@ export const authStore = {
   },
 
   async loginWithPasskey(expectedUserId?: string) {
+    // 1. Se estiver no app móvel nativo (Android / iOS), tenta primeiro o sensor nativo de biometria
+    if (nativeBridge.isNativePlatform()) {
+      try {
+        const cap = (window as any).Capacitor;
+        const isAvail = cap && typeof cap.isPluginAvailable === "function"
+          ? (cap.isPluginAvailable("BiometricAuthNative") || cap.isPluginAvailable("BiometricAuth"))
+          : false;
+
+        if (isAvail && BiometricAuth && typeof BiometricAuth.authenticate === "function") {
+          await BiometricAuth.authenticate({
+            reason: "Confirme sua digital ou Face ID para entrar na sua conta Netfits",
+            cancelTitle: "Cancelar",
+          });
+
+          // Usuário alvo para autenticação
+          let targetUser = expectedUserId
+            ? storedUsers.find((u) => u.id === expectedUserId)
+            : storedUsers[0];
+
+          if (!targetUser) {
+            const activeSb = sharedSandboxStore.getActiveUser();
+            if (activeSb) {
+              targetUser = {
+                id: activeSb.id,
+                fullName: activeSb.fullName,
+                email: activeSb.email || activeSb.identifier,
+                phone: activeSb.phone || "",
+                cpf: activeSb.cpf || "",
+                userCategory: activeSb.type === "associado" ? "associado" : "atleta",
+                passwordHash: activeSb.passwordHash || "",
+                registeredAt: activeSb.registeredAt || new Date().toISOString(),
+              };
+            }
+          }
+
+          if (targetUser) {
+            currentUser = targetUser;
+            sharedSandboxStore.setActiveUser(targetUser.id);
+            toast.success(`🎉 Biometria reconhecida: Bem-vindo(a), ${targetUser.fullName}!`);
+            emit();
+            return { success: true, user: targetUser };
+          }
+        }
+      } catch (nativeErr: any) {
+        console.warn("[loginWithPasskey] Biometria nativa mobile falhou:", nativeErr);
+        const msg = String(nativeErr?.message || "").toLowerCase();
+        if (msg.includes("cancel") || nativeErr?.code === "userCancel" || msg.includes("canceled")) {
+          return { success: false, error: "Validação biométrica cancelada pelo usuário." };
+        }
+      }
+    }
+
+    // 2. No navegador web ou como fallback: WebAuthn / Passkeys
     const res = await passkeyService.authenticate(expectedUserId);
     if (!res.success) {
       return { success: false, error: res.error || "Falha na validação biométrica." };

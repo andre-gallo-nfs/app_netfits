@@ -22,6 +22,7 @@
 	},
 	"plugins": {},
 	"packageClassList": [
+		"BiometricAuthNative",
 		"AppPlugin",
 		"KeyboardPlugin"
 	]

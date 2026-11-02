@@ -152,9 +152,16 @@ class AppLockStore {
 
   public isBiometricsAvailable(): boolean {
     if (typeof window === "undefined") return false;
+    // 1. No aplicativo móvel nativo (Android / iOS via Capacitor)
     const cap = (window as any).Capacitor;
     if (cap && typeof cap.isPluginAvailable === "function") {
-      return cap.isPluginAvailable("BiometricAuth");
+      if (cap.isPluginAvailable("BiometricAuthNative") || cap.isPluginAvailable("BiometricAuth")) {
+        return true;
+      }
+    }
+    // 2. No navegador Web / PWA / Safari / Chrome (FIDO2 / WebAuthn / Face ID / Touch ID)
+    if (typeof window.PublicKeyCredential !== "undefined") {
+      return true;
     }
     return false;
   }
@@ -251,7 +258,7 @@ class AppLockStore {
         try {
           const cap = (window as any).Capacitor;
           const isPluginAvail = cap && typeof cap.isPluginAvailable === "function"
-            ? cap.isPluginAvailable("BiometricAuth")
+            ? (cap.isPluginAvailable("BiometricAuthNative") || cap.isPluginAvailable("BiometricAuth"))
             : false;
 
           if (!isPluginAvail) {
