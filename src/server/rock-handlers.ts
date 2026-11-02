@@ -591,6 +591,24 @@ export async function handleRockRoutes(
           const emailTasks: Promise<any>[] = [];
 
           if (isApproved && !orderEmailSent) {
+            const shippingAddr = (rawOrder as any)?.shippingAddress 
+              ? (typeof (rawOrder as any).shippingAddress === "string" 
+                  ? (rawOrder as any).shippingAddress 
+                  : `${(rawOrder as any).shippingAddress.street || ""}, ${(rawOrder as any).shippingAddress.number || ""} - ${(rawOrder as any).shippingAddress.city || ""}`)
+              : user?.address || "Endereço cadastrado no app";
+
+            const slaPrevisao = (finalOrder as any)?.slaDays 
+              ? `${(finalOrder as any).slaDays} dias úteis` 
+              : (rawOrder as any)?.slaDays 
+              ? `${(rawOrder as any).slaDays} dias úteis` 
+              : "03 a 05 dias úteis";
+
+            // CPP Oficial de Resgate: R$ 0,010 por ponto (GEMINI.md / Business Case v5)
+            const cppResgate = serverState.operationalParams.cppResgateBrl || 0.010;
+            const descontoReais = (result.pointsUsed || 0) > 0 
+              ? ((result.pointsUsed || 0) * cppResgate).toFixed(2) 
+              : undefined;
+
             emailTasks.push(
               sendShopOrderConfirmedEmail({
                 to: targetRecipientEmail,
@@ -601,11 +619,14 @@ export async function handleRockRoutes(
                 quantidade: rawItems.reduce((acc: number, it: any) => acc + (Number(it.quantity) || 1), 0) || 1,
                 valorSubtotal: (finalOrder?.summary as any)?.total ?? (finalOrder?.summary as any)?.subtotal,
                 pontosUtilizados: result.pointsUsed || 0,
-                valorDescontoPontos: (result.pointsUsed || 0) > 0 ? ((result.pointsUsed || 0) * 0.25).toFixed(2) : undefined,
-                valorFrete: (finalOrder?.summary as any)?.totalShippingCost ? String((finalOrder?.summary as any)?.totalShippingCost) : undefined,
+                valorDescontoPontos: descontoReais,
+                valorFrete: (finalOrder?.summary as any)?.totalShippingCost ? String((finalOrder?.summary as any)?.totalShippingCost) : "Grátis",
                 formaPagamento: (finalOrder as any)?.paymentMethod || rawOrder?.paymentMethod || "Cartão de Crédito",
                 valorTotalPago: (finalOrder?.summary as any)?.finalPrice ?? (finalOrder?.summary as any)?.total,
                 saldoRestante: user ? user.nfsBalance : undefined,
+                cashbackGerado: result.nfsEarned > 0 ? result.nfsEarned : undefined,
+                enderecoEntrega: shippingAddr,
+                previsaoEntrega: slaPrevisao,
                 dataCompra: new Date().toLocaleDateString("pt-BR"),
               }).then((res) => {
                 if (res?.success) orderEmailSent = true;

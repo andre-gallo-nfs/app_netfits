@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { operationalParamsStore } from "./operational-params-store";
-import { dispatchPointsCreditedEmailSafe, dispatchShopOrderEmailSafe } from "./emails/email-service";
+import { dispatchPointsCreditedEmailSafe,
+  dispatchReferralCompletedEmailSafe, dispatchShopOrderEmailSafe } from "./emails/email-service";
 
 export interface SandboxUser {
   id: string;
@@ -2302,12 +2303,13 @@ class HomologationSandboxStore {
       });
 
       if (referrer.email && referrer.email.includes("@")) {
-        dispatchPointsCreditedEmailSafe(referrer.email, {
+        dispatchReferralCompletedEmailSafe(referrer.email, {
           nomeUsuario: referrer.fullName,
-          pontos: referralBonus,
-          origem: `Indicação de Amigo: ${newUser.fullName} se cadastrou na Netfits`,
-          saldoTotal: referrer.nfsBalance,
-          dataHora: new Date().toLocaleString("pt-BR"),
+          nomeAmigoIndicado: newUser.fullName,
+          pontosCreditados: referralBonus,
+          saldoAtual: referrer.nfsBalance,
+          referralCode: referrer.referralCode,
+          referralLink: `https://www.netfits.com.br/cadastro?ref=${referrer.referralCode}`,
         }).catch((err) => console.warn("[registerAthlete] Falha ao notificar indicação:", err));
       }
     }

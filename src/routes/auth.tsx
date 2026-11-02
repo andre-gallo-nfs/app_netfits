@@ -318,10 +318,17 @@ function AuthPage() {
       }).catch((err) => console.warn("[Register Cloud Sync Warning]", err));
     }
 
-    // Disparo imediato do E-mail Oficial de Boas-Vindas (+50 nfs) via Resend
+    // Disparo imediato do E-mail Oficial de Boas-Vindas (+50 nfs) via Resend com dados reais
     const recipientEmail = (res.user?.email || email).trim();
     const recipientName = (res.user?.fullName || fullName).trim();
-    dispatchWelcomeEmailSafe(recipientEmail, recipientName);
+    dispatchWelcomeEmailSafe(recipientEmail, recipientName, {
+      bonusCadastroNfs: res.user?.nfsBalance ?? 50,
+      saldoConsolidadoNfs: res.user?.nfsBalance ?? 50,
+      referralCode: res.user?.referralCode || "",
+      referralLink: res.user?.referralCode
+        ? `https://www.netfits.com.br/cadastro?ref=${res.user.referralCode}`
+        : "https://www.netfits.com.br",
+    });
 
     toast.success("🚀 Cadastro efetuado com sucesso! Bem-vindo ao Netfits.");
     badgesStore.evaluate(res.user);
