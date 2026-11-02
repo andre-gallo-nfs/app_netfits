@@ -299,7 +299,7 @@ const INITIAL_USERS: SandboxUser[] = [
     "gym": "Academia local / Independente",
     "coaching": "Limite Team",
     "wearable": "Garmin Forerunner",
-    "nfsBalance": 1466,
+    "nfsBalance": 1835,
     "userCategory": "associado",
     "registeredAt": "2026-10-05T00:00:00Z",
     "identifier": "aacgallo@hotmail.com",
@@ -331,7 +331,7 @@ const INITIAL_USERS: SandboxUser[] = [
     "state": "São Paulo",
     "shortState": "SP",
     "zipcode": "06542195",
-    "nfsBalance": 427,
+    "nfsBalance": 432,
     "userCategory": "atleta",
     "referralCode": "FORMIGARI-NFS",
     "registeredAt": "2026-10-06T00:00:00Z",
@@ -1486,7 +1486,20 @@ class HomologationSandboxStore {
         if (Array.isArray(serverTxs) && serverTxs.length > 0) {
           const txMap = new Map<string, SandboxTransaction>();
           for (const tx of this.state.transactions) {
-            if (tx && tx.id && tx.amount !== 1080 && !tx.description?.includes("1080")) {
+            if (
+              tx &&
+              tx.id &&
+              tx.amount !== 1080 &&
+              !tx.description?.includes("1080") &&
+              !(
+                tx.userId !== "usr_apple_review" &&
+                (tx.id.startsWith("tx-club-sub-") ||
+                  tx.id.startsWith("tx-club-cancel-") ||
+                  tx.description?.includes("Assinatura Clube Netfits: Mensalidade") ||
+                  tx.description?.includes("Ativação/Renovação Clube Netfits") ||
+                  tx.description?.includes("Treino Validado via Garmin: undefined"))
+              )
+            ) {
               txMap.set(tx.id, tx);
             }
           }
@@ -1715,6 +1728,17 @@ class HomologationSandboxStore {
           if (tx.amount === 1080 || tx.description?.includes("1080")) return false;
           const isGallo = tx.userId === "user-1792090334266" || tx.userId === "usr_cristiane_gallo";
           if (isGallo && (tx.category === "badge" || tx.id?.startsWith("tx-badge-") || /selo|conquista/i.test(tx.description || ""))) {
+            return false;
+          }
+          // Purgar de forma definitiva transações de testes do Clube Netfits e treinos de estresse de homologação
+          if (
+            tx.userId !== "usr_apple_review" &&
+            (tx.id?.startsWith("tx-club-sub-") ||
+              tx.id?.startsWith("tx-club-cancel-") ||
+              tx.description?.includes("Assinatura Clube Netfits: Mensalidade") ||
+              tx.description?.includes("Ativação/Renovação Clube Netfits") ||
+              tx.description?.includes("Treino Validado via Garmin: undefined"))
+          ) {
             return false;
           }
           return true;
