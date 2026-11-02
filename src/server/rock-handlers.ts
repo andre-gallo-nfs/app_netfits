@@ -382,8 +382,15 @@ export async function handleRockRoutes(
           serverState.transactions.some((t) => t.id === `tx-mkp-spend-${orderId}`)
         );
 
+        const alreadySentOrderEmail = Boolean(existingOrder?.netfitsProcessing?.orderEmailSent === true);
+        const alreadySentCashbackEmail = Boolean(existingOrder?.netfitsProcessing?.cashbackEmailSent === true);
+        const alreadySentNpsEmail = Boolean(existingOrder?.netfitsProcessing?.npsEmailSent === true);
+
         let pointsDebited = alreadyDebitedPoints;
         let cashbackCredited = alreadyCreditedCashback;
+        let orderEmailSent = alreadySentOrderEmail;
+        let cashbackEmailSent = alreadySentCashbackEmail;
+        let npsEmailSent = alreadySentNpsEmail;
         let isReplay = false;
 
         if (user) {
@@ -542,6 +549,9 @@ export async function handleRockRoutes(
             cashbackCredited,
             pointsDebited,
             httpStatusReturned: 200,
+            orderEmailSent,
+            cashbackEmailSent,
+            npsEmailSent,
           },
           rawPayload: body,
         };
@@ -570,7 +580,7 @@ export async function handleRockRoutes(
         const targetRecipientEmail = user?.email || rawOrder?.customerEmail || rawOrder?.customer?.email || "";
         const targetRecipientName = user?.fullName || rawOrder?.customer?.name || "Atleta Netfits";
 
-        if (targetRecipientEmail && targetRecipientEmail.includes("@") && !isReplay) {
+        if (targetRecipientEmail && targetRecipientEmail.includes("@")) {
           const rawItems = Array.isArray(finalOrder?.items) ? finalOrder.items : [];
           const itemsSummary = rawItems.length > 0
             ? rawItems.map((it: any) => `${it.name || it.title || "Item"} (x${it.quantity || 1})`).join(", ")
@@ -578,50 +588,81 @@ export async function handleRockRoutes(
           const firstItem = rawItems[0] || {};
           const storeName = (rawOrder as any)?.storeName || firstItem?.sellerName || "Netfits Shop";
 
-          if (isApproved) {
-            sendShopOrderConfirmedEmail({
-              to: targetRecipientEmail,
-              nomeUsuario: targetRecipientName,
-              numeroPedido: String(finalOrder.orderRef || orderId),
-              produto: itemsSummary,
-              parceiro: storeName,
-              quantidade: rawItems.reduce((acc: number, it: any) => acc + (Number(it.quantity) || 1), 0) || 1,
-              valorSubtotal: (finalOrder?.summary as any)?.total ?? (finalOrder?.summary as any)?.subtotal,
-              pontosUtilizados: result.pointsUsed || 0,
-              valorDescontoPontos: (result.pointsUsed || 0) > 0 ? ((result.pointsUsed || 0) * 0.25).toFixed(2) : undefined,
-              valorFrete: (finalOrder?.summary as any)?.totalShippingCost ? String((finalOrder?.summary as any)?.totalShippingCost) : undefined,
-              formaPagamento: (finalOrder as any)?.paymentMethod || rawOrder?.paymentMethod || "Cartão de Crédito",
-              valorTotalPago: (finalOrder?.summary as any)?.finalPrice ?? (finalOrder?.summary as any)?.total,
-              saldoRestante: user ? user.nfsBalance : undefined,
-              dataCompra: new Date().toLocaleDateString("pt-BR"),
-            }).catch((err) => {
-              console.warn("[MKPlace Order Email] Falha no disparo de confirmação:", err);
-            });
+          const emailTasks: Promise<any>[] = [];
+
+          if (isApproved && !orderEmailSent) {
+            emailTasks.push(
+              sendShopOrderConfirmedEmail({
+                to: targetRecipientEmail,
+                nomeUsuario: targetRecipientName,
+                numeroPedido: String(finalOrder.orderRef || orderId),
+                produto: itemsSummary,
+                parceiro: storeName,
+                quantidade: rawItems.reduce((acc: number, it: any) => acc + (Number(it.quantity) || 1), 0) || 1,
+                valorSubtotal: (finalOrder?.summary as any)?.total ?? (finalOrder?.summary as any)?.subtotal,
+                pontosUtilizados: result.pointsUsed || 0,
+                valorDescontoPontos: (result.pointsUsed || 0) > 0 ? ((result.pointsUsed || 0) * 0.25).toFixed(2) : undefined,
+                valorFrete: (finalOrder?.summary as any)?.totalShippingCost ? String((finalOrder?.summary as any)?.totalShippingCost) : undefined,
+                formaPagamento: (finalOrder as any)?.paymentMethod || rawOrder?.paymentMethod || "Cartão de Crédito",
+                valorTotalPago: (finalOrder?.summary as any)?.finalPrice ?? (finalOrder?.summary as any)?.total,
+                saldoRestante: user ? user.nfsBalance : undefined,
+                dataCompra: new Date().toLocaleDateString("pt-BR"),
+              }).then((res) => {
+                if (res?.success) orderEmailSent = true;
+              }).catch((err) => {
+                console.warn("[MKPlace Order Email] Falha no disparo de confirmação:", err);
+              })
+            );
           }
 
-          if (cashbackCredited && result.nfsEarned > 0) {
-            sendPointsCreditedEmail({
-              to: targetRecipientEmail,
-              nomeUsuario: targetRecipientName,
-              pontos: result.nfsEarned,
-              origem: `Cashback da Compra no Shop #${orderId}`,
-              saldoTotal: user ? user.nfsBalance : result.nfsEarned,
-              dataHora: new Date().toLocaleString("pt-BR"),
-            }).catch((err) => {
-              console.warn("[MKPlace Cashback Email] Falha no disparo de cashback:", err);
-            });
+          if (cashbackCredited && result.nfsEarned > 0 && !cashbackEmailSent) {
+            emailTasks.push(
+              sendPointsCreditedEmail({
+                to: targetRecipientEmail,
+                nomeUsuario: targetRecipientName,
+                pontos: result.nfsEarned,
+                origem: `Cashback da Compra no Shop #${orderId}`,
+                saldoTotal: user ? user.nfsBalance : result.nfsEarned,
+                dataHora: new Date().toLocaleString("pt-BR"),
+              }).then((res) => {
+                if (res?.success) cashbackEmailSent = true;
+              }).catch((err) => {
+                console.warn("[MKPlace Cashback Email] Falha no disparo de cashback:", err);
+              })
+            );
           }
 
           const isDelivered = ["DELIVERED", "COMPLETED", "ENTREGUE"].includes(String(incomingStatus).toUpperCase());
-          if (isDelivered) {
-            sendNpsSurveyEmail({
-              to: targetRecipientEmail,
-              nomeUsuario: targetRecipientName,
-              tipoPesquisa: "compra",
-              numeroPedido: String(finalOrder.orderRef || orderId),
-              produto: itemsSummary,
-            }).catch((err) => {
-              console.warn("[MKPlace NPS Email] Falha no disparo de pesquisa NPS:", err);
+          if (isDelivered && !npsEmailSent) {
+            emailTasks.push(
+              sendNpsSurveyEmail({
+                to: targetRecipientEmail,
+                nomeUsuario: targetRecipientName,
+                tipoPesquisa: "compra",
+                numeroPedido: String(finalOrder.orderRef || orderId),
+                produto: itemsSummary,
+              }).then((res) => {
+                if (res?.success) npsEmailSent = true;
+              }).catch((err) => {
+                console.warn("[MKPlace NPS Email] Falha no disparo de pesquisa NPS:", err);
+              })
+            );
+          }
+
+          if (emailTasks.length > 0) {
+            await Promise.allSettled(emailTasks);
+
+            if (finalOrder.netfitsProcessing) {
+              finalOrder.netfitsProcessing.orderEmailSent = orderEmailSent;
+              finalOrder.netfitsProcessing.cashbackEmailSent = cashbackEmailSent;
+              finalOrder.netfitsProcessing.npsEmailSent = npsEmailSent;
+            }
+            const idx = updatedList.findIndex((o) => o._id === finalOrder._id);
+            if (idx >= 0) {
+              updatedList[idx] = finalOrder;
+            }
+            savePersistentOrders(updatedList).catch((err) => {
+              console.warn("[PersistentOrdersStore] Erro ao sincronizar status de email:", err);
             });
           }
         }
