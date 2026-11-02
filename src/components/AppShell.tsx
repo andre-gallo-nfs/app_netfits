@@ -26,14 +26,32 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isUnlocked = useAppLock();
 
   useEffect(() => {
-    // Registrar Service Worker com invalidação automática de cache em deploys novos
+    // Gestão de Service Worker e Caches:
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((reg) => reg.update())
-        .catch(() => {});
+      if (nativeBridge.isNativePlatform()) {
+        // No app nativo (iOS / Android), desregistra qualquer Service Worker e limpa CacheStorage
+        // para garantir que a WKWebView/Chromium carregue sempre o HTML fresco do Cloudflare Workers
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const reg of registrations) {
+            reg.unregister();
+          }
+        });
+        if ("caches" in window) {
+          caches.keys().then((keys) => {
+            keys.forEach((k) => caches.delete(k));
+          });
+        }
+      } else {
+        // No navegador Web desktop convencional, mantém PWA atualizado
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((reg) => reg.update())
+          .catch(() => {});
+      }
+    }
 
-      // Forçar limpeza de caches legados se o navegador carregar um bundle antigo com erro
+    // Forçar limpeza de caches legados se o navegador carregar um bundle antigo com erro
+    if (typeof window !== "undefined") {
       window.addEventListener("error", (e) => {
         if (e.message && (e.message.includes("ReferenceError") || e.message.includes("Loading chunk"))) {
           if ("caches" in window) {
@@ -44,6 +62,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         }
       });
     }
+
     // Inicializar status bar nativa do celular (evita sobreposição)
     nativeBridge.initNativeStatusBar();
     // Checagem de atualizações transparentes em nuvem (Over-The-Air)
