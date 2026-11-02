@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
+import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
@@ -167,7 +168,7 @@ export function MizunoArticleFeedCard() {
 
   return (
     <>
-      <article className="mx-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm space-y-5">
+      <article className="px-4 space-y-3.5 min-h-[560px]">
         {/* 1. Header do Card: Identificação da Marca e Badge de Patrocínio */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -190,9 +191,20 @@ export function MizunoArticleFeedCard() {
             </div>
           </div>
 
-          <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 px-2.5 py-1 rounded-full border border-purple-200 dark:border-purple-800">
-            Quiz: +10 nfs
-          </span>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-auto bg-black rounded-lg px-2 py-0.5 flex items-center justify-center border border-zinc-800 shadow-xs">
+              <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
+            </div>
+            <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 px-2.5 py-1 rounded-full border border-purple-200 dark:border-purple-800">
+              Quiz: +10 nfs
+            </span>
+          </div>
+        </div>
+
+        {/* Barra Bipartida Institucional Netfits (Roxo #6B2AD9 + Verde-Limão #C8F135) */}
+        <div className="h-0.5 w-full rounded-full flex overflow-hidden">
+          <div className="w-1/2 bg-[#6B2AD9]" />
+          <div className="w-1/2 bg-[#C8F135]" />
         </div>
 
         {/* 2. Chamada Principal e Introdução */}
@@ -206,7 +218,7 @@ export function MizunoArticleFeedCard() {
         </div>
 
         {/* 3. Imagem de Alta Qualidade do Produto em Estúdio com Badge Informativo */}
-        <div className="relative rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 aspect-[16/9] sm:aspect-[21/9]">
+        <div className="relative rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 aspect-[4/5] max-h-[460px]">
           <img
             src={productMizunoCap}
             alt="Boné Aba Curva Mizuno Run Sky com proteção UV50+"
@@ -424,6 +436,8 @@ export function MizunoArticleFeedCard() {
             postCategory="sponsored"
           />
         </div>
+        {/* Divisor Elegante de Postagem */}
+        <div className="h-px bg-zinc-200/80 dark:bg-zinc-800/80 my-4" />
       </article>
 
       {/* ========================================================================= */}
