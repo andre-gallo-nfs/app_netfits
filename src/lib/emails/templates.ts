@@ -228,16 +228,16 @@ export function renderWelcomeEmail(data: WelcomeEmailData): string {
                                         </div>
                                     </td>
                                     <td valign="top">
-                                        <div style="color: #ffffff; font-size: 14px; font-weight: 700;">Movimento &amp; Clube Netfits</div>
+                                        <div style="color: #ffffff; font-size: 14px; font-weight: 700;">Indicação de Amigos (MGM)</div>
                                         <div style="color: #a1a1aa; font-size: 12px; line-height: 1.5; margin-top: 2px;">
-                                            Conecte seu Apple Watch, Garmin ou Strava. Membros do Clube Netfits ganham <b>+25 nfs a cada treino validado</b> com relógio ou sensores.
+                                            Compartilhe seu código com parceiros de treino: você ganha <b>+50 nfs bônus</b> a cada amigo que criar uma conta na Netfits.
                                         </div>
                                     </td>
                                 </tr>
                             </table>
 
                             <!-- Forma 3 -->
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%;" style="margin-bottom: 16px;">
                                 <tr>
                                     <td width="36" valign="top" style="padding-right: 12px;">
                                         <div style="width: 32px; height: 32px; background-color: #6B2AD9; color: #ffffff; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 800; font-size: 14px;">
@@ -245,9 +245,23 @@ export function renderWelcomeEmail(data: WelcomeEmailData): string {
                                         </div>
                                     </td>
                                     <td valign="top">
-                                        <div style="color: #ffffff; font-size: 14px; font-weight: 700;">Netfits Shop &amp; Resgate Transparente</div>
+                                        <div style="color: #ffffff; font-size: 14px; font-weight: 700;">Netfits Shop Oficial</div>
                                         <div style="color: #a1a1aa; font-size: 12px; line-height: 1.5; margin-top: 2px;">
-                                            Compre na vitrine de produtos esportivos e acumule <b>${pontosReal} nfs por R$ 1,00</b> gasto, ou use seus pontos para abater diretamente no valor do carrinho.
+                                            Compre suplementos, vestuário e acessórios acumulando <b>${pontosReal} nfs por R$ 1,00</b> gasto, ou use seus pontos para abater diretamente no valor do carrinho.
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Em Breve: Clube & Wearables -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #18181b; border: 1px dashed #3f3f46; border-radius: 12px; padding: 12px 14px;">
+                                <tr>
+                                    <td>
+                                        <div style="font-size: 11px; font-weight: 800; color: #C8F135; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            ⚡ Em Breve • Lançamento Oficial (14 de Novembro)
+                                        </div>
+                                        <div style="font-size: 12px; color: #a1a1aa; margin-top: 4px; line-height: 1.4;">
+                                            Integração oficial de relógios (Apple Watch, Garmin e Strava via Terra API) e o Clube Netfits para pontuação diária por treinos validados.
                                         </div>
                                     </td>
                                 </tr>

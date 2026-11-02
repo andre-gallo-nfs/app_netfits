@@ -1,4 +1,3 @@
-import { sendClubSubscriptionEmail } from "../lib/emails/email-service.ts";
 import { serverState } from "./server-state.ts";
 
 export interface ClubSubscriptionPayload {
@@ -62,47 +61,31 @@ export async function handleClubSubscriptionRoutes(
       const isDeactivating = body.event === "subscription.past_due" || body.event === "subscription.canceled";
 
       if (isActivating) {
-        const pontosAdesao = 250; // Regra GEMINI.md: 250 nfs na assinatura e a cada mensalidade
+        // REGRA DE GOVERNANÇA: O Clube Netfits, a cobrança de assinaturas e a Terra API ainda não estão ativos em produção.
+        // Nenhuma pontuação (nfs) de adesão ou de treinos pode ser atribuída até o lançamento oficial (14/Nov/2026).
         user.isClubMember = true;
         user.userCategory = "associado";
-        user.nfsBalance = (Number(user.nfsBalance) || 0) + pontosAdesao;
 
-        // Registrar evento de auditoria no ledger oficial com os 250 nfs
+        // Registrar evento de auditoria no ledger (amount: 0 — pontuação bloqueada até o Go-Live com gateway e Terra API)
         serverState.transactions.unshift({
           id: `tx-club-sub-${Date.now()}`,
           userId: user.id,
           userName: user.fullName || "Assinante Clube Netfits",
-          amount: pontosAdesao,
-          description: `👑 Adesão/Mensalidade Clube Netfits VIP (+${pontosAdesao} nfs)`,
+          amount: 0,
+          description: `👑 Ativação/Renovação Clube Netfits (${body.planName || "Plano Oficial"}) [Pontuação Retida até Go-Live 14/Nov]`,
           category: "general",
           timestamp: requestTimestamp,
         });
 
         serverState.touchSync();
 
-        // Disparo imediato do E-mail Transacional de Boas-Vindas ao Clube
-        if (user.email && user.email.includes("@")) {
-          sendClubSubscriptionEmail({
-            to: user.email,
-            nomeUsuario: user.fullName || "Assinante VIP",
-            planoNome: body.planName || "Clube Netfits Oficial",
-            valorMensalidadeBrl: body.amountBrl || 19.90,
-            pontosAdesao,
-            pontosPorTreino: serverState.operationalParams.nfsPerWorkout || 25,
-            saldoTotal: user.nfsBalance,
-            vigenciaFim: body.currentPeriodEnd,
-          }).catch((err) => console.warn("[Club Email] Falha no disparo de confirmação do clube:", err));
-        }
-
         return new Response(
           JSON.stringify({
             success: true,
-            message: "Assinatura do Clube Netfits confirmada, +250 nfs creditados e benefícios ativados.",
+            message: "Assinatura do Clube Netfits confirmada e benefícios ativados. (Pontuação retida até o lançamento oficial de cobrança e Terra API).",
             userId: user.id,
             isClubMember: true,
             userCategory: "associado",
-            pointsCredited: pontosAdesao,
-            currentBalance: user.nfsBalance,
             currentPeriodEnd: body.currentPeriodEnd,
           }),
           { status: 200, headers: corsHeaders }
