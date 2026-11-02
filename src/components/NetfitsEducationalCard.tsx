@@ -171,7 +171,7 @@ export function NetfitsEducationalCard() {
 
   return (
     <>
-      <article className="px-4 space-y-3.5 min-h-[560px]">
+      <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
         {/* 1. Header Oficial do Netfits */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -237,7 +237,7 @@ export function NetfitsEducationalCard() {
               <Activity className="size-3.5 text-lime-400" />
               <span>O Propósito do Netfits</span>
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight tracking-tight drop-shadow-md break-words">
               Você está treinando para o próximo mês ou para os seus 80 anos?
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-snug line-clamp-3">

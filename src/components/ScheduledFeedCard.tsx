@@ -366,7 +366,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
 
   return (
     <>
-      <article className="px-4 space-y-3.5 min-h-[560px]">
+      <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
         {/* 1. Header do Especialista / Autor com Marca Canônica Netfits */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -412,7 +412,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
         {/* 2. Hero Banner Fotográfico Editorial (4:5 Mobile-First - Padrão Ouro de Poster) */}
         <div
           onClick={handleOpenContent}
-          className="relative overflow-hidden rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[480px]"
+          className="relative overflow-hidden rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[480px] w-full max-w-full"
           role="button"
           tabIndex={0}
           aria-label={`Toque para ver o conteúdo completo: ${post.title}`}
@@ -458,11 +458,11 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             </div>
 
             {/* Centro / Título e Gancho Editorial */}
-            <div className="space-y-2 my-auto">
-              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+            <div className="space-y-2 my-auto min-w-0 w-full">
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md break-words">
                 {post.title}
               </h3>
-              <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-snug drop-shadow-md line-clamp-3">
+              <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-snug drop-shadow-md line-clamp-3 break-words">
                 {post.subtitle}
               </p>
             </div>
@@ -541,7 +541,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </div>
 
           {/* Pergunta */}
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug">
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
             {post.quizQuestion}
           </h4>
 
@@ -581,7 +581,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                       <div className="size-2 rounded-full bg-lime-600" />
                     )}
                   </div>
-                  <span className="flex-1 font-medium">{opt.text}</span>
+                  <span className="flex-1 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
                 </button>
               );
             })}
@@ -626,7 +626,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           <div className="size-9 rounded-full bg-lime-400/10 border border-lime-400/20 grid place-items-center shrink-0">
             <Sparkles className="size-4 text-lime-400" />
           </div>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-snug">
+          <p className="text-xs sm:text-sm text-zinc-300 leading-snug break-words min-w-0 flex-1">
             <strong className="text-lime-400 font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
               Pílula de Sabedoria Fibios & Netfits
             </strong>

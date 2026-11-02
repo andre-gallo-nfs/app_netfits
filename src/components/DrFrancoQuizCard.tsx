@@ -176,7 +176,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
 
   return (
     <>
-      <article className="px-4 space-y-3.5 min-h-[560px]">
+      <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
         {/* 1. Header do Especialista */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
             </div>
 
             {/* Pergunta */}
-            <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
+            <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug break-words">
               Qual hábito ajuda mais a preservar a força ao longo da vida?
             </h4>
 
@@ -304,7 +304,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                         <div className="size-2 rounded-full bg-lime-600" />
                       )}
                     </div>
-                    <span className="flex-1 text-zinc-900 font-medium">{opt.text}</span>
+                    <span className="flex-1 text-zinc-900 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
                   </button>
                 );
               })}

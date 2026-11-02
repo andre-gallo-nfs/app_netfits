@@ -177,7 +177,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
 
   return (
     <>
-      <article className="px-4 space-y-3.5 min-h-[560px]">
+      <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
         {/* 1. Header do Especialista */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
               <span className="inline-block px-2.5 py-0.5 rounded-md bg-lime-400/90 text-zinc-950 text-[10px] font-black uppercase tracking-widest shadow-sm">
                 NETFITS
               </span>
-              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md break-words">
                 Como os biomarcadores e o sono{" "}
                 <span className="text-lime-400">transformam a longevidade?</span>
               </h3>
@@ -312,7 +312,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           </div>
 
           {/* Pergunta */}
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug break-words">
             Qual pilar é mais decisivo para a recuperação muscular e regulação da inflamação pós-treino?
           </h4>
 
@@ -352,7 +352,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                       <div className="size-2 rounded-full bg-lime-600" />
                     )}
                   </div>
-                  <span className="flex-1 text-zinc-900 font-medium">{opt.text}</span>
+                  <span className="flex-1 text-zinc-900 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
                 </button>
               );
             })}

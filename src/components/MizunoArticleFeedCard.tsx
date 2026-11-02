@@ -186,7 +186,7 @@ export function MizunoArticleFeedCard() {
 
   return (
     <>
-      <article className="px-4 space-y-3.5 min-h-[560px]">
+      <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
         {/* 1. Header do Card: Identificação da Marca e Badge de Patrocínio */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ export function MizunoArticleFeedCard() {
 
         {/* 2. Chamada Principal e Introdução */}
         <div className="space-y-2">
-          <h2 className="text-lg sm:text-xl font-black text-zinc-950 dark:text-white leading-tight">
+          <h2 className="text-lg sm:text-xl font-black text-zinc-950 dark:text-white leading-tight break-words">
             Por que atletas de alta performance usam boné técnico com proteção UV50+?
           </h2>
           <p className="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
