@@ -194,7 +194,7 @@ export function DrIsabellaCard() {
 
   return (
     <>
-      <article className="px-4 space-y-3.5 min-h-[560px]">
+      <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
         {/* 1. Header do Especialista */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -273,7 +273,7 @@ export function DrIsabellaCard() {
 
             {/* Centro / Título e Subtítulo */}
             <div className="space-y-2 my-auto">
-              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md break-words">
                 Mesmo atleta amador precisa de acompanhamento médico.
               </h3>
               <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-snug drop-shadow-md line-clamp-3">
@@ -359,7 +359,7 @@ export function DrIsabellaCard() {
             </span>
           </div>
 
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug">
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug break-words">
             No Protocolo Fibios de longevidade, qual a importância da análise de biomarcadores para quem treina?
           </h4>
 
@@ -396,7 +396,7 @@ export function DrIsabellaCard() {
                       <div className="size-2 rounded-full bg-lime-600" />
                     )}
                   </div>
-                  <span className="flex-1 font-medium">{opt.text}</span>
+                  <span className="flex-1 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
                 </button>
               );
             })}

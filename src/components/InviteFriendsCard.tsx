@@ -93,7 +93,7 @@ export function InviteFriendsCard() {
 
   return (
     <section className="px-4 py-2">
-      <article className="relative overflow-hidden rounded-[20px] bg-foreground text-background p-6 ring-1 ring-zinc-950/10">
+      <article className="relative overflow-hidden rounded-[20px] bg-foreground text-background p-6 ring-1 ring-zinc-950/10 w-full max-w-full overflow-x-hidden">
         <div className="absolute -right-16 -top-16 size-56 rounded-full bg-brand/25 blur-3xl" />
         <div className="absolute -left-10 -bottom-20 size-48 rounded-full bg-brand/15 blur-3xl" />
 
@@ -109,7 +109,7 @@ export function InviteFriendsCard() {
             />
           </div>
 
-          <h2 className="text-[22px] font-semibold leading-tight text-balance mb-2">
+          <h2 className="text-[20px] sm:text-[22px] font-semibold leading-tight text-balance mb-2 break-words">
             {activeUser.fullName.split(" ")[0]}, chame sua tribo e ganhe <span className="text-brand">+50 netfits</span> por amigo.
           </h2>
           <p className="text-sm text-zinc-400 text-pretty mb-5 max-w-[38ch]">

@@ -71,7 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="overflow-x-hidden max-w-full w-full">
       <head>
         <HeadContent />
         {/* Google Analytics 4 (GA4) Direct Tag */}
@@ -91,7 +91,7 @@ gtag('config', 'G-VGQNVVW7GL', { anonymize_ip: true, cookie_flags: 'SameSite=Non
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body className="overflow-x-hidden max-w-full w-full min-w-0">
         {children}
         <Scripts />
       </body>

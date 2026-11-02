@@ -192,9 +192,9 @@ export function FeedPage() {
   };
 
   return (
-    <div className="pb-8 space-y-4">
+    <div className="pb-8 space-y-4 w-full max-w-full overflow-x-hidden">
       {/* Lista Principal de Publicações do Feed — Exclusivo FIBIOS */}
-      <div className="space-y-6 pt-2">
+      <div className="space-y-6 pt-2 w-full max-w-full overflow-x-hidden">
         {/* 1. Card Obrigatório em 1º Lugar: Member Get Member (+50 netfits por amigo) */}
         <InviteFriendsCard />
 
