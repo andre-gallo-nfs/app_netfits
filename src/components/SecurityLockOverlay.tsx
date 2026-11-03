@@ -51,7 +51,7 @@ export function SecurityLockOverlay() {
         setErrorMessage("Sensor biométrico não respondeu a tempo. Digite sua senha cadastrada.");
         inputRef.current?.focus();
       }
-    }, 2500);
+    }, 15000);
 
     try {
       const res = await appLockStore.unlockWithBiometrics();

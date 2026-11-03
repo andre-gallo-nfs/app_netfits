@@ -306,7 +306,7 @@ class AppLockStore {
       }
 
       // 2. No navegador web desktop: utiliza WebAuthn / Passkeys
-      const result = await withTimeout(passkeyService.authenticate(activeUser.id), 4000);
+      const result = await withTimeout(passkeyService.authenticate(activeUser.id), 15000);
       if (result.success) {
         this.setUnlocked(true);
         toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
