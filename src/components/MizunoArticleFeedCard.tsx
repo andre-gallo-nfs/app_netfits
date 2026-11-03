@@ -331,7 +331,7 @@ export function MizunoArticleFeedCard() {
             <div className="flex items-center gap-2">
               <Trophy className="size-4 text-purple-600 dark:text-purple-400" />
               <span className="text-xs font-extrabold text-zinc-900 dark:text-white uppercase tracking-wider">
-                Desafio Técnico Mizuno
+                QUIZZ NETFITS
               </span>
             </div>
             <span className="text-[10px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">

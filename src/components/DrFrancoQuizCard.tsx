@@ -35,16 +35,16 @@ interface QuizOption {
 
 const QUIZ_OPTIONS: QuizOption[] = [
   {
-    id: "franco-opt-1",
-    text: "Treinamento resistido regular com progressão adequada de sobrecarga.",
-    isCorrect: true,
-    feedback: "Exato! O treinamento resistido estimula a síntese proteica, preserva a densidade óssea, atenua a sarcopenia e mantém a autonomia funcional ao longo das décadas.",
-  },
-  {
     id: "franco-opt-2",
     text: "Exercício puramente aeróbico em jejum sem estímulo mecânico de força.",
     isCorrect: false,
     feedback: "O estímulo aeróbico é excelente para a aptidão cardiorrespiratória, mas isoladamente é insuficiente para deter a atrofia muscular e a osteopenia associadas ao envelhecimento.",
+  },
+  {
+    id: "franco-opt-1",
+    text: "Treinamento resistido regular com progressão adequada de sobrecarga.",
+    isCorrect: true,
+    feedback: "Exato! O treinamento resistido estimula a síntese proteica, preserva a densidade óssea, atenua a sarcopenia e mantém a autonomia funcional ao longo das décadas.",
   },
   {
     id: "franco-opt-3",
@@ -250,7 +250,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
               </div>
               <div>
                 <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                  DESAFIO FIBIOS & NETFITS
+                  QUIZZ NETFITS
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-xs font-bold text-zinc-800">

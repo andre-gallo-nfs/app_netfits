@@ -770,7 +770,7 @@ export function RetailMediaVideoShowcase() {
                   <div className="flex items-center gap-2">
                     <Trophy className="size-4 text-yellow-400" />
                     <span className="text-[11px] font-black uppercase tracking-wider text-yellow-400">
-                      Desafio Técnico Patrocinado (+10 nfs)
+                      QUIZZ NETFITS
                     </span>
                   </div>
 
