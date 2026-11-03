@@ -31,16 +31,16 @@ interface QuizOption {
 
 const PURPOSE_QUIZ_OPTIONS: QuizOption[] = [
   {
-    id: "purpose-opt-1",
-    text: "Expandir o healthspan: viver com plena mobilidade, lucidez e autonomia através da regularidade diária.",
-    isCorrect: true,
-    feedback: "Exato! A Netfits existe para garantir que sua capacidade física acompanhe os anos de vida com autonomia plena e vitalidade biológica.",
-  },
-  {
     id: "purpose-opt-2",
     text: "Estimular o esgotamento físico com treinos de altíssima intensidade sem dias de descanso.",
     isCorrect: false,
     feedback: "Nossa metodologia rejeita a exaustão destrutiva. O corpo floresce na constância regular e sustentável, não em choques provocadores de burnout.",
+  },
+  {
+    id: "purpose-opt-1",
+    text: "Expandir o healthspan: viver com plena mobilidade, lucidez e autonomia através da regularidade diária.",
+    isCorrect: true,
+    feedback: "Exato! A Netfits existe para garantir que sua capacidade física acompanhe os anos de vida com autonomia plena e vitalidade biológica.",
   },
   {
     id: "purpose-opt-3",
@@ -284,7 +284,7 @@ export function NetfitsEducationalCard() {
                 <Trophy className="size-4 text-lime-400" />
               </div>
               <span className="text-xs font-black uppercase tracking-widest text-white">
-                Desafio de Bem-Estar
+                QUIZZ NETFITS
               </span>
             </div>
             <span className="text-[11px] font-bold text-lime-400 bg-lime-400/10 border border-lime-400/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">

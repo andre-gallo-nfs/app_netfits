@@ -19,22 +19,22 @@
     "pillText": "A melhor tecnologia é aquela que descomplica sua rotina e dá valor ao seu suor.",
     "articleContent": [
       "Chegou na Netfits agora? Descubra em 60 segundos como navegar pelo ecossistema que valoriza cada gota de suor do seu treino.",
-      "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 netfits) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 netfits de volta diretamente no seu extrato.\n\n3. Extrato / Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados sob o algoritmo FEFO de 24 meses.\n\n4. Perfil: Gestão dos seus dados cadastrais, conexões com smartwatches (Garmin, Apple Watch, Strava), rituais diários e histórico de evolução.",
-      "Assista ao vídeo didático de 60 segundos até o final para validar a retenção de atenção e destravar o Desafio Quiz Diário (+5 netfits)!"
+      "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 netfits) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 netfits de volta diretamente no seu extrato.\n\n3. Extrato / Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados com 24 meses de validade padrão e uso automático dos pontos mais antigos primeiro.\n\n4. Perfil: Gestão dos seus dados cadastrais, conexões com smartwatches (Garmin, Apple Watch, Strava), rituais diários e histórico de evolução.",
+      "Assista ao vídeo didático de 60 segundos até o final para validar a retenção de atenção e destravar o Quizz Netfits (+5 netfits)!"
     ],
     "quizQuestion": "De acordo com o tour guiado oficial do app, quais são as 4 abas estruturais da barra de navegação da Netfits?",
     "quizOptions": [
-      {
-        "id": "dia01-opt-correct",
-        "text": "Feed, Shop, Extrato/Carteira e Perfil do Usuário.",
-        "isCorrect": true,
-        "feedback": "Corretíssimo! Com essas 4 abas na barra inferior, você navega pelos conteúdos, realiza compras com cashback, audita seus pontos e gerencia sua conta."
-      },
       {
         "id": "dia01-opt-d1",
         "text": "Feed, Treinos Conectados, Resgates e Comunidade de Atletas.",
         "isCorrect": false,
         "feedback": "Incorreto. A integração com treinos pontuados é realizada via Clube Netfits; a navegação principal é dividida em Feed, Shop, Clube e Carteira."
+      },
+      {
+        "id": "dia01-opt-correct",
+        "text": "Feed, Shop, Extrato/Carteira e Perfil do Usuário.",
+        "isCorrect": true,
+        "feedback": "Corretíssimo! Com essas 4 abas na barra inferior, você navega pelos conteúdos, realiza compras com cashback, audita seus pontos e gerencia sua conta."
       },
       {
         "id": "dia01-opt-d2",
@@ -149,12 +149,6 @@
     "quizQuestion": "Qual é a recomendação mínima semanal da American Heart Association (AHA) para proteção cardiovascular e longevidade através do exercício aeróbico?",
     "quizOptions": [
       {
-        "id": "dia04-opt-correct",
-        "text": "Pelo menos 150 minutos de atividade aeróbica moderada ou 75 minutos de atividade intensa por semana.",
-        "isCorrect": true,
-        "feedback": "Perfeito! Essa dose semanal é o padrão-ouro validado pela ciência para otimizar o perfil lipídico, reduzir pressão arterial e diminuir o risco cardiovascular global."
-      },
-      {
         "id": "dia04-opt-d1",
         "text": "300 minutos de treinos exclusivamente em alta intensidade (HIIT) fracionados em no mínimo 6 dias por semana.",
         "isCorrect": false,
@@ -165,6 +159,12 @@
         "text": "60 minutos diários contínuos de corrida ou ciclismo com permanência obrigatória na zona 4 de frequência cardíaca.",
         "isCorrect": false,
         "feedback": "Incorreto. A AHA preconiza estímulo predominantemente moderado (Zona 2), e não permanência diária em zona 4 (anaeróbica)."
+      },
+      {
+        "id": "dia04-opt-correct",
+        "text": "Pelo menos 150 minutos de atividade aeróbica moderada ou 75 minutos de atividade intensa por semana.",
+        "isCorrect": true,
+        "feedback": "Perfeito! Essa dose semanal é o padrão-ouro validado pela ciência para otimizar o perfil lipídico, reduzir pressão arterial e diminuir o risco cardiovascular global."
       },
       {
         "id": "dia04-opt-d3",
@@ -200,8 +200,8 @@
     "author": "Time Netfits",
     "authorRole": "Educação & Governança da Plataforma",
     "authorAvatar": "netfits",
-    "badge": "Mecânica do Feed · Dwell Time",
-    "title": "Como o Feed Funciona: Dwell Time, Scroll e a Lógica dos Quizzes",
+    "badge": "Mecânica do Feed · Leitura Atenta",
+    "title": "Como o Feed Funciona: Leitura Completa e a Lógica dos Quizzes",
     "subtitle": "Por que a leitura tem 0 netfits diretos e o acerto no Quiz premia quem realmente absorveu o conteúdo.",
     "format": "article",
     "readTime": "2 min",
@@ -214,12 +214,6 @@
     "quizQuestion": "Como funciona a distribuição oficial de netfits no Feed entre o consumo do conteúdo e a resposta do Quiz?",
     "quizOptions": [
       {
-        "id": "dia05-opt-correct",
-        "text": "A leitura exige 10s e 100% de scroll para destravar o Quiz (0 netfits diretos), e o acerto no Quiz concede 5 netfits (ou 10 netfits em posts patrocinados).",
-        "isCorrect": true,
-        "feedback": "Exato! A pontuação fica 100% concentrada no acerto do Quiz (+5 ou +10 netfits), garantindo que os usuários absorvam o aprendizado e não apenas rolem a tela passivamente."
-      },
-      {
         "id": "dia05-opt-d1",
         "text": "A rolagem completa concede 3 netfits automáticos de leitura, e o Quiz adiciona outros 2 netfits complementares no acerto.",
         "isCorrect": false,
@@ -229,13 +223,19 @@
         "id": "dia05-opt-d2",
         "text": "O Quiz pode ser respondido a qualquer momento sem travas de tempo, creditando 5 netfits fixos independente da leitura prévia.",
         "isCorrect": false,
-        "feedback": "Incorreto. O botão do Quiz permanece bloqueado até que a trava antifraude de permanência e scroll completo seja cumprida."
+        "feedback": "Incorreto. O botão do Quiz permanece bloqueado até que o tempo mínimo de permanência e a rolagem completa do texto sejam realizados."
       },
       {
         "id": "dia05-opt-d3",
         "text": "O tempo de tela acumula 1 netfit a cada 30 segundos adicionais de leitura ativa, limitado ao teto de 10 netfits por post.",
         "isCorrect": false,
         "feedback": "Incorreto. A Netfits não remunera tempo de tela passivo para evitar fraudes; os pontos são concedidos pela precisão no Quiz."
+      },
+      {
+        "id": "dia05-opt-correct",
+        "text": "A leitura exige 10s e 100% de scroll para destravar o Quiz (0 netfits diretos), e o acerto no Quiz concede 5 netfits (ou 10 netfits em posts patrocinados).",
+        "isCorrect": true,
+        "feedback": "Exato! A pontuação fica 100% concentrada no acerto do Quiz (+5 ou +10 netfits), garantindo que os usuários absorvam o aprendizado e não apenas rolem a tela passivamente."
       }
     ],
     "heroPills": [
@@ -394,12 +394,6 @@
     "quizQuestion": "O que caracteriza a síndrome de Deficiência Energética Relativa no Esporte (REDs), alertada pelo Comitê Olímpico Internacional?",
     "quizOptions": [
       {
-        "id": "dia08-opt-correct",
-        "text": "A ingestão insuficiente de energia em relação ao gasto dos treinos, comprometendo funções hormonais, imunidade e saúde óssea.",
-        "isCorrect": true,
-        "feedback": "Perfeito! A baixa disponibilidade energética crônica compromete a tireoide, o eixo gonadal, reduz a densidade mineral óssea e prejudica gravemente o rendimento esportivo."
-      },
-      {
         "id": "dia08-opt-d1",
         "text": "O acúmulo excessivo de lactato no pós-treino gerado pela carência aguda de carboidratos de absorção ultra-rápida.",
         "isCorrect": false,
@@ -410,6 +404,12 @@
         "text": "A incapacidade genética do organismo de metabolizar lipídios como fonte energética primária em treinos submáximos.",
         "isCorrect": false,
         "feedback": "Incorreto. A REDs não é uma anomalia genética de oxidação de gorduras, mas sim uma desproporção entre consumo calórico e volume de treino."
+      },
+      {
+        "id": "dia08-opt-correct",
+        "text": "A ingestão insuficiente de energia em relação ao gasto dos treinos, comprometendo funções hormonais, imunidade e saúde óssea.",
+        "isCorrect": true,
+        "feedback": "Perfeito! A baixa disponibilidade energética crônica compromete a tireoide, o eixo gonadal, reduz a densidade mineral óssea e prejudica gravemente o rendimento esportivo."
       },
       {
         "id": "dia08-opt-d3",
@@ -452,21 +452,21 @@
     "readTime": "3 min",
     "pillText": "A disciplina que você constrói para cuidar da sua saúde é o seu maior patrimônio intangível.",
     "articleContent": [
-      "Texto do Artigo (Leitura no Modal com Scroll e Dwell Time 10s):\nHá mais de 30 anos, nosso fundador, André Gallo, recebeu um diagnóstico que mudaria o rumo de sua vida: Diabetes Tipo 1. Diante da necessidade vital de monitoramento contínuo, insulina e disciplina diária, o esporte e o autocuidado deixaram de ser hobbies e se tornaram ferramentas inegociáveis de sobrevivência e liberdade.\n\nAnos mais tarde, essa disciplina o levou a cruzar a linha de chegada de um Ironman 70.3. Mas foi durante essa trajetória que uma pergunta desconfortável ecoou: Por que os programas de fidelidade convencionais nos premiam quando gastamos dinheiro no cartão de crédito, mas ninguém nos reconhece quando investimos nosso tempo, energia e disciplina cuidando do bem mais precioso que temos: o nosso próprio corpo?\n\nA Netfits nasceu dessa provocação. Ela não é apenas um aplicativo; é um movimento criado para reconhecer, valorizar e recompensar cada escolha consciente que você faz pela sua vitalidade. Aqui, sua busca por longevidade ganha reconhecimento real."
+      "Há mais de 30 anos, nosso fundador, André Gallo, recebeu um diagnóstico que mudaria o rumo de sua vida: Diabetes Tipo 1. Diante da necessidade vital de monitoramento contínuo, insulina e disciplina diária, o esporte e o autocuidado deixaram de ser hobbies e se tornaram ferramentas inegociáveis de sobrevivência e liberdade.\n\nAnos mais tarde, essa disciplina o levou a cruzar a linha de chegada de um Ironman 70.3. Mas foi durante essa trajetória que uma pergunta desconfortável ecoou: Por que os programas de fidelidade convencionais nos premiam quando gastamos dinheiro no cartão de crédito, mas ninguém nos reconhece quando investimos nosso tempo, energia e disciplina cuidando do bem mais precioso que temos: o nosso próprio corpo?\n\nA Netfits nasceu dessa provocação. Ela não é apenas um aplicativo; é um movimento criado para reconhecer, valorizar e recompensar cada escolha consciente que você faz pela sua vitalidade. Aqui, sua busca por longevidade ganha reconhecimento real."
     ],
     "quizQuestion": "Qual percepção do fundador da Netfits, após mais de 30 anos com Diabetes Tipo 1 e completando um Ironman 70.3, inspirou a criação da plataforma?",
     "quizOptions": [
-      {
-        "id": "dia09-opt-correct",
-        "text": "A constatação de que os programas de fidelidade premiam apenas gastos financeiros, ignorando o esforço diário de quem cuida da própria saúde.",
-        "isCorrect": true,
-        "feedback": "Exato! A Netfits nasceu para transformar o suor e a disciplina do praticante amador em uma moeda digital com benefícios reais para sua longevidade."
-      },
       {
         "id": "dia09-opt-d1",
         "text": "A intenção de criar um prontuário médico fechado para prescrição automatizada de insulina e dietas esportivas.",
         "isCorrect": false,
         "feedback": "Incorreto. A tese central da Netfits é engajamento e fidelidade esportiva, e não medicina prescritiva ou diagnóstico clínico."
+      },
+      {
+        "id": "dia09-opt-correct",
+        "text": "A constatação de que os programas de fidelidade premiam apenas gastos financeiros, ignorando o esforço diário de quem cuida da própria saúde.",
+        "isCorrect": true,
+        "feedback": "Exato! A Netfits nasceu para transformar o suor e a disciplina do praticante amador em uma moeda digital com benefícios reais para sua longevidade."
       },
       {
         "id": "dia09-opt-d2",
@@ -522,12 +522,6 @@
     "quizQuestion": "Por que acompanhar regularmente o histórico de consistência e selos na aba Perfil é fundamental para a sua longevidade?",
     "quizOptions": [
       {
-        "id": "dia11-opt-correct",
-        "text": "Porque visualizar a regularidade de hábitos e conquistas reforça o compromisso de longo prazo e evita o abandono por falta de percepção de progresso.",
-        "isCorrect": true,
-        "feedback": "Excelente! A psicologia do hábito comprova que mensurar pequenas vitórias diárias mantém a dopamina equilibrada e ancora a disciplina de longo prazo."
-      },
-      {
         "id": "dia11-opt-d1",
         "text": "Para emitir relatórios contábeis obrigatórios que abatam as despesas de treinos e suplementação do imposto de renda.",
         "isCorrect": false,
@@ -537,13 +531,19 @@
         "id": "dia11-opt-d2",
         "text": "Porque a falta de abertura diária do perfil gera expiração automática dos netfits acumulados no mês anterior.",
         "isCorrect": false,
-        "feedback": "Incorreto. Os netfits têm validade de 24 meses (FEFO) e não são confiscados por inatividade esporádica."
+        "feedback": "Incorreto. Os netfits têm validade de 24 meses padrão e nunca são confiscados por inatividade esporádica."
       },
       {
         "id": "dia11-opt-d3",
         "text": "Para submeter os dados de treino à auditoria de outros atletas por sistema de votação pública obrigatória.",
         "isCorrect": false,
         "feedback": "Incorreto. Seus dados de perfil são protegidos pela LGPD e servem à sua evolução pessoal, sem exposição obrigatória a júri público."
+      },
+      {
+        "id": "dia11-opt-correct",
+        "text": "Porque visualizar a regularidade de hábitos e conquistas reforça o compromisso de longo prazo e evita o abandono por falta de percepção de progresso.",
+        "isCorrect": true,
+        "feedback": "Excelente! A psicologia do hábito comprova que mensurar pequenas vitórias diárias mantém a dopamina equilibrada e ancora a disciplina de longo prazo."
       }
     ],
     "heroPills": [
@@ -636,61 +636,61 @@
     "formattedDate": "01/11/2026",
     "line": "Institucional Netfits",
     "author": "Time Netfits",
-    "authorRole": "Transparência & FinOps",
+    "authorRole": "Comunidade & Experiência",
     "authorAvatar": "netfits",
-    "badge": "Transparência & Algoritmo FEFO",
-    "title": "Extrato Transparente: Validade FEFO de 24 Meses e Proteção do Saldo",
-    "subtitle": "Como o algoritmo First-Expiring, First-Out debita os pontos mais antigos primeiro e zela pelo seu patrimônio.",
+    "badge": "Seu Extrato no App",
+    "title": "Como Acompanhar Seus Pontos no Dia a Dia: Simples, Transparente e Sem Pegadinhas",
+    "subtitle": "Veja como compras no shop, respostas no quizz e selos aparecem no seu extrato e como seus pontos são usados.",
     "format": "article",
     "readTime": "2 min",
-    "pillText": "Transparência de dados não é benefício extra; é o alicerce fundamental de confiança na economia do suor.",
+    "pillText": "Acompanhe compras, quizzes e selos no seu extrato. Seus pontos valem 24 meses e você sempre usa primeiro os que vencem antes.",
     "articleContent": [
-      "Toda moeda com valor real precisa de auditoria transparente. Na Netfits, você nunca precisa adivinhar de onde vieram seus pontos ou quando eles vão expirar.",
-      "Acessando a sua Carteira / Extrato, você tem visão cirúrgica de cada movimentação:\n1. Identificação Clara da Origem: Cada crédito aponta exatamente a ação correspondente — Desafio Quiz Diário (+5 netfits), Quiz Patrocinado (+10 netfits), Bônus de Cadastro (+50 netfits), Indicação de Amigo MGM (+50 netfits) ou Cashback do Shop (4 netfits/R$ 1).\n2. Data e Hora do Lançamento: Registro cronológico auditado em tempo real.\n3. Prazo de Validade Amplo (24 meses): Seus pontos têm validade generosa de 2 anos a partir do momento em que foram gerados.\n4. Algoritmo FEFO (First Expire, First Out): Em qualquer resgate futuro, o sistema debita automaticamente os pontos mais antigos primeiro, protegendo seu saldo contra perdas por expiração.",
-      "Transparência e segurança matemática para você acumular com total confiança."
+      "A Netfits foi feita para fazer parte da sua rotina de saúde e bem-estar. E acompanhar os seus pontos no app é tão simples e natural quanto conferir o feed ou ver o resumo do seu treino.",
+      "Na aba Carteira, você tem um extrato claro que mostra tudo o que acontece no seu dia a dia:\n• Compras no Shop: Cada suplemento, tênis ou acessório comprado gera pontos de volta na hora.\n• Respostas do Quizz: Acertou a pergunta de fixação no feed? Seus pontos caem direto no saldo.\n• Selos e Conquistas: Bônus garantidos ao atingir metas e manter a constância nos treinos.\n• Uso de Pontos no Shop: Quando você usa seus pontos para ter desconto em novos pedidos, vê o abatimento exato do valor.",
+      "E para você aproveitar seus pontos com total tranquilidade, nossas regras são simples e diretas:\n• Validade dos pontos: Se não for informado de maneira explícita, todos os pontos emitidos têm 24 meses de validade. E sempre que houver alguma ação ou campanha especial com prazo diferente, isso será informado a você de forma clara e transparente.\n• Como seus pontos são usados: Ao fazer um resgate ou comprar com pontos no Shop, o sistema usa automaticamente os pontos com a data de expiração mais próxima. Assim, você aproveita o melhor dos seus benefícios sem precisar fazer contas complicadas."
     ],
-    "quizQuestion": "Qual é o prazo de validade oficial dos netfits e qual modelo de débito é utilizado para proteger seus pontos?",
+    "quizQuestion": "Como funcionam a validade e o uso dos seus pontos no extrato da Netfits?",
     "quizOptions": [
       {
-        "id": "dia13-opt-correct",
-        "text": "Validade de 24 meses (2 anos), operando sob o algoritmo FEFO (First Expire, First Out: os pontos que vencem primeiro são debitados primeiro).",
-        "isCorrect": true,
-        "feedback": "Perfeito! Com 24 meses de vigência e o modelo FEFO, o sistema prioriza sempre os netfits mais antigos nos resgates, evitando expirações acidentais."
-      },
-      {
         "id": "dia13-opt-d1",
-        "text": "Validade de 12 meses renovável somente mediante a realização de pelo menos uma compra por trimestre no Shop.",
+        "text": "Os pontos expiram a cada 30 dias caso o usuário não realize pelo menos uma compra por semana no Shop parceiro.",
         "isCorrect": false,
-        "feedback": "Incorreto. A validade oficial do Business Case é de 24 meses para cada crédito, sem obrigatoriedade de compras recorrentes."
+        "feedback": "Não é isso. Seus pontos não expiram em 30 dias; eles têm 24 meses de validade padrão para você usar no seu próprio ritmo."
       },
       {
         "id": "dia13-opt-d2",
-        "text": "Validade de 36 meses utilizando o algoritmo LIFO (Last In, First Out), no qual os netfits mais recentes são consumidos antes.",
+        "text": "O sistema gasta sempre os pontos mais recentes primeiro, exigindo que o usuário controle prazos manualmente para não perder os mais antigos.",
         "isCorrect": false,
-        "feedback": "Incorreto. O modelo da Netfits é FEFO (First Expire, First Out), protegendo a antiguidade do saldo do usuário."
+        "feedback": "Incorreto. O app cuida disso por você e consome automaticamente os pontos mais antigos (com data de expiração mais próxima) primeiro."
+      },
+      {
+        "id": "dia13-opt-correct",
+        "text": "Salvo indicação explícita em contrário, os pontos têm 24 meses de validade, e no momento do resgate são usados primeiro aqueles com vencimento mais próximo.",
+        "isCorrect": true,
+        "feedback": "Exatamente! Tudo fica visível no seu extrato: 24 meses de validade padrão e o app usa automaticamente os pontos que estão mais perto de vencer."
       },
       {
         "id": "dia13-opt-d3",
-        "text": "Validade indeterminada vitalícia enquanto o usuário não ultrapassar o saldo máximo permitido de 50.000 netfits.",
+        "text": "O extrato registra apenas compras pagas com cartão de crédito, e pontos ganhos em quizzes e selos não possuem validade definida.",
         "isCorrect": false,
-        "feedback": "Incorreto. Todo programa de pontos solvente possui provisionamento e prazo de validade técnica, fixado na Netfits em 24 meses."
+        "feedback": "Incorreto. O extrato registra todas as suas atividades do dia a dia (compras, quizzes, selos) e todos os pontos seguem a mesma regra clara de validade."
       }
     ],
     "heroPills": [
       {
-        "label": "VALIDADE 24 MESES",
+        "label": "EXTRATO DO DIA A DIA",
         "icon": "Clock"
       },
       {
-        "label": "REGRA FEFO",
+        "label": "24 MESES DE VALIDADE",
         "icon": "ShieldCheck"
       },
       {
-        "label": "PARTIDAS DOBRADAS",
-        "icon": "BookOpen"
+        "label": "PONTOS QUE VENCEM PRIMEIRO",
+        "icon": "ShoppingBag"
       }
     ],
-    "takeaway": "Transparência total na sua carteira: seus netfits têm 24 meses de validade e o débito consome sempre os pontos mais antigos primeiro."
+    "takeaway": "Extrato simples e sem segredos: veja compras, quizzes e selos em tempo real, aproveite 24 meses de validade e use sempre os pontos mais antigos primeiro."
   },
   {
     "id": "post-cal-dia-14-hidratacao-eletrolitos",
@@ -717,16 +717,16 @@
     "quizQuestion": "Por que treinos com duração superior a 60 minutos sob calor exigem reposição de eletrólitos além de água pura?",
     "quizOptions": [
       {
-        "id": "dia14-opt-correct",
-        "text": "Porque o suor elimina sódio e minerais; ingerir apenas água pura em excesso pode diluir a concentração plasmática de sódio e desencadear hiponatremia.",
-        "isCorrect": true,
-        "feedback": "Corretíssimo! A hiponatremia dilucional pode causar cefaleia, confusão mental, náuseas e até colapso em atletas que bebem grandes volumes de água pura sem sódio."
-      },
-      {
         "id": "dia14-opt-d1",
         "text": "Porque a água pura sem minerais acelera o esvaziamento gástrico, induzindo hipoglicemia reativa e bloqueio imediato do rendimento.",
         "isCorrect": false,
         "feedback": "Incorreto. A água pura não causa hipoglicemia de rebote; o perigo fisiológico primário da super-hidratação sem sódio é a hiponatremia."
+      },
+      {
+        "id": "dia14-opt-correct",
+        "text": "Porque o suor elimina sódio e minerais; ingerir apenas água pura em excesso pode diluir a concentração plasmática de sódio e desencadear hiponatremia.",
+        "isCorrect": true,
+        "feedback": "Corretíssimo! A hiponatremia dilucional pode causar cefaleia, confusão mental, náuseas e até colapso em atletas que bebem grandes volumes de água pura sem sódio."
       },
       {
         "id": "dia14-opt-d2",
@@ -775,16 +775,10 @@
     "readTime": "3 min",
     "pillText": "A constância diária vence a intensidade heroica de fim de semana: regularidade constrói longevidade real.",
     "articleContent": [
-      "Texto do Artigo (Leitura no Modal com Scroll e Dwell Time 10s):\nA cultura tradicional do fitness costuma glorificar o esgotamento extremo: sessões extenuantes de treino, dor paralisante no dia seguinte e a ideia de que 'se não doer, não funciona'. A ciência moderna da fisiologia demonstra exatamente o inverso: o choque esporádico eleva os riscos de lesões articulares, estresse oxidativo e abandono precoce por esgotamento (burnout).\n\nNosso organismo evoluiu para responder à consistência. Trinta minutos de movimento consciente e moderado praticados de forma regular ao longo da semana promovem adaptações cardiovasculares superiores, melhor regulação da glicemia e modulação autonômica sem sobrecarregar tendões e ligamentos.\n\nA Netfits prega o fim dos excessos autodestrutivos. O segredo da longevidade não está em vencer uma maratona esgotante uma vez por ano, mas em manter um relacionamento harmonioso e ininterrupto com o seu bem-estar todos os dias."
+      "A cultura tradicional do fitness costuma glorificar o esgotamento extremo: sessões extenuantes de treino, dor paralisante no dia seguinte e a ideia de que 'se não doer, não funciona'. A ciência moderna da fisiologia demonstra exatamente o inverso: o choque esporádico eleva os riscos de lesões articulares, estresse oxidativo e abandono precoce por esgotamento (burnout).\n\nNosso organismo evoluiu para responder à consistência. Trinta minutos de movimento consciente e moderado praticados de forma regular ao longo da semana promovem adaptações cardiovasculares superiores, melhor regulação da glicemia e modulação autonômica sem sobrecarregar tendões e ligamentos.\n\nA Netfits prega o fim dos excessos autodestrutivos. O segredo da longevidade não está em vencer uma maratona esgotante uma vez por ano, mas em manter um relacionamento harmonioso e ininterrupto com o seu bem-estar todos os dias."
     ],
     "quizQuestion": "De acordo com a fisiologia moderna do exercício, por que a frequência regular e sustentável é superior a choques esporádicos de intensidade extrema?",
     "quizOptions": [
-      {
-        "id": "dia15-opt-correct",
-        "text": "Porque a regularidade induz biogênese mitocondrial e angiogênese cumulativas sem sobrecarregar cronicamente o eixo neuroimunoendócrino.",
-        "isCorrect": true,
-        "feedback": "Exato! Pequenos estímulos frequentes mantêm a adaptação celular sem provocar o pico crônico de citocinas inflamatórias que leva a lesões e burnout."
-      },
       {
         "id": "dia15-opt-d1",
         "text": "Porque choques esporádicos de alta carga inibem de forma irreversível a síntese de proteínas musculares por mais de 45 dias consecutivos.",
@@ -802,6 +796,12 @@
         "text": "Porque treinos moderados impedem a queima de glicogênio muscular, forçando a utilização exclusiva de gordura visceral.",
         "isCorrect": false,
         "feedback": "Incorreto. Qualquer intensidade utiliza glicogênio em alguma proporção; a vantagem da consistência é o equilíbrio na recuperação sistêmica."
+      },
+      {
+        "id": "dia15-opt-correct",
+        "text": "Porque a regularidade induz biogênese mitocondrial e angiogênese cumulativas sem sobrecarregar cronicamente o eixo neuroimunoendócrino.",
+        "isCorrect": true,
+        "feedback": "Exato! Pequenos estímulos frequentes mantêm a adaptação celular sem provocar o pico crônico de citocinas inflamatórias que leva a lesões e burnout."
       }
     ],
     "heroPills": [
@@ -911,16 +911,16 @@
     "quizQuestion": "Quais benefícios oficiais o usuário destrava ao concluir seu cadastro e onboarding com perfil 100% preenchido na Netfits?",
     "quizOptions": [
       {
-        "id": "dia17-opt-correct",
-        "text": "Crédito imediato do Bônus de Cadastro (+50 netfits), curadoria personalizada de produtos no Shop e blindagem de segurança sob a LGPD.",
-        "isCorrect": true,
-        "feedback": "Corretíssimo! O cadastro completo concede 50 netfits na hora, personaliza as ofertas esportivas de acordo com a sua rotina e protege sua privacidade."
-      },
-      {
         "id": "dia17-opt-d1",
         "text": "Isenção perpétua de taxas de entrega em todas as compras do Shop e desconto fixo de 50% em calçados de corrida.",
         "isCorrect": false,
         "feedback": "Incorreto. O onboarding garante o Bônus de 50 netfits e personalização, mas as condições de frete e preços seguem as regras de cada parceiro."
+      },
+      {
+        "id": "dia17-opt-correct",
+        "text": "Crédito imediato do Bônus de Cadastro (+50 netfits), curadoria personalizada de produtos no Shop e blindagem de segurança sob a LGPD.",
+        "isCorrect": true,
+        "feedback": "Corretíssimo! O cadastro completo concede 50 netfits na hora, personaliza as ofertas esportivas de acordo com a sua rotina e protege sua privacidade."
       },
       {
         "id": "dia17-opt-d2",

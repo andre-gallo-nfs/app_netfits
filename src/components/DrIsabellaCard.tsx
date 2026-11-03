@@ -1,33 +1,31 @@
+import { trackArticleRead } from "@/lib/analytics";
 import { useState, useEffect, useMemo } from "react";
 import { 
-  Play, 
-  X, 
-  ShieldCheck, 
-  Heart, 
-  Activity, 
-  CheckCircle2, 
-  Clock, 
-  Sparkles, 
   Trophy, 
+  MoreVertical, 
+  CheckCircle2, 
   ArrowRight, 
   AlertCircle, 
-  Lock,
-  MoreVertical,
+  Sparkles, 
+  HeartPulse, 
+  Moon, 
+  Apple, 
+  BookOpen, 
+  Clock, 
+  X, 
+  ShieldCheck, 
+  Calendar, 
+  Activity,
   Flame,
-  HeartPulse,
-  Apple
+  Heart
 } from "lucide-react";
-import draIsabella from "@/assets/dra-isabella.jpeg";
-import draIsabellaAvatar from "@/assets/dra-isabella-avatar.jpg";
 import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
+import draIsabellaAvatar from "@/assets/dra-isabella-avatar.jpg";
+import draIsabellaImg from "@/assets/dra-isabella.jpeg";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
 import { toast } from "sonner";
-
-const VIDEO_POST_ID = "isabella-video-protocolo";
-const QUIZ_POST_ID = "isabella-protocolo-quiz";
-const VIDEO_QUALIFIED_KEY = "netfits_video_isabella_protocolo_qualified";
 
 interface QuizOption {
   id: string;
@@ -38,12 +36,6 @@ interface QuizOption {
 
 const PROTOCOLO_QUIZ_OPTIONS: QuizOption[] = [
   {
-    id: "proto-opt-1",
-    text: "Mapear biomarcadores, inflamação subclínica e cinética hormonal para guiar carga e longevidade.",
-    isCorrect: true,
-    feedback: "Exato! O Protocolo Fibios correlaciona dados laboratoriais precisos à carga de treino para blindar a saúde e o rendimento ao longo das décadas.",
-  },
-  {
     id: "proto-opt-2",
     text: "Treinar sempre em sobrecarga máxima sem realizar estratificação de risco biológico prévia.",
     isCorrect: false,
@@ -53,7 +45,13 @@ const PROTOCOLO_QUIZ_OPTIONS: QuizOption[] = [
     id: "proto-opt-3",
     text: "Apenas monitorar o peso na balança como único indicador de adaptação cardiovascular.",
     isCorrect: false,
-    feedback: "A balança convencional não reflete perfil lipídico, sensibilidade insulínica, inflamação ou saúde endotelial.",
+    feedback: "A balança convencional não reflete perfil lipídico, sensibilidade insulínica, inflamação subclínica ou saúde endotelial.",
+  },
+  {
+    id: "proto-opt-1",
+    text: "Mapear marcadores inflamatórios, perfil metabólico e cinética hormonal para dosar a carga certa e preservar a longevidade.",
+    isCorrect: true,
+    feedback: "Exato! O Protocolo Fibios correlaciona dados laboratoriais precisos à carga de treino para blindar a saúde e o rendimento ao longo das décadas.",
   },
   {
     id: "proto-opt-4",
@@ -63,14 +61,17 @@ const PROTOCOLO_QUIZ_OPTIONS: QuizOption[] = [
   },
 ];
 
+const QUIZ_POST_ID = "isabella-protocolo-quiz";
+const ARTICLE_POST_ID = "isabella-protocolo-artigo";
+
 export function DrIsabellaCard() {
-  const [open, setOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [videoQualified, setVideoQualified] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string>("");
-  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
-  const [quizError, setQuizError] = useState<string | null>(null);
+  const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [articleOpen, setArticleOpen] = useState<boolean>(false);
+  const [readClaimed, setReadClaimed] = useState<boolean>(false);
+  const [dwellTimeSeconds, setDwellTimeSeconds] = useState<number>(0);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState<boolean>(false);
 
   const shuffledOptions = useMemo(() => {
     const arr = [...PROTOCOLO_QUIZ_OPTIONS];
@@ -85,85 +86,46 @@ export function DrIsabellaCard() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      if (localStorage.getItem(VIDEO_QUALIFIED_KEY) === "true" || feedAntifraud.hasClaimed("video_view", VIDEO_POST_ID)) {
-        setVideoQualified(true);
-        setProgress(100);
-      }
       if (feedAntifraud.hasClaimed("quiz", QUIZ_POST_ID)) {
-        setQuizSubmitted(true);
+        setHasSubmitted(true);
+      }
+      if (feedAntifraud.hasClaimed("read", ARTICLE_POST_ID)) {
+        setReadClaimed(true);
+        trackArticleRead(ARTICLE_POST_ID, "Protocolo Fibios: Biomarcadores & Longevidade (Dra. Isabella Formigari)", dwellTimeSeconds);
       }
     }
   }, []);
 
-  // Simulação realista de reprodução de vídeo com medição de retenção antifraude (90% dwell time)
+  // Monitoramento de leitura ativa
   useEffect(() => {
     let timer: any = null;
-    if (open && isPlaying && progress < 100) {
+    if (articleOpen && !readClaimed) {
+      setHasScrolledToBottom(false);
+      setDwellTimeSeconds(0);
       timer = setInterval(() => {
-        setProgress((prev) => {
-          const next = prev + 5;
-          if (next >= 90 && !videoQualified) {
-            handleQualifyVideo(next);
-          }
-          if (next >= 100) {
-            clearInterval(timer);
-            setIsPlaying(false);
-            return 100;
-          }
-          return next;
-        });
-      }, 500);
+        setDwellTimeSeconds((prev) => prev + 1);
+      }, 1000);
     }
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [open, isPlaying, progress, videoQualified]);
+  }, [articleOpen, readClaimed]);
 
-  const handleQualifyVideo = (currentProgress: number) => {
-    const validation = feedAntifraud.validateAction("video_view", VIDEO_POST_ID, {
-      videoProgressPct: currentProgress,
-    });
-
-    if (validation.allowed) {
-      setVideoQualified(true);
-      if (typeof window !== "undefined") {
-        localStorage.setItem(VIDEO_QUALIFIED_KEY, "true");
-      }
-      feedAntifraud.recordAction("video_view", VIDEO_POST_ID, 0);
-      toast.success("🎉 Retenção de 90% aprovada pela auditoria antifraude! Desafio liberado.");
-    } else if (validation.reason) {
-      toast.warning(validation.reason);
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 40) {
+      setHasScrolledToBottom(true);
     }
   };
 
-  const handleOpenVideo = () => {
-    setOpen(true);
-    setIsPlaying(true);
-  };
-
-  const handleClose = () => {
-    if (!videoQualified && progress < 90) {
-      toast.error(
-        "🚫 Antifraude Netfits: É obrigatório assistir ao menos 90% do vídeo para habilitar o Quizz."
-      );
-    }
-    setOpen(false);
-    setIsPlaying(false);
-  };
-
-  const handleQuizSubmit = () => {
-    if (quizSubmitted) {
+  const handleSubmit = () => {
+    if (hasSubmitted) {
       toast.info("Você já concluiu este desafio e conquistou seus netfits!");
       return;
     }
 
-    if (!videoQualified) {
-      toast.warning("🚫 Regra Antifraude: Assista ao menos 90% do vídeo acima para habilitar o Quizz.");
-      return;
-    }
-
     if (!selectedOption) {
-      toast.warning("Selecione uma alternativa antes de confirmar sua resposta!");
+      toast.warning("Selecione uma alternativa antes de confirmar!");
       return;
     }
 
@@ -171,51 +133,66 @@ export function DrIsabellaCard() {
     if (!option) return;
 
     if (option.isCorrect) {
-      const validation = feedAntifraud.validateAction("quiz", QUIZ_POST_ID, {
-        videoProgressPct: progress >= 90 ? progress : 100,
-      });
-
+      const validation = feedAntifraud.validateAction("quiz", QUIZ_POST_ID);
       if (!validation.allowed) {
-        toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
+        toast.warning(validation.reason || "Ação não autorizada.");
         return;
       }
 
-      const points = feedAntifraud.getRules().pointsPerEducationalQuiz || 5;
-      setQuizError(null);
-      setQuizSubmitted(true);
-      wallet.earn(points, "Desafio Vídeo Protocolo Fibios — Dra. Isabella Formigari");
+      const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
+      setErrorMsg(null);
+      setHasSubmitted(true);
+      wallet.earn(points, "Quizz Netfits: Protocolo Fibios (Dra. Isabella Formigari)");
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
       toast.success(`🎉 Resposta correta! +${points} netfits creditados na sua carteira digital.`);
     } else {
-      setQuizError(option.feedback || "Resposta incorreta. Tente novamente após rever o conceito.");
-      toast.error("Resposta incorreta. Tente novamente!");
+      setErrorMsg(option.feedback || "Resposta incorreta. Tente novamente após rever o conceito.");
+      toast.error("Resposta incorreta! Leia o feedback com atenção.");
+    }
+  };
+
+  const handleClaimRead = () => {
+    if (readClaimed) return;
+    const validation = feedAntifraud.validateAction("read", ARTICLE_POST_ID, {
+      dwellTimeSeconds,
+      hasScrolledToBottom,
+    });
+
+    if (validation.allowed) {
+      feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0);
+      setReadClaimed(true);
+      trackArticleRead(ARTICLE_POST_ID, "Protocolo Fibios: Biomarcadores & Longevidade (Dra. Isabella Formigari)", dwellTimeSeconds);
+      toast.success("📖 Leitura completa validada com sucesso! O Quizz Netfits (+5 netfits) foi liberado.");
+      setArticleOpen(false);
+    } else {
+      toast.warning(validation.reason || "Complete a leitura e role até o fim para validar.");
     }
   };
 
   return (
     <>
       <article className="px-4 space-y-3.5 min-h-[560px] w-full max-w-full overflow-x-hidden">
-        {/* 1. Header do Especialista */}
+        {/* 1. Header do Especialista com Compliance CFM */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
               src={draIsabellaAvatar}
               alt="Dra. Isabella Formigari"
               className="size-11 rounded-full object-cover ring-2 ring-purple-500/30 cursor-pointer"
-              onClick={handleOpenVideo}
+              onClick={() => setArticleOpen(true)}
             />
-            <div className="cursor-pointer" onClick={handleOpenVideo}>
+            <div className="cursor-pointer" onClick={() => setArticleOpen(true)}>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-zinc-900 leading-tight hover:text-purple-600 transition-colors">
-                  Dra. Isabella responde
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white leading-tight hover:text-purple-600 transition-colors">
+                  Dra. Isabella Formigari
                 </h3>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-700 text-[10px] font-black uppercase tracking-tight">
-                  <Flame className="size-3 text-purple-600 fill-purple-600 animate-pulse" />
-                  Vídeo Exclusivo
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-700 dark:text-purple-400 text-[10px] font-black uppercase tracking-tight">
+                  <Activity className="size-3 text-purple-600" />
+                  Protocolo Fibios
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-600 font-medium">
-                por Fibios · há 8 horas
+              <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-medium">
+                Médica (CRM-SP 282951) sócia fundadora da Fibios
               </p>
             </div>
           </div>
@@ -234,371 +211,316 @@ export function DrIsabellaCard() {
           </div>
         </div>
 
-        {/* 2. Hero Banner Fotográfico Editorial (4:5 Mobile-First - Padrão Ouro de Poster) */}
+        {/* 2. Título & Subtítulo */}
+        <div className="space-y-1">
+          <h2 
+            onClick={() => setArticleOpen(true)}
+            className="text-base sm:text-lg font-black text-zinc-950 dark:text-white tracking-tight leading-snug hover:text-purple-600 transition-colors cursor-pointer"
+          >
+            Protocolo Fibios: Como Mapear Biomarcadores Blinda a Sua Longevidade no Esporte
+          </h2>
+          <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
+            A medicina preventiva aplicada ao movimento: por que exames periódicos e cinética hormonal separam a evolução atlética do desgaste crônico.
+          </p>
+        </div>
+
+        {/* 3. Hero Banner Fotográfico Editorial (4:5 Mobile-First) */}
         <div
-          onClick={handleOpenVideo}
-          className="relative overflow-hidden rounded-2xl shadow-md border border-zinc-200 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[480px]"
+          onClick={() => setArticleOpen(true)}
+          className="relative overflow-hidden rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[480px]"
           role="button"
           tabIndex={0}
-          aria-label="Toque para assistir ao vídeo do Protocolo Fibios"
+          aria-label="Toque para ler o Protocolo Clínico Fibios"
         >
           <img
-            src={draIsabella}
+            src={draIsabellaImg}
             alt="Dra. Isabella Formigari - Protocolo Fibios"
             className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
           />
-          {/* Gradiente Escuro Profundo para Contraste Máximo */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/75 to-black/35" />
 
-          {/* Botão de Play Central */}
-          <div className="absolute inset-0 grid place-items-center z-10 pointer-events-none">
-            <div className="size-16 rounded-full bg-white/95 text-zinc-950 shadow-2xl grid place-items-center ring-4 ring-[#C8F135]/60 group-hover:scale-110 transition-transform">
-              <Play className="size-7 ml-1 text-zinc-950 fill-zinc-950" />
-            </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+
+          {/* Pílulas de Contexto Científico no Topo */}
+          <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-white shadow-xs">
+              <Activity className="size-3 text-[#C8F135]" />
+              BIOMARCADORES
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-white shadow-xs">
+              <ShieldCheck className="size-3 text-[#C8F135]" />
+              INFLAMAÇÃO CONTROLADA
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-white shadow-xs">
+              <HeartPulse className="size-3 text-[#C8F135]" />
+              MEDICINA FIBIOS
+            </span>
           </div>
 
-          {/* Conteúdo Editorial Sobreposto */}
-          <div className="absolute inset-0 p-5 flex flex-col justify-between text-white z-20 pointer-events-none">
-            {/* Topo do Poster */}
-            <div className="flex items-center justify-between gap-2">
-              <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#C8F135] text-[#202127] text-[10px] font-black uppercase tracking-widest shadow-sm font-mono">
-                PROTOCOLO FIBIOS
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow-sm">
-                <Play className="size-3 text-[#C8F135] fill-[#C8F135]" />
-                <span>Assistir vídeo (4:12)</span>
-              </span>
-            </div>
+          {/* Botão de Ação Tátil no Rodapé da Imagem */}
+          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-10">
+            <span className="text-[11px] font-semibold text-zinc-200 flex items-center gap-1.5 drop-shadow-md">
+              <Clock className="size-3.5 text-[#C8F135]" />
+              Leitura de 3 min
+            </span>
 
-            {/* Centro / Título e Subtítulo */}
-            <div className="space-y-2 my-auto">
-              <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md break-words">
-                Mesmo atleta amador precisa de acompanhamento médico.
-              </h3>
-              <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-snug drop-shadow-md line-clamp-3">
-                Conheça o Protocolo Fibios: exames, biomarcadores e plano de longevidade para quem treina sério em qualquer nível.
-              </p>
-            </div>
-
-            {/* Rodapé do Poster: Pílulas Temáticas & Assinatura */}
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900/90 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white shadow-sm">
-                  <HeartPulse className="size-3 text-[#C8F135]" />
-                  <span>BIOMARCADORES</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900/90 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white shadow-sm">
-                  <Activity className="size-3 text-[#38BDF8]" />
-                  <span>RECUPERAÇÃO CELULAR</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900/90 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white shadow-sm">
-                  <ShieldCheck className="size-3 text-purple-400" />
-                  <span>PREVENÇÃO</span>
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 pt-1.5 border-t border-white/20">
-                <div className="w-1 h-7 bg-[#C8F135] rounded-full shrink-0" />
-                <div className="min-w-0">
-                  <span className="font-bold text-xs text-white block truncate">
-                    Dra. Isabella Formigari
-                  </span>
-                  <span className="text-[10px] text-zinc-300 block truncate">
-                    Médica (CRM-SP 282951) · Sócia Fundadora da Fibios
-                  </span>
-                </div>
-              </div>
-            </div>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white text-zinc-950 font-bold text-xs shadow-lg backdrop-blur-xs transition">
+              <BookOpen className="size-3.5 text-purple-700" />
+              Ler Protocolo Completo
+            </span>
           </div>
         </div>
 
-        {/* Barra Bipartida Institucional Netfits */}
+        {/* 4. Pílula de Leitura Rápida */}
+        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-950 dark:text-purple-200 leading-relaxed font-medium">
+          💡 <b>Diretriz Clínica:</b> Treinar forte sem entender seus exames acelera o estresse oxidativo. O Protocolo Fibios traduz seus dados em saúde para as próximas décadas.
+        </div>
+
+        {/* 5. Barra Bipartida Institucional Netfits */}
         <div className="h-0.5 w-full rounded-full flex overflow-hidden">
           <div className="w-1/2 bg-[#6B2AD9]" />
           <div className="w-1/2 bg-[#C8F135]" />
         </div>
 
-        {/* Status da Trava Antifraude */}
-        {videoQualified ? (
-          <div className="p-3 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-800 text-xs font-bold flex items-center justify-between shadow-xs">
-            <span className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 shrink-0 text-lime-600" />
-              <span>Vídeo assistido (90%+) · Desafio Quiz liberado</span>
-            </span>
-            <span className="text-[11px] font-mono text-lime-700">100% ✔</span>
-          </div>
-        ) : (
-          <div className="p-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs font-medium flex items-center justify-between shadow-xs">
-            <span className="flex items-center gap-2">
-              <ShieldCheck className="size-4 text-purple-600 shrink-0" />
-              <span>Assista 90% do vídeo para liberar o Quiz (+5 netfits)</span>
-            </span>
-            <span className="font-mono text-purple-700 font-bold">{progress}%</span>
-          </div>
-        )}
-
-        {/* 3. Módulo Interativo: Desafio Quiz (+5 netfits) */}
-        <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
-            <div className="flex items-center gap-2.5">
-              <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
+        {/* 6. Módulo Interativo: QUIZZ NETFITS (+5 netfits) */}
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 dark:text-purple-400 grid place-items-center shrink-0">
                 <Trophy className="size-5" />
               </div>
               <div>
-                <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                  DESAFIO FIBIOS & NETFITS
+                <span className="text-[10px] font-black tracking-widest text-purple-600 dark:text-purple-400 uppercase block">
+                  QUIZZ NETFITS
                 </span>
-                <span className="text-xs font-bold text-zinc-900">
-                  Protocolo Clínico de Longevidade
-                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                    Responda e ganhe
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#C8F135] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
+                    5 netfits
+                  </span>
+                </div>
               </div>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-[#C8F135] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-              5 netfits
-            </span>
+
+            {hasSubmitted ? (
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                <CheckCircle2 className="size-3.5" /> Concluído
+              </span>
+            ) : (
+              <span className="text-[11px] text-zinc-500 font-medium flex items-center gap-1">
+                <Clock className="size-3" /> Fixação Diária
+              </span>
+            )}
           </div>
 
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug break-words">
-            No Protocolo Fibios de longevidade, qual a importância da análise de biomarcadores para quem treina?
+          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
+            No Protocolo Fibios de longevidade, qual a importância da análise de biomarcadores para quem treina com frequência?
           </h4>
 
-          <div className="space-y-2.5">
+          {/* Opções de Resposta */}
+          <div className="space-y-2">
             {shuffledOptions.map((opt) => {
               const isSelected = selectedOption === opt.id;
-              const isFinishedCorrect = quizSubmitted && opt.isCorrect;
+              let itemStyle = "border-zinc-200 dark:border-zinc-700 bg-zinc-50/60 dark:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200 hover:border-purple-300";
+
+              if (hasSubmitted) {
+                if (opt.isCorrect) {
+                  itemStyle = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-semibold";
+                } else if (isSelected && !opt.isCorrect) {
+                  itemStyle = "border-rose-400 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200";
+                }
+              } else if (isSelected) {
+                itemStyle = "border-purple-600 bg-purple-50/70 dark:bg-purple-950/30 text-purple-950 dark:text-purple-100 font-medium ring-1 ring-purple-600/30";
+              }
 
               return (
                 <button
                   key={opt.id}
                   type="button"
-                  disabled={quizSubmitted || !videoQualified}
-                  onClick={() => {
-                    setSelectedOption(opt.id);
-                    setQuizError(null);
-                  }}
-                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
-                    isFinishedCorrect
-                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
-                      : isSelected
-                      ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
-                      : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
-                  } ${quizSubmitted || !videoQualified ? "cursor-default" : ""}`}
+                  disabled={hasSubmitted}
+                  onClick={() => setSelectedOption(opt.id)}
+                  className={`w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm transition flex items-start gap-3 min-h-[44px] ${itemStyle}`}
                 >
-                  <div
-                    className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
-                      isFinishedCorrect || isSelected
-                        ? "border-lime-600 bg-lime-500/20"
-                        : "border-zinc-400"
-                    }`}
-                  >
-                    {(isFinishedCorrect || isSelected) && (
-                      <div className="size-2 rounded-full bg-lime-600" />
-                    )}
-                  </div>
-                  <span className="flex-1 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
+                  <span className={`size-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold ${
+                    isSelected ? "border-purple-600 bg-purple-600 text-white" : "border-zinc-300 text-zinc-500"
+                  }`}>
+                    {hasSubmitted && opt.isCorrect ? "✓" : ""}
+                  </span>
+                  <span className="flex-1 break-words leading-relaxed">{opt.text}</span>
                 </button>
               );
             })}
           </div>
 
-          {quizError && (
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <p>{quizError}</p>
+          {/* Feedback Educativo */}
+          {hasSubmitted && (
+            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
+              <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                <span>Quizz Concluído (+5 netfits creditados)</span>
+              </div>
+              <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                {PROTOCOLO_QUIZ_OPTIONS.find((o) => o.isCorrect)?.feedback}
+              </p>
             </div>
           )}
 
-          {!quizSubmitted ? (
-            videoQualified ? (
-              <button
-                type="button"
-                onClick={handleQuizSubmit}
-                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
-              >
-                <span>Responder e conquistar 5 netfits</span>
-                <ArrowRight className="size-4" />
-              </button>
-            ) : (
-              <div className="p-3.5 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-600 text-xs flex items-center justify-center gap-2">
-                <Lock className="size-4 text-zinc-400" />
-                <span>Assista ao menos 90% do vídeo acima para destravar este Desafio (+5 netfits).</span>
+          {errorMsg && !hasSubmitted && (
+            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 space-y-1">
+              <div className="flex items-center gap-1.5 text-rose-800 dark:text-rose-300 text-xs font-bold">
+                <AlertCircle className="size-4 text-rose-600 shrink-0" />
+                <span>Resposta Incorreta</span>
               </div>
-            )
-          ) : (
-            <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
-              <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
-              <div className="flex-1 text-xs">
-                <span className="font-bold text-lime-700 block">
-                  Desafio conquistado!
-                </span>
-                <span className="text-zinc-800 font-medium">+5 netfits foram creditados na sua carteira Netfits.</span>
-              </div>
-              <Sparkles className="size-4 text-lime-600 shrink-0" />
+              <p className="text-xs text-rose-900 dark:text-rose-200 leading-relaxed">
+                {errorMsg}
+              </p>
             </div>
+          )}
+
+          {!hasSubmitted && (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="w-full bg-[#6B2AD9] hover:bg-[#581c87] text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-xl transition shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Confirmar Resposta</span>
+              <ArrowRight className="size-4" />
+            </button>
           )}
         </div>
 
-        {/* 4. Pílula de Sabedoria / Takeaway no Rodapé */}
-        <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-purple-950 border border-zinc-800 rounded-2xl p-4 text-white flex items-center gap-3.5 shadow-sm">
-          <div className="size-9 rounded-full bg-lime-400/10 border border-lime-400/20 grid place-items-center shrink-0">
-            <Sparkles className="size-4 text-lime-400" />
-          </div>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-snug">
-            <strong className="text-lime-400 font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
-              Pílula de Sabedoria Fibios & Netfits
-            </strong>
-            "O acompanhamento médico preventivo não é luxo de atleta olímpico: é a chave biológica para treinar sem desgaste celular precoce."
-          </p>
-        </div>
-
-        {/* 5. Ações Sociais */}
+        {/* 7. Ações Sociais */}
         <FeedSocialActions
-          id={VIDEO_POST_ID}
-          title="Dra. Isabella Formigari — Protocolo Fibios de Longevidade"
-          onOpenArticle={handleOpenVideo}
+          id={ARTICLE_POST_ID}
+          title="Protocolo Fibios: Biomarcadores & Longevidade no Esporte"
+          onOpenArticle={() => setArticleOpen(true)}
         />
 
-        {/* Divisor Elegante de Postagem */}
         <div className="h-px bg-zinc-200/80 dark:bg-zinc-800/80 my-4" />
       </article>
 
-      {/* Modal Player com Medição Antifraude 90% */}
-      {open && (
+      {/* Modal com o Artigo Clínico Completo */}
+      {articleOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in"
-          onClick={handleClose}
+          onClick={() => setArticleOpen(false)}
           role="dialog"
-          aria-label="Vídeo Dra. Isabella Formigari"
+          aria-label="Artigo Protocolo Fibios"
         >
           <div
-            className="w-full max-w-md bg-white text-zinc-900 rounded-t-2xl sm:rounded-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-zinc-200"
+            className="w-full max-w-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-t-2xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl border border-zinc-200 dark:border-zinc-800"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Player de Vídeo com Barra de Retenção */}
-            <div className="relative">
-              <img
-                src={draIsabella}
-                alt="Dra. Isabella Formigari"
-                className="w-full aspect-video object-cover"
-              />
-              <div className="absolute inset-0 bg-black/50" />
-              
-              <div className="absolute inset-0 grid place-items-center">
-                <button
-                  type="button"
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="size-16 rounded-full bg-white/95 grid place-items-center shadow-lg cursor-pointer hover:scale-105 transition"
-                  aria-label={isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
-                >
-                  <Play className={`size-7 ml-0.5 fill-zinc-900 text-zinc-900 ${isPlaying ? "opacity-50" : ""}`} />
-                </button>
+            {/* Header do Modal */}
+            <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-full bg-purple-600/10 text-purple-600 flex items-center justify-center">
+                  <Activity className="size-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-zinc-900 dark:text-white">
+                    Protocolo Clínico Fibios
+                  </h3>
+                  <p className="text-[10px] text-zinc-500">
+                    Dra. Isabella Formigari · CRM-SP 282951
+                  </p>
+                </div>
               </div>
-
               <button
                 type="button"
-                onClick={handleClose}
-                className="absolute top-3 right-3 size-9 rounded-full bg-white/90 text-zinc-900 grid place-items-center cursor-pointer hover:bg-white"
+                onClick={() => setArticleOpen(false)}
+                className="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 grid place-items-center hover:bg-zinc-200"
                 aria-label="Fechar"
               >
-                <X className="size-5" />
+                <X className="size-4" />
               </button>
-
-              <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">
-                4:12
-              </span>
-
-              <div className="absolute top-3 left-3 bg-zinc-900/90 text-white border border-purple-500/40 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                <ShieldCheck className="size-3 text-lime-400" />
-                <span>Antifraude: 90% Dwell Time</span>
-              </div>
             </div>
 
-            {/* Barra de Retenção Visual */}
-            <div className="p-4 bg-zinc-50 border-b border-zinc-200 space-y-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span className="text-zinc-700">Retenção de Vídeo Auditada:</span>
-                <span className="font-mono font-bold text-purple-700">
-                  {progress}% {progress >= 90 ? "✔ (Mínimo 90% atingido)" : ""}
-                </span>
-              </div>
-
-              <div className="h-2.5 w-full bg-zinc-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-600 to-lime-400 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-
-              {progress < 90 ? (
-                <p className="text-[11px] text-amber-800 font-medium">
-                  ⚠️ <b>Regra Antifraude:</b> Assista ao menos 90% do vídeo para validar a retenção e liberar o Quizz (+5 netfits).
-                </p>
-              ) : (
-                <p className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="size-3.5 text-emerald-600" />
-                  Parabéns! Retenção de 90% validada e Quizz liberado abaixo!
-                </p>
-              )}
-            </div>
-
-            <div className="p-5 space-y-4">
+            {/* Conteúdo do Artigo com Scroll */}
+            <div 
+              onScroll={handleScroll}
+              className="p-5 overflow-y-auto space-y-4 text-xs sm:text-sm leading-relaxed text-zinc-700 dark:text-zinc-300"
+            >
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-brand mb-1">
-                  Protocolo Fibios · Longevidade
-                </p>
-                <h3 className="text-lg font-semibold leading-tight mb-1">
-                  Dra. Isabella Formigari
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Médica (CRM-SP 282951) · Sócia Fundadora da Fibios
-                </p>
+                <span className="text-[10px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                  Medicina do Estilo de Vida
+                </span>
+                <h2 className="text-base sm:text-lg font-black text-zinc-950 dark:text-white mt-1">
+                  Como Mapear Biomarcadores Blinda a Sua Longevidade no Esporte
+                </h2>
               </div>
 
-              <p className="text-sm text-foreground text-pretty">
-                "Treinar bem é só metade do caminho. O que sustenta o atleta amador a longo prazo
-                é entender o próprio corpo — inflamação, sono, hormônios, recuperação. O{" "}
-                <strong>Protocolo Fibios</strong> traduz seus exames em um plano vivo de
-                longevidade."
+              <p>
+                Treinar com disciplina é indispensável para a saúde cardiovascular e musculoesquelética. No entanto, treinar no escuro — sem saber o que acontece no ambiente celular — pode se transformar em uma armadilha biológica.
               </p>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-muted rounded-lg p-2 ring-1 ring-black/5 flex flex-col items-center gap-1 text-center">
-                  <Activity className="size-4 text-brand" />
-                  <span className="text-[10px] font-semibold leading-tight">Performance</span>
-                </div>
-                <div className="bg-muted rounded-lg p-2 ring-1 ring-black/5 flex flex-col items-center gap-1 text-center">
-                  <Heart className="size-4 text-brand" />
-                  <span className="text-[10px] font-semibold leading-tight">Cardio & sono</span>
-                </div>
-                <div className="bg-muted rounded-lg p-2 ring-1 ring-black/5 flex flex-col items-center gap-1 text-center">
-                  <ShieldCheck className="size-4 text-brand" />
-                  <span className="text-[10px] font-semibold leading-tight">Prevenção</span>
-                </div>
-              </div>
-
-              <div className="bg-muted rounded-xl p-3 ring-1 ring-black/5">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                  Inclui no protocolo
+              <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 space-y-1">
+                <h4 className="font-bold text-purple-900 dark:text-purple-200 text-xs">
+                  O Ponto Cego do Atleta Amador
+                </h4>
+                <p className="text-xs text-purple-950/80 dark:text-purple-300">
+                  Muitos praticantes que se queixam de estagnação, cansaço crônico e dores persistentes acreditam que precisam apenas "treinar mais forte". Na maioria das vezes, o corpo já está emitindo sinais subclínicos de estresse oxidativo descontrolado e inflamação crônica.
                 </p>
-                <ul className="text-xs text-foreground space-y-1">
-                  <li>· Painel completo de biomarcadores</li>
-                  <li>· Avaliação cardiorrespiratória e composição corporal</li>
-                  <li>· Plano individual de suplementação e recuperação</li>
-                  <li>· Acompanhamento trimestral com a equipe Fibios</li>
-                </ul>
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  toast.success("Redirecionando para agendamento do Protocolo Fibios...");
-                }}
-                className="w-full bg-brand text-brand-foreground text-sm font-bold py-3 rounded-full cursor-pointer hover:opacity-90 transition"
-              >
-                Agendar avaliação Fibios
-              </button>
+              <h4 className="font-bold text-zinc-950 dark:text-white text-xs uppercase tracking-wider pt-2">
+                Os 3 Eixos Centrais do Protocolo Fibios
+              </h4>
+
+              <div className="space-y-2.5">
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60">
+                  <p className="font-bold text-zinc-900 dark:text-white text-xs mb-1">
+                    1. Painel Metabólico e Inflamatório
+                  </p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                    Acompanhamento rigoroso de Proteína C-Reativa ultrassensível (PCR-us), homocisteína, ferritina, glicemia de jejum e perfil lipídico fracionado. Esses dados mostram se o endotélio vascular está protegido ou sob sobrecarga.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60">
+                  <p className="font-bold text-zinc-900 dark:text-white text-xs mb-1">
+                    2. Cinética Hormonal e Eixo de Estresse
+                  </p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                    Análise da relação entre cortisol matinal e testosterona livre, além de DHEA e perfil tireoidiano. Essa proporção revela se o corpo está em anabolismo saudável ou em catabolismo destrutivo (síndrome REDs / overtraining).
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60">
+                  <p className="font-bold text-zinc-900 dark:text-white text-xs mb-1">
+                    3. Sono Reparador e Recuperação Celular
+                  </p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                    É durante o sono de ondas lentas que ocorre o pico de secreção do hormônio do crescimento (GH) e a síntese de colágeno para tendões e ligamentos. Sem sono regenerador, o estímulo do treino vira lesão articular precoce.
+                  </p>
+                </div>
+              </div>
+
+              <h4 className="font-bold text-zinc-950 dark:text-white text-xs uppercase tracking-wider pt-2">
+                Da Teoria ao Hábito Sustentável
+              </h4>
+
+              <p>
+                Com os biomarcadores estratificados, a periodização dos treinos deixa de ser uma adivinhação. O atleta sabe exatamente quando pode buscar um novo recorde pessoal e quando precisa modular a carga para regenerar.
+              </p>
+
+              <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                A verdadeira longevidade ativa nasce dessa harmonia: treinar com máxima eficiência, recuperar com profundidade e acompanhar a evolução biológica ano após ano.
+              </p>
+
+              {/* Botão de Conclusão da Leitura */}
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={handleClaimRead}
+                  className="w-full bg-[#6B2AD9] hover:bg-[#581c87] text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-xl transition shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <CheckCircle2 className="size-4" />
+                  <span>Concluir Leitura e Ir para o Quizz</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

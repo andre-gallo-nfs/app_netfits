@@ -516,7 +516,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               </div>
               <div>
                 <span className="text-[10px] font-black tracking-widest text-purple-600 dark:text-purple-400 uppercase block">
-                  DESAFIO FIBIOS & NETFITS
+                  QUIZZ NETFITS
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">

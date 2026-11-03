@@ -38,12 +38,6 @@ interface QuizOption {
 
 const QUIZ_OPTIONS: QuizOption[] = [
   {
-    id: "isabella-opt-1",
-    text: "Sono profundo regenerador com regulação do cortisol e aporte proteico equilibrado.",
-    isCorrect: true,
-    feedback: "Perfeito! No sono de ondas lentas ocorre o pico fisiológico de GH, clearance mitocondrial e recuperação da matriz extracelular para praticantes e atletas.",
-  },
-  {
     id: "isabella-opt-2",
     text: "Treinos extenuantes diários combinados com restrição calórica contínua severa.",
     isCorrect: false,
@@ -54,6 +48,12 @@ const QUIZ_OPTIONS: QuizOption[] = [
     text: "Uso contínuo de estimulantes do SNC para compensar noites mal dormidas.",
     isCorrect: false,
     feedback: "Estimulantes apenas mascaram temporariamente os sinais de fadiga central, enquanto a inflamação subclínica crônica segue danificando os tecidos.",
+  },
+  {
+    id: "isabella-opt-1",
+    text: "Sono profundo regenerador com regulação do cortisol e aporte proteico equilibrado.",
+    isCorrect: true,
+    feedback: "Perfeito! No sono de ondas lentas ocorre o pico fisiológico de GH, clearance mitocondrial e recuperação da matriz extracelular para praticantes e atletas.",
   },
   {
     id: "isabella-opt-4",
@@ -298,7 +298,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
             </div>
             <div>
               <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                DESAFIO FIBIOS & NETFITS
+                QUIZZ NETFITS
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="text-xs font-bold text-zinc-800">
