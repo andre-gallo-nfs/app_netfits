@@ -2,6 +2,7 @@
  * Serviço de E-mails Transacionais Netfits
  * Envio via API Oficial Resend (https://resend.com)
  * Domínio validado com SPF/DKIM: netfits.com.br
+ * 100% DINÂMICO: Alimentado por dados do banco e parâmetros operacionais.
  */
 
 import {
@@ -10,11 +11,15 @@ import {
   renderPointsCreditedEmail,
   renderShopOrderEmail,
   renderNpsEmail,
+  renderClubSubscriptionEmail,
+  renderReferralCompletedEmail,
   type WelcomeEmailData,
   type PasswordResetEmailData,
   type PointsCreditedEmailData,
   type ShopOrderEmailData,
   type NpsEmailData,
+  type ClubSubscriptionEmailData,
+  type ReferralCompletedEmailData,
 } from "./templates.ts";
 
 function getResendApiKey(): string {
@@ -92,17 +97,15 @@ export async function sendViaResend(options: SendEmailPayload) {
 }
 
 /**
- * 1. E-mail de Boas-Vindas Oficial (+50 nfs)
+ * 1. E-mail de Boas-Vindas Oficial (Dinâmico com dados do Usuário)
  */
-export async function sendWelcomeEmail(params: { to: string; nomeUsuario: string; appUrl?: string }) {
-  const html = renderWelcomeEmail({
-    nomeUsuario: params.nomeUsuario,
-    appUrl: params.appUrl,
-  });
+export async function sendWelcomeEmail(params: WelcomeEmailData & { to: string }) {
+  const html = renderWelcomeEmail(params);
+  const bonus = params.bonusCadastroNfs ?? 50;
 
   return sendViaResend({
     to: params.to,
-    subject: "Bem-vindo à Netfits! Seus +50 nfs bônus já estão na sua conta 🚀",
+    subject: `Bem-vindo à Netfits! Seus +${bonus} nfs bônus já estão liberados 🚀`,
     html,
     from: "Netfits <boasvindas@netfits.com.br>",
   });
@@ -111,17 +114,8 @@ export async function sendWelcomeEmail(params: { to: string; nomeUsuario: string
 /**
  * 2. E-mail de Redefinição de Senha & Segurança
  */
-export async function sendPasswordResetEmail(params: {
-  to: string;
-  nomeUsuario: string;
-  maskedEmail: string;
-  resetLink: string;
-}) {
-  const html = renderPasswordResetEmail({
-    nomeUsuario: params.nomeUsuario,
-    maskedEmail: params.maskedEmail,
-    resetLink: params.resetLink,
-  });
+export async function sendPasswordResetEmail(params: PasswordResetEmailData & { to: string }) {
+  const html = renderPasswordResetEmail(params);
 
   return sendViaResend({
     to: params.to,
@@ -132,7 +126,7 @@ export async function sendPasswordResetEmail(params: {
 }
 
 /**
- * 3. E-mail de Pontos Creditados (+X nfs)
+ * 3. E-mail de Pontos Creditados (+X nfs com Lote e Validade FEFO)
  */
 export async function sendPointsCreditedEmail(params: PointsCreditedEmailData & { to: string }) {
   const html = renderPointsCreditedEmail(params);
@@ -146,7 +140,7 @@ export async function sendPointsCreditedEmail(params: PointsCreditedEmailData & 
 }
 
 /**
- * 4. E-mail de Pedido Confirmado no Shop
+ * 4. E-mail de Pedido Confirmado no Shop (Com Demonstrativo Financeiro Completo)
  */
 export async function sendShopOrderConfirmedEmail(params: ShopOrderEmailData & { to: string }) {
   const html = renderShopOrderEmail(params);
@@ -174,24 +168,61 @@ export async function sendNpsSurveyEmail(params: NpsEmailData & { to: string }) 
 }
 
 /**
+ * 6. E-mail de Assinatura do Clube Netfits (NOVO)
+ */
+export async function sendClubSubscriptionEmail(params: ClubSubscriptionEmailData & { to: string }) {
+  const html = renderClubSubscriptionEmail(params);
+
+  return sendViaResend({
+    to: params.to,
+    subject: `Assinatura Confirmada! Bem-vindo ao Clube Netfits VIP (+${params.pontosAdesao ?? 250} nfs) 👑`,
+    html,
+    from: "Netfits Clube <clube@netfits.com.br>",
+  });
+}
+
+/**
+ * 7. E-mail de Indicação Concluída (MGM) (NOVO)
+ */
+export async function sendReferralCompletedEmail(params: ReferralCompletedEmailData & { to: string }) {
+  const html = renderReferralCompletedEmail(params);
+
+  return sendViaResend({
+    to: params.to,
+    subject: `Seu amigo ${params.nomeAmigoIndicado} entrou na Netfits! +${params.pontosCreditados ?? 50} nfs na sua carteira 🎉`,
+    html,
+    from: "Netfits Tribo <tribo@netfits.com.br>",
+  });
+}
+
+/**
  * Dispatcher assíncrono à prova de falhas para o App Mobile / Web (Cadastro)
  */
-export async function dispatchWelcomeEmailSafe(to: string, nomeUsuario: string) {
+export async function dispatchWelcomeEmailSafe(
+  to: string,
+  nomeUsuario: string,
+  extraParams?: Partial<WelcomeEmailData>
+) {
+  if (!to || !to.includes("@")) return null;
+  const payload: WelcomeEmailData & { to: string } = {
+    to,
+    nomeUsuario,
+    ...extraParams,
+  };
+
   try {
-    // 1. Tenta chamar o endpoint de backend do app
     const res = await fetch("/api/email/welcome", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to, nomeUsuario }),
+      body: JSON.stringify(payload),
     });
     if (res.ok) return await res.json();
   } catch (err) {
     console.warn("[dispatchWelcomeEmailSafe] Backend fetch falhou, tentando envio direto Resend:", err);
   }
 
-  // 2. Fallback direto se o app estiver rodando estático no Capacitor / WebView
   try {
-    return await sendWelcomeEmail({ to, nomeUsuario });
+    return await sendWelcomeEmail(payload);
   } catch (err) {
     console.error("[dispatchWelcomeEmailSafe] Falha no disparo do e-mail de boas-vindas:", err);
     return null;
@@ -207,6 +238,7 @@ export async function dispatchPasswordResetEmailSafe(
   maskedEmail: string,
   resetLink: string
 ) {
+  if (!to || !to.includes("@")) return null;
   try {
     const res = await fetch("/api/email/reset-password", {
       method: "POST",
@@ -307,3 +339,56 @@ export async function dispatchNpsEmailSafe(
   }
 }
 
+/**
+ * Dispatcher assíncrono à prova de falhas para Assinatura do Clube Netfits
+ */
+export async function dispatchClubSubscriptionEmailSafe(
+  to: string,
+  params: ClubSubscriptionEmailData
+) {
+  if (!to || !to.includes("@")) return null;
+  try {
+    const res = await fetch("/api/email/club-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, ...params }),
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.warn("[dispatchClubSubscriptionEmailSafe] Backend fetch falhou, tentando envio direto Resend:", err);
+  }
+
+  try {
+    return await sendClubSubscriptionEmail({ to, ...params });
+  } catch (err) {
+    console.error("[dispatchClubSubscriptionEmailSafe] Falha no disparo de e-mail do clube:", err);
+    return null;
+  }
+}
+
+/**
+ * Dispatcher assíncrono à prova de falhas para Indicação Concluída (MGM)
+ */
+export async function dispatchReferralCompletedEmailSafe(
+  to: string,
+  params: ReferralCompletedEmailData
+) {
+  if (!to || !to.includes("@")) return null;
+  try {
+    const res = await fetch("/api/email/referral-completed", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, ...params }),
+    });
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.warn("[dispatchReferralCompletedEmailSafe] Backend fetch falhou, tentando envio direto Resend:", err);
+  }
+
+  try {
+    return await sendReferralCompletedEmail({ to, ...params });
+  } catch (err) {
+    console.error("[dispatchReferralCompletedEmailSafe] Falha no disparo de indicação concluída:", err);
+    return null;
+  }
+}

@@ -61,16 +61,18 @@ export async function handleClubSubscriptionRoutes(
       const isDeactivating = body.event === "subscription.past_due" || body.event === "subscription.canceled";
 
       if (isActivating) {
+        // REGRA DE GOVERNANÇA: O Clube Netfits, a cobrança de assinaturas e a Terra API ainda não estão ativos em produção.
+        // Nenhuma pontuação (nfs) de adesão ou de treinos pode ser atribuída até o lançamento oficial (14/Nov/2026).
         user.isClubMember = true;
         user.userCategory = "associado";
 
-        // Registrar evento de auditoria no ledger
+        // Registrar evento de auditoria no ledger (amount: 0 — pontuação bloqueada até o Go-Live com gateway e Terra API)
         serverState.transactions.unshift({
           id: `tx-club-sub-${Date.now()}`,
           userId: user.id,
           userName: user.fullName || "Assinante Clube Netfits",
           amount: 0,
-          description: `👑 Ativação/Renovação Clube Netfits (${body.planName || "Plano Oficial"})`,
+          description: `👑 Ativação/Renovação Clube Netfits (${body.planName || "Plano Oficial"}) [Pontuação Retida até Go-Live 14/Nov]`,
           category: "general",
           timestamp: requestTimestamp,
         });
@@ -80,7 +82,7 @@ export async function handleClubSubscriptionRoutes(
         return new Response(
           JSON.stringify({
             success: true,
-            message: "Assinatura do Clube Netfits confirmada e benefícios ativados.",
+            message: "Assinatura do Clube Netfits confirmada e benefícios ativados. (Pontuação retida até o lançamento oficial de cobrança e Terra API).",
             userId: user.id,
             isClubMember: true,
             userCategory: "associado",
