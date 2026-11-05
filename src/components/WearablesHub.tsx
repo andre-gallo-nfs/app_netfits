@@ -183,22 +183,44 @@ export function WearablesHub() {
     }
   }, [activeUser.id]);
 
-  const handleConnectGarminOfficial = async () => {
-    setIsRedirectingToGarmin(true);
-    try {
-      const res = await fetch(`/api/garmin/auth-url?userId=${encodeURIComponent(activeUser.id)}&redirect=/activities`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.authUrl) {
-          window.location.href = data.authUrl;
-          return;
+  const getGarminAuthUrl = () => {
+    const statePayload =
+      typeof window !== "undefined"
+        ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/activities" }))
+        : activeUser.id;
+
+    return `https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent(
+      "https://www.netfits.com.br/api/garmin/oauth/callback"
+    )}&state=${encodeURIComponent(statePayload)}`;
+  };
+
+  const handleOpenGarmin = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    const authUrl = getGarminAuthUrl();
+    setConnectingBrand(null);
+    toast.info("Abrindo login oficial da Garmin no seu navegador...");
+
+    if (typeof window !== "undefined") {
+      try {
+        // No Android / iOS Capacitor, _system dispara a Intent do navegador nativo do sistema (Chrome / Safari)
+        const win = window.open(authUrl, "_system");
+        if (!win) {
+          window.open(authUrl, "_blank");
         }
+      } catch {
+        window.location.href = authUrl;
       }
-      const directAuth = `https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent("https://www.netfits.com.br/api/garmin/oauth/callback")}&state=${encodeURIComponent(activeUser.id)}`;
-      window.location.href = directAuth;
-    } catch {
-      toast.error("Não foi possível iniciar a conexão com o Garmin Connect.");
-      setIsRedirectingToGarmin(false);
+    }
+  };
+
+  const handleCopyGarminLink = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const authUrl = getGarminAuthUrl();
+    if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(authUrl);
+      toast.success("Link copiado! Cole no Google Chrome para autorizar.");
+    } else {
+      toast.info("Acesse: " + authUrl);
     }
   };
 
@@ -614,27 +636,31 @@ export function WearablesHub() {
 
             {connectingBrand.id === "garmin" ? (
               <div className="space-y-2 pt-1">
-                <a
-                  href={`https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent("https://www.netfits.com.br/api/garmin/oauth/callback")}&state=${encodeURIComponent(typeof window !== "undefined" ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/activities" })) : activeUser.id)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    setConnectingBrand(null);
-                    toast.info("Abrindo login oficial da Garmin no navegador...");
-                  }}
+                <button
+                  type="button"
+                  onClick={handleOpenGarmin}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-sky-500/25 text-center"
                 >
                   Conectar Oficialmente no Garmin Connect™
                   <ExternalLink className="size-4" />
-                </a>
-                <button
-                  type="button"
-                  disabled={isSimulatingSync}
-                  onClick={handleConfirmTerraConnect}
-                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  Simular Conexão Rápida em Sandbox
                 </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyGarminLink}
+                    className="flex-1 py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                  >
+                    Copiar Link p/ Chrome
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSimulatingSync}
+                    onClick={handleConfirmTerraConnect}
+                    className="flex-1 py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                  >
+                    Simular Sandbox
+                  </button>
+                </div>
               </div>
             ) : (
               <button
