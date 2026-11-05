@@ -60,18 +60,8 @@ export function SecurityLockOverlay() {
     }
   };
 
-  // Delay suave de 800ms para aguardar o ciclo de renderização no iOS (apenas se biometria suportada)
-  useEffect(() => {
-    let timer: any = null;
-    if (appLockStore.isBiometricsAvailable()) {
-      timer = setTimeout(() => {
-        handleBiometricUnlock(true);
-      }, 800);
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, []);
+  // Biometria sob demanda para nunca bloquear o teclado
+  useEffect(() => {}, []);
 
   const handlePasswordUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -246,7 +236,7 @@ export function SecurityLockOverlay() {
         </button>
 
         <span className="text-[10px] text-zinc-600">
-          Netfits Guard v1.5
+          Netfits Guard v1.6
         </span>
       </div>
     </div>
