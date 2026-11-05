@@ -146,7 +146,7 @@ export const TOP_FEED_CONTENTS = [
   },
   {
     id: "post_05",
-    title: "Fibios Medicina e Saúde: Protocolos Integrados Pinheiros",
+    title: "Fibios Medicina e Saúde: Diretrizes Integradas Pinheiros",
     author: "Corpo Clínico Fibios",
     category: "Medicina Preventiva",
     viewsCount: 14900,

@@ -977,14 +977,14 @@ function ProfilePage() {
           )}
           <div className="pt-2 border-t border-border">
             <Link
-              to="/activities"
+              to="/club"
               className="w-full py-2 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xs font-bold text-foreground flex items-center justify-between transition active:scale-98"
             >
               <div className="flex items-center gap-2">
                 <Watch className="size-4 text-purple-600" />
-                <span>Abrir Hub de Wearables Terra API (12 Marcas)</span>
+                <span>Conexão & Telemetria de Treinos (+25 nfs no Clube)</span>
               </div>
-              <span className="text-[10px] text-purple-600 font-black">Acessar ➔</span>
+              <span className="text-[10px] text-purple-600 font-black">Ver Clube ➔</span>
             </Link>
           </div>
         </Card>

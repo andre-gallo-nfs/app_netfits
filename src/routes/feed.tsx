@@ -85,8 +85,8 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
   {
     id: "dr-isabella-video",
     quizPostId: "isabella-protocolo-quiz",
-    title: "Dra. Isabella Formigari — Protocolo Fibios",
-    badge: "Protocolo Fibios",
+    title: "Dra. Isabella Formigari — Biomarcadores & Longevidade",
+    badge: "Medicina Preventiva",
     isSponsored: false,
     publishDate: "2026-11-01T06:30:00-03:00",
     render: () => <DrIsabellaCard />,

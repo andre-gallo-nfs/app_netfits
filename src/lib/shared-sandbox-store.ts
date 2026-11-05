@@ -860,7 +860,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "userId": "usr_carlos_formigari",
     "userName": "Carlos Rodrigo Formigari",
     "amount": 10,
-    "description": "Visualização de Vídeo (90%+ de Retenção): Protocolo Fibios — Dra. Isabella",
+    "description": "Visualização de Vídeo (90%+ de Retenção): Longevidade & Biomarcadores — Dra. Isabella",
     "category": "feed",
     "timestamp": "2026-10-06T22:40:30.420Z"
   },
