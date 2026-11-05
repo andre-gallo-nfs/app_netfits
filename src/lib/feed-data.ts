@@ -92,7 +92,7 @@ export const feedItems: FeedItem[] = [
     name: "Dra. Isabella Formigari",
     role: "Médica (CRM-SP 282951) · Sócia Fundadora da Fibios",
     excerpt:
-      "Avaliação clínica integrada, biomarcadores e protocolos de recovery e longevidade para atletas em qualquer nível.",
+      "Avaliação clínica integrada, biomarcadores e condutas de recuperação e longevidade para atletas em qualquer nível.",
     price: "R$ 500,00",
     cashback: "+500 nfs",
   },

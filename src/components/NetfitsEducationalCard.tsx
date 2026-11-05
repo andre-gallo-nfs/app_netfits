@@ -374,7 +374,7 @@ export function NetfitsEducationalCard() {
           </div>
           <div>
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-300 block mb-0.5">
-              Pílula de Longevidade Netfits
+              Pílula de Sabedoria
             </span>
             <p className="text-xs text-zinc-300 leading-snug">
               Treinar hoje é o único investimento cujo dividendo real é a sua própria liberdade e autonomia física amanhã.

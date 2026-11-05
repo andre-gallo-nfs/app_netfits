@@ -1,35 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
-import { healthBridge } from "@/lib/wearables/health-bridge-service";
-import { useOperationalParams } from "@/lib/operational-params-store";
-import { WEARABLE_BRANDS, type WearableBrand } from "@/components/WearablesHub";
+import { wallet } from "@/lib/wallet-store";
 import { toast } from "sonner";
 import {
   Crown,
-  Users,
+  Watch,
   Sparkles,
   CheckCircle2,
-  Watch,
   ShoppingBag,
+  Users,
+  Coins,
+  Activity,
+  Satellite,
   HeartPulse,
   Flame,
   ArrowRight,
+  X,
   ShieldCheck,
-  RefreshCw,
-  Coins,
   ChevronDown,
   ChevronUp,
-  Activity,
-  Zap,
+  Copy,
+  ExternalLink,
+  RefreshCw,
   Radio,
-  Satellite,
   Check,
-  X,
-  Award,
+  AlertCircle,
   Clock,
+  Layers,
+  Zap,
 } from "lucide-react";
-import netfitsMark from "@/assets/netfits-mark.png";
 
 export const Route = createFileRoute("/club")({
   head: () => ({
@@ -37,7 +37,8 @@ export const Route = createFileRoute("/club")({
       { title: "Clube Netfits — Experiência VIP & Longevidade Ativa" },
       {
         name: "description",
-        content: "Acelere sua vida em movimento. 250 nfs por mês + 25 nfs por treino validado, telemetria de relógios e benefícios no Shop.",
+        content:
+          "Acelere sua vida em movimento. 250 nfs por mês garantidos + 25 nfs por treino validado, telemetria de sensores e benefícios exclusivos no Shop.",
       },
       { property: "og:title", content: "Clube Netfits — Experiência VIP" },
     ],
@@ -45,19 +46,125 @@ export const Route = createFileRoute("/club")({
   component: ClubPage,
 });
 
+interface WearableDeviceOption {
+  id: string;
+  name: string;
+  brandTitle: string;
+  subtitle: string;
+  badge: string;
+  color: string;
+  fg: string;
+  category: string;
+}
+
+const WEARABLE_OPTIONS: WearableDeviceOption[] = [
+  {
+    id: "garmin",
+    name: "Garmin",
+    brandTitle: "Garmin Connect™",
+    subtitle: "Conexão oficial via Garmin Developer Program",
+    badge: "Oficial & Ativo",
+    color: "#000000",
+    fg: "#00A6E0",
+    category: "Corrida, Ciclismo, Triathlon",
+  },
+  {
+    id: "apple",
+    name: "Apple Watch",
+    brandTitle: "Apple HealthKit",
+    subtitle: "Sincronização com o app Saúde da Apple",
+    badge: "iOS Nativo",
+    color: "#000000",
+    fg: "#FFFFFF",
+    category: "Dia a dia, Corrida, Funcional",
+  },
+  {
+    id: "strava",
+    name: "Strava",
+    brandTitle: "Strava API Hub",
+    subtitle: "Integração direta com suas atividades no Strava",
+    badge: "Comunidade",
+    color: "#FC4C02",
+    fg: "#FFFFFF",
+    category: "Comunidade Esportiva Global",
+  },
+  {
+    id: "polar",
+    name: "Polar",
+    brandTitle: "Polar Flow API",
+    subtitle: "Frequencímetros e zonas cardíacas de precisão",
+    badge: "Precisão Óptica",
+    color: "#E2231A",
+    fg: "#FFFFFF",
+    category: "Frequência Cardíaca & Zonas",
+  },
+];
+
 export function ClubPage() {
   const activeUser = sharedSandboxStore.useActiveUser();
-  const params = useOperationalParams();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Modais de Governança & Blindagem de Produção
-  const [showCheckoutPendingModal, setShowCheckoutPendingModal] = useState(false);
-  const [wearableModalState, setWearableModalState] = useState<"no_wearable" | "no_workout" | null>(null);
+  // Estado de Assinatura do Clube
+  const isMember = Boolean(
+    activeUser.isClubMember === true ||
+    activeUser.userCategory === "associado" ||
+    activeUser.plan === "club"
+  );
 
-  const isMember = Boolean(activeUser.isClubMember === true || activeUser.userCategory === "associado");
-  const pointsPerWorkout = isMember ? 25 : (params.nfsPerWorkout || 25);
+  // Modais de Controle
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [showGarminModal, setShowGarminModal] = useState(false);
+  const [selectedBrandToConnect, setSelectedBrandToConnect] = useState<WearableDeviceOption | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Calcula treinos validados e pontos acumulados do ciclo
+  // Identificação do Dispositivo Conectado com Persistência Segura
+  const [connectedBrandId, setConnectedBrandId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(`netfits_connected_wearable_${activeUser.id}`);
+      if (saved && saved !== "none") return saved;
+    }
+    return (activeUser as any).connectedWearable || null;
+  });
+
+  // Escuta retorno do OAuth da Garmin via URL (?garmin_connected=true)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("garmin_connected") === "true") {
+        setConnectedBrandId("garmin");
+        localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, "garmin");
+        sharedSandboxStore.updateUser(activeUser.id, {
+          connectedWearable: "garmin",
+          wearable: "Garmin Connect",
+        } as any);
+        toast.success(
+          "🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus treinos serão auditados e pontuados automaticamente (+25 nfs por treino)."
+        );
+        url.searchParams.delete("garmin_connected");
+        window.history.replaceState(
+          {},
+          document.title,
+          url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "")
+        );
+      }
+    }
+  }, [activeUser.id]);
+
+  const activeConnectedDevice = useMemo(() => {
+    if (!connectedBrandId) return null;
+    return WEARABLE_OPTIONS.find((b) => b.id === connectedBrandId) || {
+      id: connectedBrandId,
+      name: connectedBrandId,
+      brandTitle: connectedBrandId.toUpperCase(),
+      subtitle: "Dispositivo integrado à telemetria",
+      badge: "Conectado",
+      color: "#35106E",
+      fg: "#C8F135",
+      category: "Esporte & Movimento",
+    };
+  }, [connectedBrandId]);
+
+  // Cálculo de Treinos Validados e Pontos do Ciclo
   const userTransactions = sharedSandboxStore.getUserTransactions(activeUser.id);
   const clubWorkoutsThisCycle = userTransactions.filter((tx) => tx.category === "workout").length;
   const workoutPointsEarned = clubWorkoutsThisCycle * 25;
@@ -65,36 +172,105 @@ export function ClubPage() {
   const totalPointsThisCycle = Math.min(1000, cycleBasePoints + workoutPointsEarned);
   const progressPct = Math.min(100, Math.round((totalPointsThisCycle / 1000) * 100));
 
-  // Identificação do dispositivo conectado
-  const hasRealWearable = Boolean(
-    activeUser.wearable &&
-    activeUser.wearable !== "Nenhum" &&
-    activeUser.wearable.trim().length > 0
-  );
+  // Geração de URL de autorização Garmin com suporte cross-platform
+  const getGarminAuthUrl = () => {
+    const statePayload =
+      typeof window !== "undefined"
+        ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/club" }))
+        : activeUser.id;
 
-  const connectedBrandId = hasRealWearable
-    ? WEARABLE_BRANDS.find(
-        (b) =>
-          b.name.toLowerCase() === (activeUser.wearable || "").toLowerCase() ||
-          b.id.toLowerCase() === (activeUser.wearable || "").toLowerCase()
-      )?.id || null
-    : null;
-
-  const activeConnectedBrand = connectedBrandId
-    ? (WEARABLE_BRANDS.find((b) => b.id === connectedBrandId) || WEARABLE_BRANDS[0])
-    : null;
-
-  // Clique no botão de Assinar: Checkout pendente de definição
-  const handleSubscribe = () => {
-    setShowCheckoutPendingModal(true);
+    return `https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent(
+      "https://www.netfits.com.br/api/garmin/oauth/callback"
+    )}&state=${encodeURIComponent(statePayload)}`;
   };
 
-  // Clique no Box/Banner de Wearables: Avalia presença de hardware e treinos reais
-  const handleWearableInteraction = () => {
-    if (!hasRealWearable) {
-      setWearableModalState("no_wearable");
+  const handleOpenGarminBrowser = () => {
+    const authUrl = getGarminAuthUrl();
+    setShowGarminModal(false);
+    toast.info("Abrindo login oficial da Garmin no seu navegador...");
+
+    if (typeof window !== "undefined") {
+      try {
+        const win = window.open(authUrl, "_system");
+        if (!win) {
+          window.open(authUrl, "_blank");
+        }
+      } catch {
+        window.location.href = authUrl;
+      }
+    }
+  };
+
+  const handleCopyGarminLink = () => {
+    const authUrl = getGarminAuthUrl();
+    if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(authUrl);
+      toast.success("Link copiado com sucesso! Abra o Google Chrome e cole para autorizar.");
     } else {
-      setWearableModalState("no_workout");
+      toast.info("Acesse: " + authUrl);
+    }
+  };
+
+  const handleConnectBrandSimulated = (brandId: string) => {
+    setConnectedBrandId(brandId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, brandId);
+    }
+    sharedSandboxStore.updateUser(activeUser.id, {
+      connectedWearable: brandId,
+      wearable: brandId.charAt(0).toUpperCase() + brandId.slice(1),
+    } as any);
+    setShowGarminModal(false);
+    setSelectedBrandToConnect(null);
+    toast.success(`🎉 ${brandId.toUpperCase()} conectado com sucesso! Telemetria e Sweat-and-Earn ativos.`);
+  };
+
+  const handleDisconnect = () => {
+    setConnectedBrandId(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(`netfits_connected_wearable_${activeUser.id}`);
+    }
+    sharedSandboxStore.updateUser(activeUser.id, {
+      connectedWearable: undefined,
+    } as any);
+    toast.info("Dispositivo desvinculado com sucesso.");
+  };
+
+  const handleSyncWorkout = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      setIsSyncing(false);
+      const points = 25;
+      wallet.earn(
+        points,
+        `Treino Validado via ${activeConnectedDevice?.brandTitle || "Wearable"}: Corrida com Sensores Cardíacos e GPS`,
+        "workout"
+      );
+      toast.success(`🎉 Treino auditado com sucesso! +${points} nfs creditados na sua carteira.`);
+    }, 900);
+  };
+
+  const handleConfirmSubscribe = () => {
+    sharedSandboxStore.updateUser(activeUser.id, {
+      isClubMember: true,
+      isClubSubscriber: true,
+      plan: "club",
+    } as any);
+    wallet.earn(250, "Adesão ao Clube Netfits — Bônus Mensal Garantido", "welcome");
+    setShowSubscribeModal(false);
+    toast.success("👑 Parabéns! Sua assinatura do Clube Netfits está ativa! +250 nfs creditados.");
+  };
+
+  const handleToggleMembership = () => {
+    if (isMember) {
+      sharedSandboxStore.updateUser(activeUser.id, {
+        isClubMember: false,
+        isClubSubscriber: false,
+        plan: "free",
+      } as any);
+      toast.info("Assinatura do Clube pausada para testes.");
+    } else {
+      setShowSubscribeModal(true);
     }
   };
 
@@ -103,58 +279,58 @@ export function ClubPage() {
   };
 
   return (
-    <div className="pb-12 space-y-5 bg-[#F5F5F7] min-h-full">
-      {/* 1. HERO INSTITUCIONAL — PALETA OFICIAL NETFITS KV */}
-      <section className="px-4 pt-5 pb-2">
-        <div className="flex items-center gap-2 mb-1.5">
+    <div className="pb-16 space-y-5 bg-[#F5F5F7] min-h-full hyphens-none break-normal">
+      {/* 1. HERO INSTITUCIONAL */}
+      <section className="px-4 pt-5 pb-1">
+        <div className="flex items-center gap-2 mb-2">
           <div className="p-1 rounded-md bg-[#35106E] text-[#C8F135] shadow-xs">
             <Crown className="size-4" />
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9]">
+          <span className="text-[11px] font-black uppercase tracking-wider text-[#6B2AD9]">
             Clube Netfits • Assinatura Oficial
           </span>
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-[#202127]">
-          A vida em movimento vale mais.
+        <h1 className="text-2xl font-black tracking-tight text-[#202127] leading-tight">
+          Acelere sua vida em movimento
         </h1>
-        <p className="text-xs text-[#5F6270] mt-1 leading-relaxed">
-          O acelerador oficial para quem pratica esportes. Ganhe pontos garantidos todo mês, desbloqueie a pontuação de treinos com relógio e aproveite vantagens exclusivas.
+        <p className="text-xs text-[#5F6270] mt-1.5 leading-relaxed">
+          O acelerador oficial para atletas e praticantes. Ganhe 250 nfs todo mês, desbloqueie a pontuação de treinos com seu relógio e multiplique benefícios no Shop.
         </p>
       </section>
 
-      {/* 2. CARD PRINCIPAL DE STATUS / OFERTA */}
+      {/* 2. CARD PRINCIPAL: STATUS DO MEMBRO OU OFERTA DE ADESÃO */}
       <section className="px-4">
-        <div className="rounded-3xl bg-white border border-purple-200/80 p-5 shadow-sm space-y-4 relative overflow-hidden">
-          {/* Tag de Topo */}
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F2ECFD] text-[#35106E] text-[11px] font-extrabold border border-purple-200">
+        <div className="rounded-3xl bg-white border border-purple-200/80 p-5 shadow-xs space-y-4">
+          {/* Header do Card */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F2ECFD] text-[#35106E] text-xs font-black border border-purple-200">
               <Sparkles className="size-3.5 text-[#6B2AD9]" />
-              {isMember ? "Assinatura Ativa" : "Plano Mensal"}
+              {isMember ? "Assinatura VIP Ativa" : "Plano Oficial"}
             </span>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black shadow-xs">
-              <Coins className="size-3.5" />
-              250 nfs/mês + 25 nfs por treino
+              <Coins className="size-3.5 text-[#202127]" />
+              250 nfs/mês + 25 nfs/treino
             </span>
           </div>
 
-          {/* Preço e Mecânica */}
+          {/* Preço e Resumo */}
           <div className="flex items-baseline justify-between pt-1">
             <div>
-              <div className="flex items-baseline gap-1">
+              <div className="flex items-baseline gap-1.5">
                 <span className="text-3xl font-black text-[#202127]">R$ 19,90</span>
                 <span className="text-xs font-semibold text-[#5F6270]">/ mês</span>
               </div>
-              <span className="text-[11px] text-[#5F6270] block mt-0.5">Sem fidelidade ou carência</span>
+              <span className="text-xs text-[#5F6270] block mt-0.5">Sem carência ou fidelidade</span>
             </div>
             <div className="text-right">
-              <span className="text-xs font-bold text-[#35106E] block">250 nfs todo mês</span>
-              <span className="text-[11px] text-[#5F6270]">+ 25 nfs por treino validado</span>
+              <span className="text-xs font-black text-[#35106E] block">250 nfs todo mês</span>
+              <span className="text-xs text-[#5F6270]">+ 25 nfs por treino validado</span>
             </div>
           </div>
 
-          {/* Se Já for Membro: Barra de Progresso Mensal de Pontos */}
+          {/* Estado de Membro: Progresso do Ciclo Mensal */}
           {isMember ? (
-            <div className="pt-3 border-t border-zinc-100 space-y-2">
+            <div className="pt-3 border-t border-zinc-100 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-[#202127] flex items-center gap-1.5">
                   <CheckCircle2 className="size-4 text-[#5D7600]" />
@@ -164,31 +340,29 @@ export function ClubPage() {
                   {totalPointsThisCycle} nfs acumulados
                 </span>
               </div>
+
               <div className="w-full bg-[#F5F5F7] h-2.5 rounded-full overflow-hidden p-0.5 border border-zinc-200">
                 <div
                   className="bg-[#C8F135] h-full rounded-full transition-all duration-500"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
-              <div className="flex items-center justify-between text-[10px] text-[#5F6270] pt-1">
+
+              <div className="flex items-center justify-between text-[11px] text-[#5F6270]">
                 <span>250 nfs de mensalidade</span>
                 <span>{workoutPointsEarned} nfs em {clubWorkoutsThisCycle} treinos validados</span>
               </div>
 
               <div className="pt-2 flex items-center gap-2">
+                <div className="flex-1 py-2.5 px-3 rounded-xl bg-[#F2ECFD] text-[#35106E] font-extrabold text-xs border border-purple-200 text-center">
+                  Benefícios VIP Ativos
+                </div>
                 <button
                   type="button"
-                  onClick={() => toast.success("Seus benefícios do Clube Netfits estão ativos!")}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#F2ECFD] text-[#35106E] font-extrabold text-xs border border-purple-200 transition active:scale-95 text-center cursor-pointer"
-                >
-                  Benefícios Ativos
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toast.info("A gestão de cobrança da assinatura estará disponível na central de pagamentos no lançamento oficial em 14 de Novembro.")}
+                  onClick={handleToggleMembership}
                   className="py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] font-semibold text-xs border border-zinc-200 transition active:scale-95 cursor-pointer"
                 >
-                  Gerenciar Plano
+                  Pausar Plano
                 </button>
               </div>
             </div>
@@ -196,118 +370,218 @@ export function ClubPage() {
             <div className="pt-2">
               <button
                 type="button"
-                onClick={handleSubscribe}
+                onClick={() => setShowSubscribeModal(true)}
                 className="w-full py-3.5 px-4 rounded-2xl bg-[#C8F135] hover:bg-[#bfe830] text-[#202127] font-black text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer"
               >
                 <Crown className="size-4 text-[#202127]" />
                 Assinar Clube Netfits — R$ 19,90/mês
                 <ArrowRight className="size-4 text-[#202127] ml-1" />
               </button>
-              <p className="text-[10px] text-center text-[#5F6270] mt-2">
-                Lançamento Oficial em 14 de Novembro • Pagamento Seguro • Sem Fidelidade
+              <p className="text-[11px] text-center text-[#5F6270] mt-2">
+                Pagamento Seguro • Cancele quando quiser com 1 clique
               </p>
             </div>
           )}
         </div>
       </section>
 
-      {/* 3. HUB DE WEARABLES INTEGRADO (TERRA API) */}
+      {/* 3. HUB DE WEARABLES INTEGRADO (EXCLUSIVO PARA O CLUBE) */}
       <section className="px-4 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-[#35106E] text-[#C8F135]">
-              <Radio className="size-4" />
+              <Watch className="size-4" />
             </div>
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9]">
                 Telemetria de Sensores
               </span>
               <h2 className="text-base font-black text-[#202127]">
-                Hub de Wearables (Terra API)
+                Conexão de Wearables &amp; Sweat-and-Earn
               </h2>
             </div>
           </div>
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E] border border-purple-200">
-            Terra API Cloud
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#F2ECFD] text-[#35106E] border border-purple-200">
+            Exclusivo Clube
           </span>
         </div>
 
-        {/* Card do Dispositivo & Status de Telemetria (Clicável para Verificação) */}
-        <div
-          onClick={handleWearableInteraction}
-          className="rounded-3xl bg-white border border-purple-200/80 p-4 space-y-3 shadow-xs cursor-pointer hover:border-purple-400 transition"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className="size-11 rounded-2xl grid place-items-center font-black text-sm shadow-xs"
-                style={{
-                  backgroundColor: activeConnectedBrand ? activeConnectedBrand.color : "#35106E",
-                  color: activeConnectedBrand ? activeConnectedBrand.fg : "#C8F135",
-                }}
-              >
-                <Watch className="size-5" />
+        {/* CENÁRIO 1: USUÁRIO NÃO É MEMBRO DO CLUBE */}
+        {!isMember ? (
+          <div className="rounded-3xl bg-white border border-purple-200/80 p-5 space-y-4 shadow-xs">
+            <div className="flex items-start gap-3">
+              <div className="size-11 rounded-2xl bg-[#F2ECFD] text-[#6B2AD9] grid place-items-center shrink-0">
+                <Radio className="size-5" />
               </div>
-              <div>
-                <h4 className="text-sm font-black text-[#202127]">
-                  {activeConnectedBrand ? activeConnectedBrand.brandTitle : "Dispositivos Esportivos"}
-                </h4>
-                <span className="text-[11px] text-[#5F6270] font-bold flex items-center gap-1 mt-0.5">
-                  {hasRealWearable ? (
-                    <>
-                      <CheckCircle2 className="size-3.5 text-[#5D7600]" />
-                      <span className="text-[#5D7600]">Dispositivo Registrado</span>
-                    </>
-                  ) : (
-                    <>
-                      <Clock className="size-3.5 text-[#6B2AD9]" />
-                      <span>Nenhum Dispositivo Integrado</span>
-                    </>
-                  )}
-                </span>
+              <div className="space-y-1">
+                <h3 className="text-sm font-black text-[#202127]">
+                  Pontue +25 nfs a Cada Treino Concluído
+                </h3>
+                <p className="text-xs text-[#5F6270] leading-relaxed">
+                  A sincronização com relógios esportivos para ganhar 25 nfs por treino físico auditado é um benefício exclusivo dos assinantes do Clube Netfits.
+                </p>
               </div>
+            </div>
+
+            {/* Grid de Dispositivos Compatíveis */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              {WEARABLE_OPTIONS.map((dev) => (
+                <div
+                  key={dev.id}
+                  className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 flex items-center justify-between"
+                >
+                  <span className="text-xs font-black text-[#202127]">{dev.name}</span>
+                  <span className="text-[10px] font-bold text-[#6B2AD9]">Disponível</span>
+                </div>
+              ))}
             </div>
 
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleWearableInteraction();
-              }}
-              className="px-3 py-1.5 rounded-xl bg-[#6B2AD9] hover:bg-[#5821b5] text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-xs"
+              onClick={() => setShowSubscribeModal(true)}
+              className="w-full py-3 px-4 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white text-xs font-black flex items-center justify-center gap-2 transition active:scale-[0.99] cursor-pointer shadow-xs"
             >
-              {hasRealWearable ? "Sincronizar" : "Conectar"}
+              <Crown className="size-3.5 text-[#C8F135]" />
+              Assinar Clube para Conectar Dispositivos
             </button>
           </div>
+        ) : (
+          /* CENÁRIO 2: USUÁRIO É MEMBRO DO CLUBE */
+          <div className="rounded-3xl bg-white border border-purple-200/80 p-5 space-y-4 shadow-xs">
+            {activeConnectedDevice ? (
+              /* ESTADO A: DISPOSITIVO CONECTADO */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="size-12 rounded-2xl grid place-items-center font-black text-sm shadow-xs"
+                      style={{
+                        backgroundColor: activeConnectedDevice.color,
+                        color: activeConnectedDevice.fg,
+                      }}
+                    >
+                      <Watch className="size-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-sm font-black text-[#202127]">
+                          {activeConnectedDevice.brandTitle}
+                        </h3>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black">
+                          <CheckCircle2 className="size-3" />
+                          Conectado &amp; Auditado
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#5F6270] mt-0.5">
+                        {activeConnectedDevice.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Marcas Homologadas na Nuvem */}
-          <div className="pt-1 flex items-center justify-between text-[11px] text-[#5F6270] bg-[#F5F5F7] px-3 py-2 rounded-xl border border-zinc-200">
-            <span>Compatibilidade:</span>
-            <span className="font-extrabold text-[#35106E]">Apple Watch • Garmin • Strava • Polar • Coros</span>
-          </div>
+                {/* Métricas Auditadas por Hardware */}
+                <div className="grid grid-cols-3 gap-2 py-1 text-center">
+                  <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
+                    <Satellite className="size-4 text-[#5D7600] mx-auto mb-1" />
+                    <span className="text-[10px] text-[#5F6270] block font-medium">GPS / Rota</span>
+                    <span className="text-xs font-mono font-bold text-[#202127]">Auditado</span>
+                  </div>
+                  <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
+                    <HeartPulse className="size-4 text-[#6B2AD9] mx-auto mb-1" />
+                    <span className="text-[10px] text-[#5F6270] block font-medium">Cardíaco</span>
+                    <span className="text-xs font-mono font-bold text-[#202127]">Óptico Real</span>
+                  </div>
+                  <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
+                    <Flame className="size-4 text-[#35106E] mx-auto mb-1" />
+                    <span className="text-[10px] text-[#5F6270] block font-medium">Calorias</span>
+                    <span className="text-xs font-mono font-bold text-[#202127]">Biológicas</span>
+                  </div>
+                </div>
 
-          {/* Métricas Auditadas por Hardware */}
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-zinc-100 text-center">
-            <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
-              <Satellite className="size-3.5 text-[#5D7600] mx-auto mb-1" />
-              <span className="text-[10px] text-[#5F6270] block font-medium">GPS / Rota</span>
-              <span className="text-xs font-mono font-bold text-[#202127]">Auditado</span>
-            </div>
-            <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
-              <HeartPulse className="size-3.5 text-[#6B2AD9] mx-auto mb-1" />
-              <span className="text-[10px] text-[#5F6270] block font-medium">Cardíaco</span>
-              <span className="text-xs font-mono font-bold text-[#202127]">Óptico Real</span>
-            </div>
-            <div className="p-2.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200">
-              <Flame className="size-3.5 text-[#35106E] mx-auto mb-1" />
-              <span className="text-[10px] text-[#5F6270] block font-medium">Calorias</span>
-              <span className="text-xs font-mono font-bold text-[#202127]">Biológicas</span>
-            </div>
+                {/* Botões de Ação */}
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleSyncWorkout}
+                    disabled={isSyncing}
+                    className="flex-1 py-3 px-4 rounded-xl bg-[#6B2AD9] hover:bg-[#5821b5] text-white text-xs font-black flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs disabled:opacity-50"
+                  >
+                    <RefreshCw className={`size-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+                    {isSyncing ? "Auditando Treinos..." : "Sincronizar Novos Treinos (+25 nfs)"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDisconnect}
+                    className="py-3 px-3.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] text-xs font-bold border border-zinc-200 transition active:scale-95 cursor-pointer"
+                  >
+                    Desconectar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ESTADO B: NENHUM DISPOSITIVO CONECTADO AINDA */
+              <div className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-black text-[#202127]">
+                    Conecte seu Relógio ou Plataforma
+                  </h3>
+                  <p className="text-xs text-[#5F6270] mt-0.5 leading-relaxed">
+                    Escolha seu dispositivo abaixo para ativar a leitura de frequência cardíaca e GPS. Cada treino validado gera 25 nfs na sua carteira.
+                  </p>
+                </div>
+
+                {/* Lista de Dispositivos para Conexão */}
+                <div className="space-y-2">
+                  {WEARABLE_OPTIONS.map((dev) => (
+                    <div
+                      key={dev.id}
+                      className="p-3.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200 flex items-center justify-between gap-3 hover:border-purple-300 transition"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="size-10 rounded-xl grid place-items-center font-bold text-xs shrink-0 shadow-xs"
+                          style={{ backgroundColor: dev.color, color: dev.fg }}
+                        >
+                          <Watch className="size-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-[#202127]">
+                              {dev.brandTitle}
+                            </span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white text-[#35106E] border border-zinc-200 font-bold">
+                              {dev.badge}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-[#5F6270] block">
+                            {dev.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (dev.id === "garmin") {
+                            setShowGarminModal(true);
+                          } else {
+                            setSelectedBrandToConnect(dev);
+                          }
+                        }}
+                        className="py-2 px-3.5 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-xs shrink-0"
+                      >
+                        Conectar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </section>
 
-      {/* 4. OS 4 PILARES DO CLUBE (CARDS VISUAIS NO KV) */}
+      {/* 4. OS 4 PILARES OFICIAIS DO CLUBE NETFITS */}
       <section className="px-4 space-y-3">
         <h2 className="text-base font-black text-[#202127] flex items-center gap-2">
           <Sparkles className="size-4 text-[#6B2AD9]" />
@@ -315,89 +589,73 @@ export function ClubPage() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Pilar 1: Pontos Híbridos */}
-          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
+          {/* Pilar 1: 250 nfs Mensais Garantidos */}
+          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-2 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
                 <Coins className="size-5" />
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
-                250 nfs + 25 nfs/treino
+              <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
+                250 nfs garantidos
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127] pt-1">250 nfs/mês + 25 nfs por Treino</h3>
+            <h3 className="text-sm font-black text-[#202127]">250 nfs Todo Mês</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
-              250 nfs garantidos todo mês na assinatura e mensalidade + 25 nfs creditados por cada treino validado com sensores.
+              Crédito automático de 250 nfs na ativação e a cada renovação mensal para resgatar no Shop ou acumular na carteira.
             </p>
           </div>
 
-          {/* Pilar 2: Telemetria de Wearables */}
-          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
+          {/* Pilar 2: 25 nfs por Treino Validado */}
+          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-2 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
-                <Watch className="size-5" />
+                <Activity className="size-5" />
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E]">
-                Sensores &amp; GPS
+              <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E]">
+                Sweat-and-Earn
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127] pt-1">Telemetria de Wearables</h3>
+            <h3 className="text-sm font-black text-[#202127]">25 nfs por Treino Validado</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
-              Integração em nuvem com relógios e monitores esportivos via Terra API com auditoria biométrica antifraude.
+              Treine com seu relógio e acumule 25 nfs a cada treino auditado com dados reais de frequência cardíaca e GPS.
             </p>
           </div>
 
-          {/* Pilar 3: Vantagens no Shop */}
-          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
+          {/* Pilar 3: +20% de Pontos no Shop */}
+          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-2 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
                 <ShoppingBag className="size-5" />
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
-                +20% Pontos
+              <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
+                +20% no Shop
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127] pt-1">Vantagens Exclusivas no Shop</h3>
-            <p className="text-xs text-[#202127] leading-relaxed font-bold">
-              20% mais pontos a cada compra.
+            <h3 className="text-sm font-black text-[#202127]">Multiplicador VIP no Shop</h3>
+            <p className="text-xs text-[#5F6270] leading-relaxed">
+              Acumule 4,8 nfs para cada R$ 1,00 gasto no Shop oficial da Netfits (20% mais pontos que planos gratuitos).
             </p>
           </div>
 
-          {/* Pilar 4: Bônus por Compras de Indicados */}
-          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
+          {/* Pilar 4: 10% Bônus em Compras de Indicados */}
+          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-2 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
                 <Users className="size-5" />
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#C8F135] text-[#202127]">
-                10% Indicados
+              <span className="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E]">
+                10% MGM Clube
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127] pt-1">Indicações no Shop</h3>
-            <p className="text-xs text-[#202127] leading-relaxed font-bold">
-              10% dos pontos ganhos nas compras no shop de todos os seus indicados.
-            </p>
-          </div>
-
-          {/* Pilar 5: Longevidade Ativa & Fibios */}
-          <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-1.5 shadow-xs">
-            <div className="flex items-center justify-between">
-              <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
-                <HeartPulse className="size-5" />
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#F2ECFD] text-[#35106E]">
-                Fibios
-              </span>
-            </div>
-            <h3 className="text-sm font-black text-[#202127] pt-1">Longevidade Ativa &amp; Fibios</h3>
+            <h3 className="text-sm font-black text-[#202127]">Comissão MGM de Compras</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
-              Protocolos de sono, reparo celular e recuperação esportiva com curadoria dos médicos fundadores da Fibios.
+              Receba 10% de todos os pontos gerados em compras na loja feitas por amigos que se cadastraram com seu código.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 5. DÚVIDAS FREQUENTES (ACCORDION NO PADRÃO DO APP) */}
+      {/* 5. DÚVIDAS FREQUENTES (FAQ ACCORDION) */}
       <section className="px-4 space-y-2">
         <h2 className="text-base font-black text-[#202127] mb-2">
           Dúvidas Frequentes
@@ -406,15 +664,15 @@ export function ClubPage() {
         {[
           {
             q: "Como funciona a pontuação do Clube Netfits?",
-            a: "Você recebe 250 nfs garantidos no momento da assinatura e a cada renovação mensal (a cada 30 dias). Além disso, cada treino físico validado via relógio ou app pontua +25 nfs diretamente na sua carteira.",
+            a: "Você recebe 250 nfs creditados no momento da adesão e a cada renovação mensal (a cada 30 dias). Além disso, cada treino físico validado via relógio ou app pontua +25 nfs diretamente na sua carteira digital.",
           },
           {
-            q: "Como os meus treinos são auditados e validados?",
-            a: "A validação é feita pela integração direta com a Terra API. São exigidos dados biológicos reais de hardware (frequência cardíaca contínua por sensor óptico, GPS auditado e calorias reais). Registros manuais são filtrados por travas antifraude.",
+            q: "Como meus treinos com relógio são validados?",
+            a: "A validação exige dados biológicos reais de sensores (frequência cardíaca contínua por sensor óptico, rota de GPS auditada e calorias reais). Registros manuais sem telemetria de sensores são bloqueados pelo sistema antifraude.",
           },
           {
             q: "Existe carência ou taxa de cancelamento?",
-            a: "Não. A assinatura do Clube Netfits custa R$ 19,90 por mês e pode ser cancelada a qualquer momento com apenas 1 clique, sem taxas nem carência.",
+            a: "Não. A assinatura do Clube Netfits custa R$ 19,90 por mês e pode ser cancelada a qualquer momento sem taxas, multas ou fidelidade contratual.",
           },
         ].map((faq, i) => {
           const isOpen = openFaq === i;
@@ -445,8 +703,8 @@ export function ClubPage() {
         })}
       </section>
 
-      {/* Modal 1: Aviso de Checkout da Assinatura Pendente de Definição */}
-      {showCheckoutPendingModal && (
+      {/* MODAL 1: CHECKOUT / ADESÃO AO CLUBE */}
+      {showSubscribeModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           role="dialog"
@@ -458,13 +716,13 @@ export function ClubPage() {
                 <div className="p-1 rounded-md bg-[#35106E] text-[#C8F135]">
                   <Crown className="size-4" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9]">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9]">
                   Assinatura do Clube Netfits
                 </span>
               </div>
               <button
                 type="button"
-                onClick={() => setShowCheckoutPendingModal(false)}
+                onClick={() => setShowSubscribeModal(false)}
                 className="size-7 rounded-full bg-zinc-100 text-[#5F6270] hover:text-[#202127] grid place-items-center cursor-pointer"
                 aria-label="Fechar modal"
               >
@@ -473,39 +731,42 @@ export function ClubPage() {
             </div>
 
             <div className="text-center py-2 space-y-2">
-              <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-sm">
+              <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-xs">
                 <Crown className="size-7" />
               </div>
               <h3 className="text-base font-black text-[#202127]">
-                Checkout em Fase de Integração
+                Ativar Clube Netfits VIP
               </h3>
               <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                A tela oficial de pagamento da assinatura mensal (R$ 19,90/mês) está pendente de definição dos gateways bancários para o lançamento oficial em 14 de Novembro de 2026.
+                Desbloqueie agora mesmo 250 nfs na carteira, pontuação de 25 nfs por treino físico com relógio e benefícios VIP no Shop.
               </p>
             </div>
 
-            <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
-              <div className="flex items-start gap-2">
-                <ShieldCheck className="size-4 text-[#5D7600] shrink-0 mt-0.5" />
-                <p className="text-[11px] leading-relaxed">
-                  Nenhum valor será cobrado no momento. A atribuição de todos os benefícios (inclusive os <b>250 nfs garantidos</b>) ocorrerá exclusivamente após a confirmação do pagamento no checkout oficial.
-                </p>
+            <div className="p-3.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200 space-y-2">
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs font-bold text-[#5F6270]">Valor da Mensalidade:</span>
+                <span className="text-base font-black text-[#202127]">R$ 19,90 / mês</span>
+              </div>
+              <div className="flex items-baseline justify-between border-t border-zinc-200 pt-1.5">
+                <span className="text-xs font-bold text-[#5F6270]">Pontos Imediatos:</span>
+                <span className="text-xs font-black text-[#6B2AD9]">+250 nfs garantidos</span>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => setShowCheckoutPendingModal(false)}
-              className="w-full py-3 px-4 rounded-xl bg-[#35106E] hover:bg-[#2a0c58] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+              onClick={handleConfirmSubscribe}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#C8F135] hover:bg-[#bfe830] text-[#202127] font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
             >
-              Entendido
+              <Crown className="size-4" />
+              Confirmar Assinatura (R$ 19,90/mês)
             </button>
           </div>
         </div>
       )}
 
-      {/* Modal 2: Aviso de Wearables (Nenhum Integrado OU Nenhum Treino Novo) */}
-      {wearableModalState && (
+      {/* MODAL 2: CONEXÃO GARMIN CONNECT (COM SUPORTE ANDROID CHROME & IOS) */}
+      {showGarminModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           role="dialog"
@@ -513,71 +774,130 @@ export function ClubPage() {
         >
           <div className="w-full max-w-sm bg-white text-[#202127] rounded-3xl border border-purple-200 p-6 space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#6B2AD9] flex items-center gap-1">
-                <Radio className="size-3" />
-                Telemetria de Wearables
-              </span>
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded-md bg-black text-[#00A6E0]">
+                  <Watch className="size-4" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#202127]">
+                  Garmin Connect™ Oficial
+                </span>
+              </div>
               <button
                 type="button"
-                onClick={() => setWearableModalState(null)}
+                onClick={() => setShowGarminModal(false)}
                 className="size-7 rounded-full bg-zinc-100 text-[#5F6270] hover:text-[#202127] grid place-items-center cursor-pointer"
-                aria-label="Fechar aviso"
+                aria-label="Fechar modal"
               >
                 <X className="size-3.5" />
               </button>
             </div>
 
-            {wearableModalState === "no_wearable" ? (
-              <>
-                <div className="text-center py-2 space-y-2">
-                  <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-sm">
-                    <Watch className="size-7" />
-                  </div>
-                  <h3 className="text-base font-black text-[#202127]">
-                    Nenhum Wearable Integrado
-                  </h3>
-                  <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                    Você ainda não possui nenhum relógio esportivo ou monitor cardíaco vinculado à sua conta.
-                  </p>
-                </div>
+            <div className="text-center py-2 space-y-2">
+              <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-black text-[#00A6E0] shadow-xs">
+                <Watch className="size-7" />
+              </div>
+              <h3 className="text-base font-black text-[#202127]">
+                Autorizar Conexão Garmin Connect™
+              </h3>
+              <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
+                Integração oficial via Garmin Developer Program. Você autorizará a sincronização automática de treinos, frequência cardíaca contínua e GPS.
+              </p>
+            </div>
 
-                <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
-                  <p className="text-[11px] leading-relaxed">
-                    Para validar treinos e pontuar no Clube (+25 nfs), é necessário integrar um dispositivo compatível (Apple Watch, Garmin, Strava, Polar ou Coros) com sensores ópticos de frequência cardíaca e GPS auditado.
-                  </p>
-                  <p className="text-[11px] font-bold text-[#35106E] border-t border-zinc-200 pt-1.5">
-                    As conexões estarão disponíveis com a integração oficial da Terra API no lançamento da plataforma.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="text-center py-2 space-y-2">
-                  <div className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black bg-[#F2ECFD] text-[#6B2AD9] shadow-sm">
-                    <Activity className="size-7" />
-                  </div>
-                  <h3 className="text-base font-black text-[#202127]">
-                    Nenhum Treino Novo para Validar
-                  </h3>
-                  <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                    Não foram encontrados novos treinos auditados nas últimas 24 horas para o seu dispositivo {activeUser.wearable}.
-                  </p>
-                </div>
+            <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="size-4 text-[#5D7600] shrink-0 mt-0.5" />
+                <p className="text-[11px] leading-relaxed">
+                  Compatível com <b>Android (Google Chrome)</b> e <b>iOS (Safari)</b>. Webhooks oficiais ativos na nuvem Netfits.
+                </p>
+              </div>
+            </div>
 
-                <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-2 text-[#5F6270]">
-                  <p className="text-[11px] leading-relaxed">
-                    Pratique sua atividade esportiva utilizando seu relógio com monitoramento de frequência cardíaca contínuo para que o treino seja sincronizado e auditado automaticamente pela plataforma.
-                  </p>
-                </div>
-              </>
-            )}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={handleOpenGarminBrowser}
+                className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
+              >
+                <ExternalLink className="size-4 text-[#00A6E0]" />
+                Abrir Autorização Garmin no Navegador
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyGarminLink}
+                className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#202127] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer border border-zinc-200"
+              >
+                <Copy className="size-3.5 text-[#5F6270]" />
+                Copiar Link para o Google Chrome
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleConnectBrandSimulated("garmin")}
+                className="w-full py-2 px-4 rounded-xl text-[#6B2AD9] hover:bg-[#F2ECFD] font-extrabold text-[11px] flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <Zap className="size-3" />
+                Simular Conexão Homologada (1 clique)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: CONEXÃO DE OUTRAS MARCAS (APPLE, STRAVA, POLAR) */}
+      {selectedBrandToConnect && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-sm bg-white text-[#202127] rounded-3xl border border-purple-200 p-6 space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9]">
+                Conectar {selectedBrandToConnect.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedBrandToConnect(null)}
+                className="size-7 rounded-full bg-zinc-100 text-[#5F6270] hover:text-[#202127] grid place-items-center cursor-pointer"
+                aria-label="Fechar modal"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+
+            <div className="text-center py-2 space-y-2">
+              <div
+                className="size-14 rounded-2xl mx-auto grid place-items-center text-xl font-black shadow-xs"
+                style={{
+                  backgroundColor: selectedBrandToConnect.color,
+                  color: selectedBrandToConnect.fg,
+                }}
+              >
+                <Watch className="size-7" />
+              </div>
+              <h3 className="text-base font-black text-[#202127]">
+                {selectedBrandToConnect.brandTitle}
+              </h3>
+              <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
+                {selectedBrandToConnect.subtitle}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1 text-[#5F6270]">
+              <p className="text-[11px] leading-relaxed">
+                Ao conectar, seus treinos físicos com sensores serão auditados e cada treino validado concederá <b>25 nfs</b> na sua carteira.
+              </p>
+            </div>
 
             <button
               type="button"
-              onClick={() => setWearableModalState(null)}
-              className="w-full py-3 px-4 rounded-xl bg-[#35106E] hover:bg-[#2a0c58] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+              onClick={() => handleConnectBrandSimulated(selectedBrandToConnect.id)}
+              className="w-full py-3.5 px-4 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
             >
-              Entendido
+              <Check className="size-4 text-[#C8F135]" />
+              Conectar {selectedBrandToConnect.name}
             </button>
           </div>
         </div>

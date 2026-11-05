@@ -51,7 +51,7 @@ const PROTOCOLO_QUIZ_OPTIONS: QuizOption[] = [
     id: "proto-opt-1",
     text: "Mapear marcadores inflamatórios, perfil metabólico e cinética hormonal para dosar a carga certa e preservar a longevidade.",
     isCorrect: true,
-    feedback: "Exato! O Protocolo Fibios correlaciona dados laboratoriais precisos à carga de treino para blindar a saúde e o rendimento ao longo das décadas.",
+    feedback: "Exato! A medicina preventiva correlaciona dados laboratoriais e biomarcadores à carga de treino para blindar a saúde e o rendimento ao longo das décadas.",
   },
   {
     id: "proto-opt-4",
@@ -91,7 +91,7 @@ export function DrIsabellaCard() {
       }
       if (feedAntifraud.hasClaimed("read", ARTICLE_POST_ID)) {
         setReadClaimed(true);
-        trackArticleRead(ARTICLE_POST_ID, "Protocolo Fibios: Biomarcadores & Longevidade (Dra. Isabella Formigari)", dwellTimeSeconds);
+        trackArticleRead(ARTICLE_POST_ID, "Biomarcadores & Longevidade Ativa (Dra. Isabella Formigari)", dwellTimeSeconds);
       }
     }
   }, []);
@@ -142,7 +142,7 @@ export function DrIsabellaCard() {
       const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
-      wallet.earn(points, "Quizz Netfits: Protocolo Fibios (Dra. Isabella Formigari)");
+      wallet.earn(points, "Quizz Netfits: Biomarcadores & Longevidade Ativa (Dra. Isabella Formigari)");
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
       toast.success(`🎉 Resposta correta! +${points} netfits creditados na sua carteira digital.`);
     } else {
@@ -161,7 +161,7 @@ export function DrIsabellaCard() {
     if (validation.allowed) {
       feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0);
       setReadClaimed(true);
-      trackArticleRead(ARTICLE_POST_ID, "Protocolo Fibios: Biomarcadores & Longevidade (Dra. Isabella Formigari)", dwellTimeSeconds);
+      trackArticleRead(ARTICLE_POST_ID, "Biomarcadores & Longevidade Ativa (Dra. Isabella Formigari)", dwellTimeSeconds);
       toast.success("📖 Leitura completa validada com sucesso! O Quizz Netfits (+5 netfits) foi liberado.");
       setArticleOpen(false);
     } else {
@@ -188,7 +188,7 @@ export function DrIsabellaCard() {
                 </h3>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-700 dark:text-purple-400 text-[10px] font-black uppercase tracking-tight">
                   <Activity className="size-3 text-purple-600" />
-                  Protocolo Fibios
+                  Medicina Preventiva
                 </span>
               </div>
               <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-medium">
@@ -217,7 +217,7 @@ export function DrIsabellaCard() {
             onClick={() => setArticleOpen(true)}
             className="text-base sm:text-lg font-black text-zinc-950 dark:text-white tracking-tight leading-snug hover:text-purple-600 transition-colors cursor-pointer"
           >
-            Protocolo Fibios: Como Mapear Biomarcadores Blinda a Sua Longevidade no Esporte
+            Medicina Preventiva & Longevidade: Como Mapear Biomarcadores Blinda a Sua Vida em Movimento
           </h2>
           <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed font-normal">
             A medicina preventiva aplicada ao movimento: por que exames periódicos e cinética hormonal separam a evolução atlética do desgaste crônico.
@@ -230,11 +230,11 @@ export function DrIsabellaCard() {
           className="relative overflow-hidden rounded-2xl shadow-md border border-zinc-200 dark:border-zinc-800 bg-zinc-950 cursor-pointer group active:scale-[0.99] transition-all aspect-[4/5] max-h-[480px]"
           role="button"
           tabIndex={0}
-          aria-label="Toque para ler o Protocolo Clínico Fibios"
+          aria-label="Toque para ler as diretrizes clínicas da Dra. Isabella Formigari"
         >
           <img
             src={draIsabellaImg}
-            alt="Dra. Isabella Formigari - Protocolo Fibios"
+            alt="Dra. Isabella Formigari - Longevidade Ativa"
             className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
           />
@@ -253,7 +253,7 @@ export function DrIsabellaCard() {
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-[10px] font-bold text-white shadow-xs">
               <HeartPulse className="size-3 text-[#C8F135]" />
-              MEDICINA FIBIOS
+              CURADORIA FIBIOS
             </span>
           </div>
 
@@ -266,14 +266,14 @@ export function DrIsabellaCard() {
 
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white text-zinc-950 font-bold text-xs shadow-lg backdrop-blur-xs transition">
               <BookOpen className="size-3.5 text-purple-700" />
-              Ler Protocolo Completo
+              Ler Artigo Completo
             </span>
           </div>
         </div>
 
         {/* 4. Pílula de Leitura Rápida */}
         <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-950 dark:text-purple-200 leading-relaxed font-medium">
-          💡 <b>Diretriz Clínica:</b> Treinar forte sem entender seus exames acelera o estresse oxidativo. O Protocolo Fibios traduz seus dados em saúde para as próximas décadas.
+          💡 <b>Diretriz Clínica:</b> Treinar forte sem entender seus exames acelera o estresse oxidativo. O acompanhamento médico de biomarcadores traduz seus dados em saúde para as próximas décadas.
         </div>
 
         {/* 5. Barra Bipartida Institucional Netfits */}
@@ -316,7 +316,7 @@ export function DrIsabellaCard() {
           </div>
 
           <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
-            No Protocolo Fibios de longevidade, qual a importância da análise de biomarcadores para quem treina com frequência?
+            Na visão médica da longevidade ativa, qual a importância da análise de biomarcadores para quem treina com frequência?
           </h4>
 
           {/* Opções de Resposta */}
@@ -394,7 +394,7 @@ export function DrIsabellaCard() {
         {/* 7. Ações Sociais */}
         <FeedSocialActions
           id={ARTICLE_POST_ID}
-          title="Protocolo Fibios: Biomarcadores & Longevidade no Esporte"
+          title="Biomarcadores & Longevidade Ativa no Esporte — Dra. Isabella Formigari"
           onOpenArticle={() => setArticleOpen(true)}
         />
 
@@ -407,7 +407,7 @@ export function DrIsabellaCard() {
           className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in"
           onClick={() => setArticleOpen(false)}
           role="dialog"
-          aria-label="Artigo Protocolo Fibios"
+          aria-label="Artigo Biomarcadores & Longevidade"
         >
           <div
             className="w-full max-w-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-t-2xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl border border-zinc-200 dark:border-zinc-800"
@@ -421,7 +421,7 @@ export function DrIsabellaCard() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-zinc-900 dark:text-white">
-                    Protocolo Clínico Fibios
+                    Diretrizes de Longevidade Ativa
                   </h3>
                   <p className="text-[10px] text-zinc-500">
                     Dra. Isabella Formigari · CRM-SP 282951
@@ -466,7 +466,7 @@ export function DrIsabellaCard() {
               </div>
 
               <h4 className="font-bold text-zinc-950 dark:text-white text-xs uppercase tracking-wider pt-2">
-                Os 3 Eixos Centrais do Protocolo Fibios
+                Os 3 Eixos Centrais da Medicina Preventiva no Esporte
               </h4>
 
               <div className="space-y-2.5">
