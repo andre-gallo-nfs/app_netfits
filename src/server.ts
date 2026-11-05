@@ -12,6 +12,7 @@ import {
   globalColdTierStatus,
 } from "./server/finops-handlers.ts";
 import { handleClubSubscriptionRoutes } from "./server/club-subscription-handlers.ts";
+import { handleGarminRoutes } from "./server/garmin-handlers.ts";
 import { handleFeedModerationRoutes } from "./server/feed-moderation-handlers.ts";
 import {
   normalizeString,
@@ -61,11 +62,15 @@ export default {
     const clubRes = await handleClubSubscriptionRoutes(req, url, corsHeaders);
     if (clubRes) return clubRes;
 
-    // 6. AI Feed Content Moderation Routes (/api/feed/moderate)
+    // 6. Garmin Connect Developer Program Webhook Routes (/api/webhooks/garmin, /api/garmin/*)
+    const garminRes = await handleGarminRoutes(req, url, corsHeaders);
+    if (garminRes) return garminRes;
+
+    // 7. AI Feed Content Moderation Routes (/api/feed/moderate)
     const moderationRes = await handleFeedModerationRoutes(req, url, corsHeaders);
     if (moderationRes) return moderationRes;
 
-    // 7. Fallback to TanStack React Start SSR Handler
+    // 8. Fallback to TanStack React Start SSR Handler
     return handler(req);
   },
 };
