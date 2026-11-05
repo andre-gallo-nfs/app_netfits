@@ -32,16 +32,10 @@ export function SecurityLockOverlay() {
     return null;
   }
 
-  const navigateToFeed = () => {
-    if (typeof window !== "undefined") {
-      window.location.replace("/feed");
-    }
-  };
-
   const handleBiometricUnlock = async (isAutoPrompt = false) => {
     if (!appLockStore.isBiometricsAvailable()) {
       if (!isAutoPrompt) {
-        setErrorMessage("Sensor biométrico não configurado. Toque em 'Desbloquear e Acessar'.");
+        setErrorMessage("Sensor biométrico não disponível neste aparelho. Toque em 'Desbloquear e Acessar' ou digite sua senha.");
       }
       return;
     }
@@ -50,12 +44,11 @@ export function SecurityLockOverlay() {
     setIsAuthenticatingBio(true);
 
     try {
-      const res = await appLockStore.unlockWithBiometrics();
-      if (res.success) {
-        navigateToFeed();
-        return;
-      }
-      if (res.error && !isAutoPrompt) {
+      const timeoutPromise = new Promise<{ success: boolean; error?: string }>((resolve) =>
+        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler Face ID. Digite sua senha." }), 3000)
+      );
+      const res = await Promise.race([appLockStore.unlockWithBiometrics(), timeoutPromise]);
+      if (!res.success && res.error && !isAutoPrompt) {
         setErrorMessage(res.error);
       }
     } catch (err: any) {
@@ -67,7 +60,7 @@ export function SecurityLockOverlay() {
     }
   };
 
-  // Delay suave de 800ms para aguardar o ciclo de renderização no iOS
+  // Delay suave de 800ms para aguardar o ciclo de renderização no iOS (apenas se biometria suportada)
   useEffect(() => {
     let timer: any = null;
     if (appLockStore.isBiometricsAvailable()) {
@@ -85,9 +78,7 @@ export function SecurityLockOverlay() {
     setErrorMessage(null);
     setIsAuthenticatingBio(false);
     const res = appLockStore.unlockWithPassword(password);
-    if (res.success) {
-      navigateToFeed();
-    } else if (res.error) {
+    if (!res.success && res.error) {
       setErrorMessage(res.error);
     }
   };
@@ -112,7 +103,6 @@ export function SecurityLockOverlay() {
 
   const handleEmergencyUnlock = () => {
     appLockStore.forceEmergencyUnlock();
-    navigateToFeed();
   };
 
   return (
@@ -200,7 +190,10 @@ export function SecurityLockOverlay() {
 
         {/* Action 3: Formulário de Senha */}
         <form onSubmit={handlePasswordUnlock} className="space-y-2.5 text-left">
-          <div className="relative">
+          <div
+            onClick={() => inputRef.current?.focus()}
+            className="relative cursor-text"
+          >
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
               <KeyRound className="size-4" />
             </div>
@@ -210,7 +203,8 @@ export function SecurityLockOverlay() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Digite sua senha cadastrada"
-              className="w-full pl-10 pr-12 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-base text-white placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition"
+              className="w-full pl-10 pr-12 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-base text-white placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition select-text"
+              style={{ WebkitUserSelect: "text", userSelect: "text" }}
               autoComplete="current-password"
               inputMode="text"
               autoCapitalize="none"
@@ -219,7 +213,10 @@ export function SecurityLockOverlay() {
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPassword(!showPassword);
+              }}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition cursor-pointer p-1"
               aria-label={showPassword ? "Ocultar senha" : "Ver senha"}
             >
@@ -249,7 +246,7 @@ export function SecurityLockOverlay() {
         </button>
 
         <span className="text-[10px] text-zinc-600">
-          Netfits Guard v1.4
+          Netfits Guard v1.5
         </span>
       </div>
     </div>

@@ -153,18 +153,16 @@ class AppLockStore {
 
   public isBiometricsAvailable(): boolean {
     if (typeof window === "undefined") return false;
-    // 1. No aplicativo móvel nativo (Android / iOS via Capacitor)
-    const cap = (window as any).Capacitor;
-    if (cap && typeof cap.isPluginAvailable === "function") {
-      if (cap.isPluginAvailable("BiometricAuthNative") || cap.isPluginAvailable("BiometricAuth")) {
-        return true;
+    // 1. Se estiver no aplicativo móvel nativo (iOS / Android via Capacitor):
+    if (nativeBridge.isNativePlatform()) {
+      const cap = (window as any).Capacitor;
+      if (cap && typeof cap.isPluginAvailable === "function") {
+        return Boolean(cap.isPluginAvailable("BiometricAuthNative") || cap.isPluginAvailable("BiometricAuth"));
       }
+      return false;
     }
-    // 2. No navegador Web / PWA / Safari / Chrome
-    if (typeof window.PublicKeyCredential !== "undefined") {
-      return true;
-    }
-    return false;
+    // 2. No navegador Web desktop convencional / Safari Web:
+    return typeof window.PublicKeyCredential !== "undefined";
   }
 
   public isUnlocked(): boolean {
