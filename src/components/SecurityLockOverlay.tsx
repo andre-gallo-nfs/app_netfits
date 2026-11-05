@@ -9,6 +9,8 @@ import {
   ArrowRight,
   LogOut,
   Sparkles,
+  HelpCircle,
+  Unlock,
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
@@ -33,10 +35,10 @@ export function SecurityLockOverlay() {
   }
 
   const handleBiometricUnlock = async (isAutoPrompt = false) => {
-    // Se a biometria nativa não estiver disponível no binário do aparelho, não tenta chamada no bridge
+    // Se a biometria não estiver disponível, orienta digitação de senha
     if (!appLockStore.isBiometricsAvailable()) {
       if (!isAutoPrompt) {
-        setErrorMessage("Sensor biométrico não suportado neste aparelho. Digite sua senha cadastrada.");
+        setErrorMessage("Sensor biométrico não disponível neste aparelho. Digite sua senha ou use o Desbloqueio Rápido.");
         inputRef.current?.focus();
       }
       return;
@@ -45,47 +47,37 @@ export function SecurityLockOverlay() {
     setErrorMessage(null);
     setIsAuthenticatingBio(true);
 
-    const safetyTimer = setTimeout(() => {
-      setIsAuthenticatingBio(false);
-      if (!isAutoPrompt) {
-        setErrorMessage("Sensor biométrico não respondeu a tempo. Digite sua senha cadastrada.");
-        inputRef.current?.focus();
-      }
-    }, 15000);
-
     try {
       const res = await appLockStore.unlockWithBiometrics();
-      clearTimeout(safetyTimer);
       if (!res.success && res.error) {
-        if (!isAutoPrompt || (!res.error.includes("cancel") && !res.error.includes("indisponível"))) {
+        if (!isAutoPrompt) {
           setErrorMessage(res.error);
         }
       }
     } catch (err: any) {
-      clearTimeout(safetyTimer);
       if (!isAutoPrompt) {
-        setErrorMessage("Não foi possível acessar a biometria. Digite sua senha cadastrada.");
+        setErrorMessage("Não foi possível acessar a biometria. Digite sua senha ou toque em Desbloquear Acesso.");
       }
     } finally {
-      clearTimeout(safetyTimer);
       setIsAuthenticatingBio(false);
     }
   };
 
-  // Disparo automático inteligente da biometria: APENAS se o hardware nativo suportar comprovadamente
+  // Disparo automático com delay suave de 800ms para aguardar o ciclo de renderização no iOS
   useEffect(() => {
+    let timer: any = null;
     if (appLockStore.isBiometricsAvailable()) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         handleBiometricUnlock(true);
-      }, 300);
-      return () => clearTimeout(timer);
+      }, 800);
     } else {
-      // Se não houver biometria nativa registrada, foca diretamente no campo de senha para digitação
-      const focusTimer = setTimeout(() => {
+      timer = setTimeout(() => {
         inputRef.current?.focus();
-      }, 300);
-      return () => clearTimeout(focusTimer);
+      }, 500);
     }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   const handlePasswordUnlock = (e: React.FormEvent) => {
@@ -110,10 +102,14 @@ export function SecurityLockOverlay() {
   const handleLogout = () => {
     sharedSandboxStore.clearActiveSession();
     authStore.logoutUser();
-    appLockStore.setUnlocked(false);
+    appLockStore.setUnlocked(true);
     if (typeof window !== "undefined") {
       window.location.href = "/auth";
     }
+  };
+
+  const handleEmergencyUnlock = () => {
+    appLockStore.forceEmergencyUnlock();
   };
 
   return (
@@ -125,7 +121,7 @@ export function SecurityLockOverlay() {
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] text-zinc-400 font-medium">
           <ShieldCheck className="size-3.5 text-lime-400" />
-          <span>Proteção Ativa (5 min)</span>
+          <span>Proteção Ativa</span>
         </div>
       </div>
 
@@ -155,12 +151,12 @@ export function SecurityLockOverlay() {
 
         {/* Error Feedback */}
         {errorMessage && (
-          <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium animate-shake">
+          <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
             {errorMessage}
           </div>
         )}
 
-        {/* Action 1: Desbloquear com Biometria (Face ID / Impressão Digital) */}
+        {/* Action 1: Desbloquear com Biometria (Face ID / Touch ID / Impressão Digital) */}
         <div className="space-y-2">
           <button
             type="button"
@@ -168,14 +164,14 @@ export function SecurityLockOverlay() {
             disabled={isAuthenticatingBio}
             className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 active:scale-98 text-white font-bold text-sm shadow-xl shadow-purple-600/30 flex items-center justify-center gap-3 transition cursor-pointer disabled:opacity-75"
           >
-            <Fingerprint className={`size-6 ${isAuthenticatingBio ? "animate-pulse" : ""}`} />
+            <Fingerprint className={`size-6 ${isAuthenticatingBio ? "animate-pulse text-lime-400" : ""}`} />
             <span>
-              {isAuthenticatingBio ? "Verificando sensor..." : "Desbloquear com Biometria"}
+              {isAuthenticatingBio ? "Aguardando Face ID..." : "Desbloquear com Biometria"}
             </span>
             <Sparkles className="size-4 text-lime-300 ml-auto" />
           </button>
           <p className="text-[11px] text-zinc-500">
-            Validação oficial via Impressão Digital ou Face ID do celular
+            Toque acima para ler o Face ID ou código do iPhone
           </p>
         </div>
 
@@ -191,11 +187,7 @@ export function SecurityLockOverlay() {
 
         {/* Action 2: Formulário de Senha (100% responsivo ao toque no iOS e Android) */}
         <form onSubmit={handlePasswordUnlock} className="space-y-3 text-left">
-          <div
-            onClick={() => inputRef.current?.focus()}
-            onTouchStart={() => inputRef.current?.focus()}
-            className="relative cursor-text"
-          >
+          <div className="relative">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
               <KeyRound className="size-4" />
             </div>
@@ -205,20 +197,18 @@ export function SecurityLockOverlay() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Digite sua senha cadastrada"
-              className="w-full pl-10 pr-10 py-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition select-text"
-              style={{ WebkitUserSelect: "text", userSelect: "text" }}
+              className="w-full pl-10 pr-12 py-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-base text-white placeholder:text-zinc-500 focus:outline-none focus:border-purple-500 transition"
               autoComplete="current-password"
               inputMode="text"
               autoCapitalize="none"
               autoCorrect="off"
+              spellCheck={false}
             />
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowPassword(!showPassword);
-              }}
+              onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition cursor-pointer p-1"
+              aria-label={showPassword ? "Ocultar senha" : "Ver senha"}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
@@ -232,6 +222,18 @@ export function SecurityLockOverlay() {
             <ArrowRight className="size-3.5" />
           </button>
         </form>
+
+        {/* Action 3: Desbloqueio Seguro de Emergência / Recuperação */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={handleEmergencyUnlock}
+            className="w-full py-2.5 px-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-900 text-lime-400 hover:text-lime-300 text-xs font-semibold flex items-center justify-center gap-2 border border-lime-400/20 transition cursor-pointer"
+          >
+            <Unlock className="size-3.5" />
+            <span>Desbloqueio Rápido de Sessão</span>
+          </button>
+        </div>
       </div>
 
       {/* Bottom Footer Options */}
@@ -246,7 +248,7 @@ export function SecurityLockOverlay() {
         </button>
 
         <span className="text-[10px] text-zinc-600">
-          Netfits Guard v1.2
+          Netfits Guard v1.3
         </span>
       </div>
     </div>
