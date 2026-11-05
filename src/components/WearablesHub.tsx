@@ -614,24 +614,19 @@ export function WearablesHub() {
 
             {connectingBrand.id === "garmin" ? (
               <div className="space-y-2 pt-1">
-                <button
-                  type="button"
-                  disabled={isRedirectingToGarmin}
-                  onClick={handleConnectGarminOfficial}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-lg shadow-sky-500/25"
+                <a
+                  href={`https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent("https://www.netfits.com.br/api/garmin/oauth/callback")}&state=${encodeURIComponent(typeof window !== "undefined" ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/activities" })) : activeUser.id)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    setConnectingBrand(null);
+                    toast.info("Abrindo login oficial da Garmin no navegador...");
+                  }}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-sky-500/25 text-center"
                 >
-                  {isRedirectingToGarmin ? (
-                    <>
-                      <RefreshCw className="size-4 animate-spin" />
-                      Redirecionando para Garmin Connect™...
-                    </>
-                  ) : (
-                    <>
-                      Conectar Oficialmente no Garmin Connect™
-                      <ExternalLink className="size-4" />
-                    </>
-                  )}
-                </button>
+                  Conectar Oficialmente no Garmin Connect™
+                  <ExternalLink className="size-4" />
+                </a>
                 <button
                   type="button"
                   disabled={isSimulatingSync}

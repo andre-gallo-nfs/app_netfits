@@ -19,7 +19,10 @@ const config: CapacitorConfig = {
       "*.supabase.co",
       "*.google-analytics.com",
       "*.googletagmanager.com",
-      "*.analytics.google.com"
+      "*.analytics.google.com",
+      "*.garmin.com",
+      "connect.garmin.com",
+      "sso.garmin.com"
     ]
   },
   plugins: {}
