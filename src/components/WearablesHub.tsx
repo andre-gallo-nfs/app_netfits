@@ -554,7 +554,7 @@ export function WearablesHub() {
         </div>
       </div>
 
-      {/* Modal / Sheet do Terra Connect Widget (Simulação Turnkey) */}
+      {/* Modal / Sheet de Conexão (Garmin Connect Oficial ou Terra API) */}
       {connectingBrand && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
@@ -565,7 +565,7 @@ export function WearablesHub() {
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-widest text-lime-400 flex items-center gap-1">
                 <Radio className="size-3" />
-                Terra Connect Widget
+                {connectingBrand.id === "garmin" ? "Garmin Connect™ OAuth" : "Terra Connect Widget"}
               </span>
               <button
                 type="button"
@@ -587,18 +587,24 @@ export function WearablesHub() {
                 Autorizar Conexão com {connectingBrand.name}
               </h3>
               <p className="text-xs text-zinc-400 leading-relaxed max-w-xs mx-auto">
-                A Terra API solicitará permissão segura para ler suas atividades esportivas (duração, distância, frequência cardíaca e calorias).
+                {connectingBrand.id === "garmin"
+                  ? "A Netfits solicitará permissão segura diretamente na nuvem da Garmin Connect™ para ler suas atividades esportivas (duração, distância, frequência cardíaca e calorias)."
+                  : "A Terra API solicitará permissão segura para ler suas atividades esportivas (duração, distância, frequência cardíaca e calorias)."}
               </p>
             </div>
 
             <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs space-y-1.5 text-zinc-300">
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500">Protocolo:</span>
-                <span className="font-mono text-lime-400 text-[11px] font-bold">{connectingBrand.protocol}</span>
+                <span className="font-mono text-lime-400 text-[11px] font-bold">
+                  {connectingBrand.id === "garmin" ? "Garmin Connect™ Cloud OAuth" : connectingBrand.protocol}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500">Ambiente:</span>
-                <span className="font-mono text-purple-400 text-[11px] font-bold">Terra Sandbox v2</span>
+                <span className="font-mono text-purple-400 text-[11px] font-bold">
+                  {connectingBrand.id === "garmin" ? "Garmin Developer Program (Oficial)" : "Terra Sandbox v2"}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500">Privacidade:</span>
@@ -606,24 +612,55 @@ export function WearablesHub() {
               </div>
             </div>
 
-            <button
-              type="button"
-              disabled={isSimulatingSync}
-              onClick={handleConfirmTerraConnect}
-              className="w-full py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-300 active:scale-[0.99] text-zinc-950 font-black text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-lg shadow-lime-500/20"
-            >
-              {isSimulatingSync ? (
-                <>
-                  <RefreshCw className="size-4 animate-spin" />
-                  Autorizando Handshake OAuth...
-                </>
-              ) : (
-                <>
-                  Autorizar Conexão na Terra API
-                  <ArrowRight className="size-4" />
-                </>
-              )}
-            </button>
+            {connectingBrand.id === "garmin" ? (
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  disabled={isRedirectingToGarmin}
+                  onClick={handleConnectGarminOfficial}
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-lg shadow-sky-500/25"
+                >
+                  {isRedirectingToGarmin ? (
+                    <>
+                      <RefreshCw className="size-4 animate-spin" />
+                      Redirecionando para Garmin Connect™...
+                    </>
+                  ) : (
+                    <>
+                      Conectar Oficialmente no Garmin Connect™
+                      <ExternalLink className="size-4" />
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  disabled={isSimulatingSync}
+                  onClick={handleConfirmTerraConnect}
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                >
+                  Simular Conexão Rápida em Sandbox
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={isSimulatingSync}
+                onClick={handleConfirmTerraConnect}
+                className="w-full py-3 px-4 rounded-xl bg-lime-400 hover:bg-lime-300 active:scale-[0.99] text-zinc-950 font-black text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer shadow-lg shadow-lime-500/20"
+              >
+                {isSimulatingSync ? (
+                  <>
+                    <RefreshCw className="size-4 animate-spin" />
+                    Autorizando Handshake OAuth...
+                  </>
+                ) : (
+                  <>
+                    Autorizar Conexão na Terra API
+                    <ArrowRight className="size-4" />
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       )}
