@@ -628,7 +628,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </div>
           <p className="text-xs sm:text-sm text-zinc-300 leading-snug break-words min-w-0 flex-1">
             <strong className="text-lime-400 font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
-              Pílula de Sabedoria Fibios & Netfits
+              Pílula de Sabedoria
             </strong>
             "{post.takeaway || post.pillText || 'A constância diária é o maior investimento na sua longevidade ativa.'}"
           </p>
@@ -793,7 +793,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                 <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">
                   <div className="p-3.5 rounded-2xl bg-[#F2ECFD] dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 space-y-1">
                     <span className="text-[10px] font-black text-[#35106E] dark:text-purple-300 flex items-center gap-1 uppercase tracking-wide">
-                      <Sparkles className="size-3 text-[#6B2AD9]" /> Pílula de Sabedoria Netfits
+                      <Sparkles className="size-3 text-[#6B2AD9]" /> Pílula de Sabedoria
                     </span>
                     <p className="text-xs font-semibold italic text-[#202127] dark:text-zinc-200 leading-snug">"{post.pillText}"</p>
                   </div>

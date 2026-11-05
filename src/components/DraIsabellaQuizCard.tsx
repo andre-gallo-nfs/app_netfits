@@ -396,6 +396,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
             <Leaf className="size-4 text-lime-400" />
           </div>
           <p className="text-xs sm:text-sm text-zinc-300 leading-snug">
+            <strong className="text-lime-400 font-semibold block text-[10px] uppercase tracking-wider mb-0.5">Pílula de Sabedoria</strong>
             O treino dá o estímulo.{" "}
             <strong className="text-lime-400 font-semibold block">
               Mas é no sono e na nutrição que o seu corpo constrói longevidade.
