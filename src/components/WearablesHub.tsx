@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { healthBridge } from "@/lib/wearables/health-bridge-service";
 import { useOperationalParams } from "@/lib/operational-params-store";
@@ -169,6 +169,38 @@ export function WearablesHub() {
   const [connectingBrand, setConnectingBrand] = useState<WearableBrand | null>(null);
   const [isSimulatingSync, setIsSimulatingSync] = useState(false);
   const [selectedSport, setSelectedSport] = useState<"running" | "cycling" | "swimming" | "strength">("running");
+  const [isRedirectingToGarmin, setIsRedirectingToGarmin] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("garmin_connected") === "true") {
+        sharedSandboxStore.updateUser(activeUser.id, { wearable: "Garmin" });
+        toast.success("🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus próximos treinos serão pontuados automaticamente.");
+        url.searchParams.delete("garmin_connected");
+        window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : ""));
+      }
+    }
+  }, [activeUser.id]);
+
+  const handleConnectGarminOfficial = async () => {
+    setIsRedirectingToGarmin(true);
+    try {
+      const res = await fetch(`/api/garmin/auth-url?userId=${encodeURIComponent(activeUser.id)}&redirect=/activities`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authUrl) {
+          window.location.href = data.authUrl;
+          return;
+        }
+      }
+      const directAuth = `https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent("https://www.netfits.com.br/api/garmin/oauth/callback")}&state=${encodeURIComponent(activeUser.id)}`;
+      window.location.href = directAuth;
+    } catch {
+      toast.error("Não foi possível iniciar a conexão com o Garmin Connect.");
+      setIsRedirectingToGarmin(false);
+    }
+  };
 
   const connectedBrandId = WEARABLE_BRANDS.find(
     (b) =>

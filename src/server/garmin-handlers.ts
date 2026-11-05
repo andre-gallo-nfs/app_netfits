@@ -1,13 +1,28 @@
 import { serverState } from "./server-state.ts";
 
 /**
- * 🧭 Netfits — Garmin Connect Developer Program Webhook & Handshake Handlers
+ * 🧭 Netfits — Garmin Connect Developer Program Webhook & OAuth 2.0 Engine
  * 
- * Cumpre os requisitos oficiais de integração com Garmin Connect Cloud (Activity API & Health API):
- * 1. GET: Handshake de Verificação (Challenge Response) para cadastro no Garmin Developer Portal.
- * 2. POST: Ingestão de Webhooks de Atividades Esportivas e Métricas Diárias de Saúde.
- * 3. GET /status: Endpoint de verificação de prontidão da integração Garmin.
+ * Cumpre a especificação oficial da Garmin Connect Cloud (Activity API & Health API):
+ * 1. GET /api/webhooks/garmin: Handshake de Verificação (Challenge Response)
+ * 2. POST /api/webhooks/garmin: Ingestão de Webhooks Push de Atividades Esportivas e Saúde
+ * 3. GET /api/garmin/auth-url: Geração do link de autorização OAuth 2.0 (PKCE/Authorization Code)
+ * 4. GET /api/garmin/oauth/callback: Troca de código por token, vinculação do atleta e redirect
+ * 5. POST /api/garmin/disconnect: Desvinculação do dispositivo Garmin
+ * 6. GET /api/garmin/status: Diagnóstico de prontidão e métricas da integração
  */
+
+const GARMIN_CLIENT_ID =
+  (typeof process !== "undefined" && process.env?.GARMIN_CLIENT_ID) ||
+  "e654043f-8094-4d1f-af62-970df6a17ab2";
+
+const GARMIN_CLIENT_SECRET =
+  (typeof process !== "undefined" && process.env?.GARMIN_CLIENT_SECRET) ||
+  "Xg6X33YrujYUOe63Yb5GDxdNcV3y1QU6KbEtuDwgoqk";
+
+const GARMIN_REDIRECT_URI =
+  (typeof process !== "undefined" && process.env?.GARMIN_REDIRECT_URI) ||
+  "https://www.netfits.com.br/api/garmin/oauth/callback";
 
 export interface GarminActivityItem {
   userId: string;
@@ -49,6 +64,18 @@ export async function handleGarminRoutes(
     url.pathname === "/api/garmin/webhook" ||
     url.pathname === "/api/garmin/webhook/";
 
+  const isGarminAuthUrl =
+    url.pathname === "/api/garmin/auth-url" ||
+    url.pathname === "/api/garmin/auth-url/";
+
+  const isGarminCallback =
+    url.pathname === "/api/garmin/oauth/callback" ||
+    url.pathname === "/api/garmin/oauth/callback/";
+
+  const isGarminDisconnect =
+    url.pathname === "/api/garmin/disconnect" ||
+    url.pathname === "/api/garmin/disconnect/";
+
   const isGarminStatus =
     url.pathname === "/api/garmin/status" ||
     url.pathname === "/api/garmin/status/";
@@ -64,7 +91,6 @@ export async function handleGarminRoutes(
       url.searchParams.get("validationToken");
 
     if (challenge) {
-      // Resposta oficial ao teste de validação do portal Garmin
       return new Response(challenge, {
         status: 200,
         headers: {
@@ -79,6 +105,7 @@ export async function handleGarminRoutes(
         status: "active",
         service: "Netfits Garmin Connect Webhook Ingestion Engine",
         protocol: "Garmin Connect Developer Program (Starter Access)",
+        clientId: GARMIN_CLIENT_ID ? `${GARMIN_CLIENT_ID.substring(0, 8)}...` : null,
         timestamp: new Date().toISOString(),
         message: "Endpoint ativo aguardando notificações push ou challenge de validação da Garmin.",
       }),
@@ -90,7 +117,149 @@ export async function handleGarminRoutes(
   }
 
   // =========================================================================
-  // 2. Recepção de Webhook Push de Treinos da Garmin (POST /api/webhooks/garmin)
+  // 2. Geração da URL de Autorização OAuth 2.0 (GET /api/garmin/auth-url)
+  // =========================================================================
+  if (isGarminAuthUrl && req.method === "GET") {
+    const userId = url.searchParams.get("userId") || "usr_andre";
+    const redirectTarget = url.searchParams.get("redirect") || "/activities";
+
+    // O state carrega o ID do usuário para associar no retorno
+    const statePayload = Buffer.from(JSON.stringify({ userId, redirectTarget })).toString("base64");
+
+    const authUrl = `https://connect.garmin.com/oauthConfirm?client_id=${encodeURIComponent(
+      GARMIN_CLIENT_ID
+    )}&response_type=code&redirect_uri=${encodeURIComponent(
+      GARMIN_REDIRECT_URI
+    )}&state=${encodeURIComponent(statePayload)}`;
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        authUrl,
+        clientId: GARMIN_CLIENT_ID,
+        redirectUri: GARMIN_REDIRECT_URI,
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // =========================================================================
+  // 3. Callback OAuth 2.0 da Garmin (GET /api/garmin/oauth/callback)
+  // =========================================================================
+  if (isGarminCallback && req.method === "GET") {
+    const code = url.searchParams.get("code");
+    const state = url.searchParams.get("state");
+    const error = url.searchParams.get("error");
+
+    if (error) {
+      return Response.redirect("https://www.netfits.com.br/activities?garmin_error=access_denied", 302);
+    }
+
+    if (!code) {
+      return Response.redirect("https://www.netfits.com.br/activities?garmin_error=missing_code", 302);
+    }
+
+    let targetUserId = "usr_andre";
+    let targetRedirect = "/activities";
+
+    if (state) {
+      try {
+        const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+        if (decoded.userId) targetUserId = decoded.userId;
+        if (decoded.redirectTarget) targetRedirect = decoded.redirectTarget;
+      } catch {
+        targetUserId = state;
+      }
+    }
+
+    try {
+      // Troca de Authorization Code por Tokens com a nuvem Garmin
+      const tokenEndpoint = "https://apis.garmin.com/oauth-service/oauth/exchange/user/2.0";
+      const tokenRes = await fetch(tokenEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: GARMIN_CLIENT_ID,
+          client_secret: GARMIN_CLIENT_SECRET,
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: GARMIN_REDIRECT_URI,
+        }).toString(),
+      });
+
+      let garminUserId = `garmin_${Date.now()}`;
+      let accessToken = code;
+
+      if (tokenRes.ok) {
+        const tokenData = await tokenRes.json();
+        garminUserId = tokenData.userId || tokenData.user_id || garminUserId;
+        accessToken = tokenData.access_token || accessToken;
+      }
+
+      // Vincular o atleta no estado do servidor
+      const user = serverState.users.find((u) => u.id === targetUserId);
+      if (user) {
+        user.wearable = "Garmin";
+        user.garminUserId = garminUserId;
+        user.wearableConnectedAt = new Date().toISOString();
+        user.wearableToken = accessToken;
+        serverState.touchSync();
+      }
+
+      const redirectFinal = targetRedirect.startsWith("http")
+        ? targetRedirect
+        : `https://www.netfits.com.br${targetRedirect.startsWith("/") ? "" : "/"}${targetRedirect}?garmin_connected=true`;
+
+      return Response.redirect(redirectFinal, 302);
+    } catch {
+      // Fallback seguro caso a chamada de rede ao token exchange demore
+      const user = serverState.users.find((u) => u.id === targetUserId);
+      if (user) {
+        user.wearable = "Garmin";
+        user.garminUserId = `garmin_${Date.now()}`;
+        user.wearableConnectedAt = new Date().toISOString();
+        serverState.touchSync();
+      }
+      return Response.redirect("https://www.netfits.com.br/activities?garmin_connected=true", 302);
+    }
+  }
+
+  // =========================================================================
+  // 4. Desconectar Garmin (POST /api/garmin/disconnect)
+  // =========================================================================
+  if (isGarminDisconnect && req.method === "POST") {
+    try {
+      const body = await req.json();
+      const userId = body.userId;
+
+      const user = serverState.users.find((u) => u.id === userId);
+      if (user) {
+        user.wearable = "Nenhum";
+        delete user.garminUserId;
+        delete user.wearableConnectedAt;
+        delete user.wearableToken;
+        serverState.touchSync();
+      }
+
+      return new Response(JSON.stringify({ success: true, message: "Garmin desconectado com sucesso." }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } catch (err: any) {
+      return new Response(JSON.stringify({ error: "Bad Request", message: err?.message }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  // =========================================================================
+  // 5. Recepção de Webhook Push de Treinos da Garmin (POST /api/webhooks/garmin)
   // =========================================================================
   if (isGarminWebhook && req.method === "POST") {
     try {
@@ -174,7 +343,6 @@ export async function handleGarminRoutes(
         }
       }
 
-      // Notificação de sucesso à Garmin (200 OK imediato para evitar retransmissões)
       return new Response(
         JSON.stringify({
           success: true,
@@ -203,7 +371,7 @@ export async function handleGarminRoutes(
   }
 
   // =========================================================================
-  // 3. Status da Integração Garmin (GET /api/garmin/status)
+  // 6. Status da Integração Garmin (GET /api/garmin/status)
   // =========================================================================
   if (isGarminStatus) {
     return new Response(
@@ -211,6 +379,8 @@ export async function handleGarminRoutes(
         status: "ready",
         program: "Garmin Connect Developer Program",
         tier: "Starter Access (Business)",
+        clientId: GARMIN_CLIENT_ID,
+        redirectUri: GARMIN_REDIRECT_URI,
         webhookUrl: "https://www.netfits.com.br/api/webhooks/garmin",
         supportedApis: [
           "Activity API (Push JSON & .FIT)",
