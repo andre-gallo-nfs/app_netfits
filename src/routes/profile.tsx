@@ -485,13 +485,13 @@ function ProfilePage() {
                       {activeUser.isClubMember || activeUser.userCategory === "associado" ? (
                         <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-[#5D7600]" /></>
                       ) : (
-                        <>Clube Netfits • 250 nfs/mês + 25 nfs por treino</>
+                        <>Clube Netfits • 250 nfs/mês + 20 nfs por treino</>
                       )}
                     </span>
                     <span className="text-[10px] text-[#5F6270] block mt-0.5">
                       {activeUser.isClubMember || activeUser.userCategory === "associado"
-                        ? "250 nfs na mensalidade + 25 nfs por treino validado • Telemetria liberada"
-                        : "250 nfs na mensalidade + 25 nfs por treino validado"}
+                        ? "250 nfs na mensalidade + 20 nfs por treino validado • Telemetria liberada"
+                        : "250 nfs na mensalidade + 20 nfs por treino validado"}
                     </span>
                   </div>
                 </div>
@@ -982,7 +982,7 @@ function ProfilePage() {
             >
               <div className="flex items-center gap-2">
                 <Watch className="size-4 text-purple-600" />
-                <span>Conexão & Telemetria de Treinos (+25 nfs no Clube)</span>
+                <span>Conexão & Telemetria de Treinos (+20 nfs no Clube)</span>
               </div>
               <span className="text-[10px] text-purple-600 font-black">Ver Clube ➔</span>
             </Link>

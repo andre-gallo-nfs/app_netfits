@@ -27,6 +27,7 @@
 	"packageClassList": [
 		"BiometricAuthNative",
 		"AppPlugin",
+		"CAPBrowserPlugin",
 		"KeyboardPlugin"
 	]
 }
