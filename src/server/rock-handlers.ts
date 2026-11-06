@@ -338,7 +338,7 @@ export async function handleRockRoutes(
 
       try {
         const user = resolveUserForOrder(rawOrder, serverState.users);
-        const isClubMember = user?.userCategory === "associado" || user?.isClubMember === true;
+        const isClubMember = user?.isClubMember === true;
 
         const result = processMkplaceOrderNotification(rawOrder, isClubMember, {
           baseRate: serverState.operationalParams.nfsEarnedPerBrlSpent || 4.0,
@@ -470,7 +470,7 @@ export async function handleRockRoutes(
                     (u.referralCode && u.referralCode.toUpperCase() === user.referredBy?.toUpperCase()) ||
                     u.id === user.referredBy
                 );
-                const isReferrerClub = referrer?.isClubMember === true || referrer?.userCategory === "associado";
+                const isReferrerClub = referrer?.isClubMember === true || referrer?.plan === "club";
                 if (referrer && isReferrerClub) {
                   const refPoints = Math.floor(result.nfsEarned * (referralShopPct / 100));
                   if (refPoints > 0) {

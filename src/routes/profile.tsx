@@ -482,21 +482,21 @@ function ProfilePage() {
                   </div>
                   <div>
                     <span className="text-xs font-black text-[#202127] flex items-center gap-1.5">
-                      {activeUser.isClubMember || activeUser.userCategory === "associado" ? (
+                      {activeUser.isClubMember || activeUser.plan === "club" ? (
                         <>Membro Ativo do Clube Netfits <span className="size-1.5 rounded-full bg-[#5D7600]" /></>
                       ) : (
                         <>Clube Netfits • 250 nfs/mês + 20 nfs por treino</>
                       )}
                     </span>
                     <span className="text-[10px] text-[#5F6270] block mt-0.5">
-                      {activeUser.isClubMember || activeUser.userCategory === "associado"
+                      {activeUser.isClubMember || activeUser.plan === "club"
                         ? "250 nfs na mensalidade + 20 nfs por treino validado • Telemetria liberada"
                         : "250 nfs na mensalidade + 20 nfs por treino validado"}
                     </span>
                   </div>
                 </div>
                 <span className="text-[11px] font-black text-[#6B2AD9]">
-                  {activeUser.isClubMember || activeUser.userCategory === "associado" ? "Gerenciar ➔" : "Conhecer ➔"}
+                  {activeUser.isClubMember || activeUser.plan === "club" ? "Gerenciar ➔" : "Conhecer ➔"}
                 </span>
               </Link>
             </div>

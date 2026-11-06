@@ -366,8 +366,15 @@ function ActivitiesPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{tx.description}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                      {new Date(tx.timestamp).toLocaleDateString("pt-BR")}
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono whitespace-nowrap shrink-0">
+                      {(() => {
+                        const d = new Date(tx.timestamp);
+                        if (isNaN(d.getTime())) return "Data indisponível";
+                        const day = String(d.getDate()).padStart(2, "0");
+                        const month = String(d.getMonth() + 1).padStart(2, "0");
+                        const year = String(d.getFullYear()).slice(-2);
+                        return `${day}/${month}/${year}`;
+                      })()}
                     </span>
                     <span className="text-[9px] font-mono bg-lime-500/10 text-lime-600 dark:text-lime-400 px-1.5 py-0.2 rounded font-bold">
                       GPS / FC OK

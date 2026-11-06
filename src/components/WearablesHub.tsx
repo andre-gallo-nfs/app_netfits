@@ -14,6 +14,7 @@ import {
   Crown,
   Satellite,
   Clock,
+  Lock,
   Check,
   X,
   Radio,
@@ -171,7 +172,7 @@ export function WearablesHub() {
   const activeUser = sharedSandboxStore.useActiveUser();
   const params = useOperationalParams();
 
-  const isClubMember = Boolean(activeUser.isClubMember === true || activeUser.userCategory === "associado");
+  const isClubMember = Boolean(activeUser.isClubMember === true || activeUser.plan === "club");
 
   const [connectingBrand, setConnectingBrand] = useState<WearableBrand | null>(null);
 
@@ -218,6 +219,38 @@ export function WearablesHub() {
   };
 
   // APENAS Garmin é uma conexão real e ativa no momento
+  
+  // Escuta retorno ou retomada de foco do aplicativo (garante ativação instantânea no retorno ao app)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkCloudGarminStatus = async () => {
+      try {
+        const res = await fetch(`/api/garmin/status?userId=${activeUser.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.userConnected) {
+            sharedSandboxStore.updateUser(activeUser.id, { wearable: "Garmin" });
+            toast.success("🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits!");
+          }
+        }
+      } catch {
+        // silent
+      }
+    };
+
+    window.addEventListener("focus", checkCloudGarminStatus);
+    const onVis = () => {
+      if (document.visibilityState === "visible") checkCloudGarminStatus();
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      window.removeEventListener("focus", checkCloudGarminStatus);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [activeUser.id]);
+
   const isGarminConnected = Boolean(
     activeUser.wearable &&
     activeUser.wearable.toLowerCase().includes("garmin")
@@ -226,6 +259,11 @@ export function WearablesHub() {
   const activeConnectedBrand = WEARABLE_BRANDS.find((b) => b.id === "garmin") || WEARABLE_BRANDS[0];
 
   const handleConnectBrand = (brand: WearableBrand) => {
+    if (!isClubMember) {
+      clubModalStore.open();
+      toast.info("A sincronização de relógios para ganhar pontos por treino é exclusiva para assinantes do Clube Netfits.");
+      return;
+    }
     setConnectingBrand(brand);
   };
 
@@ -393,13 +431,24 @@ export function WearablesHub() {
                       Conectado
                     </span>
                   ) : isGarmin ? (
-                    <button
-                      type="button"
-                      onClick={() => handleConnectBrand(brand)}
-                      className="px-3 py-1.5 rounded-full bg-[#00A6E0] hover:bg-[#0094c9] text-white text-[11px] font-black transition active:scale-95 cursor-pointer shadow-sm"
-                    >
-                      Conectar
-                    </button>
+                    isClubMember ? (
+                      <button
+                        type="button"
+                        onClick={() => handleConnectBrand(brand)}
+                        className="px-3 py-1.5 rounded-full bg-[#00A6E0] hover:bg-[#0094c9] text-white text-[11px] font-black transition active:scale-95 cursor-pointer shadow-sm"
+                      >
+                        Conectar
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleConnectBrand(brand)}
+                        className="px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold transition active:scale-95 cursor-pointer border border-zinc-700 flex items-center gap-1"
+                      >
+                        <Lock className="size-3 text-amber-400" />
+                        <span>Clube</span>
+                      </button>
+                    )
                   ) : (
                     <button
                       type="button"

@@ -47,10 +47,7 @@ function checkCapacitorConfig() {
   const requiredDomains = [
     "netfits.com.br",
     "*.netfits.com.br",
-    "*.mkplace.com.br",
-    "*.garmin.com",
-    "connect.garmin.com",
-    "sso.garmin.com"
+    "*.mkplace.com.br"
   ];
 
   for (const domain of requiredDomains) {

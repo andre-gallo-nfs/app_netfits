@@ -250,7 +250,7 @@ function WalletPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-muted-foreground">{t.date}</span>
+                        <span className="text-xs text-muted-foreground font-mono whitespace-nowrap shrink-0">{t.date}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted font-medium text-muted-foreground">
                           {t.displayCategory}
                         </span>

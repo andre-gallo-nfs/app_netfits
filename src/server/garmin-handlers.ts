@@ -1,3 +1,121 @@
+
+function buildGarminReturnHtml(targetPath: string, webFinal: string) {
+  const intentUri = `intent://www.netfits.com.br${targetPath}?garmin_connected=true#Intent;package=br.com.netfits.app;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
+  const launcherIntent = "intent:#Intent;package=br.com.netfits.app;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Garmin Connect™ Conectado — Netfits</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #35106E;
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(200, 241, 53, 0.35);
+      border-radius: 28px;
+      padding: 36px 24px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    .icon {
+      width: 68px;
+      height: 68px;
+      background: #C8F135;
+      color: #202127;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 34px;
+      font-weight: 900;
+    }
+    h1 {
+      font-size: 21px;
+      font-weight: 900;
+      margin: 0 0 10px;
+      letter-spacing: -0.5px;
+    }
+    p {
+      font-size: 13px;
+      color: #E2D9F3;
+      line-height: 1.5;
+      margin: 0 0 24px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      background: #C8F135;
+      color: #202127;
+      font-weight: 900;
+      font-size: 14px;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(200, 241, 53, 0.35);
+    }
+    .spinner {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #A79AC5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✓</div>
+    <h1>Garmin Conectado!</h1>
+    <p>Sua conta Garmin Connect™ foi vinculada com sucesso à Netfits. Retornando ao aplicativo...</p>
+    <a id="btn-open" class="btn" href="${intentUri}">Abrir Aplicativo Netfits</a>
+    <div class="spinner">Se o app não abrir em instantes, toque no botão acima.</div>
+  </div>
+
+  <script>
+    (function() {
+      var isAndroid = /Android/i.test(navigator.userAgent);
+      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      var intentUri = "${intentUri}";
+      var launcherUri = "${launcherIntent}";
+      var webFinal = "${webFinal}";
+
+      if (isAndroid) {
+        try {
+          window.location.href = intentUri;
+          setTimeout(function() {
+            window.location.href = launcherUri;
+          }, 600);
+        } catch(e) {
+          window.location.href = launcherUri;
+        }
+      } else if (isIOS) {
+        window.location.href = "netfits://club?garmin_connected=true";
+        setTimeout(function() {
+          window.location.replace(webFinal);
+        }, 800);
+      } else {
+        window.location.replace(webFinal);
+      }
+    })();
+  </script>
+</body>
+</html>`;
+}
+
 import { serverState } from "./server-state.ts";
 
 /**
@@ -211,11 +329,19 @@ export async function handleGarminRoutes(
         serverState.touchSync();
       }
 
+      const cleanPath = targetRedirect.startsWith("/") ? targetRedirect : "/" + targetRedirect;
       const redirectFinal = targetRedirect.startsWith("http")
         ? targetRedirect
-        : `https://www.netfits.com.br${targetRedirect.startsWith("/") ? "" : "/"}${targetRedirect}?garmin_connected=true`;
+        : `https://www.netfits.com.br${cleanPath}?garmin_connected=true`;
 
-      return Response.redirect(redirectFinal, 302);
+      const html = buildGarminReturnHtml(cleanPath, redirectFinal);
+      return new Response(html, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      });
     } catch {
       // Fallback seguro caso a chamada de rede ao token exchange demore
       const user = serverState.users.find((u) => u.id === targetUserId);
@@ -225,7 +351,14 @@ export async function handleGarminRoutes(
         user.wearableConnectedAt = new Date().toISOString();
         serverState.touchSync();
       }
-      return Response.redirect("https://www.netfits.com.br/activities?garmin_connected=true", 302);
+      const htmlFallback = buildGarminReturnHtml("/activities", "https://www.netfits.com.br/activities?garmin_connected=true");
+      return new Response(htmlFallback, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      });
     }
   }
 
@@ -287,7 +420,7 @@ export async function handleGarminRoutes(
 
           // Regra de Validação de Treino & Antifraude Netfits
           const isValidWorkout = durationMins >= 15 && hasSensors && !isManual;
-          const isClubMember = Boolean(user?.isClubMember || user?.userCategory === "associado");
+          const isClubMember = Boolean(user?.isClubMember || user?.plan === "club");
 
           // Desduplicação idempotente por activityId
           const isAlreadyProcessed = serverState.transactions.some(
@@ -374,6 +507,13 @@ export async function handleGarminRoutes(
   // 6. Status da Integração Garmin (GET /api/garmin/status)
   // =========================================================================
   if (isGarminStatus) {
+    const requestedUserId = url.searchParams.get("userId");
+    const targetUser = requestedUserId ? serverState.users.find((u) => u.id === requestedUserId) : null;
+    const isUserConnected = Boolean(
+      targetUser?.garminUserId ||
+      (targetUser?.wearable && targetUser.wearable.toLowerCase().includes("garmin"))
+    );
+
     return new Response(
       JSON.stringify({
         status: "ready",
@@ -388,6 +528,8 @@ export async function handleGarminRoutes(
         ],
         verificationHandshake: "GET challenge parameter supported",
         activeConnectionsCount: serverState.users.filter((u) => u.garminUserId).length,
+        userConnected: isUserConnected,
+        connectedWearable: targetUser?.wearable || null,
       }),
       {
         status: 200,

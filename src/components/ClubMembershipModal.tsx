@@ -29,7 +29,7 @@ export function ClubMembershipModal() {
 
   if (!isOpen) return null;
 
-  const isMember = Boolean(activeUser.isClubMember === true || activeUser.userCategory === "associado");
+  const isMember = Boolean(activeUser.isClubMember === true || activeUser.plan === "club");
 
   // Ativação da assinatura do Clube: Checkout pendente de definição
   const handleSubscribe = () => {
