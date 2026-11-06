@@ -296,8 +296,8 @@ export async function handleGarminRoutes(
 
           if (!isAlreadyProcessed && user) {
             // REGRA DE GOVERNANÇA (GEMINI.md / Manifesto 3.0):
-            // Treinos validados no Clube Netfits concedem 25 nfs.
-            const pointsToAward = isClubMember && isValidWorkout ? 25 : 0;
+            // Treinos validados no Clube Netfits concedem 20 nfs.
+            const pointsToAward = isClubMember && isValidWorkout ? 20 : 0;
 
             if (pointsToAward > 0) {
               user.nfsBalance = (user.nfsBalance || 0) + pointsToAward;
@@ -311,7 +311,7 @@ export async function handleGarminRoutes(
                 source: "GARMIN_CONNECT_CLOUD",
                 category: "CLUB_WORKOUT_VALIDATED",
                 amount: pointsToAward,
-                title: `Treino Garmin Validado: ${act.activityType || "Corrida/Ciclismo"} (+25 nfs)`,
+                title: `Treino Garmin Validado: ${act.activityType || "Corrida/Ciclismo"} (+20 nfs)`,
                 description: `${durationMins} min de esforço ativo | FC Média: ${act.averageHeartRateInBeatsPerMinute || "--"} bpm | Dispositivo: ${act.deviceName || "Garmin Wearable"}`,
                 createdAt: nowIso,
                 status: "CONFIRMED",
@@ -335,8 +335,8 @@ export async function handleGarminRoutes(
               reason: !isValidWorkout
                 ? "Atividade não cumpriu critérios de antifraude (mínimo 15min e sensores ópticos comprovados)."
                 : isClubMember
-                ? "Treino homologado com sucesso no Clube Netfits (+25 nfs)."
-                : "Treino sincronizado. Assine o Clube Netfits para pontuar 25 nfs por treino.",
+                ? "Treino homologado com sucesso no Clube Netfits (+20 nfs)."
+                : "Treino sincronizado. Assine o Clube Netfits para pontuar 20 nfs por treino.",
             });
             processedCount++;
           }

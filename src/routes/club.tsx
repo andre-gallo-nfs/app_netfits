@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { wallet } from "@/lib/wallet-store";
+import { nativeBridge } from "@/lib/native-bridge";
 import { toast } from "sonner";
 import {
   Crown,
@@ -27,6 +28,7 @@ import {
   Check,
   AlertCircle,
   Clock,
+  Bell,
   Layers,
   Zap,
 } from "lucide-react";
@@ -38,7 +40,7 @@ export const Route = createFileRoute("/club")({
       {
         name: "description",
         content:
-          "Acelere sua vida em movimento. 250 nfs por mês garantidos + 25 nfs por treino validado, telemetria de sensores e benefícios exclusivos no Shop.",
+          "Acelere sua vida em movimento. 250 nfs por mês garantidos + 20 nfs por treino validado, telemetria de sensores e benefícios exclusivos no Shop.",
       },
       { property: "og:title", content: "Clube Netfits — Experiência VIP" },
     ],
@@ -73,7 +75,7 @@ const WEARABLE_OPTIONS: WearableDeviceOption[] = [
     name: "Apple Watch",
     brandTitle: "Apple HealthKit",
     subtitle: "Sincronização com o app Saúde da Apple",
-    badge: "iOS Nativo",
+    badge: "Em Breve",
     color: "#000000",
     fg: "#FFFFFF",
     category: "Dia a dia, Corrida, Funcional",
@@ -83,7 +85,7 @@ const WEARABLE_OPTIONS: WearableDeviceOption[] = [
     name: "Strava",
     brandTitle: "Strava API Hub",
     subtitle: "Integração direta com suas atividades no Strava",
-    badge: "Comunidade",
+    badge: "Em Breve",
     color: "#FC4C02",
     fg: "#FFFFFF",
     category: "Comunidade Esportiva Global",
@@ -93,7 +95,7 @@ const WEARABLE_OPTIONS: WearableDeviceOption[] = [
     name: "Polar",
     brandTitle: "Polar Flow API",
     subtitle: "Frequencímetros e zonas cardíacas de precisão",
-    badge: "Precisão Óptica",
+    badge: "Em Breve",
     color: "#E2231A",
     fg: "#FFFFFF",
     category: "Frequência Cardíaca & Zonas",
@@ -118,12 +120,15 @@ export function ClubPage() {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Identificação do Dispositivo Conectado com Persistência Segura
+  // Apenas Garmin possui integração oficial ativa
   const [connectedBrandId, setConnectedBrandId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(`netfits_connected_wearable_${activeUser.id}`);
-      if (saved && saved !== "none") return saved;
+      if (saved === "garmin") return "garmin";
+      if (saved) localStorage.removeItem(`netfits_connected_wearable_${activeUser.id}`);
     }
-    return (activeUser as any).connectedWearable || null;
+    const userWearable = (activeUser as any).connectedWearable || activeUser.wearable || "";
+    return userWearable.toLowerCase().includes("garmin") ? "garmin" : null;
   });
 
   // Escuta retorno do OAuth da Garmin via URL (?garmin_connected=true)
@@ -138,7 +143,7 @@ export function ClubPage() {
           wearable: "Garmin Connect",
         } as any);
         toast.success(
-          "🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus treinos serão auditados e pontuados automaticamente (+25 nfs por treino)."
+          "🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus treinos serão auditados e pontuados automaticamente (+20 nfs por treino)."
         );
         url.searchParams.delete("garmin_connected");
         window.history.replaceState(
@@ -167,7 +172,7 @@ export function ClubPage() {
   // Cálculo de Treinos Validados e Pontos do Ciclo
   const userTransactions = sharedSandboxStore.getUserTransactions(activeUser.id);
   const clubWorkoutsThisCycle = userTransactions.filter((tx) => tx.category === "workout").length;
-  const workoutPointsEarned = clubWorkoutsThisCycle * 25;
+  const workoutPointsEarned = clubWorkoutsThisCycle * 20;
   const cycleBasePoints = isMember ? 250 : 0;
   const totalPointsThisCycle = Math.min(1000, cycleBasePoints + workoutPointsEarned);
   const progressPct = Math.min(100, Math.round((totalPointsThisCycle / 1000) * 100));
@@ -184,21 +189,12 @@ export function ClubPage() {
     )}&state=${encodeURIComponent(statePayload)}`;
   };
 
-  const handleOpenGarminBrowser = () => {
+  const handleOpenGarminBrowser = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     const authUrl = getGarminAuthUrl();
+    toast.info("Abrindo login oficial da Garmin Connect...");
     setShowGarminModal(false);
-    toast.info("Abrindo login oficial da Garmin no seu navegador...");
-
-    if (typeof window !== "undefined") {
-      try {
-        const win = window.open(authUrl, "_system");
-        if (!win) {
-          window.open(authUrl, "_blank");
-        }
-      } catch {
-        window.location.href = authUrl;
-      }
-    }
+    await nativeBridge.openExternalUrl(authUrl);
   };
 
   const handleCopyGarminLink = () => {
@@ -211,20 +207,6 @@ export function ClubPage() {
     }
   };
 
-  const handleConnectBrandSimulated = (brandId: string) => {
-    setConnectedBrandId(brandId);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, brandId);
-    }
-    sharedSandboxStore.updateUser(activeUser.id, {
-      connectedWearable: brandId,
-      wearable: brandId.charAt(0).toUpperCase() + brandId.slice(1),
-    } as any);
-    setShowGarminModal(false);
-    setSelectedBrandToConnect(null);
-    toast.success(`🎉 ${brandId.toUpperCase()} conectado com sucesso! Telemetria e Sweat-and-Earn ativos.`);
-  };
-
   const handleDisconnect = () => {
     setConnectedBrandId(null);
     if (typeof window !== "undefined") {
@@ -232,6 +214,7 @@ export function ClubPage() {
     }
     sharedSandboxStore.updateUser(activeUser.id, {
       connectedWearable: undefined,
+      wearable: "Nenhum",
     } as any);
     toast.info("Dispositivo desvinculado com sucesso.");
   };
@@ -240,7 +223,7 @@ export function ClubPage() {
     setIsSyncing(true);
     setTimeout(() => {
       setIsSyncing(false);
-      const points = 25;
+      const points = 20;
       wallet.earn(
         points,
         `Treino Validado via ${activeConnectedDevice?.brandTitle || "Wearable"}: Corrida com Sensores Cardíacos e GPS`,
@@ -280,6 +263,25 @@ export function ClubPage() {
 
   return (
     <div className="pb-16 space-y-5 bg-[#F5F5F7] min-h-full hyphens-none break-normal">
+      {/* 0. BANNER EM PRIMEIRO PLANO: EM BREVE */}
+      <section className="px-4 pt-4">
+        <div className="rounded-3xl bg-gradient-to-br from-[#35106E] via-[#2D0D5E] to-[#1E0840] border-2 border-[#C8F135]/80 p-6 sm:p-8 shadow-2xl relative overflow-hidden text-white flex flex-col items-center justify-center text-center">
+          <div className="absolute -top-12 -right-12 size-48 bg-[#C8F135]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-12 -left-12 size-48 bg-[#6B2AD9]/40 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col items-center justify-center space-y-3">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black uppercase tracking-wider shadow-md">
+              <Clock className="size-4 text-[#202127] animate-pulse" />
+              <span>Em Breve</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Clube Netfits • Em Breve
+            </h2>
+          </div>
+        </div>
+      </section>
+
       {/* 1. HERO INSTITUCIONAL */}
       <section className="px-4 pt-5 pb-1">
         <div className="flex items-center gap-2 mb-2">
@@ -309,7 +311,7 @@ export function ClubPage() {
             </span>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black shadow-xs">
               <Coins className="size-3.5 text-[#202127]" />
-              250 nfs/mês + 25 nfs/treino
+              250 nfs/mês + 20 nfs/treino
             </span>
           </div>
 
@@ -324,7 +326,7 @@ export function ClubPage() {
             </div>
             <div className="text-right">
               <span className="text-xs font-black text-[#35106E] block">250 nfs todo mês</span>
-              <span className="text-xs text-[#5F6270]">+ 25 nfs por treino validado</span>
+              <span className="text-xs text-[#5F6270]">+ 20 nfs por treino validado</span>
             </div>
           </div>
 
@@ -370,16 +372,14 @@ export function ClubPage() {
             <div className="pt-2">
               <button
                 type="button"
-                onClick={() => setShowSubscribeModal(true)}
-                className="w-full py-3.5 px-4 rounded-2xl bg-[#C8F135] hover:bg-[#bfe830] text-[#202127] font-black text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer"
+                onClick={() => {
+                  toast.info("⏳ O Clube Netfits estará disponível em breve!", { duration: 3000 });
+                }}
+                className="w-full py-3.5 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-black text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer border border-zinc-700"
               >
-                <Crown className="size-4 text-[#202127]" />
-                Assinar Clube Netfits — R$ 19,90/mês
-                <ArrowRight className="size-4 text-[#202127] ml-1" />
+                <Clock className="size-4 text-[#C8F135]" />
+                <span>Em Breve</span>
               </button>
-              <p className="text-[11px] text-center text-[#5F6270] mt-2">
-                Pagamento Seguro • Cancele quando quiser com 1 clique
-              </p>
             </div>
           )}
         </div>
@@ -415,10 +415,10 @@ export function ClubPage() {
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-black text-[#202127]">
-                  Pontue +25 nfs a Cada Treino Concluído
+                  Pontue +20 nfs a Cada Treino Concluído
                 </h3>
                 <p className="text-xs text-[#5F6270] leading-relaxed">
-                  A sincronização com relógios esportivos para ganhar 25 nfs por treino físico auditado é um benefício exclusivo dos assinantes do Clube Netfits.
+                  A sincronização com relógios esportivos para ganhar 20 nfs por treino físico auditado é um benefício exclusivo dos assinantes do Clube Netfits.
                 </p>
               </div>
             </div>
@@ -507,7 +507,7 @@ export function ClubPage() {
                     className="flex-1 py-3 px-4 rounded-xl bg-[#6B2AD9] hover:bg-[#5821b5] text-white text-xs font-black flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs disabled:opacity-50"
                   >
                     <RefreshCw className={`size-3.5 ${isSyncing ? "animate-spin" : ""}`} />
-                    {isSyncing ? "Auditando Treinos..." : "Sincronizar Novos Treinos (+25 nfs)"}
+                    {isSyncing ? "Auditando Treinos..." : "Sincronizar Novos Treinos (+20 nfs)"}
                   </button>
                   <button
                     type="button"
@@ -526,7 +526,7 @@ export function ClubPage() {
                     Conecte seu Relógio ou Plataforma
                   </h3>
                   <p className="text-xs text-[#5F6270] mt-0.5 leading-relaxed">
-                    Escolha seu dispositivo abaixo para ativar a leitura de frequência cardíaca e GPS. Cada treino validado gera 25 nfs na sua carteira.
+                    Escolha seu dispositivo abaixo para ativar a leitura de frequência cardíaca e GPS. Cada treino validado gera 20 nfs na sua carteira.
                   </p>
                 </div>
 
@@ -559,19 +559,23 @@ export function ClubPage() {
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (dev.id === "garmin") {
-                            setShowGarminModal(true);
-                          } else {
-                            setSelectedBrandToConnect(dev);
-                          }
-                        }}
-                        className="py-2 px-3.5 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-xs shrink-0"
-                      >
-                        Conectar
-                      </button>
+                      {dev.id === "garmin" ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowGarminModal(true)}
+                          className="py-2 px-3.5 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-xs shrink-0"
+                        >
+                          Conectar
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBrandToConnect(dev)}
+                          className="py-1.5 px-3 rounded-xl bg-zinc-200 text-[#5F6270] hover:text-[#202127] text-xs font-bold transition cursor-pointer shrink-0"
+                        >
+                          Em Breve
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -605,7 +609,7 @@ export function ClubPage() {
             </p>
           </div>
 
-          {/* Pilar 2: 25 nfs por Treino Validado */}
+          {/* Pilar 2: 20 nfs por Treino Validado */}
           <div className="rounded-2xl bg-white border border-purple-200/80 p-4 space-y-2 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="p-2 rounded-xl bg-[#F2ECFD] text-[#6B2AD9]">
@@ -615,9 +619,9 @@ export function ClubPage() {
                 Sweat-and-Earn
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127]">25 nfs por Treino Validado</h3>
+            <h3 className="text-sm font-black text-[#202127]">20 nfs por Treino Validado</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
-              Treine com seu relógio e acumule 25 nfs a cada treino auditado com dados reais de frequência cardíaca e GPS.
+              Treine com seu relógio e acumule 20 nfs a cada treino auditado com dados reais de frequência cardíaca e GPS.
             </p>
           </div>
 
@@ -664,7 +668,7 @@ export function ClubPage() {
         {[
           {
             q: "Como funciona a pontuação do Clube Netfits?",
-            a: "Você recebe 250 nfs creditados no momento da adesão e a cada renovação mensal (a cada 30 dias). Além disso, cada treino físico validado via relógio ou app pontua +25 nfs diretamente na sua carteira digital.",
+            a: "Você recebe 250 nfs creditados no momento da adesão e a cada renovação mensal (a cada 30 dias). Além disso, cada treino físico validado via relógio ou app pontua +20 nfs diretamente na sua carteira digital.",
           },
           {
             q: "Como meus treinos com relógio são validados?",
@@ -738,7 +742,7 @@ export function ClubPage() {
                 Ativar Clube Netfits VIP
               </h3>
               <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                Desbloqueie agora mesmo 250 nfs na carteira, pontuação de 25 nfs por treino físico com relógio e benefícios VIP no Shop.
+                Desbloqueie agora mesmo 250 nfs na carteira, pontuação de 20 nfs por treino físico com relógio e benefícios VIP no Shop.
               </p>
             </div>
 
@@ -755,11 +759,14 @@ export function ClubPage() {
 
             <button
               type="button"
-              onClick={handleConfirmSubscribe}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#C8F135] hover:bg-[#bfe830] text-[#202127] font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
+              onClick={() => {
+                setShowSubscribeModal(false);
+                toast.success("🔔 Você foi cadastrado na Lista VIP do Clube! Avisaremos assim que a cobrança for liberada.", { duration: 4000 });
+              }}
+              className="w-full py-3.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99] border border-zinc-700"
             >
-              <Crown className="size-4" />
-              Confirmar Assinatura (R$ 19,90/mês)
+              <Clock className="size-4 text-[#C8F135]" />
+              Entrar na Lista VIP (Aguardando Lançamento)
             </button>
           </div>
         </div>
@@ -814,14 +821,16 @@ export function ClubPage() {
             </div>
 
             <div className="space-y-2">
-              <button
-                type="button"
+              <a
+                href={getGarminAuthUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={handleOpenGarminBrowser}
-                className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
+                className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99] text-center"
               >
                 <ExternalLink className="size-4 text-[#00A6E0]" />
                 Abrir Autorização Garmin no Navegador
-              </button>
+              </a>
 
               <button
                 type="button"
@@ -832,20 +841,13 @@ export function ClubPage() {
                 Copiar Link para o Google Chrome
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleConnectBrandSimulated("garmin")}
-                className="w-full py-2 px-4 rounded-xl text-[#6B2AD9] hover:bg-[#F2ECFD] font-extrabold text-[11px] flex items-center justify-center gap-1.5 transition cursor-pointer"
-              >
-                <Zap className="size-3" />
-                Simular Conexão Homologada (1 clique)
-              </button>
+
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL 3: CONEXÃO DE OUTRAS MARCAS (APPLE, STRAVA, POLAR) */}
+      {/* MODAL 3: INFORMAÇÃO DE INTEGRAÇÃO EM DESENVOLVIMENTO (EM BREVE) */}
       {selectedBrandToConnect && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
@@ -854,8 +856,9 @@ export function ClubPage() {
         >
           <div className="w-full max-w-sm bg-white text-[#202127] rounded-3xl border border-purple-200 p-6 space-y-4 shadow-2xl relative">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9]">
-                Conectar {selectedBrandToConnect.name}
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9] flex items-center gap-1">
+                <Clock className="size-3 text-[#6B2AD9]" />
+                Em Breve
               </span>
               <button
                 type="button"
@@ -878,27 +881,43 @@ export function ClubPage() {
                 <Watch className="size-7" />
               </div>
               <h3 className="text-base font-black text-[#202127]">
-                {selectedBrandToConnect.brandTitle}
+                {selectedBrandToConnect.name} • Em Breve
               </h3>
               <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                {selectedBrandToConnect.subtitle}
+                A conexão com <b>{selectedBrandToConnect.name}</b> está em desenvolvimento e será liberada em breve.
               </p>
             </div>
 
-            <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1 text-[#5F6270]">
-              <p className="text-[11px] leading-relaxed">
-                Ao conectar, seus treinos físicos com sensores serão auditados e cada treino validado concederá <b>25 nfs</b> na sua carteira.
+            <div className="p-3.5 rounded-2xl bg-[#F2ECFD] border border-purple-200 text-xs space-y-1.5 text-[#35106E]">
+              <p className="text-[11px] font-bold">
+                ⚠️ Conexão Ativa no Momento:
+              </p>
+              <p className="text-[11px] text-[#5F6270] leading-relaxed">
+                Atualmente, a única integração oficial e ativa para sincronização automática de treinos na Netfits é a <b>Garmin Connect™</b>.
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => handleConnectBrandSimulated(selectedBrandToConnect.id)}
-              className="w-full py-3.5 px-4 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
-            >
-              <Check className="size-4 text-[#C8F135]" />
-              Conectar {selectedBrandToConnect.name}
-            </button>
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedBrandToConnect(null);
+                  setShowGarminModal(true);
+                }}
+                className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99]"
+              >
+                <ExternalLink className="size-4 text-[#00A6E0]" />
+                Conectar com Garmin Connect™
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedBrandToConnect(null)}
+                className="w-full py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#202127] font-bold text-xs flex items-center justify-center transition cursor-pointer"
+              >
+                Entendido
+              </button>
+            </div>
           </div>
         </div>
       )}

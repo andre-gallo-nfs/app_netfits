@@ -138,7 +138,7 @@ export function ClubMembershipModal() {
             </div>
 
             <p className="text-xs text-zinc-300 leading-relaxed">
-              O acelerador oficial para quem vive em movimento. Ganhe até +1.000 nfs por mês (250 nfs na assinatura e a cada pagamento de mensalidade + 25 nfs por treino validado) e aproveite benefícios exclusivos.
+              O acelerador oficial para quem vive em movimento. Ganhe até +1.000 nfs por mês (250 nfs na assinatura e a cada pagamento de mensalidade + 20 nfs por treino validado) e aproveite benefícios exclusivos.
             </p>
 
             {isMember && (
@@ -191,7 +191,7 @@ export function ClubMembershipModal() {
                 <div>
                   <h4 className="text-xs font-black text-white">Até +1.000 netfits por mês</h4>
                   <p className="text-[11px] text-zinc-400 leading-relaxed mt-0.5">
-                    250 nfs na assinatura e a cada pagamento de mensalidade + 25 nfs por treino validado via relógio ou app, direto na sua carteira.
+                    250 nfs na assinatura e a cada pagamento de mensalidade + 20 nfs por treino validado via relógio ou app, direto na sua carteira.
                   </p>
                 </div>
               </div>
@@ -202,9 +202,9 @@ export function ClubMembershipModal() {
                   <Watch className="size-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-white">+25 nfs por Treino Validado</h4>
+                  <h4 className="text-xs font-black text-white">+20 nfs por Treino Validado</h4>
                   <p className="text-[11px] text-zinc-400 leading-relaxed mt-0.5">
-                    Sincronização de corridas, pedaladas e treinos com Garmin, Strava e Apple Watch (via Terra API) com +25 nfs por treino auditado por sensores ópticos.
+                    Sincronização de corridas, pedaladas e treinos com Garmin, Strava e Apple Watch (via Terra API) com +20 nfs por treino auditado por sensores ópticos.
                   </p>
                 </div>
               </div>
@@ -275,7 +275,7 @@ export function ClubMembershipModal() {
               <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
                 <h5 className="font-bold text-white mb-1">Como funciona a pontuação do Clube?</h5>
                 <p className="text-zinc-400 leading-relaxed">
-                  Você recebe 250 nfs na confirmação da assinatura e a cada pagamento de mensalidade. Além disso, cada treino validado com relógio ou app credita +25 nfs na sua carteira, totalizando até +1.000 nfs por mês.
+                  Você recebe 250 nfs na confirmação da assinatura e a cada pagamento de mensalidade. Além disso, cada treino validado com relógio ou app credita +20 nfs na sua carteira, totalizando até +1.000 nfs por mês.
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">

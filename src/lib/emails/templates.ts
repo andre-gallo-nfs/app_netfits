@@ -947,7 +947,7 @@ export function renderClubSubscriptionEmail(data: ClubSubscriptionEmailData): st
 </head>
 <body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none;">
     <div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #09090b; opacity: 0;">
-        Assinatura do Clube Netfits confirmada! +${pontosAdesao} nfs liberados na hora + 25 nfs por treino validado.
+        Assinatura do Clube Netfits confirmada! +${pontosAdesao} nfs liberados na hora + 20 nfs por treino validado.
         &#847; &zwnj; &nbsp; &#8199; &shy; &#847; &zwnj; &nbsp; &#8199; &shy;
     </div>
 

@@ -37,8 +37,11 @@ export const nativeBridge = {
     try {
       const StatusBar = (window as any).Capacitor?.Plugins?.StatusBar;
       if (StatusBar) {
-        await StatusBar.setStyle({ style: "LIGHT" }).catch(() => {});
-        await StatusBar.setBackgroundColor({ color: "#000000" }).catch(() => {});
+        await StatusBar.setStyle({ style: "DARK" }).catch(() => {});
+        await StatusBar.setBackgroundColor({ color: "#FFFFFF" }).catch(() => {});
+        if (typeof StatusBar.setOverlaysWebView === "function") {
+          await StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
+        }
       }
     } catch (e) {
       console.warn("[NativeBridge] StatusBar config warning:", e);
@@ -192,6 +195,39 @@ export const nativeBridge = {
   /**
    * Recupera o código de indicação diferido (Deferred Referral) armazenado no dispositivo.
    */
+  /**
+   * Abre URLs externas (como Garmin Connect OAuth) com suporte cross-platform seguro:
+   * 1. No ambiente nativo (Android/iOS via Capacitor): Aciona o Chrome Custom Tabs ou SFSafariViewController
+   *    através do plugin oficial @capacitor/browser, garantindo que o bot-shield da Cloudflare e o SSO não bloqueiem a requisição.
+   * 2. No ambiente Web convencional: Abre em nova aba ("_blank") com noopener/noreferrer.
+   *    Se o navegador bloquear o popup (popup blocker padrão do Chrome/Safari/Edge), executa fallback
+   *    instantâneo para redirecionamento direto (window.location.assign), garantindo que o usuário
+   *    nunca fique sem a página de autorização.
+   */
+  async openExternalUrl(url: string): Promise<void> {
+    if (typeof window === "undefined") return;
+
+    if (this.isNativePlatform()) {
+      try {
+        const { Browser } = await import("@capacitor/browser");
+        if (Browser && typeof Browser.open === "function") {
+          await Browser.open({ url, presentationStyle: "popover" });
+          return;
+        }
+      } catch (err) {
+        console.warn("[NativeBridge] Falha ao acionar Browser plugin:", err);
+      }
+    }
+
+    try {
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win || win.closed || typeof win.closed === "undefined") {
+        window.location.assign(url);
+      }
+    } catch {
+      window.location.assign(url);
+    }
+  },
   getStoredReferralCode(): string | null {
     if (typeof window === "undefined") return null;
     return (
