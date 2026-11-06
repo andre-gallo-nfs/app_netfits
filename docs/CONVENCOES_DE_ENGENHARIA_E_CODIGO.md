@@ -274,15 +274,24 @@ Utilizar sempre os aliases configurados no `tsconfig.json`:
 
 ---
 
-## 5. QUALITY GATE DE BUILD E COMMIT
+## 5. QUALITY GATES & GOVERNANÇA MULTIAGÊNTICA (MAKER-CHECKER-GATEKEEPER)
 
-Antes de promover qualquer alteração para homologação (`staging`) ou produção (`production`), o código deve ser validado localmente executando:
+Antes de promover qualquer alteração para homologação (`staging`) ou produção (`production`), o código deve passar com **aprovação unânime de 100% dos agentes** executando:
 
 ```bash
-npm run qa:check
+npm run agents:audit
 ```
 
-Esse comando executa atomicamente:
-1. `node scripts/validate-routes.cjs` (Garante que nenhuma rota do TanStack Router está quebrada);
-2. `tsc --noEmit` (Garante zero erros de tipagem estrita no TypeScript);
-3. `vite build` (Garante compilação impecável de todos os bundles de frontend e SSR).
+Esse comando orquestra atomicamente o **Conselho Multiagêntico dos 6 Gatekeepers**:
+1. `node scripts/validate-routes.cjs` (Release & Routing Gatekeeper: rotas TanStack e Cloudflare Exclusivity);
+2. `node scripts/brand-medical-checker.mjs` (Brand, KV & CFM Compliance Gatekeeper: regras CFM de Dra. Isabella e Dr. Franco + paleta Key Visual);
+3. `node scripts/editorial-content-checker.mjs` (Editorial & Content Quality Gatekeeper: quizzes consistentes, travas de leitura e purge de jargões FEFO/SLA na UI);
+4. `node scripts/mobile-platform-checker.mjs` (Mobile Cross-Platform & Runtime Gatekeeper: paridade estrita Android & iOS);
+5. `node scripts/knowledge-learning-agent.mjs --audit` (Continuous Learning & Institutional Brain: auditoria contra lições catalogadas LL-001 a LL-010+);
+6. `npx tsc --noEmit` (TypeScript Compiler Gatekeeper: compilação estrita e verificação de contratos).
+
+### 5.1. Memória Contínua e o Comando `/learn`
+Sempre que uma nova regra de negócio, decisão técnica ou diretriz for pactuada, registre-a imediatamente para imunização futura:
+* Na conversa/chat: use o comando `/learn` para indexar o aprendizado na base de conhecimento canônica (`src/lib/knowledge/LESSONS_LEARNED.json`);
+* No terminal: execute `npm run learn:record`.
+A partir desse registro, nenhuma regressão será permitida pelo pipeline de CI/CD.
