@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { 
+import {
+  Lock, 
   Trophy, 
   Sparkles, 
   MoreVertical, 
@@ -117,6 +118,10 @@ export function NetfitsEducationalCard() {
       toast.info("Você já concluiu este desafio e conquistou seus pontos!");
       return;
     }
+    if (!readClaimed) {
+      toast.warning("Leia o manifesto até o final (mínimo 10s e rolagem) para liberar o Quizz Netfits.");
+      return;
+    }
 
     if (!selectedOption) { toast.warning("Selecione uma alternativa antes de confirmar!"); return; }
     const option = PURPOSE_QUIZ_OPTIONS.find((o) => o.id === selectedOption);
@@ -160,7 +165,8 @@ export function NetfitsEducationalCard() {
 
     setReadClaimed(true);
     feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0);
-    toast.success("👏 Leitura e rolagem validadas com sucesso! Agora responda ao Desafio para pontuar.");
+    toast.success("👏 Leitura confirmada! O Quizz Netfits (+5 netfits) foi liberado.");
+    setArticleOpen(false);
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
@@ -287,83 +293,124 @@ export function NetfitsEducationalCard() {
                 QUIZZ NETFITS
               </span>
             </div>
-            <span className="text-[11px] font-bold text-lime-400 bg-lime-400/10 border border-lime-400/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-              <Sparkles className="size-3" />
-              <span>Responda e ganhe 5 netfits</span>
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <h4 className="text-sm font-bold text-white leading-snug">
-              Qual é a essência do conceito de Longevidade Ativa (Healthspan) promovido pelo Netfits?
-            </h4>
-            <p className="text-[11px] text-zinc-400">
-              Reflita sobre o verdadeiro valor do seu esforço físico diário:
-            </p>
-          </div>
-
-          {/* Opções de Múltipla Escolha */}
-          <div className="space-y-2">
-            {PURPOSE_QUIZ_OPTIONS.map((option) => {
-              const isSelected = selectedOption === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  disabled={hasSubmitted}
-                  onClick={() => {
-                    setSelectedOption(option.id);
-                    setErrorMsg(null);
-                  }}
-                  className={`w-full p-3 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all cursor-pointer border ${
-                    isSelected
-                      ? "bg-purple-950/60 border-purple-500 text-white shadow-xs"
-                      : "bg-zinc-900/70 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900"
-                  } ${hasSubmitted ? "cursor-default opacity-85" : "active:scale-[0.99]"}`}
-                >
-                  <div
-                    className={`size-4 rounded-full border flex items-center justify-center shrink-0 ${
-                      isSelected
-                        ? "border-purple-400 bg-purple-500 text-white"
-                        : "border-zinc-600 bg-zinc-800"
-                    }`}
-                  >
-                    {isSelected && <div className="size-1.5 rounded-full bg-white" />}
-                  </div>
-                  <span className="leading-snug flex-1">{option.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mensagem de Erro / Dica */}
-          {errorMsg && (
-            <div className="p-3 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs flex items-start gap-2 animate-in fade-in">
-              <AlertCircle className="size-4 shrink-0 text-red-400 mt-0.5" />
-              <p className="leading-relaxed">{errorMsg}</p>
-            </div>
-          )}
-
-          {/* Botão de Envio / Feedback de Sucesso */}
-          {hasSubmitted ? (
-            <div className="p-3 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="size-4 text-lime-400" />
-                <span>Desafio concluído com sucesso! (+5 netfits creditados)</span>
-              </div>
-              <span className="text-[10px] bg-lime-400/20 px-2 py-0.5 rounded text-lime-300 font-mono">
-                Carteira Atualizada
+            {hasSubmitted ? (
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-lime-500/15 text-lime-400 border border-lime-500/30">
+                <CheckCircle2 className="size-3.5" /> Concluído
               </span>
+            ) : !readClaimed ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <Lock className="size-3" /> Bloqueado
+              </span>
+            ) : (
+              <span className="text-[11px] font-bold text-lime-400 bg-lime-400/10 border border-lime-400/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Sparkles className="size-3" />
+                <span>Responda e ganhe 5 netfits</span>
+              </span>
+            )}
+          </div>
+
+          {!readClaimed ? (
+            <div className="p-4 rounded-xl bg-purple-950/30 border border-purple-500/30 text-center space-y-3">
+              <div className="size-11 rounded-full bg-purple-900/40 text-purple-300 grid place-items-center mx-auto">
+                <Lock className="size-5" />
+              </div>
+              <div className="space-y-1">
+                <h5 className="text-xs sm:text-sm font-bold text-white">
+                  Leia o manifesto para liberar o Quizz
+                </h5>
+                <p className="text-[11px] sm:text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                  Para absorver o propósito e manifesto oficial da Netfits, abra o conteúdo e complete a leitura (mínimo 10s e rolagem total).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setArticleOpen(true)}
+                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer touch-manipulation"
+              >
+                <BookOpen className="size-4" />
+                <span>Ler Manifesto Completo (Liberar Quiz)</span>
+              </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition-all active:scale-[0.99] cursor-pointer"
-            >
-              <span>Responder e conquistar 5 netfits</span>
-              <ArrowRight className="size-4" />
-            </button>
+            <>
+              <div className="space-y-1.5">
+                <h4 className="text-sm font-bold text-white leading-snug">
+                  Qual é a essência do conceito de Longevidade Ativa (Healthspan) promovido pelo Netfits?
+                </h4>
+                <p className="text-[11px] text-zinc-400">
+                  Reflita sobre o verdadeiro valor do seu esforço físico diário:
+                </p>
+              </div>
+
+              {/* Opções de Múltipla Escolha */}
+              <div className="space-y-2">
+                {shuffledOptions.map((option) => {
+                  const isSelected = selectedOption === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      disabled={hasSubmitted}
+                      onClick={() => {
+                        setSelectedOption(option.id);
+                        setErrorMsg(null);
+                      }}
+                      className={`w-full p-3.5 rounded-xl text-left text-xs font-semibold flex items-center gap-3 transition-all cursor-pointer border min-h-[48px] touch-manipulation select-none ${
+                        isSelected
+                          ? "bg-purple-950/60 border-purple-500 text-white shadow-xs"
+                          : "bg-zinc-900/70 border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900"
+                      } ${hasSubmitted ? "cursor-default opacity-85" : "active:scale-[0.99]"}`}
+                    >
+                      <div
+                        className={`size-4 rounded-full border flex items-center justify-center shrink-0 ${
+                          isSelected
+                            ? "border-purple-400 bg-purple-500 text-white"
+                            : "border-zinc-600 bg-zinc-800"
+                        }`}
+                      >
+                        {isSelected && <div className="size-1.5 rounded-full bg-white" />}
+                      </div>
+                      <span className="leading-snug flex-1">{option.text}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Mensagem de Erro / Dica */}
+              {errorMsg && (
+                <div className="p-3 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs flex items-start gap-2 animate-in fade-in">
+                  <AlertCircle className="size-4 shrink-0 text-red-400 mt-0.5" />
+                  <p className="leading-relaxed">{errorMsg}</p>
+                </div>
+              )}
+
+              {/* Botão de Envio / Feedback de Sucesso */}
+              {hasSubmitted ? (
+                <div className="p-3.5 rounded-xl bg-lime-500/10 border border-lime-500/30 text-lime-400 text-xs font-bold flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-lime-400" />
+                    <span>Desafio concluído com sucesso! (+5 netfits creditados)</span>
+                  </div>
+                  <span className="text-[10px] bg-lime-400/20 px-2 py-0.5 rounded text-lime-300 font-mono">
+                    Carteira Atualizada
+                  </span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!selectedOption}
+                  onClick={handleSubmit}
+                  className={`w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition min-h-[48px] touch-manipulation ${
+                    selectedOption
+                      ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/40 cursor-pointer active:scale-98"
+                      : "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/60"
+                  }`}
+                >
+                  <Trophy className="size-4 text-lime-400" />
+                  <span>{selectedOption ? "Confirmar Resposta (+5 netfits)" : "Selecione uma Alternativa"}</span>
+                </button>
+              )}
+            </>
           )}
         </div>
 

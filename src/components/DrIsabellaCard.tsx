@@ -1,6 +1,7 @@
 import { trackArticleRead } from "@/lib/analytics";
 import { useState, useEffect, useMemo } from "react";
-import { 
+import {
+  Lock, 
   Trophy, 
   MoreVertical, 
   CheckCircle2, 
@@ -121,6 +122,10 @@ export function DrIsabellaCard() {
   const handleSubmit = () => {
     if (hasSubmitted) {
       toast.info("Você já concluiu este desafio e conquistou seus netfits!");
+      return;
+    }
+    if (!readClaimed) {
+      toast.warning("Leia o artigo até o final (mínimo 10s e rolagem) para liberar o Quizz Netfits.");
       return;
     }
 
@@ -308,6 +313,10 @@ export function DrIsabellaCard() {
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                 <CheckCircle2 className="size-3.5" /> Concluído
               </span>
+            ) : !readClaimed ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                <Lock className="size-3" /> Bloqueado
+              </span>
             ) : (
               <span className="text-[11px] text-zinc-500 font-medium flex items-center gap-1">
                 <Clock className="size-3" /> Fixação Diária
@@ -315,79 +324,108 @@ export function DrIsabellaCard() {
             )}
           </div>
 
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
-            Na visão médica da longevidade ativa, qual a importância da análise de biomarcadores para quem treina com frequência?
-          </h4>
+          {!readClaimed ? (
+            <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-900/40 text-center space-y-3">
+              <div className="size-11 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#6B2AD9] dark:text-purple-300 grid place-items-center mx-auto">
+                <Lock className="size-5" />
+              </div>
+              <div className="space-y-1">
+                <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                  Leia o artigo para liberar o Quizz
+                </h5>
+                <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                  Para absorver o aprendizado clínico da Dra. Isabella sobre biomarcadores, abra o artigo e complete a leitura (mínimo 10s e rolagem até o fim).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setArticleOpen(true)}
+                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer touch-manipulation"
+              >
+                <BookOpen className="size-4" />
+                <span>Ler Artigo Completo (Liberar Quiz)</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
+                Na visão médica da longevidade ativa, qual a importância da análise de biomarcadores para quem treina com frequência?
+              </h4>
 
-          {/* Opções de Resposta */}
-          <div className="space-y-2">
-            {shuffledOptions.map((opt) => {
-              const isSelected = selectedOption === opt.id;
-              let itemStyle = "border-zinc-200 dark:border-zinc-700 bg-zinc-50/60 dark:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200 hover:border-purple-300";
+              {/* Opções de Resposta */}
+              <div className="space-y-2">
+                {shuffledOptions.map((opt) => {
+                  const isSelected = selectedOption === opt.id;
+                  let itemStyle = "border-zinc-200 dark:border-zinc-700 bg-zinc-50/60 dark:bg-zinc-800/40 text-zinc-800 dark:text-zinc-200 hover:border-purple-300";
 
-              if (hasSubmitted) {
-                if (opt.isCorrect) {
-                  itemStyle = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-semibold";
-                } else if (isSelected && !opt.isCorrect) {
-                  itemStyle = "border-rose-400 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200";
-                }
-              } else if (isSelected) {
-                itemStyle = "border-purple-600 bg-purple-50/70 dark:bg-purple-950/30 text-purple-950 dark:text-purple-100 font-medium ring-1 ring-purple-600/30";
-              }
+                  if (hasSubmitted) {
+                    if (opt.isCorrect) {
+                      itemStyle = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-semibold";
+                    } else if (isSelected && !opt.isCorrect) {
+                      itemStyle = "border-rose-400 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200";
+                    }
+                  } else if (isSelected) {
+                    itemStyle = "border-purple-600 bg-purple-50/70 dark:bg-purple-950/30 text-purple-950 dark:text-purple-100 font-medium ring-1 ring-purple-600/30";
+                  }
 
-              return (
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      disabled={hasSubmitted}
+                      onClick={() => {
+                        setSelectedOption(opt.id);
+                        setErrorMsg(null);
+                      }}
+                      className={`w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm transition flex items-start gap-3 min-h-[48px] touch-manipulation select-none ${itemStyle}`}
+                    >
+                      <span className={`size-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold ${
+                        isSelected ? "border-purple-600 bg-purple-600 text-white" : "border-zinc-300 dark:border-zinc-600 text-zinc-500"
+                      }`}>
+                        {hasSubmitted && opt.isCorrect ? "✓" : isSelected ? "•" : ""}
+                      </span>
+                      <span className="flex-1 break-words leading-relaxed">{opt.text}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Feedback Educativo */}
+              {hasSubmitted && (
+                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
+                  <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                    <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                    <span>Quizz Concluído (+5 netfits creditados)</span>
+                  </div>
+                  <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
+                    {PROTOCOLO_QUIZ_OPTIONS.find((o) => o.isCorrect)?.feedback}
+                  </p>
+                </div>
+              )}
+
+              {errorMsg && !hasSubmitted && (
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 space-y-1">
+                  <div className="flex items-center gap-1.5 text-rose-800 dark:text-rose-300 text-xs font-bold">
+                    <AlertCircle className="size-4 text-rose-600 shrink-0" />
+                    <span>Resposta Incorreta</span>
+                  </div>
+                  <p className="text-xs text-rose-900 dark:text-rose-200 leading-relaxed">
+                    {errorMsg}
+                  </p>
+                </div>
+              )}
+
+              {!hasSubmitted && (
                 <button
-                  key={opt.id}
                   type="button"
-                  disabled={hasSubmitted}
-                  onClick={() => setSelectedOption(opt.id)}
-                  className={`w-full p-3.5 rounded-xl border text-left text-xs sm:text-sm transition flex items-start gap-3 min-h-[44px] ${itemStyle}`}
+                  onClick={handleSubmit}
+                  className="w-full bg-[#6B2AD9] hover:bg-[#581c87] text-white font-bold text-xs sm:text-sm py-3.5 px-4 rounded-xl transition shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer min-h-[48px] touch-manipulation"
                 >
-                  <span className={`size-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold ${
-                    isSelected ? "border-purple-600 bg-purple-600 text-white" : "border-zinc-300 text-zinc-500"
-                  }`}>
-                    {hasSubmitted && opt.isCorrect ? "✓" : ""}
-                  </span>
-                  <span className="flex-1 break-words leading-relaxed">{opt.text}</span>
+                  <span>Confirmar Resposta (+5 netfits)</span>
+                  <ArrowRight className="size-4" />
                 </button>
-              );
-            })}
-          </div>
-
-          {/* Feedback Educativo */}
-          {hasSubmitted && (
-            <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
-              <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-                <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                <span>Quizz Concluído (+5 netfits creditados)</span>
-              </div>
-              <p className="text-xs text-emerald-900 dark:text-emerald-200 leading-relaxed">
-                {PROTOCOLO_QUIZ_OPTIONS.find((o) => o.isCorrect)?.feedback}
-              </p>
-            </div>
-          )}
-
-          {errorMsg && !hasSubmitted && (
-            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 space-y-1">
-              <div className="flex items-center gap-1.5 text-rose-800 dark:text-rose-300 text-xs font-bold">
-                <AlertCircle className="size-4 text-rose-600 shrink-0" />
-                <span>Resposta Incorreta</span>
-              </div>
-              <p className="text-xs text-rose-900 dark:text-rose-200 leading-relaxed">
-                {errorMsg}
-              </p>
-            </div>
-          )}
-
-          {!hasSubmitted && (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full bg-[#6B2AD9] hover:bg-[#581c87] text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-xl transition shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Confirmar Resposta</span>
-              <ArrowRight className="size-4" />
-            </button>
+              )}
+            </>
           )}
         </div>
 

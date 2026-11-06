@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import {
+  Lock,
   Trophy,
   Sparkles,
   CheckCircle2,
@@ -138,6 +139,10 @@ export function MizunoArticleFeedCard() {
   const handleQuizSubmit = () => {
     if (hasSubmittedQuiz) {
       toast.info("Você já concluiu este desafio patrocinado e conquistou seus pontos!");
+      return;
+    }
+    if (!readClaimed) {
+      toast.warning("Leia o artigo técnico completo para liberar o Quizz Patrocinado.");
       return;
     }
 
@@ -334,82 +339,118 @@ export function MizunoArticleFeedCard() {
                 QUIZZ NETFITS
               </span>
             </div>
-            <span className="text-[10px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
-              Vale +10 netfits
-            </span>
+            {hasSubmittedQuiz ? (
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                <CheckCircle2 className="size-3.5" /> Concluído
+              </span>
+            ) : !readClaimed ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                <Lock className="size-3" /> Bloqueado
+              </span>
+            ) : (
+              <span className="text-[10px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                Vale +10 netfits
+              </span>
+            )}
           </div>
 
-          <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-snug">
-            Qual é a principal função fisiológica do Boné Técnico Mizuno com tecido respirável e proteção UV em treinos diurnos de corrida?
-          </p>
-
-          <div className="space-y-2">
-            {MIZUNO_QUIZ_OPTIONS.map((option, index) => {
-              const isSelected = selectedOption === option.id;
-              const letter = String.fromCharCode(65 + index); // A, B, C
-
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => {
-                    if (!hasSubmittedQuiz) {
-                      setSelectedOption(option.id);
-                      setQuizErrorMsg(null);
-                    }
-                  }}
-                  disabled={hasSubmittedQuiz}
-                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm transition-all flex items-start gap-2.5 cursor-pointer ${
-                    isSelected
-                      ? "border-purple-600 bg-purple-50/80 dark:bg-purple-950/40 text-purple-950 dark:text-purple-100 font-medium ring-2 ring-purple-600/30"
-                      : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600"
-                  } ${hasSubmittedQuiz ? "opacity-90 cursor-default" : ""}`}
-                >
-                  <div
-                    className={`size-5 rounded-full border mt-0.5 shrink-0 flex items-center justify-center font-bold text-[10px] ${
-                      isSelected
-                        ? "border-purple-600 bg-purple-600 text-white"
-                        : "border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400"
-                    }`}
-                  >
-                    {letter}
-                  </div>
-                  <span className="flex-1">{option.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {quizErrorMsg && (
-            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs flex items-start gap-2">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <span>{quizErrorMsg}</span>
-            </div>
-          )}
-
-          {hasSubmittedQuiz ? (
-            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
-              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>Parabéns! Você concluiu este desafio e garantiu seus +10 netfits.</span>
+          {!readClaimed ? (
+            <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-900/40 text-center space-y-3">
+              <div className="size-11 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#6B2AD9] dark:text-purple-300 grid place-items-center mx-auto">
+                <Lock className="size-5" />
+              </div>
+              <div className="space-y-1">
+                <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                  Leia o artigo técnico para liberar o Quizz
+                </h5>
+                <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                  Para destravar o Quizz Patrocinado da Mizuno (+10 netfits), abra o artigo técnico e conclua a leitura atenta (mínimo 12s e rolagem).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setArticleOpen(true)}
+                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer touch-manipulation"
+              >
+                <BookOpen className="size-4" />
+                <span>Ler Artigo Técnico (Liberar Quiz +10 nfs)</span>
+              </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={handleQuizSubmit}
-              disabled={!selectedOption}
-              className={`w-full py-2.5 rounded-xl text-white font-bold text-xs shadow transition flex items-center justify-center gap-1.5 ${
-                selectedOption
-                  ? "bg-purple-600 hover:bg-purple-700 active:scale-98 cursor-pointer shadow-purple-600/20"
-                  : "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 cursor-not-allowed"
-              }`}
-            >
-              <span>
-                {selectedOption
-                  ? "Confirmar Resposta (+10 netfits)"
-                  : "Selecione uma alternativa para responder"}
-              </span>
-              {selectedOption && <ArrowRight className="size-3.5" />}
-            </button>
+            <>
+              <p className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-snug">
+                Qual é a principal função fisiológica do Boné Técnico Mizuno com tecido respirável e proteção UV em treinos diurnos de corrida?
+              </p>
+
+              <div className="space-y-2">
+                {shuffledOptions.map((option, index) => {
+                  const isSelected = selectedOption === option.id;
+                  const letter = String.fromCharCode(65 + index);
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => {
+                        if (!hasSubmittedQuiz) {
+                          setSelectedOption(option.id);
+                          setQuizErrorMsg(null);
+                        }
+                      }}
+                      disabled={hasSubmittedQuiz}
+                      className={`w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition-all flex items-start gap-2.5 cursor-pointer min-h-[48px] touch-manipulation select-none ${
+                        isSelected
+                          ? "border-purple-600 bg-purple-50/80 dark:bg-purple-950/40 text-purple-950 dark:text-purple-100 font-medium ring-2 ring-purple-600/30"
+                          : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600"
+                      } ${hasSubmittedQuiz ? "opacity-90 cursor-default" : ""}`}
+                    >
+                      <div
+                        className={`size-5 rounded-full border mt-0.5 shrink-0 flex items-center justify-center font-bold text-[10px] ${
+                          isSelected
+                            ? "border-purple-600 bg-purple-600 text-white"
+                            : "border-zinc-300 dark:border-zinc-600 text-zinc-500 dark:text-zinc-400"
+                        }`}
+                      >
+                        {letter}
+                      </div>
+                      <span className="flex-1">{option.text}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {quizErrorMsg && (
+                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-xs flex items-start gap-2">
+                  <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                  <span>{quizErrorMsg}</span>
+                </div>
+              )}
+
+              {hasSubmittedQuiz ? (
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
+                  <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>Parabéns! Você concluiu este desafio e garantiu seus +10 netfits.</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleQuizSubmit}
+                  disabled={!selectedOption}
+                  className={`w-full py-3.5 rounded-xl text-white font-bold text-xs shadow transition flex items-center justify-center gap-1.5 min-h-[48px] touch-manipulation ${
+                    selectedOption
+                      ? "bg-purple-600 hover:bg-purple-700 active:scale-98 cursor-pointer shadow-purple-600/20"
+                      : "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-500 cursor-not-allowed"
+                  }`}
+                >
+                  <span>
+                    {selectedOption
+                      ? "Confirmar Resposta (+10 netfits)"
+                      : "Selecione uma alternativa para responder"}
+                  </span>
+                  {selectedOption && <ArrowRight className="size-3.5" />}
+                </button>
+              )}
+            </>
           )}
         </div>
 

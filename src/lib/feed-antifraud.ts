@@ -92,7 +92,7 @@ export const feedAntifraud = {
   getTodayInteractionsCount(): number {
     const today = getTodayString();
     const log = loadActionLog();
-    return log.filter((item) => item.timestamp.startsWith(today)).length;
+    return log.filter((item) => item.timestamp.startsWith(today) && item.points > 0).length;
   },
 
   /**
