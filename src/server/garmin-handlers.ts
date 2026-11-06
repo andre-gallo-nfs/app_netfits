@@ -1,14 +1,43 @@
+function generatePkceVerifier(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const array = new Uint8Array(48);
+  crypto.getRandomValues(array);
+  let verifier = "";
+  for (let i = 0; i < array.length; i++) {
+    verifier += chars[array[i] % chars.length];
+  }
+  return verifier;
+}
 
-function buildGarminReturnHtml(targetPath: string, webFinal: string) {
-  const intentUri = `intent://www.netfits.com.br${targetPath}?garmin_connected=true#Intent;package=br.com.netfits.app;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
+async function sha256Base64Url(str: string): Promise<string> {
+  const buffer = new TextEncoder().encode(str);
+  const digest = await crypto.subtle.digest("SHA-256", buffer);
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+
+function buildGarminReturnHtml(
+  targetPath: string,
+  webFinal: string,
+  success: boolean = true,
+  customMessage?: string
+) {
+  const intentUri = `intent://www.netfits.com.br${targetPath}?${success ? "garmin_connected=true" : "garmin_cancelled=true"}#Intent;package=br.com.netfits.app;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
   const launcherIntent = "intent:#Intent;package=br.com.netfits.app;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
+  const title = success ? "Garmin Conectado!" : "Retornando à Netfits";
+  const icon = success ? "✓" : "↩";
+  const desc = customMessage || (success
+    ? "Sua conta Garmin Connect™ foi vinculada com sucesso à Netfits. Retornando ao aplicativo..."
+    : "Retornando ao aplicativo Netfits...");
+  const btnText = success ? "Abrir Aplicativo Netfits" : "Voltar ao Netfits";
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Garmin Connect™ Conectado — Netfits</title>
+  <title>${title} — Netfits</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -35,8 +64,8 @@ function buildGarminReturnHtml(targetPath: string, webFinal: string) {
     .icon {
       width: 68px;
       height: 68px;
-      background: #C8F135;
-      color: #202127;
+      background: ${success ? "#C8F135" : "#6B2AD9"};
+      color: ${success ? "#202127" : "#FFFFFF"};
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -62,8 +91,8 @@ function buildGarminReturnHtml(targetPath: string, webFinal: string) {
       width: 100%;
       padding: 16px;
       border-radius: 16px;
-      background: #C8F135;
-      color: #202127;
+      background: ${success ? "#C8F135" : "#6B2AD9"};
+      color: ${success ? "#202127" : "#FFFFFF"};
       font-weight: 900;
       font-size: 14px;
       text-decoration: none;
@@ -78,10 +107,10 @@ function buildGarminReturnHtml(targetPath: string, webFinal: string) {
 </head>
 <body>
   <div class="card">
-    <div class="icon">✓</div>
-    <h1>Garmin Conectado!</h1>
-    <p>Sua conta Garmin Connect™ foi vinculada com sucesso à Netfits. Retornando ao aplicativo...</p>
-    <a id="btn-open" class="btn" href="${intentUri}">Abrir Aplicativo Netfits</a>
+    <div class="icon">${icon}</div>
+    <h1>${title}</h1>
+    <p>${desc}</p>
+    <a id="btn-open" class="btn" href="${intentUri}">${btnText}</a>
     <div class="spinner">Se o app não abrir em instantes, toque no botão acima.</div>
   </div>
 
@@ -103,7 +132,7 @@ function buildGarminReturnHtml(targetPath: string, webFinal: string) {
           window.location.href = launcherUri;
         }
       } else if (isIOS) {
-        window.location.href = "netfits://club?garmin_connected=true";
+        window.location.href = "netfits://club?garmin_${success ? "connected=true" : "cancelled=true"}";
         setTimeout(function() {
           window.location.replace(webFinal);
         }, 800);
@@ -269,20 +298,23 @@ export async function handleGarminRoutes(
   }
 
   // =========================================================================
-  // 2.1 Redirecionamento Direto para Garmin OAuth (GET /api/garmin/authorize)
+  // 2.1 Redirecionamento Direto para Garmin OAuth 2.0 PKCE (GET /api/garmin/authorize)
   // Dispara Intent explícito para o Google Chrome no Android (ignora app Garmin e Edge)
   // =========================================================================
   if (isGarminAuthorize && req.method === "GET") {
     const userId = url.searchParams.get("userId") || "usr_andre";
     const redirectTarget = url.searchParams.get("redirect") || "/club";
 
-    const statePayload = Buffer.from(JSON.stringify({ userId, redirectTarget })).toString("base64");
+    const verifier = generatePkceVerifier();
+    const challenge = await sha256Base64Url(verifier);
 
-    const authUrl = `https://connect.garmin.com/oauthConfirm?client_id=${encodeURIComponent(
+    const statePayload = Buffer.from(JSON.stringify({ userId, redirectTarget, verifier })).toString("base64");
+
+    const authUrl = `https://connect.garmin.com/oauth2Confirm?client_id=${encodeURIComponent(
       GARMIN_CLIENT_ID
     )}&response_type=code&redirect_uri=${encodeURIComponent(
       GARMIN_REDIRECT_URI
-    )}&state=${encodeURIComponent(statePayload)}`;
+    )}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256&state=${encodeURIComponent(statePayload)}`;
 
     const cleanUrl = authUrl.replace(/^https?:\/\//i, "");
     const chromeIntent = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;category=android.intent.category.BROWSABLE;S.browser_fallback_url=${encodeURIComponent(authUrl)};end;`;
@@ -402,12 +434,28 @@ export async function handleGarminRoutes(
     const state = url.searchParams.get("state");
     const error = url.searchParams.get("error");
 
-    if (error) {
-      return Response.redirect("https://www.netfits.com.br/activities?garmin_error=access_denied", 302);
-    }
-
-    if (!code) {
-      return Response.redirect("https://www.netfits.com.br/activities?garmin_error=missing_code", 302);
+    if (error || !code) {
+      let targetRedirect = "/club";
+      if (state) {
+        try {
+          const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+          if (decoded.redirectTarget) targetRedirect = decoded.redirectTarget;
+        } catch {}
+      }
+      const cleanPath = targetRedirect.startsWith("/") ? targetRedirect : "/" + targetRedirect;
+      const webFinal = `https://www.netfits.com.br${cleanPath}?garmin_error=${encodeURIComponent(error || "missing_code")}`;
+      const html = buildGarminReturnHtml(
+        cleanPath,
+        webFinal,
+        false,
+        error === "access_denied"
+          ? "Você optou por não autorizar a conexão na Garmin. Retornando ao aplicativo Netfits..."
+          : "Não foi possível concluir a autorização na Garmin. Retornando ao aplicativo Netfits..."
+      );
+      return new Response(html, {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" },
+      });
     }
 
     let targetUserId = "usr_andre";
@@ -423,22 +471,46 @@ export async function handleGarminRoutes(
       }
     }
 
+    let verifier = "";
+    if (state) {
+      try {
+        const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+        if (decoded.verifier) verifier = decoded.verifier;
+      } catch {}
+    }
+
     try {
-      // Troca de Authorization Code por Tokens com a nuvem Garmin
-      const tokenEndpoint = "https://apis.garmin.com/oauth-service/oauth/exchange/user/2.0";
-      const tokenRes = await fetch(tokenEndpoint, {
+      // Troca de Authorization Code por Tokens com a nuvem Garmin (OAuth 2.0 PKCE)
+      const tokenEndpoint = "https://diauth.garmin.com/di-oauth2-service/oauth/token";
+      const tokenParams: Record<string, string> = {
+        client_id: GARMIN_CLIENT_ID,
+        client_secret: GARMIN_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: GARMIN_REDIRECT_URI,
+      };
+      if (verifier) {
+        tokenParams.code_verifier = verifier;
+      }
+
+      let tokenRes = await fetch(tokenEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({
-          client_id: GARMIN_CLIENT_ID,
-          client_secret: GARMIN_CLIENT_SECRET,
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: GARMIN_REDIRECT_URI,
-        }).toString(),
+        body: new URLSearchParams(tokenParams).toString(),
       });
+
+      // Fallback para endpoint legado caso o novo recuse
+      if (!tokenRes.ok) {
+        tokenRes = await fetch("https://apis.garmin.com/oauth-service/oauth/exchange/user/2.0", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(tokenParams).toString(),
+        });
+      }
 
       let garminUserId = `garmin_${Date.now()}`;
       let accessToken = code;
