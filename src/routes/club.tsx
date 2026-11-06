@@ -109,7 +109,6 @@ export function ClubPage() {
   // Estado de Assinatura do Clube
   const isMember = Boolean(
     activeUser.isClubMember === true ||
-    activeUser.userCategory === "associado" ||
     activeUser.plan === "club"
   );
 
@@ -154,6 +153,45 @@ export function ClubPage() {
       }
     }
   }, [activeUser.id]);
+
+  
+  // Escuta retorno ou retomada de foco do aplicativo (garante ativação instantânea no retorno ao app)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkCloudGarminStatus = async () => {
+      try {
+        const res = await fetch(`/api/garmin/status?userId=${activeUser.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.userConnected && connectedBrandId !== "garmin") {
+            setConnectedBrandId("garmin");
+            localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, "garmin");
+            sharedSandboxStore.updateUser(activeUser.id, {
+              connectedWearable: "garmin",
+              wearable: "Garmin Connect",
+            } as any);
+            toast.success(
+              "🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus treinos serão auditados e pontuados automaticamente (+20 nfs por treino)."
+            );
+          }
+        }
+      } catch {
+        // silent
+      }
+    };
+
+    window.addEventListener("focus", checkCloudGarminStatus);
+    const onVis = () => {
+      if (document.visibilityState === "visible") checkCloudGarminStatus();
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    return () => {
+      window.removeEventListener("focus", checkCloudGarminStatus);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [activeUser.id, connectedBrandId]);
 
   const activeConnectedDevice = useMemo(() => {
     if (!connectedBrandId) return null;
@@ -219,19 +257,7 @@ export function ClubPage() {
     toast.info("Dispositivo desvinculado com sucesso.");
   };
 
-  const handleSyncWorkout = () => {
-    setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-      const points = 20;
-      wallet.earn(
-        points,
-        `Treino Validado via ${activeConnectedDevice?.brandTitle || "Wearable"}: Corrida com Sensores Cardíacos e GPS`,
-        "workout"
-      );
-      toast.success(`🎉 Treino auditado com sucesso! +${points} nfs creditados na sua carteira.`);
-    }, 900);
-  };
+  
 
   const handleConfirmSubscribe = () => {
     sharedSandboxStore.updateUser(activeUser.id, {
@@ -500,22 +526,24 @@ export function ClubPage() {
 
                 {/* Botões de Ação */}
                 <div className="flex items-center gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleSyncWorkout}
-                    disabled={isSyncing}
-                    className="flex-1 py-3 px-4 rounded-xl bg-[#6B2AD9] hover:bg-[#5821b5] text-white text-xs font-black flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs disabled:opacity-50"
-                  >
-                    <RefreshCw className={`size-3.5 ${isSyncing ? "animate-spin" : ""}`} />
-                    {isSyncing ? "Auditando Treinos..." : "Sincronizar Novos Treinos (+20 nfs)"}
-                  </button>
+                  <div className="w-full space-y-2">
+                  <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-[#202127]">
+                      <ShieldCheck className="size-3.5 text-[#5D7600]" />
+                      <span>Sincronização Contínua em Nuvem</span>
+                    </div>
+                    <p className="text-[11px] text-[#5F6270] leading-relaxed">
+                      Seus treinos são auditados e validados automaticamente via nuvem Garmin Connect™ e Terra API. Nenhuma ação manual é necessária para pontuar.
+                    </p>
+                  </div>
                   <button
                     type="button"
                     onClick={handleDisconnect}
-                    className="py-3 px-3.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] text-xs font-bold border border-zinc-200 transition active:scale-95 cursor-pointer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] text-xs font-bold border border-zinc-200 transition active:scale-95 cursor-pointer text-center"
                   >
-                    Desconectar
+                    Desconectar Dispositivo
                   </button>
+                </div>
                 </div>
               </div>
             ) : (

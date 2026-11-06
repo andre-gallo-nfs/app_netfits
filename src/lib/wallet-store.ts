@@ -286,8 +286,14 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
       : `Pontuação utilizada em operações na plataforma Netfits: ${desc}.`;
   }
 
-  const txDate = new Date(t.timestamp);
-  const dateStr = !isNaN(txDate.getTime()) ? txDate.toLocaleDateString("pt-BR") : "Data indisponível";
+    const txDate = new Date(t.timestamp);
+  let dateStr = "Data indisponível";
+  if (!isNaN(txDate.getTime())) {
+    const day = String(txDate.getDate()).padStart(2, "0");
+    const month = String(txDate.getMonth() + 1).padStart(2, "0");
+    const year = String(txDate.getFullYear()).slice(-2);
+    dateStr = `${day}/${month}/${year}`;
+  }
   const fullDateStr = formatFullDate(t.timestamp);
 
   return {

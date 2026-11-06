@@ -216,7 +216,7 @@ export function WorkoutValidationCard({ onValidated }: { onValidated?: () => voi
             ) : (
               <>
                 <Sparkles className="size-4 text-zinc-950" />
-                <span>Validar Treino de Hoje &amp; Resgatar +{pointsPerWorkout} nfs</span>
+                <span>Confirmar e Ganhar +{pointsPerWorkout} nfs</span>
                 <ArrowRight className="size-4 text-zinc-950" />
               </>
             )}

@@ -207,25 +207,47 @@ export const nativeBridge = {
   async openExternalUrl(url: string): Promise<void> {
     if (typeof window === "undefined") return;
 
+    // 1. Tentar plugin Browser do Capacitor (Custom Tabs no Android / SFSafari no iOS)
     if (this.isNativePlatform()) {
       try {
         const { Browser } = await import("@capacitor/browser");
         if (Browser && typeof Browser.open === "function") {
-          await Browser.open({ url, presentationStyle: "popover" });
+          await Browser.open({ url, windowName: "_system" });
           return;
         }
       } catch (err) {
         console.warn("[NativeBridge] Falha ao acionar Browser plugin:", err);
       }
+
+      // Se for Android nativo e o plugin nativo não responder, dispara Intent para abrir no Chrome externo
+      if (typeof navigator !== "undefined" && /android/i.test(navigator.userAgent)) {
+        try {
+          const cleanUrl = url.replace(/^https?:\/\//i, "");
+          const intentUri = `intent://${cleanUrl}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
+          window.location.href = intentUri;
+          return;
+        } catch (e) {
+          console.warn("[NativeBridge] Intent fallback:", e);
+        }
+      }
+
+      // iOS nativo: window.open com target _system delega para o Mobile Safari
+      try {
+        window.open(url, "_system");
+        return;
+      } catch (e) {
+        console.warn("[NativeBridge] _system fallback:", e);
+      }
     }
 
+    // 2. Ambiente Web convencional
     try {
       const win = window.open(url, "_blank", "noopener,noreferrer");
       if (!win || win.closed || typeof win.closed === "undefined") {
-        window.location.assign(url);
+        window.open(url, "_system");
       }
     } catch {
-      window.location.assign(url);
+      window.open(url, "_system");
     }
   },
   getStoredReferralCode(): string | null {

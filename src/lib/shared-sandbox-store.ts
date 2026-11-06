@@ -299,7 +299,7 @@ const INITIAL_USERS: SandboxUser[] = [
     "healthPlan": "Sem plano",
     "gym": "Academia local / Independente",
     "coaching": "Limite Team",
-    "wearable": "Garmin Forerunner",
+    "wearable": "Nenhum",
     "nfsBalance": 1835,
     "userCategory": "associado",
     "registeredAt": "2026-10-05T00:00:00Z",

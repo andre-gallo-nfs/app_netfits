@@ -151,7 +151,7 @@ export async function handleClubSubscriptionRoutes(
       });
     }
 
-    const isClub = user.isClubMember === true || user.userCategory === "associado";
+    const isClub = user.isClubMember === true || user.plan === "club";
 
     return new Response(
       JSON.stringify({
