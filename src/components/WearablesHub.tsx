@@ -189,6 +189,12 @@ export function WearablesHub() {
   }, [activeUser.id]);
 
   const getGarminAuthUrl = () => {
+    return `https://app-netfits.andre-gallo.workers.dev/api/garmin/authorize?userId=${encodeURIComponent(
+      activeUser.id
+    )}&redirect=/activities`;
+  };
+
+  const getDirectGarminUrl = () => {
     const statePayload =
       typeof window !== "undefined"
         ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/activities" }))
@@ -209,7 +215,7 @@ export function WearablesHub() {
 
   const handleCopyGarminLink = (e: React.MouseEvent) => {
     e.preventDefault();
-    const authUrl = getGarminAuthUrl();
+    const authUrl = getDirectGarminUrl();
     if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(authUrl);
       toast.success("Link copiado! Cole no Google Chrome para autorizar.");
@@ -532,12 +538,11 @@ export function WearablesHub() {
                   href={getGarminAuthUrl()}
                   target="_system"
                   rel="noopener noreferrer"
-                  onClick={(e) => {
-                    toast.info("Abrindo login oficial da Garmin Connect...");
-                    nativeBridge.openExternalUrl(getGarminAuthUrl());
+                  onClick={() => {
+                    toast.info("Abrindo Google Chrome para autorizar Garmin...");
                     setTimeout(() => {
                       setConnectingBrand(null);
-                    }, 800);
+                    }, 1200);
                   }}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-sky-500/25 text-center"
                 >

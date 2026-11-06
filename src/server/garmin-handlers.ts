@@ -186,6 +186,10 @@ export async function handleGarminRoutes(
     url.pathname === "/api/garmin/auth-url" ||
     url.pathname === "/api/garmin/auth-url/";
 
+  const isGarminAuthorize =
+    url.pathname === "/api/garmin/authorize" ||
+    url.pathname === "/api/garmin/authorize/";
+
   const isGarminCallback =
     url.pathname === "/api/garmin/oauth/callback" ||
     url.pathname === "/api/garmin/oauth/callback/";
@@ -262,6 +266,25 @@ export async function handleGarminRoutes(
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
+  }
+
+  // =========================================================================
+  // 2.1 Redirecionamento Direto para Garmin OAuth (GET /api/garmin/authorize)
+  // Abre o Google Chrome externo fora da WebView do aplicativo
+  // =========================================================================
+  if (isGarminAuthorize && req.method === "GET") {
+    const userId = url.searchParams.get("userId") || "usr_andre";
+    const redirectTarget = url.searchParams.get("redirect") || "/club";
+
+    const statePayload = Buffer.from(JSON.stringify({ userId, redirectTarget })).toString("base64");
+
+    const authUrl = `https://connect.garmin.com/oauthConfirm?client_id=${encodeURIComponent(
+      GARMIN_CLIENT_ID
+    )}&response_type=code&redirect_uri=${encodeURIComponent(
+      GARMIN_REDIRECT_URI
+    )}&state=${encodeURIComponent(statePayload)}`;
+
+    return Response.redirect(authUrl, 302);
   }
 
   // =========================================================================
