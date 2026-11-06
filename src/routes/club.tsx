@@ -181,6 +181,9 @@ export function ClubPage() {
       }
     };
 
+    // Executa verificação ativa imediatamente no carregamento da tela
+    checkCloudGarminStatus();
+
     window.addEventListener("focus", checkCloudGarminStatus);
     const onVis = () => {
       if (document.visibilityState === "visible") checkCloudGarminStatus();

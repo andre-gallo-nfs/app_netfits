@@ -191,7 +191,7 @@ export function WearablesHub() {
   const getGarminAuthUrl = () => {
     return `https://app-netfits.andre-gallo.workers.dev/api/garmin/authorize?userId=${encodeURIComponent(
       activeUser.id
-    )}&redirect=/activities`;
+    )}&redirect=/club`;
   };
 
   const getDirectGarminUrl = () => {
@@ -244,6 +244,9 @@ export function WearablesHub() {
         // silent
       }
     };
+
+    // Executa verificação ativa imediatamente no carregamento do Hub
+    checkCloudGarminStatus();
 
     window.addEventListener("focus", checkCloudGarminStatus);
     const onVis = () => {
