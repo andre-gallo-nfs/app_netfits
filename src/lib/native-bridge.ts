@@ -207,47 +207,36 @@ export const nativeBridge = {
   async openExternalUrl(url: string): Promise<void> {
     if (typeof window === "undefined") return;
 
-    // 1. Tentar plugin Browser do Capacitor (Custom Tabs no Android / SFSafari no iOS)
+    // 1. Ambiente Nativo Capacitor (Android e iOS):
     if (this.isNativePlatform()) {
+      // Tentar plugin oficial @capacitor/browser
       try {
         const { Browser } = await import("@capacitor/browser");
         if (Browser && typeof Browser.open === "function") {
-          await Browser.open({ url, windowName: "_system" });
+          await Browser.open({ url });
           return;
         }
       } catch (err) {
-        console.warn("[NativeBridge] Falha ao acionar Browser plugin:", err);
+        console.warn("[NativeBridge] Browser plugin fallback:", err);
       }
 
-      // Se for Android nativo e o plugin nativo não responder, dispara Intent para abrir no Chrome externo
-      if (typeof navigator !== "undefined" && /android/i.test(navigator.userAgent)) {
-        try {
-          const cleanUrl = url.replace(/^https?:\/\//i, "");
-          const intentUri = `intent://${cleanUrl}#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
-          window.location.href = intentUri;
-          return;
-        } catch (e) {
-          console.warn("[NativeBridge] Intent fallback:", e);
-        }
-      }
-
-      // iOS nativo: window.open com target _system delega para o Mobile Safari
+      // Método canônico do Capacitor: target _system delega para o navegador do sistema (Chrome/Safari)
       try {
-        window.open(url, "_system");
-        return;
+        const sysWin = window.open(url, "_system");
+        if (sysWin) return;
       } catch (e) {
-        console.warn("[NativeBridge] _system fallback:", e);
+        console.warn("[NativeBridge] window.open _system fallback:", e);
       }
     }
 
-    // 2. Ambiente Web convencional
+    // 2. Ambiente Web convencional ou fallback:
     try {
       const win = window.open(url, "_blank", "noopener,noreferrer");
       if (!win || win.closed || typeof win.closed === "undefined") {
-        window.open(url, "_system");
+        window.location.assign(url);
       }
     } catch {
-      window.open(url, "_system");
+      window.location.assign(url);
     }
   },
   getStoredReferralCode(): string | null {
