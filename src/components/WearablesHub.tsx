@@ -530,9 +530,15 @@ export function WearablesHub() {
               <div className="space-y-2 pt-1">
                 <a
                   href={getGarminAuthUrl()}
-                  target="_blank"
+                  target="_system"
                   rel="noopener noreferrer"
-                  onClick={handleOpenGarmin}
+                  onClick={(e) => {
+                    toast.info("Abrindo login oficial da Garmin Connect...");
+                    nativeBridge.openExternalUrl(getGarminAuthUrl());
+                    setTimeout(() => {
+                      setConnectingBrand(null);
+                    }, 800);
+                  }}
                   className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-sky-500/25 text-center"
                 >
                   Conectar Oficialmente no Garmin Connect™

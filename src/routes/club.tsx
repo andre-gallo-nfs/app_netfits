@@ -851,9 +851,15 @@ export function ClubPage() {
             <div className="space-y-2">
               <a
                 href={getGarminAuthUrl()}
-                target="_blank"
+                target="_system"
                 rel="noopener noreferrer"
-                onClick={handleOpenGarminBrowser}
+                onClick={(e) => {
+                  toast.info("Abrindo login oficial da Garmin Connect...");
+                  nativeBridge.openExternalUrl(getGarminAuthUrl());
+                  setTimeout(() => {
+                    setShowGarminModal(false);
+                  }, 800);
+                }}
                 className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99] text-center"
               >
                 <ExternalLink className="size-4 text-[#00A6E0]" />
