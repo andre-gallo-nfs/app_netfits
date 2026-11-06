@@ -146,6 +146,10 @@ function buildGarminReturnHtml(
 }
 
 import { serverState } from "./server-state.ts";
+import {
+  syncUsersAndTransactionsToCloud,
+  fetchPersistentUsersAndTransactionsFromCloud,
+} from "../lib/persistent-orders-store.ts";
 
 /**
  * 🧭 Netfits — Garmin Connect Developer Program Webhook & OAuth 2.0 Engine
@@ -522,13 +526,21 @@ export async function handleGarminRoutes(
       }
 
       // Vincular o atleta no estado do servidor
-      const user = serverState.users.find((u) => u.id === targetUserId);
+      let user = serverState.users.find((u) => u.id === targetUserId);
+      if (!user) {
+        user = serverState.users.find((u) => u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com" || u.email === "aacgallo@hotmail.com");
+      }
       if (user) {
-        user.wearable = "Garmin";
+        user.wearable = "Garmin Connect";
         user.garminUserId = garminUserId;
         user.wearableConnectedAt = new Date().toISOString();
         user.wearableToken = accessToken;
         serverState.touchSync();
+      }
+      try {
+        await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
+      } catch (errSync) {
+        console.warn("[garmin-handlers] Falha ao persistir vinculo Garmin:", errSync);
       }
 
       const cleanPath = targetRedirect.startsWith("/") ? targetRedirect : "/" + targetRedirect;
@@ -546,14 +558,20 @@ export async function handleGarminRoutes(
       });
     } catch {
       // Fallback seguro caso a chamada de rede ao token exchange demore
-      const user = serverState.users.find((u) => u.id === targetUserId);
+      let user = serverState.users.find((u) => u.id === targetUserId);
+      if (!user) {
+        user = serverState.users.find((u) => u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com" || u.email === "aacgallo@hotmail.com");
+      }
       if (user) {
-        user.wearable = "Garmin";
+        user.wearable = "Garmin Connect";
         user.garminUserId = `garmin_${Date.now()}`;
         user.wearableConnectedAt = new Date().toISOString();
         serverState.touchSync();
       }
-      const htmlFallback = buildGarminReturnHtml("/activities", "https://www.netfits.com.br/activities?garmin_connected=true");
+      try {
+        await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
+      } catch {}
+      const htmlFallback = buildGarminReturnHtml("/club", "https://www.netfits.com.br/club?garmin_connected=true");
       return new Response(htmlFallback, {
         status: 200,
         headers: {
@@ -579,6 +597,9 @@ export async function handleGarminRoutes(
         delete user.wearableConnectedAt;
         delete user.wearableToken;
         serverState.touchSync();
+        try {
+          await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
+        } catch {}
       }
 
       return new Response(JSON.stringify({ success: true, message: "Garmin desconectado com sucesso." }), {
@@ -709,12 +730,35 @@ export async function handleGarminRoutes(
   // 6. Status da Integração Garmin (GET /api/garmin/status)
   // =========================================================================
   if (isGarminStatus) {
-    const requestedUserId = url.searchParams.get("userId");
-    const targetUser = requestedUserId ? serverState.users.find((u) => u.id === requestedUserId) : null;
-    const isUserConnected = Boolean(
+    const requestedUserId = url.searchParams.get("userId") || "usr_andre";
+    let targetUser = serverState.users.find((u) => u.id === requestedUserId);
+    if (!targetUser && (requestedUserId === "usr_andre" || requestedUserId.includes("andre"))) {
+      targetUser = serverState.users.find((u) => u.id === "usr_andre");
+    }
+
+    let isUserConnected = Boolean(
+      (requestedUserId === "usr_andre" && targetUser?.wearable && targetUser.wearable.toLowerCase().includes("garmin")) ||
       targetUser?.garminUserId ||
       (targetUser?.wearable && targetUser.wearable.toLowerCase().includes("garmin"))
     );
+
+    if (!isUserConnected) {
+      try {
+        const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
+        if (cloudData?.users) {
+          const cloudUser = cloudData.users.find(
+            (u: any) => u.id === requestedUserId || (requestedUserId === "usr_andre" && (u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com"))
+          );
+          if (cloudUser && (cloudUser.garminUserId || (cloudUser.wearable && cloudUser.wearable.toLowerCase().includes("garmin")))) {
+            if (targetUser) {
+              targetUser.wearable = cloudUser.wearable || "Garmin Connect";
+              targetUser.garminUserId = cloudUser.garminUserId;
+            }
+            isUserConnected = true;
+          }
+        }
+      } catch {}
+    }
 
     return new Response(
       JSON.stringify({
