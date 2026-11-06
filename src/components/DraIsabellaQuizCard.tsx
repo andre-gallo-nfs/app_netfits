@@ -1,6 +1,7 @@
 import { trackArticleRead } from "@/lib/analytics";
 import { useState, useEffect, useMemo } from "react";
-import { 
+import {
+  Lock, 
   Trophy, 
   Leaf, 
   MoreVertical, 
@@ -125,6 +126,10 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       toast.info("Você já concluiu este desafio e conquistou seus pontos!");
       return;
     }
+    if (!readClaimed) {
+      toast.warning("Leia o artigo até o final (mínimo 10s e rolagem) para liberar o Quizz Netfits.");
+      return;
+    }
 
     if (!selectedOption) { toast.warning("Selecione uma alternativa antes de confirmar!"); return; }
     const option = QUIZ_OPTIONS.find((o) => o.id === selectedOption);
@@ -166,7 +171,9 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
     }
 
     setReadClaimed(true);
-    toast.success("👏 Leitura e rolagem validadas com sucesso!");
+    feedAntifraud.recordAction("read", ARTICLE_POST_ID, 0);
+    toast.success("👏 Leitura confirmada! O Quizz Netfits (+5 netfits) foi liberado.");
+    setArticleOpen(false);
   };
 
   const minDwellRequired = feedAntifraud.getRules().minDwellTimeSeconds;
@@ -292,101 +299,143 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
         {/* 3. Módulo de Desafio / Quiz Educativo Permanente (5 netfits) */}
         <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
           {/* Cabeçalho do Quiz */}
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
-              <Trophy className="size-5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-purple-600/10 text-purple-600 grid place-items-center shrink-0">
+                <Trophy className="size-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
+                  QUIZZ NETFITS
+                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-xs font-bold text-zinc-800">
+                    Responda e ganhe
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
+                    5 netfits
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="text-[10px] font-black tracking-widest text-purple-600 uppercase block">
-                QUIZZ NETFITS
+
+            {hasSubmitted ? (
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 border border-emerald-500/30">
+                <CheckCircle2 className="size-3.5" /> Concluído
               </span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-xs font-bold text-zinc-800">
-                  Responda e ganhe
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-[#C8FF00] text-zinc-950 font-black text-[11px] tracking-tight shadow-xs">
-                  5 netfits
-                </span>
+            ) : !readClaimed ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                <Lock className="size-3" /> Bloqueado
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] font-black text-[#6B2AD9]">
+                <Sparkles className="size-3.5" /> +5 netfits
+              </span>
+            )}
+          </div>
+
+          {!readClaimed ? (
+            <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-200/60 text-center space-y-3">
+              <div className="size-11 rounded-full bg-purple-100 text-[#6B2AD9] grid place-items-center mx-auto">
+                <Lock className="size-5" />
               </div>
+              <div className="space-y-1">
+                <h5 className="text-xs sm:text-sm font-bold text-zinc-900">
+                  Leia o artigo para liberar o Quizz
+                </h5>
+                <p className="text-[11px] sm:text-xs text-zinc-600 max-w-sm mx-auto leading-relaxed">
+                  Para absorver as diretrizes clínicas da Dra. Isabella, abra o artigo e complete a leitura atenta (mínimo 10s e rolagem até o fim).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setArticleOpen(true)}
+                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer touch-manipulation"
+              >
+                <BookOpen className="size-4" />
+                <span>Ler Artigo Completo (Liberar Quiz)</span>
+              </button>
             </div>
-          </div>
-
-          {/* Pergunta */}
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug break-words">
-            Qual pilar é mais decisivo para a recuperação muscular e regulação da inflamação pós-treino?
-          </h4>
-
-          {/* Lista de Alternativas (Radio Buttons) */}
-          <div className="space-y-2.5">
-            {shuffledOptions.map((opt) => {
-              const isSelected = selectedOption === opt.id;
-              const isFinishedCorrect = hasSubmitted && opt.isCorrect;
-
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => {
-                    if (!hasSubmitted) {
-                      setSelectedOption(opt.id);
-                      setErrorMsg(null);
-                    }
-                  }}
-                  disabled={hasSubmitted}
-                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
-                    isFinishedCorrect
-                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
-                      : isSelected
-                      ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
-                      : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
-                  } ${hasSubmitted ? "cursor-default" : ""}`}
-                >
-                  <div
-                    className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
-                      isFinishedCorrect || isSelected
-                        ? "border-lime-600 bg-lime-500/20"
-                        : "border-zinc-400"
-                    }`}
-                  >
-                    {(isFinishedCorrect || isSelected) && (
-                      <div className="size-2 rounded-full bg-lime-600" />
-                    )}
-                  </div>
-                  <span className="flex-1 text-zinc-900 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mensagem de Erro Educativo se errar */}
-          {errorMsg && (
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <p>{errorMsg}</p>
-            </div>
-          )}
-
-          {/* Botão de Ação / Conclusão */}
-          {!hasSubmitted ? (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
-            >
-              <span>Responder e conquistar 5 netfits</span>
-              <ArrowRight className="size-4" />
-            </button>
           ) : (
-            <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
-              <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
-              <div className="flex-1 text-xs">
-                <span className="font-bold text-lime-700 block">
-                  Desafio conquistado!
-                </span>
-                <span className="text-zinc-800 font-medium">+5 netfits foram creditados na sua carteira Netfits.</span>
+            <>
+              {/* Pergunta */}
+              <h4 className="text-sm sm:text-base font-bold text-zinc-900 leading-snug break-words">
+                Qual pilar é mais decisivo para a recuperação muscular e regulação da inflamação pós-treino?
+              </h4>
+
+              {/* Lista de Alternativas (Radio Buttons) */}
+              <div className="space-y-2.5">
+                {shuffledOptions.map((opt) => {
+                  const isSelected = selectedOption === opt.id;
+                  const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        if (!hasSubmitted) {
+                          setSelectedOption(opt.id);
+                          setErrorMsg(null);
+                        }
+                      }}
+                      disabled={hasSubmitted}
+                      className={`w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer min-h-[48px] touch-manipulation select-none ${
+                        isFinishedCorrect
+                          ? "bg-lime-500/15 border-lime-500 text-zinc-950 font-semibold"
+                          : isSelected
+                          ? "bg-lime-50 border-lime-500/80 text-zinc-950 font-semibold shadow-xs"
+                          : "bg-zinc-50/90 border-zinc-200 text-zinc-900 hover:border-zinc-300"
+                      } ${hasSubmitted ? "cursor-default" : ""}`}
+                    >
+                      <div
+                        className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
+                          isFinishedCorrect || isSelected
+                            ? "border-lime-600 bg-lime-500/20"
+                            : "border-zinc-400"
+                        }`}
+                      >
+                        {(isFinishedCorrect || isSelected) && (
+                          <div className="size-2 rounded-full bg-lime-600" />
+                        )}
+                      </div>
+                      <span className="flex-1 text-zinc-900 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <Sparkles className="size-4 text-lime-600 shrink-0" />
-            </div>
+
+              {/* Mensagem de Erro Educativo se errar */}
+              {errorMsg && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 text-xs animate-in fade-in">
+                  <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                  <p>{errorMsg}</p>
+                </div>
+              )}
+
+              {/* Botão de Ação / Conclusão */}
+              {!hasSubmitted ? (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer min-h-[48px] touch-manipulation"
+                >
+                  <span>Responder e conquistar 5 netfits</span>
+                  <ArrowRight className="size-4" />
+                </button>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 flex items-center gap-2.5 animate-in fade-in">
+                  <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
+                  <div className="flex-1 text-xs">
+                    <span className="font-bold text-lime-700 block">
+                      Desafio conquistado!
+                    </span>
+                    <span className="text-zinc-800 font-medium">+5 netfits foram creditados na sua carteira Netfits.</span>
+                  </div>
+                  <Sparkles className="size-4 text-lime-600 shrink-0" />
+                </div>
+              )}
+            </>
           )}
         </div>
 

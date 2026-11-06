@@ -19,7 +19,7 @@
     "pillText": "A melhor tecnologia é aquela que descomplica sua rotina e dá valor ao seu suor.",
     "articleContent": [
       "Chegou na Netfits agora? Descubra em 60 segundos como navegar pelo ecossistema que valoriza cada gota de suor do seu treino.",
-      "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 netfits) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 netfits de volta diretamente no seu extrato.\n\n3. Extrato / Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados com 24 meses de validade padrão e uso automático dos pontos mais antigos primeiro.\n\n4. Perfil: Gestão dos seus dados cadastrais, conexões com smartwatches (Garmin, Apple Watch, Strava), rituais diários e histórico de evolução.",
+      "A barra de navegação do app reúne 4 abas essenciais para a sua jornada de saúde preventiva e recompensas:\n\n1. Feed: Conteúdos educativos curados por médicos da Fibios e guias oficiais Netfits. Aqui a leitura atenta destrava o Quiz Diário (+5 netfits) e você aprende algo novo todos os dias.\n\n2. Shop: O marketplace de saúde, esportes e longevidade. Cada R$ 1,00 gasto em marcas parceiras gera 4 netfits de volta diretamente no seu extrato.\n\n3. Clube: Assinatura mensal de R$ 19,90 com 250 nfs garantidos/mês, integração direta com smartwatches (Garmin, Apple Watch, Strava, Polar), 20 nfs por treino validado e 20% mais pontos no Shop.\n\n4. Carteira: Auditoria em tempo real de todos os seus pontos acumulados, resgatados e bonificados com 24 meses de validade padrão, usando sempre os pontos com vencimento mais próximo primeiro.",
       "Assista ao vídeo didático de 60 segundos até o final para validar a retenção de atenção e destravar o Quizz Netfits (+5 netfits)!"
     ],
     "quizQuestion": "De acordo com o tour guiado oficial do app, quais são as 4 abas estruturais da barra de navegação da Netfits?",
@@ -28,25 +28,25 @@
         "id": "dia01-opt-d1",
         "text": "Feed, Treinos Conectados, Resgates e Comunidade de Atletas.",
         "isCorrect": false,
-        "feedback": "Incorreto. A integração com treinos pontuados é realizada via Clube Netfits; a navegação principal é dividida em Feed, Shop, Clube e Carteira."
+        "feedback": "Incorreto. A navegação principal oficial da Netfits é dividida em Feed, Shop, Clube e Carteira."
       },
       {
         "id": "dia01-opt-correct",
-        "text": "Feed, Shop, Extrato/Carteira e Perfil do Usuário.",
+        "text": "Feed, Shop, Clube e Carteira.",
         "isCorrect": true,
-        "feedback": "Corretíssimo! Com essas 4 abas na barra inferior, você navega pelos conteúdos, realiza compras com cashback, audita seus pontos e gerencia sua conta."
+        "feedback": "Corretíssimo! Com essas 4 abas na barra inferior, você navega pelos conteúdos, realiza compras com cashback, acessa o Clube com wearables e audita sua carteira."
       },
       {
         "id": "dia01-opt-d2",
         "text": "Início, Desafios Diários, Marketplace e Configurações de Conta.",
         "isCorrect": false,
-        "feedback": "Incorreto. A nomenclatura e a arquitetura oficial do app utilizam Feed, Shop, Extrato e Perfil."
+        "feedback": "Incorreto. As 4 abas oficiais da barra de navegação inferior são Feed, Shop, Clube e Carteira."
       },
       {
         "id": "dia01-opt-d3",
         "text": "Feed de Notícias, Loja de Cupons, Carteira de Pontos e Ajustes Biomédicos.",
         "isCorrect": false,
-        "feedback": "Incorreto. O app Netfits não trabalha com 'loja de cupons', mas sim com o Shop e cashback direto em netfits."
+        "feedback": "Incorreto. A barra de navegação reúne Feed, Shop, Clube e Carteira."
       }
     ],
     "videoStoryboard": [

@@ -21,7 +21,8 @@ import {
   Apple,
   Droplets,
   Moon,
-  Activity
+  Activity,
+  Lock
 } from "lucide-react";
 import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import netfitsMark from "@/assets/netfits-mark.png";
@@ -361,6 +362,11 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
     if (videoRef.current) {
       videoRef.current.pause();
     }
+    if (!isVideo && dwellTimeSeconds >= 10 && hasScrolledToBottom && !readClaimed) {
+      setReadClaimed(true);
+      feedAntifraud.recordAction("read", post.articlePostId, 0);
+      toast.success("📖 Leitura completa validada! O Desafio Quiz (+5 netfits) foi liberado.");
+    }
     setModalOpen(false);
   };
 
@@ -533,6 +539,10 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                 <CheckCircle2 className="size-3.5" /> Concluído
               </span>
+            ) : !readClaimed ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                <Lock className="size-3" /> Bloqueado
+              </span>
             ) : (
               <span className="inline-flex items-center gap-1 text-[11px] font-black text-[#6B2AD9] dark:text-purple-400">
                 <Sparkles className="size-3.5" /> +5 netfits
@@ -540,84 +550,114 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
             )}
           </div>
 
-          {/* Pergunta */}
-          <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
-            {post.quizQuestion}
-          </h4>
-
-          {/* Lista de Alternativas (Radio Buttons) */}
-          <div className="space-y-2.5">
-            {shuffledOptions.map((opt) => {
-              const isSelected = selectedOption === opt.id;
-              const isFinishedCorrect = hasSubmitted && opt.isCorrect;
-
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => {
-                    if (!hasSubmitted) {
-                      setSelectedOption(opt.id);
-                      setErrorMsg(null);
-                    }
-                  }}
-                  disabled={hasSubmitted}
-                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer ${
-                    isFinishedCorrect
-                      ? "bg-lime-500/15 border-lime-500 text-zinc-950 dark:text-white font-semibold"
-                      : isSelected
-                      ? "bg-lime-50 dark:bg-lime-950/30 border-lime-500/80 text-zinc-950 dark:text-white font-semibold shadow-xs"
-                      : "bg-zinc-50/90 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-600"
-                  } ${hasSubmitted ? "cursor-default" : ""}`}
-                >
-                  <div
-                    className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
-                      isFinishedCorrect || isSelected
-                        ? "border-lime-600 bg-lime-500/20"
-                        : "border-zinc-400 dark:border-zinc-500"
-                    }`}
-                  >
-                    {(isFinishedCorrect || isSelected) && (
-                      <div className="size-2 rounded-full bg-lime-600" />
-                    )}
-                  </div>
-                  <span className="flex-1 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mensagem de Erro / Feedback Educativo */}
-          {errorMsg && (
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs animate-in fade-in">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <p>{errorMsg}</p>
-            </div>
-          )}
-
-          {/* Botão de Ação / Conclusão */}
-          {!hasSubmitted ? (
-            <button
-              type="button"
-              onClick={handleSubmitQuiz}
-              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer"
-            >
-              <span>Responder e conquistar 5 netfits</span>
-              <ArrowRight className="size-4" />
-            </button>
-          ) : (
-            <div className="p-3 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 dark:text-white flex items-center gap-2.5 animate-in fade-in">
-              <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
-              <div className="flex-1 text-xs">
-                <span className="font-bold text-lime-700 dark:text-lime-400 block">
-                  Desafio conquistado!
-                </span>
-                <span className="text-zinc-800 dark:text-zinc-200 font-medium">
-                  +5 netfits foram creditados na sua carteira Netfits.
-                </span>
+          {!readClaimed ? (
+            /* Estado Bloqueado: Exige leitura ou vídeo */
+            <div className="p-4 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-900/40 text-center space-y-3">
+              <div className="size-11 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#6B2AD9] dark:text-purple-300 grid place-items-center mx-auto">
+                <Lock className="size-5" />
               </div>
-              <Sparkles className="size-4 text-lime-600 shrink-0" />
+              <div className="space-y-1">
+                <h5 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                  {isVideo ? "Assista ao vídeo para liberar o Quizz" : "Leia o artigo para liberar o Quizz"}
+                </h5>
+                <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                  {isVideo
+                    ? "Para garantir a retenção pedagógica, assista a ao menos 90% do vídeo didático para destravar o desafio (+5 netfits)."
+                    : "Para garantir o aprendizado real, abra o artigo e complete a leitura atenta (mínimo 10s e rolagem até o fim)."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenContent}
+                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer touch-manipulation"
+              >
+                {isVideo ? <Play className="size-4" /> : <BookOpen className="size-4" />}
+                <span>{isVideo ? "Assistir ao Vídeo (Liberar Quiz)" : "Ler Artigo Completo (Liberar Quiz)"}</span>
+              </button>
             </div>
+          ) : (
+            /* Estado Desbloqueado: Exibe Pergunta e Alternativas */
+            <>
+              {/* Pergunta */}
+              <h4 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white leading-snug break-words">
+                {post.quizQuestion}
+              </h4>
+
+              {/* Lista de Alternativas (Radio Buttons) */}
+              <div className="space-y-2.5">
+                {shuffledOptions.map((opt) => {
+                  const isSelected = selectedOption === opt.id;
+                  const isFinishedCorrect = hasSubmitted && opt.isCorrect;
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        if (!hasSubmitted) {
+                          setSelectedOption(opt.id);
+                          setErrorMsg(null);
+                        }
+                      }}
+                      disabled={hasSubmitted}
+                      className={`w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm font-medium transition-all flex items-center gap-3 cursor-pointer min-h-[48px] touch-manipulation select-none ${
+                        isFinishedCorrect
+                          ? "bg-lime-500/15 border-lime-500 text-zinc-950 dark:text-white font-semibold"
+                          : isSelected
+                          ? "bg-lime-50 dark:bg-lime-950/30 border-lime-500/80 text-zinc-950 dark:text-white font-semibold shadow-xs"
+                          : "bg-zinc-50/90 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 hover:border-zinc-300 dark:hover:border-zinc-600"
+                      } ${hasSubmitted ? "cursor-default" : ""}`}
+                    >
+                      <div
+                        className={`size-5 rounded-full border-2 grid place-items-center shrink-0 transition-colors ${
+                          isFinishedCorrect || isSelected
+                            ? "border-lime-600 bg-lime-500/20"
+                            : "border-zinc-400 dark:border-zinc-500"
+                        }`}
+                      >
+                        {(isFinishedCorrect || isSelected) && (
+                          <div className="size-2 rounded-full bg-lime-600" />
+                        )}
+                      </div>
+                      <span className="flex-1 font-medium break-words text-xs sm:text-sm">{opt.text}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Mensagem de Erro / Feedback Educativo */}
+              {errorMsg && (
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs animate-in fade-in">
+                  <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                  <p>{errorMsg}</p>
+                </div>
+              )}
+
+              {/* Botão de Ação / Conclusão */}
+              {!hasSubmitted ? (
+                <button
+                  type="button"
+                  onClick={handleSubmitQuiz}
+                  className="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer min-h-[48px] touch-manipulation"
+                >
+                  <span>Responder e conquistar 5 netfits</span>
+                  <ArrowRight className="size-4" />
+                </button>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-lime-500/15 border border-lime-500/40 text-zinc-900 dark:text-white flex items-center gap-2.5 animate-in fade-in">
+                  <CheckCircle2 className="size-5 text-lime-600 shrink-0" />
+                  <div className="flex-1 text-xs">
+                    <span className="font-bold text-lime-700 dark:text-lime-400 block">
+                      Desafio conquistado!
+                    </span>
+                    <span className="text-zinc-800 dark:text-zinc-200 font-medium">
+                      +5 netfits foram creditados na sua carteira Netfits.
+                    </span>
+                  </div>
+                  <Sparkles className="size-4 text-lime-600 shrink-0" />
+                </div>
+              )}
+            </>
           )}
         </div>
 
