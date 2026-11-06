@@ -217,6 +217,12 @@ export function ClubPage() {
 
   // Geração de URL de autorização Garmin com suporte cross-platform
   const getGarminAuthUrl = () => {
+    return `https://app-netfits.andre-gallo.workers.dev/api/garmin/authorize?userId=${encodeURIComponent(
+      activeUser.id
+    )}&redirect=/club`;
+  };
+
+  const getDirectGarminUrl = () => {
     const statePayload =
       typeof window !== "undefined"
         ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/club" }))
@@ -236,7 +242,7 @@ export function ClubPage() {
   };
 
   const handleCopyGarminLink = () => {
-    const authUrl = getGarminAuthUrl();
+    const authUrl = getDirectGarminUrl();
     if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(authUrl);
       toast.success("Link copiado com sucesso! Abra o Google Chrome e cole para autorizar.");
@@ -853,12 +859,11 @@ export function ClubPage() {
                 href={getGarminAuthUrl()}
                 target="_system"
                 rel="noopener noreferrer"
-                onClick={(e) => {
-                  toast.info("Abrindo login oficial da Garmin Connect...");
-                  nativeBridge.openExternalUrl(getGarminAuthUrl());
+                onClick={() => {
+                  toast.info("Abrindo Google Chrome para autorizar Garmin...");
                   setTimeout(() => {
                     setShowGarminModal(false);
-                  }, 800);
+                  }, 1200);
                 }}
                 className="w-full py-3.5 px-4 rounded-xl bg-black hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99] text-center"
               >

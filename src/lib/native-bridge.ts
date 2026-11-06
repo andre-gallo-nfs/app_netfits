@@ -207,36 +207,28 @@ export const nativeBridge = {
   async openExternalUrl(url: string): Promise<void> {
     if (typeof window === "undefined") return;
 
-    // 1. Ambiente Nativo Capacitor (Android e iOS):
-    if (this.isNativePlatform()) {
-      // Tentar plugin oficial @capacitor/browser
-      try {
-        const { Browser } = await import("@capacitor/browser");
-        if (Browser && typeof Browser.open === "function") {
-          await Browser.open({ url });
-          return;
-        }
-      } catch (err) {
-        console.warn("[NativeBridge] Browser plugin fallback:", err);
-      }
-
-      // Método canônico do Capacitor: target _system delega para o navegador do sistema (Chrome/Safari)
-      try {
-        const sysWin = window.open(url, "_system");
-        if (sysWin) return;
-      } catch (e) {
-        console.warn("[NativeBridge] window.open _system fallback:", e);
-      }
+    let targetUrl = url;
+    if (targetUrl.includes("connect.garmin.com")) {
+      targetUrl = targetUrl.replace(
+        "https://connect.garmin.com",
+        "https://app-netfits.andre-gallo.workers.dev/api/garmin/authorize"
+      );
     }
 
-    // 2. Ambiente Web convencional ou fallback:
     try {
-      const win = window.open(url, "_blank", "noopener,noreferrer");
+      const win = window.open(targetUrl, "_system");
+      if (win) return;
+    } catch (e) {
+      console.warn("[NativeBridge] window.open _system fallback:", e);
+    }
+
+    try {
+      const win = window.open(targetUrl, "_blank", "noopener,noreferrer");
       if (!win || win.closed || typeof win.closed === "undefined") {
-        window.location.assign(url);
+        window.location.assign(targetUrl);
       }
     } catch {
-      window.location.assign(url);
+      window.location.assign(targetUrl);
     }
   },
   getStoredReferralCode(): string | null {
