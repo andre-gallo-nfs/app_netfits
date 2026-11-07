@@ -255,7 +255,7 @@ class AppLockStore {
           if (!nativePlugin || typeof nativePlugin.checkBiometry !== "function") {
             return {
               success: false,
-              error: "Biometria não disponível no binário deste aparelho. Desbloqueie com sua senha ou toque em Desbloquear Acesso.",
+              error: "Biometria não disponível no binário deste aparelho. Desbloqueie com sua senha cadastrada.",
             };
           }
 
@@ -280,11 +280,11 @@ class AppLockStore {
           console.warn("[AppLock] Biometria nativa falhou ou indisponível:", pluginErr);
           const msg = String(pluginErr?.message || "").toLowerCase();
           if (msg.includes("cancel") || pluginErr?.code === "userCancel" || msg.includes("canceled")) {
-            return { success: false, error: "Validação biométrica cancelada. Digite sua senha ou toque em Desbloquear Acesso." };
+            return { success: false, error: "Validação biométrica cancelada. Digite sua senha cadastrada." };
           }
           return {
             success: false,
-            error: "Biometria indisponível ou não reconhecida. Digite sua senha ou toque em Desbloquear Acesso.",
+            error: "Biometria indisponível ou não reconhecida. Digite sua senha cadastrada.",
           };
         }
       }
@@ -388,7 +388,7 @@ class AppLockStore {
       return { success: true };
     }
 
-    return { success: false, error: "Senha incorreta. Digite sua senha pessoal cadastrada ou use o Desbloqueio de Acesso." };
+    return { success: false, error: "Senha incorreta. Digite sua senha pessoal cadastrada." };
   }
 
   /**

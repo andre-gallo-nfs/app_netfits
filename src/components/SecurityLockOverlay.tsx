@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   Lock,
   Fingerprint,
@@ -9,7 +9,6 @@ import {
   ArrowRight,
   LogOut,
   Sparkles,
-  Unlock,
 } from "lucide-react";
 import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
@@ -35,7 +34,7 @@ export function SecurityLockOverlay() {
   const handleBiometricUnlock = async (isAutoPrompt = false) => {
     if (!appLockStore.isBiometricsAvailable()) {
       if (!isAutoPrompt) {
-        setErrorMessage("Sensor biométrico não disponível neste aparelho. Toque em 'Desbloquear e Acessar' ou digite sua senha.");
+        setErrorMessage("Sensor biométrico não disponível neste aparelho. Digite sua senha cadastrada.");
       }
       return;
     }
@@ -45,7 +44,7 @@ export function SecurityLockOverlay() {
 
     try {
       const timeoutPromise = new Promise<{ success: boolean; error?: string }>((resolve) =>
-        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler Face ID. Digite sua senha." }), 3000)
+        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler biometria. Digite sua senha." }), 4000)
       );
       const res = await Promise.race([appLockStore.unlockWithBiometrics(), timeoutPromise]);
       if (!res.success && res.error && !isAutoPrompt) {
@@ -53,15 +52,12 @@ export function SecurityLockOverlay() {
       }
     } catch (err: any) {
       if (!isAutoPrompt) {
-        setErrorMessage("Não foi possível ler o Face ID. Use sua senha ou o botão de desbloqueio.");
+        setErrorMessage("Não foi possível validar a biometria. Digite sua senha cadastrada.");
       }
     } finally {
       setIsAuthenticatingBio(false);
     }
   };
-
-  // Biometria sob demanda para nunca bloquear o teclado
-  useEffect(() => {}, []);
 
   const handlePasswordUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,14 +81,10 @@ export function SecurityLockOverlay() {
   const handleLogout = () => {
     sharedSandboxStore.clearActiveSession();
     authStore.logoutUser();
-    appLockStore.forceEmergencyUnlock();
+    appLockStore.setUnlocked(true);
     if (typeof window !== "undefined") {
       window.location.replace("/auth");
     }
-  };
-
-  const handleEmergencyUnlock = () => {
-    appLockStore.forceEmergencyUnlock();
   };
 
   return (
@@ -139,18 +131,22 @@ export function SecurityLockOverlay() {
           </div>
         )}
 
-        {/* Botão Primário: Desbloquear e Acessar (Verde Limão KV Oficial) */}
+        {/* Ação Primária Obrigatória: Desbloquear com Biometria Estrita (Face ID / Touch ID / Digital) */}
         <div className="pt-1">
           <button
             type="button"
-            onClick={handleEmergencyUnlock}
-            className="w-full py-4 px-5 rounded-2xl bg-[#C8F135] hover:bg-[#b5dc28] active:scale-95 text-[#202127] font-black text-sm flex items-center justify-center gap-2.5 shadow-xl shadow-lime-400/20 transition cursor-pointer"
+            onClick={() => handleBiometricUnlock(false)}
+            disabled={isAuthenticatingBio}
+            className="w-full py-4 px-5 rounded-2xl bg-[#6B2AD9] hover:bg-[#5b22b8] active:scale-95 text-white font-black text-sm flex items-center justify-center gap-2.5 shadow-xl shadow-purple-900/30 transition cursor-pointer disabled:opacity-75"
           >
-            <Unlock className="size-5 stroke-[2.5] text-[#202127]" />
-            <span>Desbloquear e Acessar Meu App</span>
+            <Fingerprint className={`size-5 text-[#C8F135] ${isAuthenticatingBio ? "animate-pulse" : ""}`} />
+            <span>
+              {isAuthenticatingBio ? "Autenticando biometria..." : "Acessar com Face ID / Digital"}
+            </span>
+            <Sparkles className="size-4 text-lime-300 ml-auto" />
           </button>
           <p className="text-[11px] text-zinc-500 mt-1.5">
-            Toque para liberar o acesso seguro à sua conta
+            Identificação biométrica segura por hardware
           </p>
         </div>
 
@@ -160,25 +156,11 @@ export function SecurityLockOverlay() {
             <div className="w-full border-t border-zinc-800" />
           </div>
           <span className="relative bg-zinc-950 px-3 text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-            ou confirme por biometria / senha
+            ou digite sua senha
           </span>
         </div>
 
-        {/* Action 2: Desbloquear com Biometria (Face ID / Touch ID) */}
-        <button
-          type="button"
-          onClick={() => handleBiometricUnlock(false)}
-          disabled={isAuthenticatingBio}
-          className="w-full py-3.5 px-4 rounded-xl bg-purple-700/40 hover:bg-purple-700/60 active:scale-98 text-white font-bold text-xs border border-purple-500/30 flex items-center justify-center gap-2.5 transition cursor-pointer disabled:opacity-75"
-        >
-          <Fingerprint className={`size-4.5 ${isAuthenticatingBio ? "animate-pulse text-lime-400" : ""}`} />
-          <span>
-            {isAuthenticatingBio ? "Lendo Face ID..." : "Validar com Face ID / Touch ID"}
-          </span>
-          <Sparkles className="size-3.5 text-lime-300 ml-auto" />
-        </button>
-
-        {/* Action 3: Formulário de Senha */}
+        {/* Ação 2: Formulário de Senha */}
         <form onSubmit={handlePasswordUnlock} className="space-y-2.5 text-left">
           <div
             onClick={() => inputRef.current?.focus()}
