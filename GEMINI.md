@@ -137,3 +137,11 @@ Para eliminar incidentes de subidas indevidas, inconsistências de Key Visual (K
    * O pipeline `npm run agents:audit` (`scripts/multi-agent-orchestrator.mjs`) orquestra sincronizadamente todos os agentes de governança antes de qualquer liberação para homologação ou produção;
    * Segregação de papéis estrita: cada agente atua com total independência e poder de veto imediato sobre o build.
 
+8. **Distributed Transactional Atomicity & Cloud Ledger Gatekeeper (Guardião da Atomicidade & Anti-Ghost — LL-011)**:
+   * Possui **poder de veto absoluto** contra qualquer mutação de carteira de terceiros no client-side (`referrer.nfsBalance +=`);
+   * Exige transações atômicas no servidor central (`POST /api/users-sync`) para bonificações de indicação (MGM) e cadastro;
+   * Proíbe terminantemente o disparo de e-mails transacionais comemorativos de pontos antes da confirmação de gravação no banco de dados;
+   * Exige `await` e `keepalive: true` em requisições de sincronização que antecedem navegações de tela, blindando contra cancelamento no mobile;
+   * Enforçado ativamente por `scripts/knowledge-learning-agent.mjs` com score mandatório 100/100.
+
+

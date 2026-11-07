@@ -7,7 +7,11 @@
     "learnedAt": "2026-10-15",
     "context": "Dra. Isabella Formigari e Dr. Franco Merici estão concluindo especializações médicas e não possuem RQE de especialista registrado ainda.",
     "rule": "É terminantemente proibido atribuir a eles titulação de especialista (ex: Medicina do Esporte, Ortopedia, Nutrologia). A assinatura oficial deve ser: 'Médico (CRM-SP 212567) sócio fundador da Fibios' e 'Médica (CRM-SP 282951) sócia fundadora da Fibios'.",
-    "antiPattern": ["Dr. Franco Merici, Médico do Esporte", "Dra. Isabella Formigari, Ortopedista", "especialista em medicina esportiva"],
+    "antiPattern": [
+      "Dr. Franco Merici, Médico do Esporte",
+      "Dra. Isabella Formigari, Ortopedista",
+      "especialista em medicina esportiva"
+    ],
     "enforcedBy": "scripts/brand-medical-checker.mjs"
   },
   {
@@ -18,7 +22,11 @@
     "learnedAt": "2026-10-20",
     "context": "A plataforma foi migrada em definitivo para Cloudflare Workers / Nitro preset cloudflare-module para garantir baixa latência global e custos controlados.",
     "rule": "A infraestrutura oficial de produção é Cloudflare (www.netfits.com.br). Qualquer artefato, rota ou deploy relacionado a Vercel está proibido e descomissionado.",
-    "antiPattern": ["vercel.json", "vercel deploy", ".vercel"],
+    "antiPattern": [
+      "vercel.json",
+      "vercel deploy",
+      ".vercel"
+    ],
     "enforcedBy": "scripts/validate-routes.cjs"
   },
   {
@@ -29,7 +37,11 @@
     "learnedAt": "2026-11-04",
     "context": "Incidentes de OAuth e abertura de links provocavam telas pretas no Android (Chromium WebView) devido a suposições focadas apenas em iOS (WebKit).",
     "rule": "Toda solução de UI, biometria, links externos e WebView deve ser comprovadamente funcional em Android (Chromium + Chrome Custom Tabs/Intents) e iOS (WebKit + ASWebAuthenticationSession). Proibido seletividade mono-plataforma.",
-    "antiPattern": ["window.open sem fallback nativo", "Deep link com intent direto sem tratamento Android", "touch-action ausente em botões críticos"],
+    "antiPattern": [
+      "window.open sem fallback nativo",
+      "Deep link com intent direto sem tratamento Android",
+      "touch-action ausente em botões críticos"
+    ],
     "enforcedBy": "scripts/mobile-platform-checker.mjs"
   },
   {
@@ -40,7 +52,11 @@
     "learnedAt": "2026-10-30",
     "context": "Desvios na paleta de cores causavam inconsistência institucional entre o app, materiais de investidores e redes sociais.",
     "rule": "Utilizar estritamente os tokens canônicos: Roxo Escuro #35106E, Roxo Vibrante #6B2AD9, Verde-Limão #C8F135, Verde Oliva #5D7600, Lavanda #F2ECFD e tipografia Inter / Inter Display. Barra bipartida roxo/verde obrigatória em cards.",
-    "antiPattern": ["#8B5CF6", "#10B981", "#7C3AED"],
+    "antiPattern": [
+      "#8B5CF6",
+      "#10B981",
+      "#7C3AED"
+    ],
     "enforcedBy": "scripts/brand-medical-checker.mjs"
   },
   {
@@ -51,7 +67,11 @@
     "learnedAt": "2026-11-06",
     "context": "O uso de siglas financeiras internas como FEFO e take-rate em telas e textos educativos causava estranheza e confusão nos usuários.",
     "rule": "Jargões corporativos internos (ex: FEFO, take-rate, CAC, LTV) nunca devem ser expostos para o usuário final. Usar 'pontos com vencimento mais próximo primeiro' ou 'pontos mais antigos primeiro'.",
-    "antiPattern": ["FEFO", "PEPS", "take-rate do lojista"],
+    "antiPattern": [
+      "FEFO",
+      "PEPS",
+      "take-rate do lojista"
+    ],
     "enforcedBy": "scripts/editorial-content-checker.mjs"
   },
   {
@@ -62,7 +82,11 @@
     "learnedAt": "2026-11-06",
     "context": "Existiam variações confusas como 'Pílula de Sabedoria Fibios' e 'Pílula Netfits', misturando marcas desnecessariamente.",
     "rule": "O takeaway final dos cards deve ser denominado estritamente como 'Pílula de Sabedoria', sem acréscimo de 'Fibios' ou 'Netfits'.",
-    "antiPattern": ["Pílula de Sabedoria Fibios", "Pílula de Sabedoria Netfits", "Pílula Fibios"],
+    "antiPattern": [
+      "Pílula de Sabedoria Fibios",
+      "Pílula de Sabedoria Netfits",
+      "Pílula Fibios"
+    ],
     "enforcedBy": "scripts/editorial-content-checker.mjs"
   },
   {
@@ -73,7 +97,10 @@
     "learnedAt": "2026-11-06",
     "context": "Usuários conseguiam responder quizzes sem abrir o artigo, e a leitura de 0 nfs contava incorretamente para o teto diário de interações.",
     "rule": "O Quiz deve permanecer bloqueado (🔒) até que a leitura ativa (mínimo 10s e rolagem 100%) ou vídeo (90%) seja auditada. A leitura tem 0 nfs e nunca consome o limite diário de interações bonificadas (points > 0).",
-    "antiPattern": ["Quiz aberto sem leitura prévia", "getTodayInteractionsCount contando ações com points === 0"],
+    "antiPattern": [
+      "Quiz aberto sem leitura prévia",
+      "getTodayInteractionsCount contando ações com points === 0"
+    ],
     "enforcedBy": "src/lib/feed-antifraud.ts"
   },
   {
@@ -84,7 +111,10 @@
     "learnedAt": "2026-11-06",
     "context": "A navegação inferior mudou com a entrada do Clube, mas textos antigos ainda mencionavam 'Perfil' na barra inferior, gerando inconsistência.",
     "rule": "A barra de navegação inferior do app Netfits é composta estritamente por 4 abas: Feed (/feed), Shop (/market), Clube (/club) e Carteira (/wallet). O Perfil é acessado exclusivamente pelo avatar superior do cabeçalho.",
-    "antiPattern": ["Aba Perfil na barra inferior", "Omissão da aba Clube no tour guiado"],
+    "antiPattern": [
+      "Aba Perfil na barra inferior",
+      "Omissão da aba Clube no tour guiado"
+    ],
     "enforcedBy": "scripts/editorial-content-checker.mjs"
   },
   {
@@ -95,7 +125,10 @@
     "learnedAt": "2026-10-31",
     "context": "Merges precipitados de staging para main arrastavam protótipos inacabados e mocks de homologação para os usuários reais em produção.",
     "rule": "É expressamente proibido 'git merge staging' direto em main. O deploy exige isolamento cirúrgico de commits (cherry-pick), sanitização de diff (git diff main...HEAD), validação integral e aprovação explícita 'sim' do fundador.",
-    "antiPattern": ["git merge staging", "git push origin main sem confirmação explícita"],
+    "antiPattern": [
+      "git merge staging",
+      "git push origin main sem confirmação explícita"
+    ],
     "enforcedBy": "scripts/promote-to-production.mjs"
   },
   {
@@ -106,7 +139,26 @@
     "learnedAt": "2026-11-05",
     "context": "Divergências pontuais de valores de pontuação do Clube entre telas geravam atrito com os parâmetros acordados no Business Case.",
     "rule": "Os parâmetros oficiais do Clube Netfits são: R$ 19,90/mês, 250 nfs na assinatura e a cada renovação, 20 nfs por treino validado com smartwatch/sensores (Terra API), 20% mais pontos no Shop (4,8 nfs/R$ 1) e 10% de comissão MGM sobre compras de indicados.",
-    "antiPattern": ["R$ 29,90 para Clube", "25 nfs por treino", "300 nfs mensais"],
+    "antiPattern": [
+      "R$ 29,90 para Clube",
+      "25 nfs por treino",
+      "300 nfs mensais"
+    ],
+    "enforcedBy": "scripts/knowledge-learning-agent.mjs"
+  },
+  {
+    "id": "LL-011",
+    "title": "Atomicidade Transacional Distribuída e Proibição de Mutação de Carteira Client-Side",
+    "category": "architecture_ledger",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-07",
+    "context": "Incidentes em produção de usuários cadastrados sem persistência no banco e padrinhos que não receberam bônus MGM (+50 nfs) ocorreram porque o navegador do novo membro tentava mutar o saldo do padrinho em seu localStorage local, e a sincronização com o banco era chamada sem await/keepalive antes de redirecionar a tela.",
+    "rule": "1) Toda bonificação de indicação (MGM) ou de boas-vindas DEVE ser processada de forma atômica no servidor central (/api/users-sync), NUNCA no navegador de outro usuário. 2) O envio de e-mails transacionais com promessa de pontos SÓ PODE ser disparado após confirmação atômica de gravação no banco de dados. 3) Qualquer sincronização de dados de cadastro deve usar await e keepalive: true para não ser cancelada por navegações de tela em dispositivos móveis.",
+    "antiPattern": [
+      "referrer.nfsBalance +=",
+      "referrer.nfsBalance = (referrer.nfsBalance",
+      "fetch(\"/api/users-sync\", { method: \"POST\" }).catch"
+    ],
     "enforcedBy": "scripts/knowledge-learning-agent.mjs"
   }
 ]

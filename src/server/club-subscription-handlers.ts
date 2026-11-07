@@ -1,4 +1,5 @@
 import { serverState } from "./server-state.ts";
+import { realTimeLedgerSentinel } from "./ledger-sentinel.ts";
 
 export interface ClubSubscriptionPayload {
   event: "subscription.created" | "subscription.renewed" | "subscription.past_due" | "subscription.canceled";
@@ -66,16 +67,8 @@ export async function handleClubSubscriptionRoutes(
         user.isClubMember = true;
         user.userCategory = "associado";
 
-        // Registrar evento de auditoria no ledger (amount: 0 — pontuação bloqueada até o Go-Live com gateway e Terra API)
-        serverState.transactions.unshift({
-          id: `tx-club-sub-${Date.now()}`,
-          userId: user.id,
-          userName: user.fullName || "Assinante Clube Netfits",
-          amount: 0,
-          description: `👑 Ativação/Renovação Clube Netfits (${body.planName || "Plano Oficial"}) [Pontuação Retida até Go-Live 14/Nov]`,
-          category: "general",
-          timestamp: requestTimestamp,
-        });
+        // Atribuição oficial e auditada dos 250 nfs pelo Real-Time Ledger Sentinel
+        realTimeLedgerSentinel.attributeClubSubscriptionPoints(user.id, body.planName || "Plano Mensal Oficial");
 
         serverState.touchSync();
 

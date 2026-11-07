@@ -1641,6 +1641,7 @@ class HomologationSandboxStore {
       await fetch("/api/users-sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        keepalive: true,
         body: JSON.stringify(payload),
       });
     } catch (err) {
@@ -2287,31 +2288,9 @@ class HomologationSandboxStore {
       });
     }
 
-    // Se houve indicação válida, creditar o indicador (+50 nfs / normalUserNewReferralBonusNfs)
+    // Se houve indicação válida, registrar vínculo oficial (o crédito atômico e notificação do padrinho são geridos pelo servidor central)
     if (referrer) {
-      const referralBonus = operationalParamsStore.getParams().normalUserNewReferralBonusNfs ?? 50;
-      referrer.nfsBalance += referralBonus;
-      const refTxId = `tx-${Date.now()}-referrer`;
-      this.state.transactions.unshift({
-        id: refTxId,
-        userId: referrer.id,
-        userName: referrer.fullName,
-        amount: referralBonus,
-        description: `Bônus por Indicar Novo Usuário (${newUser.fullName})`,
-        category: "referral",
-        timestamp: new Date().toISOString(),
-      });
-
-      if (referrer.email && referrer.email.includes("@")) {
-        dispatchReferralCompletedEmailSafe(referrer.email, {
-          nomeUsuario: referrer.fullName,
-          nomeAmigoIndicado: newUser.fullName,
-          pontosCreditados: referralBonus,
-          saldoAtual: referrer.nfsBalance,
-          referralCode: referrer.referralCode,
-          referralLink: `https://www.netfits.com.br/cadastro?ref=${referrer.referralCode}`,
-        }).catch((err) => console.warn("[registerAthlete] Falha ao notificar indicação:", err));
-      }
+      console.log(`[registerAthlete] Indicação vinculada: ${newUser.fullName} indicado por ${referrer.fullName} (${referrer.referralCode})`);
     }
 
     this.saveToStorage();

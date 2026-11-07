@@ -103,7 +103,7 @@ function WalletPage() {
           <img
             src={netfitsMark}
             alt=""
-            className="absolute top-4 right-4 w-8 h-8 object-contain rounded-md bg-background/10 p-0.5 opacity-70 pointer-events-none"
+            className="absolute top-4 right-4 size-8 object-contain rounded-full bg-black border border-[#C8F135]/60 p-1 opacity-95 pointer-events-none shadow-sm"
           />
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5 flex items-center justify-between">
             <span>Saldo netfits</span>

@@ -62,7 +62,7 @@ function BadgesPage() {
           <img
             src={netfitsMark}
             alt=""
-            className="w-5 h-5 object-contain rounded bg-foreground p-0.5"
+            className="size-6 object-contain rounded-full bg-black border border-[#C8F135] p-1 shadow-sm"
           />
           <p className="text-[10px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
             Galeria de Conquistas

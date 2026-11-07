@@ -1,5 +1,7 @@
 import { serverState } from "./server-state.ts";
 import { findUserByAnyIdentifier } from "./user-resolver.ts";
+import { realTimeLedgerSentinel } from "./ledger-sentinel.ts";
+import { sendReferralCompletedEmail } from "../lib/emails/email-service.ts";
 import {
   fetchPersistentOrders,
   syncUsersAndTransactionsToCloud,
@@ -69,6 +71,39 @@ export async function handleSyncRoutes(
           : body?.user
           ? [body.user]
           : [];
+
+        // 1. BLINDAGEM DISTRIBUÍDA: Sempre recarrega o estado mais recente da nuvem (Gist)
+        // para evitar trabalhar sobre instâncias frias (cold starts) com memória defasada.
+        try {
+          const freshCloud = await fetchPersistentUsersAndTransactionsFromCloud();
+          if (freshCloud && Array.isArray(freshCloud.users) && freshCloud.users.length > 0) {
+            const baseMap = new Map<string, any>();
+            for (const u of freshCloud.users) {
+              if (u && u.id) baseMap.set(u.id, u);
+            }
+            for (const u of serverState.users) {
+              if (u && u.id && !baseMap.has(u.id)) {
+                baseMap.set(u.id, u);
+              }
+            }
+            serverState.users = Array.from(baseMap.values());
+
+            if (Array.isArray(freshCloud.transactions) && freshCloud.transactions.length > 0) {
+              const baseTxMap = new Map<string, any>();
+              for (const tx of freshCloud.transactions) {
+                if (tx && tx.id) baseTxMap.set(tx.id, tx);
+              }
+              for (const tx of serverState.transactions) {
+                if (tx && tx.id && !baseTxMap.has(tx.id)) {
+                  baseTxMap.set(tx.id, tx);
+                }
+              }
+              serverState.transactions = Array.from(baseTxMap.values());
+            }
+          }
+        } catch (cloudErr) {
+          console.warn("[users-sync] Aviso ao atualizar dados prévios da nuvem:", cloudErr);
+        }
 
         const userMap = new Map<string, any>();
         for (const u of serverState.users) {
@@ -143,10 +178,56 @@ export async function handleSyncRoutes(
           );
         }
 
+        // 2. ATOMICIDADE MGM SERVER-SIDE: Creditar o padrinho no servidor central
+        for (const rawUser of incomingUsers) {
+          if (rawUser && (rawUser.referredBy || rawUser.referralCodeUsed)) {
+            const refCode = String(rawUser.referredBy || rawUser.referralCodeUsed).trim().toUpperCase();
+            const referrer = Array.from(userMap.values()).find(
+              (u: any) => u.referralCode && u.referralCode.trim().toUpperCase() === refCode
+            );
+            if (referrer) {
+              const alreadyCredited = serverState.transactions.some(
+                (t: any) =>
+                  t.userId === referrer.id &&
+                  t.category === "referral" &&
+                  t.description &&
+                  t.description.includes(rawUser.fullName || rawUser.email || rawUser.id)
+              );
+              if (!alreadyCredited) {
+                const referralBonus = 50;
+                referrer.nfsBalance = (referrer.nfsBalance || 0) + referralBonus;
+                userMap.set(referrer.id, referrer);
+                const refTx = {
+                  id: `tx-referral-${Date.now()}-${referrer.id}`,
+                  userId: referrer.id,
+                  userName: referrer.fullName || "Padrinho Netfits",
+                  amount: referralBonus,
+                  description: `Bônus por Indicar Novo Usuário (${rawUser.fullName || "Novo Membro"}) — MGM Oficial`,
+                  category: "referral",
+                  timestamp: new Date().toISOString(),
+                };
+                serverState.transactions.unshift(refTx);
+                console.log(`[MGM Backend] +${referralBonus} nfs creditados para ${referrer.fullName} pela indicação de ${rawUser.fullName}`);
+                if (referrer.email && referrer.email.includes("@")) {
+                  sendReferralCompletedEmail({
+                    to: referrer.email,
+                    nomeUsuario: referrer.fullName,
+                    nomeAmigoIndicado: rawUser.fullName || "Novo Atleta",
+                    pontosCreditados: referralBonus,
+                    saldoAtual: referrer.nfsBalance,
+                    referralCode: referrer.referralCode,
+                    referralLink: `https://www.netfits.com.br/cadastro?ref=${referrer.referralCode}`,
+                  }).catch((emailErr: any) => console.warn("[MGM Email] Aviso ao enviar e-mail de indicação:", emailErr));
+                }
+              }
+            }
+          }
+        }
+
         serverState.users = Array.from(userMap.values());
         serverState.touchSync();
 
-        // Sincroniza imediatamente com a nuvem permanente (Gist Engine) de forma garantida antes da resposta HTTP
+        // 3. PERSISTÊNCIA GARANTIDA NO GIST ANTES DA RESPOSTA HTTP
         try {
           await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
         } catch (err) {
@@ -266,6 +347,24 @@ export async function handleSyncRoutes(
         orders: sanitizedOrders,
         ordersCount: sanitizedOrders.length,
         updatedAt: serverState.lastSyncTimestamp,
+      }),
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  // ==========================================
+  // AGENTE 20: ENDPOINT DO REAL-TIME LEDGER SENTINEL
+  // ==========================================
+  if (url.pathname === "/api/ledger/sentinel-check" || url.pathname === "/api/ledger/sentinel-check/") {
+    const autoHeal = url.searchParams.get("autoHeal") === "true" || req.method === "POST";
+    const auditResult = await realTimeLedgerSentinel.runFullAudit(autoHeal);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        agent: "Real-Time Online Ledger Sentinel & Live Sync Agent (Agente 20)",
+        status: auditResult.isFullyBalanced ? "HEALTHY" : "DISCREPANCY_DETECTED",
+        audit: auditResult,
       }),
       { status: 200, headers: corsHeaders }
     );

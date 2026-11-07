@@ -332,7 +332,7 @@ const htmlContent = `<!DOCTYPE html>
         <div class="brand-tag">Dossiê Arquitetural Completo · Governança AI-Native</div>
         <div class="bipartite-bar"><div class="purple"></div><div class="lime"></div></div>
         <div class="title">Arquitetura Multiagêntica de Governança,<br>Operações Transacionais e Memória Institucional</div>
-        <div class="subtitle">Mapeamento Exaustivo dos 19 Agentes Especializados da Netfits: Board de Gatekeepers com Veto, Motores de Negócio em Runtime e Especialistas de Engenharia</div>
+        <div class="subtitle">Mapeamento Exaustivo dos 20 Agentes Especializados da Netfits: Board de Gatekeepers com Veto, Motores de Negócio em Runtime e Especialistas de Engenharia</div>
         <div class="meta-grid">
           <div class="meta-item"><strong>EMPRESA</strong><span>Netfits Ltda. (CNPJ 68.930.455/0001-40)</span></div>
           <div class="meta-item"><strong>DATA DE VIGÊNCIA</strong><span>Novembro / 2026 (Launch Oficial)</span></div>
@@ -368,7 +368,7 @@ const htmlContent = `<!DOCTYPE html>
           </ul>
         </div>
         <div class="card-lime">
-          <strong style="color: #3F6212; font-size: 8pt; display: block; margin-bottom: 2px;">✅ O Modelo Netfits AI-Native (19 Agentes)</strong>
+          <strong style="color: #3F6212; font-size: 8pt; display: block; margin-bottom: 2px;">✅ O Modelo Netfits AI-Native (20 Agentes)</strong>
           <ul style="font-size: 7.5pt; color: #365314; padding-left: 10px;">
             <li><strong>Maker-Checker-Gatekeeper</strong>: Segregação matemática entre construir e auditar.</li>
             <li><strong>Poder de Veto Absoluto</strong>: 1 único voto contrário bloqueia o deploy na hora.</li>
@@ -380,7 +380,7 @@ const htmlContent = `<!DOCTYPE html>
       </div>
 
       <div class="section-title">
-        <span>2. Visão Geral dos 3 Pilares Estruturais (19 Agentes)</span>
+        <span>2. Visão Geral dos 3 Pilares Estruturais (20 Agentes)</span>
         <span class="section-badge">Macroestrutura</span>
       </div>
 
@@ -427,7 +427,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div class="footer">
       <span>NETFITS TECNOLOGIA LTDA · CNPJ 68.930.455/0001-40 · Alphaville, Santana de Parnaíba/SP</span>
-      <span>Página 1 de 5 · Dossiê dos 19 Agentes</span>
+      <span>Página 1 de 5 · Dossiê dos 20 Agentes</span>
     </div>
   </div>
 
@@ -568,7 +568,7 @@ const htmlContent = `<!DOCTYPE html>
     <div>
       <div class="header" style="padding: 10px 16px; margin-bottom: 10px;">
         <div class="brand-tag">Pilar II · Operações, Transações & Sustentabilidade Atuarial</div>
-        <div class="title" style="font-size: 12.5pt; margin-bottom: 2px;">Os 7 Agentes Transacionais em Runtime</div>
+        <div class="title" style="font-size: 12.5pt; margin-bottom: 2px;">Os 8 Agentes Transacionais e Sentinelas em Runtime</div>
         <div class="subtitle" style="font-size: 8pt;">Sentinelas autônomas em execução no backend, APIs e nuvem mantendo a integridade contábil e de segurança</div>
       </div>
 
@@ -681,6 +681,23 @@ const htmlContent = `<!DOCTYPE html>
         <div class="agent-meta">
           <span><strong>Rotina:</strong> <code>archive_expired_wallet_transactions()</code></span> · 
           <span><strong>Meta de Custo:</strong> &lt; R$ 0,02 de TI por usuário ativo mensal</span>
+        </div>
+      </div>
+      <div class="agent-box lime-border">
+        <div class="agent-header">
+          <div class="agent-name"><span>🛡️ [AGENTE 20]</span> Real-Time Online Ledger Sentinel & Live Sync Agent</div>
+          <div class="agent-badge badge-runtime">SENTINELA ONLINE 24/7</div>
+        </div>
+        <div class="agent-desc">
+          Audita e intercepta toda transação de pontos em tempo real no ato da criação. 
+          <strong>Garante rigorosamente os benefícios do Clube Netfits</strong>: 250 nfs garantidos na adesão e a cada renovação mensal, 
+          20 nfs por treino validado com relógios/sensores (Terra API), multiplicador de 4,8 nfs por R$ 1,00 no Shop (+20% mais pontos) 
+          e 10% de comissão MGM sobre compras de indicados. Audita a integridade de 100% dos saldos e sincroniza o extrato ao vivo no celular do cliente.
+        </div>
+        <div class="agent-meta">
+          <span><strong>Módulo:</strong> <code>src/server/ledger-sentinel.ts</code></span> · 
+          <span><strong>Endpoint Watchdog:</strong> <code>/api/ledger/sentinel-check</code></span> · 
+          <span><strong>Live Sync:</strong> <code>refetchInterval: 5000</code></span>
         </div>
       </div>
     </div>
@@ -853,7 +870,7 @@ const htmlContent = `<!DOCTYPE html>
       <div class="header" style="padding: 10px 16px; margin-bottom: 10px;">
         <div class="brand-tag">Consolidação Estrutural · Métricas & Criação de Valor</div>
         <div class="title" style="font-size: 12.5pt; margin-bottom: 2px;">Telemetria do Board, Eficiência & Moat para Investidores</div>
-        <div class="subtitle" style="font-size: 8pt;">Como a governança de 19 agentes estende o runway em 4,2x e viabiliza margem líquida recorde</div>
+        <div class="subtitle" style="font-size: 8pt;">Como a governança de 20 agentes estende o runway em 4,2x e viabiliza margem líquida recorde</div>
       </div>
 
       <div class="section-title">
@@ -934,10 +951,10 @@ const htmlContent = `<!DOCTYPE html>
           </ul>
         </div>
         <div class="card-lime">
-          <strong style="color: #3F6212; font-size: 8pt; display: block; margin-bottom: 2px;">⚡ Squad Multiagêntico Netfits (19 Agentes)</strong>
+          <strong style="color: #3F6212; font-size: 8pt; display: block; margin-bottom: 2px;">⚡ Squad Multiagêntico Netfits (20 Agentes)</strong>
           <p style="font-size: 7.2pt; color: #365314; margin-bottom: 3px;">Estrutura AI-Native operacional da Netfits:</p>
           <ul style="font-size: 7pt; color: #365314; padding-left: 10px;">
-            <li>19 Agentes Especializados atuando em CI/CD e Runtime</li>
+            <li>20 Agentes Especializados atuando em CI/CD e Runtime</li>
             <li>Auditorias contínuas executadas em &lt; 28 segundos</li>
             <li>Zero fadiga humana, zero esquecimentos e zero alucinações</li>
             <li>Poder de veto individual com tolerância zero a regressões</li>
@@ -972,7 +989,7 @@ const htmlContent = `<!DOCTYPE html>
 
     <div class="footer">
       <span>NETFITS TECNOLOGIA LTDA · CNPJ 68.930.455/0001-40 · Alphaville, Santana de Parnaíba/SP</span>
-      <span>Página 5 de 5 · Dossiê dos 19 Agentes</span>
+      <span>Página 5 de 5 · Dossiê dos 20 Agentes</span>
     </div>
   </div>
 

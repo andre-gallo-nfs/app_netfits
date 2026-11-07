@@ -57,7 +57,7 @@ export function TermsModal({
 
           <h3 className="font-extrabold text-zinc-900 text-sm">4. Validade, Inatividade (360 dias) e Estorno Híbrido</h3>
           <p>
-            Os pontos <b>nfs</b> possuem validade de 24 meses sob o sistema FEFO. Contas sem atividade por mais de 360 dias expiram de pleno direito. Em compras híbridas (pontos + cartão/Pix) canceladas no Marketplace, a devolução é realizada proporcionalmente na carteira e no gateway conforme o Art. 49 do CDC.
+            Os pontos <b>nfs</b> possuem validade de 24 meses. Ao utilizá-los, a Netfits consome sempre os pontos mais antigos primeiro, protegendo a sua pontuação. Contas sem atividade por mais de 360 dias expiram de pleno direito. Em compras híbridas (pontos + cartão/Pix) canceladas no Marketplace, a devolução é realizada proporcionalmente na carteira e no gateway conforme o Art. 49 do CDC.
           </p>
         </div>
 

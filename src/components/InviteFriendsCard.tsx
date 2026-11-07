@@ -102,11 +102,13 @@ export function InviteFriendsCard() {
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand text-brand-foreground text-[10px] font-bold uppercase tracking-widest">
               <Sparkles className="size-3" /> Sua tribo, seu progresso
             </span>
-            <img
-              src={netfitsMark}
-              alt=""
-              className="ml-auto w-9 h-9 object-contain rounded-lg bg-background/10 p-1 opacity-80"
-            />
+            <div className="ml-auto size-9 rounded-full bg-black border-2 border-[#C8F135] p-1.5 flex items-center justify-center shadow-md shrink-0">
+              <img
+                src={netfitsMark}
+                alt="Netfits"
+                className="w-full h-full object-contain"
+              />
+            </div>
           </div>
 
           <h2 className="text-[20px] sm:text-[22px] font-semibold leading-tight text-balance mb-2 break-words">

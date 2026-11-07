@@ -259,7 +259,7 @@ export function AssociadosDashboardPage() {
             </div>
 
             {/* Link Exclusivo Box + Botão QR Code */}
-            <div className="bg-zinc-950/80 border border-purple-500/30 rounded-2xl p-4 min-w-[320px] space-y-3 shadow-xl">
+            <div className="bg-zinc-950/80 border border-purple-500/30 rounded-2xl p-4 min-w-0 w-full space-y-3 shadow-xl">
               <div className="flex justify-between items-center text-[10px] uppercase font-bold text-zinc-400">
                 <span>Seu Link Exclusivo de Indicação</span>
                 <span className="text-lime-400">{associadoSharePct}% da Receita</span>

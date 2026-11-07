@@ -72,6 +72,13 @@ export function runKnowledgeAudit() {
         for (const file of files) {
           const relativePath = path.relative(rootDir, file).replace(/\\/g, "/");
 
+          // Escopo para LL-011: Proibição de Mutação de Carteira Client-Side
+          // Aplica-se a arquivos client-side (src/components/, src/routes/, src/lib/).
+          // No backend (src/server/), o servidor tem a obrigação legítima de creditar o padrinho atomicamente.
+          if (lesson.id === "LL-011") {
+            if (relativePath.startsWith("src/server/")) continue;
+          }
+
           // Escopo cirúrgico para Jargões de UI (LL-005):
           // Aplica-se exclusivamente a textos visíveis para o usuário final no Feed, cards e posts agendados.
           // O backend (server/), administração (admin/) e serviços internos (fefo-service.ts) usam FEFO como termo técnico de engenharia.

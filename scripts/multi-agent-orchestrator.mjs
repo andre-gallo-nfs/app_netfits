@@ -52,6 +52,13 @@ const AGENTS = [
     command: "node scripts/knowledge-learning-agent.mjs --audit"
   },
   {
+    id: "ledger-sentinel",
+    name: "Real-Time Online Ledger Sentinel & Live Sync",
+    icon: "🛡️",
+    description: "Audita integridade contábil ao vivo (saldo == extrato) e parâmetros do Clube Netfits",
+    command: "node scripts/audit_ledger_sentinel.cjs"
+  },
+  {
     id: "typescript-compiler",
     name: "TypeScript Architectural Integrity Gatekeeper",
     icon: "🔬",
@@ -124,7 +131,7 @@ if (hasVeto) {
 
   process.exit(1);
 } else {
-  console.log("\n🏆 GOVERNANÇA TOTAL APROVADA: 6/6 Agentes validaram a integridade do ecossistema!");
+  console.log("\n🏆 GOVERNANÇA TOTAL APROVADA: / Agentes validaram a integridade do ecossistema!");
   console.log("   Plataforma 100% blindada contra regressões técnicas, médicas e de produto.\n");
   console.log("========================================================================");
   process.exit(0);
