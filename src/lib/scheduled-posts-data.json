@@ -87,11 +87,11 @@
         "sceneNumber": 4,
         "startSec": 40,
         "endSec": 50,
-        "title": "Extrato FEFO e Perfil Seguro",
-        "visual": "Transição para Extrato mostrando saldo auditado e validade FEFO de 24 meses; depois Perfil com botão Convidar Amigos (+50 netfits).",
+        "title": "Extrato Transparente e Perfil Seguro",
+        "visual": "Transição para Extrato mostrando saldo auditado e validade de 24 meses (pontos mais antigos primeiro); depois Perfil com botão Convidar Amigos (+50 netfits).",
         "voiceover": "No Extrato, você confere cada ponto com transparência total. E no Perfil, você gerencia seus dados e convida amigos ganhando 50 netfits por indicação.",
         "icon": "ShieldCheck",
-        "tag": "Transparência FEFO",
+        "tag": "Transparência Total",
         "graphicType": "wallet_profile"
       },
       {
@@ -362,7 +362,7 @@
         "icon": "BadgeCheck"
       },
       {
-        "label": "AUDITORIA FEFO",
+        "label": "VALIDADE 24 MESES",
         "icon": "ShieldCheck"
       }
     ],

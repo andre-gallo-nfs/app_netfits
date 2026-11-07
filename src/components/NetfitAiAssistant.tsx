@@ -164,12 +164,12 @@ export function NetfitAiAssistant() {
       {/* Floating Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+4.75rem)] right-4 z-50 bg-gradient-to-tr from-purple-700 to-purple-600 text-white p-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 ring-2 ring-lime-400/80 group cursor-pointer"
+        className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+4.75rem)] right-4 z-50 bg-black text-white p-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border-2 border-[#C8F135] group cursor-pointer"
         aria-label="Abrir assistente virtual Netfit AI"
       >
         <div className="relative">
           <img src={netfitsLogo} alt="Netfits" className="h-6 w-auto object-contain" />
-          <span className="absolute -top-1 -right-1 size-2.5 bg-lime-400 rounded-full ring-2 ring-purple-900 animate-pulse" />
+          <span className="absolute -top-1 -right-1 size-2.5 bg-lime-400 rounded-full ring-2 ring-black animate-pulse" />
         </div>
         <span className="text-xs font-bold tracking-wide pr-1 hidden sm:inline">Netfit AI</span>
       </button>

@@ -212,9 +212,6 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-6 w-auto bg-black rounded-lg px-2 py-0.5 flex items-center justify-center border border-zinc-800 shadow-xs">
-              <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
-            </div>
             <button
               type="button"
               onClick={() => toast.info("Publicação oficial curada pela Fibios")}

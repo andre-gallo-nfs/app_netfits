@@ -170,7 +170,7 @@ function AuthPage() {
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setDuplicateAlert(null);
     setFormError(null);
@@ -310,15 +310,24 @@ function AuthPage() {
       });
       passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
 
-      // Sincronização imediata garantida do novo usuário no servidor de produção
-      fetch("/api/users-sync", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user: res.user }),
-      }).catch((err) => console.warn("[Register Cloud Sync Warning]", err));
+      // Sincronização atômica OBRIGATÓRIA antes de qualquer navegação
+      try {
+        const welcomeTx = sharedSandboxStore.getTransactions().find(t => t.userId === res.user?.id && t.category === "welcome");
+        await fetch("/api/users-sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify({ 
+            user: res.user,
+            transactions: welcomeTx ? [welcomeTx] : []
+          }),
+        });
+      } catch (err) {
+        console.warn("[Register Cloud Sync Warning]", err);
+      }
     }
 
-    // Disparo imediato do E-mail Oficial de Boas-Vindas (+50 nfs) via Resend com dados reais
+    // Disparo do E-mail Oficial de Boas-Vindas (+50 nfs) via Resend APÓS persistência
     const recipientEmail = (res.user?.email || email).trim();
     const recipientName = (res.user?.fullName || fullName).trim();
     dispatchWelcomeEmailSafe(recipientEmail, recipientName, {

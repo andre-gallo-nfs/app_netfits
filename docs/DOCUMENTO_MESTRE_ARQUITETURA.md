@@ -17,7 +17,7 @@ flowchart TD
     subgraph ClientLayer["Camada de Apresentação (Client & Edge)"]
         WebClient["Web Browser / PWA (React 19 + TanStack Router)"]
         MobileApp["Mobile Nativo (Capacitor: Android & iOS)"]
-        EdgeSSR["Cloudflare Pages / Vercel Serverless (Nitro Engine)"]
+        EdgeSSR["Cloudflare Workers / Cloudflare Pages (Nitro Engine)"]
     end
 
     subgraph AppLayer["Camada de Aplicação & Estado"]
@@ -332,3 +332,70 @@ O módulo `src/lib/marketplace-api-hub.ts` implementa o protocolo de conexão se
 2. **Imutabilidade Contábil (Ledger Pattern)**: Nenhum registro da tabela `wallet_transactions` é alterado ou excluído. Estornos e correções são efetuados exclusivamente via lançamentos de contrapartida.
 3. **FinOps Database Tiering**: As transações ativas dos últimos 24 meses residem no banco quente (PostgreSQL). Mensalmente, a rotina `archive_expired_wallet_transactions()` migra registros históricos para armazenamento frio comprimido (Cloudflare R2), reduzindo custos de IOPS e RAM em 61,5%.
 4. **Isolamento Físico de Ambientes**: Staging e Produção possuem bancos de dados, chaves Supabase e credenciais de webhook 100% segregadas, prevenindo contaminação de dados de teste na esteira de produção.
+
+---
+
+## 7. ARQUITETURA MULTIAGÊNTICA DE GOVERNANÇA, MEMÓRIA INSTITUCIONAL E PIPELINE MAKER-CHECKER-GATEKEEPER
+
+A Netfits opera sob uma disciplina rigorosa de engenharia **AI-Native**, onde nenhuma linha de código, componente visual, regra de negócio ou conteúdo do feed atinge homologação ou produção sem a validação unânime de um conselho multiagêntico com poderes de veto individuais.
+
+### 7.1. Modelo Maker-Checker-Gatekeeper com Poder de Veto
+
+O modelo estabelece segregação estrita de funções:
+1. **Maker (Agentes de Implementação / Engenharia)**: Desenvolvem funcionalidades, ajustam rotas, criam testes e refinam layouts.
+2. **Checker (Agentes de Verificação & Validação Local)**: Testam cobertura, avaliam linters, tipos estritos e padrões de código.
+3. **Gatekeeper (Agentes Guardiões de Fronteira)**: Guardiões institucionais com poder de **VETO ABSOLUTO**. Se um único gatekeeper reprovar o build, a esteira é bloqueada instantaneamente.
+
+```mermaid
+flowchart TD
+    subgraph DevPipeline["1. Pipeline de Engenharia & Criação (Maker)"]
+        Eng["Engenharia & Squad de IA"] --> CodeCommit["Código / Rotas / Telas / Feed"]
+    end
+
+    subgraph GovernanceBoard["2. Multi-Agent Governance Board (Gatekeepers com Veto)"]
+        CodeCommit --> G1["🚀 Release & Routing Gatekeeper"]
+        CodeCommit --> G2["🩺 Brand, KV & CFM Compliance Gatekeeper"]
+        CodeCommit --> G3["📝 Editorial & Content Quality Gatekeeper"]
+        CodeCommit --> G4["📱 Mobile Cross-Platform & Runtime Gatekeeper"]
+        CodeCommit --> G5["🧠 Continuous Learning & Institutional Brain"]
+        CodeCommit --> G6["🔬 TypeScript Architectural Integrity Gatekeeper"]
+        CodeCommit --> G7["🏛️ Event Oracle & Ledger Gatekeeper"]
+        CodeCommit --> G8["⚡ Circuit Breaker Agent"]
+    end
+
+    subgraph DecisionNode["3. Decisão de Governança Unânime"]
+        G1 & G2 & G3 & G4 & G5 & G6 & G7 & G8 --> Consensus{"Veto Detectado?"}
+        Consensus -- "SIM (>= 1 Veto)" --> VetoBlock["🛑 ABORTE IMEDIATO & ROLLBACK<br/>Relatório detalhado da não-conformidade"]
+        Consensus -- "NÃO (6/6 Aprovados)" --> DeployGate["✅ PROTOCOLO CIRÚRGICO DE DEPLOY"]
+    end
+
+    subgraph ProductionDeploy["4. Deploy Seguro"]
+        DeployGate --> Confirmation["Confirmação Explícita do Fundador"]
+        Confirmation --> CloudflareEdge["Cloudflare Workers Edge (www.netfits.com.br)"]
+    end
+```
+
+### 7.2. O Conselho de Agentes Guardiões
+
+| Agente Guardião | Escopo & Responsabilidade | Gatilho / Auditoria | Critério de Veto |
+| :--- | :--- | :--- | :--- |
+| **🚀 Release & Routing Gatekeeper** | Integridade estrutural de rotas, eliminação de Vercel e validação de SSR | `scripts/validate-routes.cjs` | Rota órfã, rota quebrada ou dependência Vercel |
+| **🩺 Brand, KV & CFM Compliance** | Conformidade legal CFM (Dra. Isabella e Dr. Franco) e Design Tokens do Manifesto 3.0 | `scripts/brand-medical-checker.mjs` | Especialidade médica indevida ou cores fora da paleta oficial |
+| **📝 Editorial & Content Quality** | Quizzes com gabarito correto, travas de leitura e ausência de jargões contábeis no feed | `scripts/editorial-content-checker.mjs` | Quiz sem resposta correta, post sem trava ou jargão técnico em tela |
+| **📱 Mobile Cross-Platform & Runtime** | Paridade estrita Android (Chromium/Intents) e iOS (WebKit), mitigação de tela preta | `scripts/mobile-platform-checker.mjs` | Suposições mono-plataforma, deep-links cego ou falha de WebView |
+| **🧠 Continuous Learning & Memory** | Salvaguarda contra regressões de decisões passadas e auditoria contra a base viva | `scripts/knowledge-learning-agent.mjs` | Violação de qualquer uma das lições catalogadas (LL-001 a LL-010+) |
+| **🔬 TypeScript Architectural** | Verificação estrita de tipagem e integridade dos contratos de dados | `npx tsc --noEmit` | Qualquer erro de tipagem no ecossistema |
+| **🏛️ Event Oracle & Ledger** | Verificação de partidas dobradas e prova criptográfica de eventos | Webhooks HMAC / Terra API | Emissão de pontos sem prova de sensor ou compra confirmada |
+| **⚡ Circuit Breaker** | Desarme de emergência em picos anômalos de emissão de moeda `nfs` | Monitor em tempo real de emissões | Picos superiores a 3x a média horária esperada |
+
+### 7.3. O Cérebro Institucional & Memória Contínua (Continuous Learning Engine)
+
+Diferente de sistemas que sofrem de "amnésia institucional" à medida que times mudam e o código evolui, a Netfits possui um repositório canônico versionado em código:
+- **Base Estruturada**: `src/lib/knowledge/LESSONS_LEARNED.json`
+- **Documentação Executiva**: `src/lib/knowledge/LESSONS_LEARNED.md`
+
+#### O Loop de Aprendizado Ativo:
+1. **Identificação**: Sempre que um bug é corrigido, uma nova diretriz médica é estipulada ou uma regra de negócio é refinada pelo fundador, o comando `/learn` ou o script `npm run learn:record` é executado.
+2. **Indexação**: A lição ganha um código canônico (ex.: `LL-011`), severidade (BLOCKER/CRITICAL), padrões proibidos (regex/AST) e descrição do porquê.
+3. **Imunização Permanente**: A partir deste milissegundo, o `knowledge-learning-agent` executa verificações automáticas em todo o código. Nenhuma regressão jamais passa despercebida.
+4. **Execução Pré-Build**: O comando `npm run agents:audit` executa todo o conselho sincronizado em menos de 30 segundos, gerando um dashboard executivo consolidado.

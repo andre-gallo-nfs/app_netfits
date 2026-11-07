@@ -19,6 +19,7 @@ export function useWalletData(userId?: string) {
 
   return useQuery<UserWalletData>({
     queryKey: ["walletData", targetUserId],
+    refetchInterval: 5000,
     queryFn: async () => {
       // 1. Tentar buscar da API remota /loyalty/wallet
       try {

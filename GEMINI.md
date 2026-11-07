@@ -5,18 +5,37 @@
 
 ---
 
-## 1. 📜 MANIFESTO DE CULTURA E IDENTIDADE (VERSÃO 2.0)
-* **Arquivo Oficial**: `01_Estrategia_e_Negocios/Manifesto_Netfits_v2_0.docx`
+## 1. 📜 MANIFESTO DE CULTURA E IDENTIDADE (VERSÃO 3.0)
+* **Arquivos Oficiais**: `01_Estrategia_e_Negocios/Manifesto_Netfits_v3_0.docx` e `Manifesto_Netfits_v3_0.pdf` *(Vigência: Novembro de 2026)*
 * **Tese Central**: *"A vida em movimento vale mais."*
-* **Proposta de Valor**: Uma plataforma de benefícios, inteligência e relações para quem escolhe viver de forma ativa — hoje e ao longo da vida.
-* **Público**: Esportista e praticante amador de atividades físicas (corrida, ciclismo, musculação, natação, cross training, tênis, triathlon, esportes outdoor).
-* **Foco Inicial**: O ponto de partida **não** é medicina intervencionista, clínica, exames ou prescrição de diagnósticos. O ponto de partida é o engajamento: o usuário pratica esporte, consome conteúdo de qualidade, compartilha, compra em parceiros e ganha pontos `nfs`. A medicina do estilo de vida e longevidade (Fibios) entra como curadoria educacional e protocolo preventivo.
+* **Posicionamento Institucional**: *"Uma plataforma AI-first de promoção à saúde, bem-estar e longevidade que transforma conhecimento, movimento e engajamento em hábitos sustentáveis de vida."*
+* **O Destino Supremo**: **Longevidade Ativa & Healthspan** — Viver mais tempo com autonomia funcional, energia biológica, lucidez e qualidade de vida ao longo de décadas.
+* **Os 2 Motores Centrais de Engajamento**:
+  1. **Aprender (Curadoria Médica Fibios)**: Feed educativo com foco em medicina do estilo de vida, sono regenerador, nutrição e quizzes pedagógicos de fixação.
+  2. **Movimentar-se (Ação & Constância)**: Conexão via **Terra API** com Apple Watch, Garmin e Strava (*Sweat-and-Earn* sem culto à exaustão).
+* **Papel do Active Loyalty (`nfs`)**: O loyalty não é o fim da plataforma; é a **ferramenta comportamental definitiva** para tornar a constância diária atraente e recompensar o esforço de curto prazo, colhendo saúde biológica no longo prazo.
+* **Paleta Oficial de Design Tokens (Key Visual — KV)**:
+  * **Roxo Escuro Institucional**: `#35106E`
+  * **Roxo Vibrante de Destaque**: `#6B2AD9`
+  * **Verde-Limão Movimento / Vitalidade**: `#C8F135`
+  * **Verde Oliva Institucional (Símbolo do Infinito / Logo)**: `#5D7600`
+  * **Lavanda Sutil (Fundos e Cards Institucionais)**: `#F2ECFD`
+  * **Cinza Claro Neutro**: `#F5F5F7`
+  * **Grafite Quase Preto (Texto)**: `#202127`
+* **Guia de Presença Digital & Redes Sociais**: `Kit_Marketing_Redes_Sociais_Luisa/01_Guias_Estrategicos/Guia_Presenca_Digital_e_Redes_Sociais_Netfits.docx` (100% alinhado ao Manifesto 3.0 e tipografia *Inter / Inter Display*).
+* **Padrão Canônico de Postagens (Identidade Visual Forte)**: `06_Design_Identidade_e_Midia/PADRAO_OFICIAL_POSTAGENS_FEED_E_REDES_NETFITS.md` *(Regra Mandatória: Sempre usar o logo verde oficial no fundo preto com a barra bipartida institucional Roxo `#6B2AD9` + Verde-Limão `#C8F135` e banner fotográfico real em 100% das peças e cards do feed).*
 
 ---
 
-## 2. 📊 PLANILHA DE CONTROLE MESTRA: `Business Case - v5 - atualizando o fluxo de caixa livre.xlsx`
-* **Localização Oficial**: `02_Financas_e_Business_Case/Business Case - v5 - atualizando o fluxo de caixa livre.xlsx`
-Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM respeitar com rigor absoluto as premissas da planilha **`Business Case - v5`**:
+## 2. 📊 PLANILHAS DE CONTROLE FINANCEIRO & BUSINESS CASE (SEGREGAÇÃO DE ESCOPO)
+* **Para o Deck de Investidores & Rodada de Captação (EXCLUSIVO)**:
+  * **Arquivo Oficial**: `02_Financas_e_Business_Case/Business Case - v5 - atualizando o fluxo de caixa livre.xlsx`
+  * **Aplicação**: Todas as métricas, Unit Economics (LTV/CAC), DRE proforma, captação Seed/Series A, curvas de GMV e valuation destinadas a investidores DEVEM ser extraídas **exclusivamente do Business Case v5**.
+* **Para a Gestão Operacional Interna & Disciplina de Caixa (Plano B)**:
+  * **Arquivo Oficial**: `02_Financas_e_Business_Case/Business Case - v7 - plano B sem investimentos.xlsx` *(Atualização: 30/10/2026)*
+  * **Aplicação**: Monitoramento de fluxo de caixa livre (FCL) em cenário orgânico sem investimento externo imediato.
+
+Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM respeitar os parâmetros operacionais pactuados:
 
 | Premissa / Parâmetro Operacional | Valor Oficial de Referência |
 | :--- | :--- |
@@ -34,17 +53,18 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 | **Custo por Ponto (CPP) — Provisionamento** | **R$ 0,010** por ponto |
 | **Validade dos Pontos (FEFO)** | **24 meses** (taxa média de expiração projetada de 5%) |
 | **Assinatura do Clube Netfits** | **R$ 19,90 / mês** |
-| **Pontos do Clube Netfits** | **250 nfs na assinatura e a cada mensalidade + 25 nfs por treino validado** |
+| **Pontos do Clube Netfits** | **250 nfs na assinatura e a cada mensalidade + 20 nfs por treino validado** |
 | **Bônus de Compras no Shop (Clube)** | **20% mais pontos a cada compra** (4,8 nfs / R$ 1,00) |
 | **Comissão MGM de Compras (Clube)** | **10% dos pontos ganhos nas compras no shop de todos os seus indicados** |
 | **Público-Alvo Primário Brasil** | **30,7 milhões** de praticantes de renda média/alta |
+| **Middleware Oficial de Wearables** | **Terra API** (Dossiê oficial de homologação técnica de 26/10/2026) |
 
 ---
 
 ## 3. 💼 PLANO DE NEGÓCIOS (BUSINESS PLAN GALLO V2)
 * **Arquivo Oficial**: `01_Estrategia_e_Negocios/Business Plan Netfits - v2 Gallo.docx`
 1. **Lançamento Oficial (14 de Novembro de 2026)**:
-   * **Ecossistema Unificado no Lançamento**: Feed de conteúdo com gamificação de Quizzes (5 nfs/10 nfs), Marketplace curado (Rock Encantech / 4 nfs por R$ 1) e **Clube Netfits** com assinatura mensal de R$ 19,90/mês (250 nfs garantidos/mês + 25 nfs por treino validado com relógio/sensores via Terra API + 20% mais pontos no Shop + 10% de bônus por compras de indicados).
+   * **Ecossistema Unificado no Lançamento**: Feed de conteúdo com gamificação de Quizzes (5 nfs/10 nfs), Marketplace curado (Rock Encantech / 4 nfs por R$ 1) e **Clube Netfits** com assinatura mensal de R$ 19,90/mês (250 nfs garantidos/mês + 20 nfs por treino validado com relógio/sensores via Terra API + 20% mais pontos no Shop + 10% de bônus por compras de indicados).
    * **Expansão de Serviços**: Integração com assessorias esportivas credenciadas, academias e consultas especializadas da rede parceira.
    * **Ecossistema Integrado de Longevidade**: Parcerias corporativas B2B e marketplace ampliado de serviços de saúde preventiva e medicina do estilo de vida (Fibios).
 2. **Exclusividade Cloudflare**:
@@ -80,3 +100,48 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
      - Solicitar validação explícita do usuário: *"Por favor, confirme se são EXCLUSIVAMENTE estas alterações que devem subir para produção."*
   6. **Execução Apenas Após o 'Sim' Explícito**:
      - O deploy (merge/push para `main` e `wrangler deploy`) só poderá ser disparado após o usuário responder positivamente àquela listagem exata. Qualquer item não aprovado deve ser retido antes da publicação.
+
+---
+
+## 6. 🛡️ GOVERNANÇA MULTIAGÊNTICA: MODELO MAKER-CHECKER-GATEKEEPER COM PODER DE VETO
+Para eliminar incidentes de subidas indevidas, inconsistências de Key Visual (KV), infrações médicas e geração indevida de pontuação, todo fluxo de trabalho automatizado da Netfits é estritamente regido pela tríade de segregação de funções:
+
+1. **Release Gatekeeper Agent (Bloqueador de Deploy)**:
+   * Isola branches de desenvolvimento;
+   * Audita diffs contra o escopo autorizado antes de qualquer merge para `main`;
+   * Veta e bloqueia deploys automáticos para Cloudflare caso detecte qualquer alteração não homologada.
+2. **Brand, KV & Medical Compliance Gatekeeper Agent (Inspetor Visual & Regulatório)**:
+   * Possui **poder de veto absoluto** sobre publicações no feed, redes sociais e componentes de UI;
+   * Audita conformidade estrita com os Design Tokens do Manifesto 3.0 e Guia de Presença Digital (cores `#35106E`, `#6B2AD9`, `#C8F135`, `#5D7600`, tipografia *Inter* e contraste WCAG);
+   * Veta qualquer conteúdo que desrespeite a assinatura oficial médica dos sócios da Fibios (CFM).
+3. **Event Oracle & Ledger Gatekeeper Agent (Guardião do Balde de Pontos e Partidas Dobradas)**:
+   * Proíbe a geração (*minting*) de pontos sem a respectiva prova de evento irrefutável;
+   * Valida webhooks da Rock Encantech via HMAC-SHA256 e telemetria de sensores via Terra API;
+   * Garante a conciliação contábil por partidas dobradas em total conformidade com o `Business Case - v7`.
+4. **Circuit Breaker Agent (Disjuntor de Segurança)**:
+   * Monitora a taxa de emissão de `nfs` em tempo real e desarma imediatamente a atribuição de pontos se identificar picos atípicos ou anomalias operacionais, notificando o fundador em canal prioritário.
+
+5. **Mobile Cross-Platform & Runtime Gatekeeper Agent (Guardião da Paridade Android & iOS)**:
+   * Possui **poder de veto absoluto** sobre qualquer componente, fluxo de autenticação, navegação externa ou casca nativa (Capacitor/WebView);
+   * **Proíbe expressamente premissas mono-plataforma**: Toda solução de interface, biometria ou integração externa DEVE ser concebida, testada e comprovadamente funcional tanto em **Android (Chromium WebView & Intents do Sistema / Chrome)** quanto em **iOS (WebKit WKWebView & Mobile Safari)**;
+   * Veta e bloqueia deploys se qualquer chamada ou link externo provocar telas pretas, bloqueios de segurança por bot-shields (Cloudflare/Turnstile) ou seletividade de dispositivo;
+   * Executa obrigatoriamente a auditoria automatizada `node scripts/mobile-platform-checker.mjs` em 100% das execuções de `npm run validate` e `npm run build:prod`.
+
+6. **Continuous Learning & Institutional Memory Gatekeeper Agent (Guardião da Memória Viva & Anti-Regressão)**:
+   * Possui **poder de veto absoluto** contra qualquer regressão de decisões de arquitetura, negócio, posicionamento, produto ou experiência de usuário já catalogadas;
+   * Base de conhecimento canônica mantida e versionada em `src/lib/knowledge/LESSONS_LEARNED.json` e documentada em `src/lib/knowledge/LESSONS_LEARNED.md`;
+   * Executa a auditoria heurística automatizada `node scripts/knowledge-learning-agent.mjs --audit` como pré-requisito mandatório de validação (`npm run validate`, `npm run agents:audit` e `npm run build:prod`);
+   * Permite evolução contínua da inteligência institucional: novos aprendizados são persistidos utilizando a ferramenta de aprendizado ou o comando `/learn` para que nenhum erro passado seja repetido.
+
+7. **Multi-Agent Governance Board & Orchestration Pipeline**:
+   * O pipeline `npm run agents:audit` (`scripts/multi-agent-orchestrator.mjs`) orquestra sincronizadamente todos os agentes de governança antes de qualquer liberação para homologação ou produção;
+   * Segregação de papéis estrita: cada agente atua com total independência e poder de veto imediato sobre o build.
+
+8. **Distributed Transactional Atomicity & Cloud Ledger Gatekeeper (Guardião da Atomicidade & Anti-Ghost — LL-011)**:
+   * Possui **poder de veto absoluto** contra qualquer mutação de carteira de terceiros no client-side (`referrer.nfsBalance +=`);
+   * Exige transações atômicas no servidor central (`POST /api/users-sync`) para bonificações de indicação (MGM) e cadastro;
+   * Proíbe terminantemente o disparo de e-mails transacionais comemorativos de pontos antes da confirmação de gravação no banco de dados;
+   * Exige `await` e `keepalive: true` em requisições de sincronização que antecedem navegações de tela, blindando contra cancelamento no mobile;
+   * Enforçado ativamente por `scripts/knowledge-learning-agent.mjs` com score mandatório 100/100.
+
+

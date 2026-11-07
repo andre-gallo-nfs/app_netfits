@@ -162,6 +162,7 @@ interface ScheduledFeedCardProps {
 }
 
 export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFeedCardProps) {
+  const isNetfitsAuthor = post.authorAvatar === "netfits" || post.author.toLowerCase().includes("netfits");
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -378,9 +379,17 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           <div className="flex items-center gap-3">
             <div
               onClick={handleOpenContent}
-              className="size-11 rounded-full ring-2 ring-[#6B2AD9]/30 flex items-center justify-center cursor-pointer hover:ring-[#6B2AD9] transition-all bg-card overflow-hidden shadow-sm shrink-0"
+              className={`size-11 rounded-full flex items-center justify-center cursor-pointer shadow-md shrink-0 transition-all ${
+                isNetfitsAuthor
+                  ? "bg-black border-2 border-[#C8F135] p-2 hover:scale-105"
+                  : "ring-2 ring-[#6B2AD9]/30 hover:ring-[#6B2AD9] bg-card overflow-hidden"
+              }`}
             >
-              <img src={getAvatarSrc()} alt={post.author} className="w-full h-full object-cover" />
+              <img
+                src={getAvatarSrc()}
+                alt={post.author}
+                className={isNetfitsAuthor ? "w-full h-full object-contain" : "w-full h-full object-cover"}
+              />
             </div>
             <div className="cursor-pointer" onClick={handleOpenContent}>
               <div className="flex items-center gap-2">
@@ -401,9 +410,6 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="h-6 w-auto bg-black rounded-lg px-2 py-0.5 flex items-center justify-center border border-zinc-800 shadow-xs">
-              <img src={netfitsLogoDark} alt="Netfits" className="h-3.5 w-auto object-contain" />
-            </div>
             <button
               type="button"
               onClick={() => toast.info(`Publicação oficial curada pela Fibios & Netfits`)}
