@@ -160,5 +160,20 @@
       "fetch(\"/api/users-sync\", { method: \"POST\" }).catch"
     ],
     "enforcedBy": "scripts/knowledge-learning-agent.mjs"
+  },
+  {
+    "id": "LL-012",
+    "title": "Proteção Absoluta da Base de Usuários Reais em Go Live Mode",
+    "category": "data_integrity",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-08",
+    "context": "Estamos em Go Live Mode com usuários reais ativos (fundadores, médicos sócios da Fibios, familiares, atletas pioneiros e avaliadores). Qualquer script de migração, seed parcial ou rotina de sync que utilize listas estáticas incompletas (ex: mock-seed-data) para sobrescrever ou omitir usuários reais é inaceitável e proibido.",
+    "rule": "1) Todo usuário cadastrado no banco de produção é um usuário real de carne e osso, devendo permanecer no Cloudflare D1 (netfits-db) com integridade máxima. 2) Proibição estrita de scripts que realizem DROP TABLE users, TRUNCATE, DELETE indiscriminado ou INSERT OR REPLACE a partir de sementes estáticas parciais. 3) Toda migração deve ser estritamente cumulativa (UPSERT) e preservar o histórico contábil do ledger. 4) A contagem de usuários reais no banco deve ser estritamente não-decrescente.",
+    "antiPattern": [
+      "DROP TABLE users",
+      "DELETE FROM users;",
+      "TRUNCATE TABLE users"
+    ],
+    "enforcedBy": "scripts/knowledge-learning-agent.mjs"
   }
 ]

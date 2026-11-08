@@ -108,25 +108,33 @@ export async function handleSyncRoutes(
           ? [body.user]
           : [];
 
-        // 1. BLINDAGEM DISTRIBUÍDA: Sempre recarrega o estado mais recente da nuvem (Gist)
-        // para evitar trabalhar sobre instâncias frias (cold starts) com memória defasada.
-        try {
-          const freshCloud = await fetchPersistentUsersAndTransactionsFromCloud();
-          if (freshCloud && Array.isArray(freshCloud.users) && freshCloud.users.length > 0) {
-            const baseMap = new Map<string, any>();
-            for (const u of freshCloud.users) {
-              if (u && u.id) baseMap.set(u.id, u);
-            }
-            for (const u of serverState.users) {
-              if (u && u.id && !baseMap.has(u.id)) {
-                baseMap.set(u.id, u);
+        // 1. BLINDAGEM DISTRIBUÍDA (D1 FIRST): Recarrega o estado soberano do Cloudflare D1
+        let d1Preloaded = false;
+        if (d1Service.isAvailable()) {
+          try {
+            const d1Users = await d1Service.getAllUsers();
+            if (d1Users && d1Users.length > 0) {
+              const baseMap = new Map<string, any>();
+              for (const u of d1Users) {
+                let meta: any = {};
+                if (u.metadata) {
+                  try { meta = typeof u.metadata === "string" ? JSON.parse(u.metadata) : u.metadata; } catch {}
+                }
+                baseMap.set(u.id, { ...u, ...meta });
               }
+              for (const u of serverState.users) {
+                if (u && u.id && !baseMap.has(u.id)) {
+                  baseMap.set(u.id, u);
+                }
+              }
+              serverState.users = Array.from(baseMap.values());
+              d1Preloaded = true;
             }
-            serverState.users = Array.from(baseMap.values());
 
-            if (Array.isArray(freshCloud.transactions) && freshCloud.transactions.length > 0) {
+            const d1Txs = await d1Service.getAllTransactions(500);
+            if (d1Txs && d1Txs.length > 0) {
               const baseTxMap = new Map<string, any>();
-              for (const tx of freshCloud.transactions) {
+              for (const tx of d1Txs) {
                 if (tx && tx.id) baseTxMap.set(tx.id, tx);
               }
               for (const tx of serverState.transactions) {
@@ -136,9 +144,43 @@ export async function handleSyncRoutes(
               }
               serverState.transactions = Array.from(baseTxMap.values());
             }
+          } catch (d1Err) {
+            console.warn("[users-sync] D1 pre-hydration warning:", d1Err);
           }
-        } catch (cloudErr) {
-          console.warn("[users-sync] Aviso ao atualizar dados prévios da nuvem:", cloudErr);
+        }
+
+        // Fallback para Gist caso D1 esteja indisponível
+        if (!d1Preloaded) {
+          try {
+            const freshCloud = await fetchPersistentUsersAndTransactionsFromCloud();
+            if (freshCloud && Array.isArray(freshCloud.users) && freshCloud.users.length > 0) {
+              const baseMap = new Map<string, any>();
+              for (const u of freshCloud.users) {
+                if (u && u.id) baseMap.set(u.id, u);
+              }
+              for (const u of serverState.users) {
+                if (u && u.id && !baseMap.has(u.id)) {
+                  baseMap.set(u.id, u);
+                }
+              }
+              serverState.users = Array.from(baseMap.values());
+
+              if (Array.isArray(freshCloud.transactions) && freshCloud.transactions.length > 0) {
+                const baseTxMap = new Map<string, any>();
+                for (const tx of freshCloud.transactions) {
+                  if (tx && tx.id) baseTxMap.set(tx.id, tx);
+                }
+                for (const tx of serverState.transactions) {
+                  if (tx && tx.id && !baseTxMap.has(tx.id)) {
+                    baseTxMap.set(tx.id, tx);
+                  }
+                }
+                serverState.transactions = Array.from(baseTxMap.values());
+              }
+            }
+          } catch (cloudErr) {
+            console.warn("[users-sync] Aviso ao atualizar dados prévios da nuvem:", cloudErr);
+          }
         }
 
         const userMap = new Map<string, any>();
@@ -263,7 +305,21 @@ export async function handleSyncRoutes(
         serverState.users = Array.from(userMap.values());
         serverState.touchSync();
 
-        // 3. PERSISTÊNCIA GARANTIDA NO GIST ANTES DA RESPOSTA HTTP
+        // 3. PERSISTÊNCIA RELACIONAL CLOUDFLARE D1 (SERVER-AUTHORITATIVE SOBERANA)
+        if (d1Service.isAvailable()) {
+          try {
+            for (const u of serverState.users) {
+              await d1Service.upsertUser(u);
+            }
+            for (const tx of incomingTxs) {
+              await d1Service.insertTransaction(tx);
+            }
+          } catch (d1WriteErr) {
+            console.warn("[users-sync] D1 write warning:", d1WriteErr);
+          }
+        }
+
+        // 4. PERSISTÊNCIA SECUNDÁRIA NO GIST (BACKUP ASSÍNCRONO / DR)
         try {
           await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
         } catch (err) {
@@ -289,49 +345,107 @@ export async function handleSyncRoutes(
       }
     }
 
-    // GET: Retornar todos os usuários, extrato de transações e pedidos reais sincronizados na nuvem permanente
+    // GET: Retornar todos os usuários, extrato de transações e pedidos reais
+    // PRIORIDADE ABSOLUTA: Cloudflare D1 Relacional (netfits-db)
+    let d1Loaded = false;
     let persistentOrders: any[] = [];
-    try {
-      const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
-      if (cloudData && Array.isArray(cloudData.users) && cloudData.users.length > 0) {
-        const mergedUserMap = new Map<string, any>();
-        // Preserva integralmente os usuários pre-semeados e em memória
-        for (const u of serverState.users) {
-          if (u && u.id) mergedUserMap.set(u.id, u);
-        }
-        // Mescla usuários da nuvem sem jamais expurgar usuários existentes
-        for (const cu of cloudData.users) {
-          if (cu && cu.id) {
-            const existing = mergedUserMap.get(cu.id);
-            mergedUserMap.set(cu.id, existing ? { ...existing, ...cu } : cu);
-          }
-        }
-        serverState.users = Array.from(mergedUserMap.values());
 
-        if (cloudData.transactions && cloudData.transactions.length > 0) {
-          const txMap = new Map<string, any>();
-          for (const tx of serverState.transactions) {
-            if (tx && tx.id) txMap.set(tx.id, tx);
+    if (d1Service.isAvailable()) {
+      try {
+        const d1Users = await d1Service.getAllUsers();
+        const d1Txs = await d1Service.getAllTransactions(500);
+        if (d1Users && d1Users.length > 0) {
+          const formattedUsers = d1Users.map((du: any) => {
+            let meta: any = {};
+            if (du.metadata) {
+              try { meta = typeof du.metadata === "string" ? JSON.parse(du.metadata) : du.metadata; } catch {}
+            }
+            return {
+              id: du.id,
+              email: du.email,
+              cpf: du.cpf,
+              fullName: du.fullName,
+              phone: du.phone,
+              nfsBalance: Number(du.nfsBalance || 0),
+              clubStatus: du.clubStatus,
+              clubPlanId: du.clubPlanId,
+              clubSubscriptionId: du.clubSubscriptionId,
+              referralCode: du.referralCode,
+              referredBy: du.referredBy,
+              address: du.address,
+              zipcode: du.zipcode,
+              street: du.street,
+              number: du.number,
+              neighborhood: du.neighborhood,
+              city: du.city,
+              state: du.state,
+              createdAt: du.createdAt,
+              updatedAt: du.updatedAt,
+              ...meta,
+            };
+          });
+
+          serverState.users = formattedUsers;
+          if (d1Txs && d1Txs.length > 0) {
+            serverState.transactions = d1Txs;
           }
-          for (const ctx of cloudData.transactions) {
-            if (ctx && ctx.id) txMap.set(ctx.id, ctx);
-          }
-          serverState.transactions = Array.from(txMap.values()).sort(
-            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
+          d1Loaded = true;
+          serverState.lastSyncTimestamp = new Date().toISOString();
         }
-        if (cloudData.updatedAt) {
-          serverState.lastSyncTimestamp = cloudData.updatedAt;
+
+        const d1Orders = await d1Service.getAllOrders(200);
+        if (d1Orders && d1Orders.length > 0) {
+          persistentOrders = d1Orders;
         }
+      } catch (d1GetErr) {
+        console.warn("[GET users-sync] D1 query warning:", d1GetErr);
       }
-    } catch (err) {
-      console.warn("[GET users-sync] Cloud hydration warning:", err);
     }
 
-    try {
-      persistentOrders = await fetchPersistentOrders();
-    } catch (err) {
-      console.warn("[GET users-sync] Orders hydration warning:", err);
+    // FALLBACK SECUNDÁRIO: Se D1 não estiver ativo, carrega do Gist
+    if (!d1Loaded) {
+      try {
+        const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
+        if (cloudData && Array.isArray(cloudData.users) && cloudData.users.length > 0) {
+          const mergedUserMap = new Map<string, any>();
+          for (const u of serverState.users) {
+            if (u && u.id) mergedUserMap.set(u.id, u);
+          }
+          for (const cu of cloudData.users) {
+            if (cu && cu.id) {
+              const existing = mergedUserMap.get(cu.id);
+              mergedUserMap.set(cu.id, existing ? { ...existing, ...cu } : cu);
+            }
+          }
+          serverState.users = Array.from(mergedUserMap.values());
+
+          if (cloudData.transactions && cloudData.transactions.length > 0) {
+            const txMap = new Map<string, any>();
+            for (const tx of serverState.transactions) {
+              if (tx && tx.id) txMap.set(tx.id, tx);
+            }
+            for (const ctx of cloudData.transactions) {
+              if (ctx && ctx.id) txMap.set(ctx.id, ctx);
+            }
+            serverState.transactions = Array.from(txMap.values()).sort(
+              (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          }
+          if (cloudData.updatedAt) {
+            serverState.lastSyncTimestamp = cloudData.updatedAt;
+          }
+        }
+      } catch (err) {
+        console.warn("[GET users-sync] Cloud hydration warning:", err);
+      }
+    }
+
+    if (!persistentOrders || persistentOrders.length === 0) {
+      try {
+        persistentOrders = await fetchPersistentOrders();
+      } catch (err) {
+        console.warn("[GET users-sync] Orders hydration warning:", err);
+      }
     }
 
     const sanitizedOrders = (persistentOrders || []).map((ord: any) => ({

@@ -367,6 +367,29 @@ export class D1Service {
       console.warn("[D1Service.upsertOrder] Erro ao salvar pedido no D1:", err);
     }
   }
+  /**
+   * Retorna os pedidos registrados no D1
+   */
+  public async getAllOrders(limit = 100): Promise<any[]> {
+    if (!this.isAvailable()) return [];
+    try {
+      const res = await this.db
+        .prepare("SELECT * FROM orders ORDER BY createdAt DESC LIMIT ?")
+        .bind(limit)
+        .all();
+      return (res?.results || []).map((row: any) => {
+        if (row.rawPayload) {
+          try {
+            return JSON.parse(row.rawPayload);
+          } catch {}
+        }
+        return row;
+      });
+    } catch (err) {
+      console.warn("[D1Service.getAllOrders] Erro:", err);
+      return [];
+    }
+  }
 }
 
 export const d1Service = new D1Service();

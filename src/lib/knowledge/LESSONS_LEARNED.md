@@ -123,3 +123,16 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
   2. **Persistência Antes do E-mail**: E-mails transacionais que comemoram créditos de pontos (boas-vindas, indicações) SÓ PODEM ser disparados após o banco de dados confirmar a gravação atômica da conta e da transação no ledger.
   3. **Transporte Resiliente (Keepalive & Await)**: Chamadas de sincronização de cadastro e transações na nuvem DEVEM utilizar `await` obrigatório e flag `keepalive: true` no `fetch()` para blindar contra cancelamentos abruptos por troca de página ou fechamento de abas móveis.
 * **Anti-patterns Proibidos**: `referrer.nfsBalance +=`, chamadas de sync sem `await` antes de `navigate()`.
+
+---
+
+### 🛡️ LIÇÃO LL-012: PROTEÇÃO ABSOLUTA DA BASE DE USUÁRIOS REAIS EM GO LIVE MODE
+* **ID Canônico**: `LL-012`
+* **Gravidade**: `CRITICAL` (Poder de Veto Imediato)
+* **Origem**: Auditoria de Integridade de Produção D1 de 08/11/2026
+* **Contexto**: A plataforma Netfits está em regime de Go Live Mode com usuários reais ativos (fundadores, médicos sócios da Fibios, familiares, atletas pioneiros e avaliadores da App Store). Qualquer script de seed parcial, migração desatenta ou overwrite que omita usuários cadastrados é uma falha grave inaceitável.
+* **Regras Inegociáveis**:
+  1. **Premissa de Usuários Reais**: Todo usuário cadastrado no banco de produção é um usuário real de carne e osso. Nenhum dado cadastral ou saldo pode ser descartado ou sobrescrito por mocks estáticos.
+  2. **Proibição de Comandos Destrutivos**: É estritamente vedada a execução de `DROP TABLE users`, `TRUNCATE TABLE users` ou `DELETE` indiscriminado. Migrações e scripts devem operar estritamente via UPSERT cumulativo (`ON CONFLICT(id) DO UPDATE`).
+  3. **Contagem Monotonamente Não-Decrescente**: Qualquer script de migração, reconciliação ou sincronização deve assegurar que a contagem de usuários cadastrados permaneça igual ou maior após a operação.
+* **Anti-patterns Proibidos**: `DROP TABLE users`, `DELETE FROM users;`, migrações com listas estáticas parciais que não contemplem a totalidade dos usuários reais.
