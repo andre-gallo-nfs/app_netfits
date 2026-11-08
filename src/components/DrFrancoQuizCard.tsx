@@ -142,7 +142,7 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
       const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
-      wallet.earn(points, "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)");
+      wallet.earn(points, "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)", "feed", QUIZ_POST_ID);
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
       trackQuizCompleted(QUIZ_POST_ID, "Força & Longevidade (Dr. Franco Merici)", true, points, false);
       toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);

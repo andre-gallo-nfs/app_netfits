@@ -6,4 +6,11 @@
   "workers_dev": true,
   "preview_urls": true,
   "main": "src/server.ts",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "netfits-db",
+      "database_id": "6ab2a738-c283-4d39-bc59-82492f46caf9"
+    }
+  ]
 }

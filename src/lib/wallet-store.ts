@@ -344,12 +344,14 @@ export const wallet = {
     });
   },
 
-  /** Credita nfs (cashback) e registra a movimentação. Aplica multiplicador do nível. */
-  earn(amount: number, title: string, category: SandboxTransaction["category"] = "feed") {
+    /** Credita nfs (cashback) e registra a movimentação. Aplica multiplicador do nível e persiste atômico no D1. */
+  earn(amount: number, title: string, category: SandboxTransaction["category"] = "feed", quizId?: string) {
     if (amount <= 0) return;
     const active = sharedSandboxStore.getActiveUser();
     const multiplier = levelStore.getMultiplier();
     const credited = Math.round(amount * multiplier);
+
+    // 1. Atualização Otimista no Store Local
     sharedSandboxStore.addTransaction({
       userId: active.id,
       userName: active.fullName,
@@ -357,6 +359,33 @@ export const wallet = {
       description: title,
       category,
     });
+
+    // 2. Transmissão Atômica para o Servidor Central (Cloudflare D1)
+    if (typeof window !== "undefined" && active.id) {
+      const action = category === "feed" ? (quizId ? "quiz" : "read") : "activity";
+      fetch("/api/wallet/credit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({
+          userId: active.id,
+          action,
+          quizId,
+          postTitle: title,
+          points: credited,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data: any) => {
+          if (data && data.success && typeof data.newBalance === "number") {
+            // Sincroniza o saldo retornado oficialmente pelo D1
+            sharedSandboxStore.syncActiveUserBalance(data.newBalance);
+          }
+        })
+        .catch((err) => {
+          console.warn("[wallet.earn] Aviso ao sincronizar com D1:", err);
+        });
+    }
   },
 };
 

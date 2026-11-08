@@ -34,7 +34,12 @@ export {
 const handler = createStartHandler(defaultStreamHandler);
 
 export default {
-  async fetch(req: Request): Promise<Response> {
+  async fetch(req: Request, env?: any, ctx?: any): Promise<Response> {
+    // Injeção de dependência do Cloudflare D1
+    if (env && env.DB) {
+      serverState.db = env.DB;
+    }
+
     const url = new URL(req.url);
     const corsHeaders = serverState.getCorsHeaders();
 
@@ -46,7 +51,7 @@ export default {
     const rockRes = await handleRockRoutes(req, url, corsHeaders);
     if (rockRes) return rockRes;
 
-    // 2. Data Sync Routes (/api/operational-params, /api/users-sync, /api/transactions-sync)
+    // 2. Data Sync Routes (/api/operational-params, /api/users-sync, /api/transactions-sync, /api/wallet/credit)
     const syncRes = await handleSyncRoutes(req, url, corsHeaders);
     if (syncRes) return syncRes;
 

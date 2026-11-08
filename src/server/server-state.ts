@@ -24,6 +24,7 @@ export interface OrderReservationState {
 }
 
 class ServerState {
+  db: any = null;
   users: any[] = [...DEFAULT_PRESEEDED_USERS];
   transactions: any[] = [...DEFAULT_PRESEEDED_TRANSACTIONS];
   operationalParams: OperationalParams = { ...DEFAULT_OPERATIONAL_PARAMS };

@@ -156,7 +156,7 @@ export function MizunoArticleFeedCard() {
 
     if (opt.isCorrect) {
       // 10 netfits para post patrocinado (conforme GEMINI.md)
-      wallet.earn(10, "Quiz Patrocinado: Mizuno Running");
+      wallet.earn(10, "Quiz Patrocinado: Mizuno Running", "feed", QUIZ_POST_ID);
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, 10);
       setHasSubmittedQuiz(true);
       setQuizErrorMsg(null);

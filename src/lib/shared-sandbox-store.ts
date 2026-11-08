@@ -1879,6 +1879,15 @@ class HomologationSandboxStore {
     return defaultState;
   }
 
+  public syncActiveUserBalance(newBalance: number) {
+    const active = this.getActiveUser();
+    if (active) {
+      active.nfsBalance = Math.max(0, newBalance);
+      this.saveToStorageLocally();
+      this.notify();
+    }
+  }
+
   private saveToStorageLocally() {
     if (typeof window !== "undefined") {
       try {

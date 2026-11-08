@@ -317,7 +317,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
       }
 
       const amount = 5;
-      wallet.earn(amount, `Quiz Diário: ${post.title} (${post.author})`, "feed");
+      wallet.earn(amount, `Quiz Diário: ${post.title} (${post.author})`, "feed", post.quizPostId);
       feedAntifraud.recordAction("quiz", post.quizPostId, amount);
       setHasSubmitted(true);
       setErrorMsg(null);

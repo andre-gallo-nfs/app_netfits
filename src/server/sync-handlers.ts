@@ -1,4 +1,5 @@
 import { serverState } from "./server-state.ts";
+import { d1Service } from "./d1-service.ts";
 import { findUserByAnyIdentifier } from "./user-resolver.ts";
 import { realTimeLedgerSentinel } from "./ledger-sentinel.ts";
 import { sendReferralCompletedEmail } from "../lib/emails/email-service.ts";
@@ -57,6 +58,41 @@ export async function handleSyncRoutes(
       }),
       { status: 200, headers: corsHeaders }
     );
+  }
+  // ==========================================
+  // ENDPOINT ATÔMICO SERVER-AUTHORITATIVE: CRÉDITO DE PONTOS (FEED, QUIZZES, ATIVIDADES)
+  // ==========================================
+  if (url.pathname === "/api/wallet/credit" || url.pathname === "/api/wallet/credit/") {
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        const { userId, action, quizId, postTitle, points } = body || {};
+        if (!userId || !points || Number(points) <= 0) {
+          return new Response(
+            JSON.stringify({ success: false, error: "userId e points > 0 são obrigatórios." }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        const result = await d1Service.creditFeedReward({
+          userId,
+          action: action || "quiz",
+          quizId,
+          postTitle: postTitle || "Atividade Netfits",
+          points: Number(points),
+        });
+
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 409,
+          headers: corsHeaders,
+        });
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({ success: false, error: err?.message || String(err) }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
+    }
   }
 
   // ==========================================

@@ -1,4 +1,5 @@
 import { serverState } from "./server-state.ts";
+import { d1Service } from "./d1-service.ts";
 import {
   findUserByAnyIdentifier,
   resolveUserForOrder,
@@ -169,7 +170,15 @@ export async function handleRockRoutes(
         { status: 401, headers: corsHeaders }
       );
     }
-    const balance = user.nfsBalance ?? 0;
+    let balance = user.nfsBalance ?? 0;
+    if (d1Service.isAvailable()) {
+      try {
+        const d1Bal = await d1Service.getBalance(user.id);
+        if (typeof d1Bal === "number") balance = d1Bal;
+      } catch (d1Err) {
+        console.warn("[Rock Loyalty Wallet] Fallback to mem balance:", d1Err);
+      }
+    }
     const walletResponse = buildMkplaceLoyaltyWallet(balance, user.id);
     return new Response(JSON.stringify(walletResponse), { status: 200, headers: corsHeaders });
   }
@@ -201,7 +210,7 @@ export async function handleRockRoutes(
         success: true,
         status: "RESERVED",
         customerId: user.id,
-        balance: user.nfsBalance ?? 0,
+        balance: d1Service.isAvailable() ? (await d1Service.getBalance(user.id)) : (user.nfsBalance ?? 0),
         timestamp: new Date().toISOString(),
       }),
       { status: 200, headers: corsHeaders }
@@ -573,6 +582,12 @@ export async function handleRockRoutes(
           );
         }
 
+        if (d1Service.isAvailable()) {
+          d1Service.upsertOrder(finalOrder).catch((err) => console.warn("[D1 upsertOrder]", err));
+          if (user) {
+            d1Service.updateUserBalance(user.id, user.nfsBalance).catch((err) => console.warn("[D1 updateUserBalance]", err));
+          }
+        }
         syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions).catch((err) => {
           console.warn("[syncUsersAndTransactionsToCloud] Warning:", err);
         });

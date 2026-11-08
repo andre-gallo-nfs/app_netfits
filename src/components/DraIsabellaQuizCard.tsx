@@ -145,7 +145,7 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
       const points = feedAntifraud.getRules().pointsPerEducationalQuiz ?? 5;
       setErrorMsg(null);
       setHasSubmitted(true);
-      wallet.earn(points, "Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari — Fibios)");
+      wallet.earn(points, "Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari — Fibios)", "feed", QUIZ_POST_ID);
       feedAntifraud.recordAction("quiz", QUIZ_POST_ID, points);
       toast.success(`🎉 Parabéns! Resposta correta (+${points} nfs creditados na sua carteira)`);
     } else {
