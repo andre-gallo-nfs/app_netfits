@@ -208,6 +208,86 @@ export function AdminAssociadosTab({
   const [associadosPage, setAssociadosPage] = useState<number>(1);
   const itemsPerPage = 8;
 
+  // Se isReal for true, constrói a lista estritamente a partir do banco Cloudflare D1
+  const displayList = React.useMemo(() => {
+    if (!isReal) return associadosList;
+
+    const realAssocs = sandboxUsersList.filter(
+      (u) =>
+        u.type === "associado" ||
+        u.userCategory === "associado" ||
+        (u.referralCode && sandboxUsersList.some((other) => other.referredBy === u.referralCode))
+    );
+
+    const items: AssociadoAdminItem[] = realAssocs.map((u) => {
+      const captured = sandboxUsersList.filter((other) => other.referredBy === u.referralCode);
+      const assocOrders = realOrders.filter((o: SandboxOrder) => {
+        const buyer = sandboxUsersList.find((bu) => bu.id === o.userId);
+        return buyer?.referredBy === u.referralCode || o.referralCode === u.referralCode;
+      });
+      const gmv = assocOrders.reduce(
+        (acc, o: SandboxOrder) => acc + Number(o.amountBrl ?? o.summary?.finalPrice ?? 0),
+        0
+      );
+      const netRev = gmv * ((operationalParams.netfitsTakeRatePctFromGmv ?? 6.0) / 100);
+      const comm = netRev * ((operationalParams.associadoShareOfNetfitsRevenuePct ?? 10.0) / 100);
+
+      const isMed = u.fullName.includes("Dra.") || u.fullName.includes("Dr.");
+      return {
+        id: u.id,
+        name: u.fullName,
+        handle: `@${u.fullName.toLowerCase().replace(/[^a-z0-9]/g, "")}`,
+        category: isMed ? "Médico(a) Sócio(a) Fibios" : (u.userCategory || "Associado"),
+        code: u.referralCode || "NFS",
+        referralCode: u.referralCode,
+        exclusiveUrl: `https://www.netfits.com.br/r/${u.referralCode}`,
+        isVerifiedSpecialist: isMed,
+        specialistBadgeLabel: isMed ? "Médico(a) Sócio(a) Fibios" : "Associado",
+        capturedUsers: captured.length,
+        retentionRatePct: 100.0,
+        gmvBrl: gmv,
+        netfitsRevenueBrl: netRev,
+        commissionBrl: comm,
+        payoutStatus: "Pago",
+        syntheticActions: {
+          shopPurchases: assocOrders.length,
+          postsViewed: 0,
+          videosWatched: 0,
+          shares: 0,
+          activities: 0,
+        },
+      };
+    });
+
+    const totalCaptured = items.reduce((acc, i) => acc + i.capturedUsers, 0);
+    const totalGmv = items.reduce((acc, i) => acc + i.gmvBrl, 0);
+    const totalRev = items.reduce((acc, i) => acc + i.netfitsRevenueBrl, 0);
+    const totalComm = items.reduce((acc, i) => acc + i.commissionBrl, 0);
+
+    const consolidated: AssociadoAdminItem = {
+      id: "assoc_all",
+      name: "Visão Consolidada (Rede Oficial D1)",
+      handle: `${items.length} Associados Oficiais`,
+      category: "Geral",
+      code: "TODOS",
+      capturedUsers: totalCaptured,
+      retentionRatePct: 100.0,
+      gmvBrl: totalGmv,
+      netfitsRevenueBrl: totalRev,
+      commissionBrl: totalComm,
+      payoutStatus: "Pago",
+      syntheticActions: {
+        shopPurchases: realOrders.length,
+        postsViewed: 0,
+        videosWatched: 0,
+        shares: 0,
+        activities: 0,
+      },
+    };
+
+    return [consolidated, ...items];
+  }, [isReal, associadosList, sandboxUsersList, realOrders, operationalParams]);
+
   const toggleSpecialistBadge = (id: string) => {
     setAssociadosList((prev) =>
       prev.map((a) => {
@@ -225,7 +305,7 @@ export function AdminAssociadosTab({
     );
   };
 
-  const selectedAssociado = associadosList.find((a) => a.id === selectedAssociadoId) || associadosList[0];
+  const selectedAssociado = displayList.find((a) => a.id === selectedAssociadoId) || displayList[0];
 
   const selectedAssocOrders = isReal
     ? realOrders.filter((o: SandboxOrder) => {
@@ -288,7 +368,7 @@ export function AdminAssociadosTab({
                   ))
                 )
               ) : (
-                associadosList.map((a) => (
+                displayList.map((a) => (
                   <option key={a.id} value={a.id} className="bg-zinc-900 text-white">
                     {a.name} ({a.handle}) {a.isVerifiedSpecialist ? "🟣 Especialista" : ""}
                   </option>
@@ -375,7 +455,7 @@ export function AdminAssociadosTab({
           {!isReal && (
             <span className="text-xs text-lime-400 font-bold bg-lime-400/10 px-3 py-1 rounded-xl border border-lime-400/20">
               Página {associadosPage} de{" "}
-              {Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
+              {Math.ceil(displayList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
             </span>
           )}
         </div>
@@ -546,9 +626,9 @@ export function AdminAssociadosTab({
 
             <PaginationControls
               currentPage={associadosPage}
-              totalPages={Math.ceil(associadosList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
+              totalPages={Math.ceil(displayList.filter((a) => a.id !== "assoc_all").length / itemsPerPage)}
               onPageChange={setAssociadosPage}
-              totalItems={associadosList.filter((a) => a.id !== "assoc_all").length}
+              totalItems={displayList.filter((a) => a.id !== "assoc_all").length}
               itemsPerPage={itemsPerPage}
             />
           </>

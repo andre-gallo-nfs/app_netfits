@@ -615,38 +615,10 @@ function AdminDashboardPage() {
 
         {/* Controles de Topo: Fonte de Dados (Banco Real vs Projeção), Realtime, Período, Pitch Deck e Logout */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
-          {/* Seletor Fonte de Dados: Banco Definitivo em Produção vs Projeção Business Plan */}
-          <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800 shadow-inner">
-            <button
-              onClick={() => {
-                setAdminDataSource("real");
-                toast.success("Painel conectado ao Banco de Dados Definitivo de Produção (Vida Real)");
-              }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                adminDataSource === "real"
-                  ? "bg-lime-400 text-zinc-950 shadow-sm shadow-lime-400/20"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-              title="Exibir apenas os dados reais em produção (André Gallo, 50 nfs)"
-            >
-              <Database className="size-3.5" />
-              <span>Banco Real</span>
-            </button>
-            <button
-              onClick={() => {
-                setAdminDataSource("projection");
-                toast.info("Painel exibindo Projeções Financeiras do Business Plan");
-              }}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                adminDataSource === "projection"
-                  ? "bg-purple-600 text-white shadow-sm shadow-purple-600/30"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-              title="Exibir projeções estratégicas do modelo financeiro (48k usuários)"
-            >
-              <TrendingUp className="size-3.5" />
-              <span className="hidden sm:inline">Projeção</span>
-            </button>
+          {/* Fonte de Dados Soberana: 100% Cloudflare D1 Relacional Oficial */}
+          <div className="flex items-center gap-1.5 bg-lime-950/60 px-3 py-1.5 rounded-xl border border-lime-500/40 text-lime-400 text-xs font-bold shadow-sm shadow-lime-500/10">
+            <Database className="size-3.5 text-lime-400 animate-pulse" />
+            <span>Cloudflare D1 Oficial (100% Produção Soberana)</span>
           </div>
 
           {/* Seletor Rápido de Período */}
