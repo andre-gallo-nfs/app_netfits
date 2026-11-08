@@ -34,7 +34,15 @@ export interface D1UserRecord {
 
 export class D1Service {
   private get db(): any {
-    return serverState.db;
+    const database =
+      serverState.db ||
+      (globalThis as any).__env__?.DB ||
+      (globalThis as any).DB ||
+      (process.env as any)?.DB;
+    if (database && !serverState.db) {
+      serverState.db = database;
+    }
+    return database;
   }
 
   public isAvailable(): boolean {

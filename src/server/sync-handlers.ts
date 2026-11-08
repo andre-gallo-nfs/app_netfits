@@ -18,6 +18,9 @@ export async function handleSyncRoutes(
   url: URL,
   corsHeaders: Record<string, string>
 ): Promise<Response | null> {
+  if (!serverState.db) {
+    serverState.db = (globalThis as any).__env__?.DB || (globalThis as any).DB;
+  }
   // ==========================================
   // ENDPOINTS DA TABELA DE DADOS MESTRES (OPERATIONAL PARAMS)
   // ==========================================
