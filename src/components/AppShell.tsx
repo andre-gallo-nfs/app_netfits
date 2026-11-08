@@ -108,8 +108,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex justify-center bg-zinc-200/40">
-      <div className="w-full max-w-md min-w-0 min-h-screen bg-background flex flex-col relative shadow-2xl ring-1 ring-black/5 overflow-x-hidden">
+    <div className="min-h-screen min-h-[100dvh] w-full max-w-full overflow-x-hidden flex justify-center bg-zinc-200/40">
+      <div className="w-full max-w-md min-w-0 min-h-screen min-h-[100dvh] bg-background flex flex-col relative shadow-2xl ring-1 ring-black/5 overflow-x-hidden">
         {path !== "/profile" && <TopBar />}
         <main className={`flex-1 min-w-0 w-full overflow-x-hidden ${path !== "/profile" ? "pt-[calc(env(safe-area-inset-top,0px)+4.125rem)]" : ""} ${path === "/market" ? "overflow-hidden pb-16" : "overflow-y-auto pb-28"}`}>{children}</main>
         {path !== "/market" && <NetfitAiAssistant />}

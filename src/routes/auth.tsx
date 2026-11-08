@@ -491,7 +491,7 @@ function AuthPage() {
                   setFormError(null);
                 }}
                 placeholder="Digite seu nome completo"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
@@ -516,7 +516,7 @@ function AuthPage() {
                   setFormError(null);
                 }}
                 placeholder="123.456.789-00"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
@@ -541,7 +541,7 @@ function AuthPage() {
                   setFormError(null);
                 }}
                 placeholder="ex: seu.nome@email.com"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
@@ -619,7 +619,7 @@ function AuthPage() {
                   setBirthDate(formatBirthDateMask(e.target.value));
                   setFormError(null);
                 }}
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
@@ -651,7 +651,7 @@ function AuthPage() {
                   value={zipcode}
                   onChange={(e) => handleCepChange(e.target.value)}
                   placeholder="00000-000"
-                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                   required
                 />
               </div>
@@ -668,7 +668,7 @@ function AuthPage() {
                     setFormError(null);
                   }}
                   placeholder="Av. Paulista, Rua..."
-                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                   required
                 />
               </div>
@@ -688,7 +688,7 @@ function AuthPage() {
                     setFormError(null);
                   }}
                   placeholder="100 ou S/N"
-                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                   required
                 />
               </div>
@@ -703,7 +703,7 @@ function AuthPage() {
                   value={complement}
                   onChange={(e) => setComplement(e.target.value)}
                   placeholder="Apto 42, Bloco B (opcional)"
-                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 />
               </div>
             </div>
@@ -722,7 +722,7 @@ function AuthPage() {
                     setFormError(null);
                   }}
                   placeholder="Bairro"
-                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                   required
                 />
               </div>
@@ -739,7 +739,7 @@ function AuthPage() {
                     setFormError(null);
                   }}
                   placeholder="Cidade"
-                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                  className="w-full bg-card border border-border rounded-xl px-3 py-2.5 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                   required
                 />
               </div>
@@ -791,7 +791,7 @@ function AuthPage() {
                   setFormError(null);
                 }}
                 placeholder="(11) 98765-4321"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
@@ -849,7 +849,7 @@ function AuthPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Crie sua senha alfanumérica"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-10 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-10 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
               <button
@@ -917,7 +917,7 @@ function AuthPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Digite novamente a mesma senha criada"
-                className={`w-full bg-card border rounded-xl pl-10 pr-10 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 ${
+                className={`w-full bg-card border rounded-xl pl-10 pr-10 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 ${
                   confirmPassword.length > 0
                     ? confirmPassword === password
                       ? "border-lime-500/60 focus:ring-lime-500 ring-1 ring-lime-500/20"
@@ -1070,7 +1070,7 @@ function AuthPage() {
                 placeholder="Seu e-mail, celular ou CPF"
                 autoComplete="username"
                 autoCapitalize="none"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
             </div>
@@ -1099,7 +1099,7 @@ function AuthPage() {
                 placeholder="Sua senha"
                 autoComplete="current-password"
                 autoCapitalize="none"
-                className="w-full bg-card border border-border rounded-xl pl-10 pr-10 py-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="w-full bg-card border border-border rounded-xl pl-10 pr-10 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
                 required
               />
               <button

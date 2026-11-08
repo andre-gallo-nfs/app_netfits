@@ -487,11 +487,8 @@ export const authStore = {
 
     currentUser = check.matchedUser;
     sharedSandboxStore.setActiveUser(check.matchedUser.id);
-    passkeyService.registerPasskey(
-      check.matchedUser.id,
-      check.matchedUser.fullName,
-      check.matchedUser.email || ''
-    ).catch(() => {});
+    // Nota: Passkey registration não deve ser disparado de forma intrusiva/automática no login
+    // para evitar travamento da WebKit/Safari durante o redirecionamento
     toast.success(`Bem-vindo de volta, ${check.matchedUser.fullName}!`);
     emit();
 

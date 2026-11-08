@@ -376,9 +376,22 @@ class AppLockStore {
       }
     }
 
-    const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));
+    // Expande variações tolerantes a pontuação final (ex: ponto final no teclado iOS), espaços e maiúsculas
+    const expandedPasswords = new Set<string>();
+    validPasswords.filter(Boolean).forEach((p) => {
+      expandedPasswords.add(p);
+      expandedPasswords.add(p.toLowerCase());
+      if (p.endsWith(".")) {
+        const withoutDot = p.slice(0, -1);
+        expandedPasswords.add(withoutDot);
+        expandedPasswords.add(withoutDot.toLowerCase());
+      } else {
+        expandedPasswords.add(`${p}.`);
+        expandedPasswords.add(`${p.toLowerCase()}.`);
+      }
+    });
 
-    const isCorrect = uniqueValidPasswords.some(
+    const isCorrect = Array.from(expandedPasswords).some(
       (vp) => vp === cleanPwd || (typeof vp === "string" && vp.toLowerCase() === cleanPwd.toLowerCase())
     );
 

@@ -44,7 +44,7 @@ export function SecurityLockOverlay() {
 
     try {
       const timeoutPromise = new Promise<{ success: boolean; error?: string }>((resolve) =>
-        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler biometria. Digite sua senha." }), 4000)
+        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler biometria. Digite sua senha." }), 8000)
       );
       const res = await Promise.race([appLockStore.unlockWithBiometrics(), timeoutPromise]);
       if (!res.success && res.error && !isAutoPrompt) {

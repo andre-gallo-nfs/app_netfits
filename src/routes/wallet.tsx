@@ -105,9 +105,9 @@ function WalletPage() {
             alt=""
             className="absolute top-4 right-4 size-8 object-contain rounded-full bg-black border border-[#C8F135]/60 p-1 opacity-95 pointer-events-none shadow-sm"
           />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5 flex items-center justify-between">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5 flex items-center justify-between pr-10">
             <span>Saldo netfits</span>
-            <span className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-medium truncate max-w-[150px]">
               {activeUser.fullName || "Atleta Netfits"}
             </span>
           </p>

@@ -50,11 +50,28 @@ export function NetfitAiAssistant() {
   });
   const navigate = useNavigate();
 
+  const [viewportBottomOffset, setViewportBottomOffset] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const handleViewportChange = () => {
+      const offset = window.innerHeight - vv.height;
+      setViewportBottomOffset(offset > 40 ? offset : 0);
+    };
+    vv.addEventListener("resize", handleViewportChange);
+    vv.addEventListener("scroll", handleViewportChange);
+    return () => {
+      vv.removeEventListener("resize", handleViewportChange);
+      vv.removeEventListener("scroll", handleViewportChange);
+    };
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, viewportBottomOffset]);
 
   const activeUser = sharedSandboxStore.useActiveUser();
 
@@ -319,8 +336,16 @@ export function NetfitAiAssistant() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Input Bar com Safe Area Inferior */}
-            <div className="p-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] border-t border-zinc-800 bg-zinc-900">
+            {/* Input Bar com Safe Area Inferior e Adaptacao Dinamica ao Teclado Virtual iOS */}
+            <div
+              className="p-3 border-t border-zinc-800 bg-zinc-900 transition-[padding] duration-150"
+              style={{
+                paddingBottom:
+                  viewportBottomOffset > 0
+                    ? `calc(${viewportBottomOffset}px + 0.75rem)`
+                    : "calc(env(safe-area-inset-bottom,0px) + 0.75rem)",
+              }}
+            >
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -333,7 +358,7 @@ export function NetfitAiAssistant() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Pergunte sobre treinos, nfs ou produtos..."
-                  className="flex-1 bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 placeholder:text-zinc-500"
+                  className="flex-1 bg-zinc-950 border border-zinc-800 text-zinc-100 rounded-full px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-purple-500 placeholder:text-zinc-500"
                 />
                 <button
                   type="submit"

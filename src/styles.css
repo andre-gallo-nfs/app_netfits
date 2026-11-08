@@ -10,10 +10,20 @@ body,
   touch-action: pan-y;
   max-width: 100vw !important;
   width: 100% !important;
+  min-height: 100dvh;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   word-break: break-word;
   overflow-wrap: break-word;
+}
+
+/* Previne zoom automatico e distorcao de enquadramento no iOS ao focar inputs */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 @layer base {
