@@ -1,5 +1,5 @@
 import { trackShopView } from "@/lib/analytics";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   RefreshCw,
   ExternalLink,
@@ -43,6 +43,7 @@ export const Route = createFileRoute("/market")({
 
 function MarketEmbeddedPage() {
   const search = Route.useSearch();
+  const navigate = useNavigate();
   const { balance } = useWallet();
   const activeUser = sharedSandboxStore.useActiveUser();
   const storeSelectedProduct = shopSelectionStore.useSelectedProduct();
@@ -155,9 +156,9 @@ function MarketEmbeddedPage() {
     };
   }, [activeUser.id]);
 
-  // Determina o caminho específico do produto se houver seleção
+  // Determina o caminho específico do produto estritamente se vier explicitamente via URL
   const targetProductPath = (() => {
-    const raw = search.product || storeSelectedProduct?.targetPath || storeSelectedProduct?.id;
+    const raw = search.product;
     if (!raw) return undefined;
     const lower = raw.toLowerCase();
     if (
@@ -169,6 +170,25 @@ function MarketEmbeddedPage() {
     }
     return raw;
   })();
+
+  // Se a rota for acessada sem parâmetro de produto (ex: toque na aba Shop), limpa o produto residual
+  useEffect(() => {
+    if (!search.product) {
+      shopSelectionStore.clear();
+    }
+  }, [search.product]);
+
+  // Sincronização periódica da carteira com o Cloudflare D1 enquanto no Shop
+  useEffect(() => {
+    sharedSandboxStore.syncFromCloud().catch(() => {});
+    const interval = setInterval(() => {
+      sharedSandboxStore.syncFromCloud().catch(() => {});
+    }, 8000);
+    return () => {
+      clearInterval(interval);
+      sharedSandboxStore.syncFromCloud().catch(() => {});
+    };
+  }, []);
 
   // Carrega a URL com o token SSO e o produto específico
   useEffect(() => {
@@ -221,7 +241,7 @@ function MarketEmbeddedPage() {
 
   const handleBackToAllProducts = () => {
     shopSelectionStore.clear();
-    window.location.href = "/market";
+    navigate({ to: "/market", search: {} });
   };
 
   return (

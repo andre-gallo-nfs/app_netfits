@@ -583,9 +583,37 @@ export async function handleRockRoutes(
         }
 
         if (d1Service.isAvailable()) {
-          d1Service.upsertOrder(finalOrder).catch((err) => console.warn("[D1 upsertOrder]", err));
+          const finalOrderWithCashback = {
+            ...finalOrder,
+            cashbackNfs: result.nfsEarned,
+          };
+          d1Service.upsertOrder(finalOrderWithCashback).catch((err) => console.warn("[D1 upsertOrder]", err));
           if (user) {
             d1Service.updateUserBalance(user.id, user.nfsBalance).catch((err) => console.warn("[D1 updateUserBalance]", err));
+            if (result.nfsEarned > 0) {
+              d1Service.insertTransaction({
+                id: `tx-mkp-earn-${orderId}`,
+                userId: user.id,
+                userName: user.fullName || "Atleta Netfits",
+                amount: result.nfsEarned,
+                description: `✨ Cashback compra Mkplace Pedido #${orderId}`,
+                category: "shop",
+                orderRef: orderId,
+                timestamp: requestTimestamp,
+              }).catch((err) => console.warn("[D1 insertTransaction earn]", err));
+            }
+            if (result.pointsUsed > 0) {
+              d1Service.insertTransaction({
+                id: `tx-mkp-spend-${orderId}`,
+                userId: user.id,
+                userName: user.fullName || "Atleta Netfits",
+                amount: -result.pointsUsed,
+                description: `🛍️ Resgate compra Mkplace Pedido #${orderId}`,
+                category: "shop",
+                orderRef: orderId,
+                timestamp: requestTimestamp,
+              }).catch((err) => console.warn("[D1 insertTransaction spend]", err));
+            }
           }
         }
         syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions).catch((err) => {

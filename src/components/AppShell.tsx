@@ -6,6 +6,7 @@ import profileAvatar from "@/assets/profile-avatar.jpg";
 import { useWallet } from "@/lib/wallet-store";
 import { useBadges, badgesStore } from "@/lib/badges-store";
 import { NetfitAiAssistant } from "./NetfitAiAssistant";
+import { shopSelectionStore } from "@/lib/shop-selection-store";
 import { Crown } from "lucide-react";
 
 const tabs = [
@@ -111,7 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="w-full max-w-md min-w-0 min-h-screen bg-background flex flex-col relative shadow-2xl ring-1 ring-black/5 overflow-x-hidden">
         {path !== "/profile" && <TopBar />}
         <main className={`flex-1 min-w-0 w-full overflow-x-hidden ${path !== "/profile" ? "pt-[calc(env(safe-area-inset-top,0px)+4.125rem)]" : ""} ${path === "/market" ? "overflow-hidden pb-16" : "overflow-y-auto pb-28"}`}>{children}</main>
-        <NetfitAiAssistant />
+        {path !== "/market" && <NetfitAiAssistant />}
         {/* Footer Navigation Bar (Cor Branco Sólido com Safe Area Inferior para Gestos e Home Bar) */}
         <nav
           className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md bg-white text-zinc-600 border-t border-zinc-200 px-6 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] flex items-center justify-between z-40 shadow-lg"
@@ -124,6 +125,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 key={t.to}
                 to={t.to}
+                search={t.to === "/market" ? {} : undefined}
+                onClick={() => {
+                  if (t.to === "/market") {
+                    shopSelectionStore.clear();
+                  }
+                }}
                 aria-label={`Aba ${t.label}`}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-col items-center justify-center min-h-[44px] min-w-[48px] gap-1 transition-all active:scale-95 ${
