@@ -13,6 +13,7 @@ export interface FastPathResponse {
   text: string;
   actionLabel?: string;
   route?: string;
+  actionType?: "navigate" | "sync_wallet" | "clear_shop_selection";
   source: "deterministic_fast_path" | "context_cached_gemini" | "raw_llm";
   tokensSaved: number;
 }
@@ -46,6 +47,7 @@ export interface RealtimeAiContext {
   userCategory?: string;
   user?: RealtimeAiUserContext;
   params?: OperationalParams;
+  recentOrders?: any[];
 }
 
 const TELEMETRY_STORAGE_KEY = "netfits_finops_token_telemetry_v1";
@@ -99,6 +101,103 @@ class TokenOptimizerService {
         style: "currency",
         currency: "BRL",
       });
+
+    const firstName = user?.fullName ? user.fullName.split(" ")[0] : "Atleta";
+
+    // [CONCIERGE NETFITS] A. Dúvidas sobre pontos de compras, cashback não creditado ou status de pedidos
+    const isOrderSupportQuery =
+      q.includes("não recebi") ||
+      q.includes("nao recebi") ||
+      q.includes("não caiu") ||
+      q.includes("nao caiu") ||
+      q.includes("não creditou") ||
+      q.includes("nao creditou") ||
+      q.includes("não foram creditados") ||
+      q.includes("nao foram creditados") ||
+      q.includes("não foi creditado") ||
+      q.includes("nao foi creditado") ||
+      q.includes("demora") ||
+      q.includes("cadê meus pontos") ||
+      q.includes("cade meus pontos") ||
+      q.includes("meus netfits da compra") ||
+      q.includes("pontos da compra") ||
+      q.includes("pontos do shop") ||
+      q.includes("pontos do boné") ||
+      q.includes("pontos do bone") ||
+      (q.includes("compra") && q.includes("pontos") && (q.includes("cade") || q.includes("cadê") || q.includes("onde") || q.includes("demor") || q.includes("quando")));
+
+    if (isOrderSupportQuery) {
+      this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
+      const orders = context.recentOrders || [];
+
+      if (orders.length > 0) {
+        const latest = orders[0];
+        const rawItems = Array.isArray(latest.items) ? latest.items : [];
+        const itemNames = rawItems.map((it: any) => it.name || it.productName || it.title || "Produto").filter(Boolean);
+        const itemSummary = itemNames.length > 0
+          ? (itemNames.length > 1 ? `${itemNames[0]} e mais ${itemNames.length - 1} item(ns)` : itemNames[0])
+          : "Produtos da Loja Oficial";
+        const orderRef = latest.orderRef || latest._id || "Recente";
+        const total = Number(latest.summary?.total || latest.totalBrl || 0);
+        const totalFormatted = total > 0 ? total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "R$ 174,90";
+        const cashback = latest.cashbackNfs || latest.netfitsProcessing?.pointsEarned || Math.round(total * 4);
+        const status = String(latest.status || latest.paymentStatus || "").toUpperCase();
+        const isPaid = status === "PAID" || status === "DELIVERED" || status === "SENT" || status === "COMPLETED";
+
+        if (isPaid) {
+          return {
+            handled: true,
+            text: `Fala ${firstName}! Pode ficar 100% tranquilo sobre os seus Netfits!\n\nLocalizei o seu pedido **#${orderRef}** (${itemSummary}) no valor de **${totalFormatted}**, com pagamento **aprovado com sucesso** pela loja parceira.\n\nEssa compra gerou **+${cashback.toLocaleString("pt-BR")} netfits** para você, e esse saldo já está gravado e garantido no banco de dados central da Netfits!\n\nO que costuma acontecer é apenas a tela do aplicativo demorar alguns instantes para recarregar o saldo do servidor após a aprovação da compra. Toque no botão abaixo que eu forço a sincronização do seu saldo agora mesmo.`,
+            actionLabel: "🔄 Sincronizar Meu Saldo Agora",
+            actionType: "sync_wallet",
+            source: "deterministic_fast_path",
+            tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
+          };
+        } else {
+          return {
+            handled: true,
+            text: `Fala ${firstName}! Localizei o seu pedido recente **#${orderRef}** (${itemSummary}) no valor de **${totalFormatted}**.\n\nEle está atualmente com status **Aguardando Pagamento / Compensação**. As compras na Loja Parceira passam pela aprovação da adquirente do cartão ou compensação do PIX/Boleto. Assim que o pagamento for confirmado, a loja despacha a confirmação para a Netfits e seus **+${cashback.toLocaleString("pt-BR")} netfits** caem automaticamente no seu extrato!`,
+            actionLabel: "Ver Minha Carteira",
+            route: "/wallet",
+            actionType: "navigate",
+            source: "deterministic_fast_path",
+            tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
+          };
+        }
+      }
+
+      return {
+        handled: true,
+        text: `Fala ${firstName}! As compras realizadas no Netfits Shop geram **${params.nfsEarnedPerBrlSpent || 4.0} netfits por R$ 1,00 gasto**. O crédito de pontos ocorre automaticamente assim que a adquirente da loja parceira aprova a transação e o pagamento é compensado.\n\nSe você concluiu uma compra e os pontos ainda não apareceram no cabeçalho do app, toque no botão abaixo para puxar a atualização mais recente do banco de dados central!`,
+        actionLabel: "🔄 Sincronizar Meu Saldo Agora",
+        actionType: "sync_wallet",
+        source: "deterministic_fast_path",
+        tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
+      };
+    }
+
+    // [CONCIERGE NETFITS] B. Dúvidas sobre navegação, tela travada no produto, loop no Shop ou seta de voltar
+    const isNavigationLoopQuery =
+      q.includes("travad") ||
+      q.includes("loop") ||
+      q.includes("toda hora") ||
+      q.includes("cai nessa tela") ||
+      q.includes("tela do produto") ||
+      (q.includes("seta") && (q.includes("feed") || q.includes("voltar"))) ||
+      (q.includes("shop") && (q.includes("não consigo voltar") || q.includes("nao consigo voltar") || q.includes("não volta") || q.includes("preso")));
+
+    if (isNavigationLoopQuery) {
+      this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
+      return {
+        handled: true,
+        text: `Fala ${firstName}! Perfeito o seu aviso, muito obrigado pelo toque!\n\nIsso acontecia porque, ao clicar em um produto em destaque pelo Feed, o aplicativo guardava temporariamente aquele item na sua sessão para facilitar a compra direta, o que acabava fazendo o app reabrir o mesmo produto ao tocar no Shop.\n\nNossa equipe de engenharia já liberou uma atualização para desatar isso: a aba **Shop** agora abre sempre na vitrine principal com todo o catálogo de produtos e marcas esportivas.\n\nJá limpei a sua sessão! Basta tocar no botão abaixo para explorar a loja normalmente.`,
+        actionLabel: "🛍️ Abrir Vitrine Completa do Shop",
+        route: "/market",
+        actionType: "clear_shop_selection",
+        source: "deterministic_fast_path",
+        tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
+      };
+    }
 
     // 1. Consulta de Saldo / Extrato / Carteira
     if (

@@ -31,6 +31,7 @@ const INITIAL_MESSAGES: Message[] = [
 
 import { useOperationalParams } from "@/lib/operational-params-store";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
+import { shopSelectionStore } from "@/lib/shop-selection-store";
 import { useAuth } from "@/lib/auth-store";
 
 export function NetfitAiAssistant() {
@@ -57,7 +58,7 @@ export function NetfitAiAssistant() {
 
   const activeUser = sharedSandboxStore.useActiveUser();
 
-  const resolveSmartResponse = (query: string): { text: string; actionLabel?: string; route?: string; finopsBadge?: string } => {
+  const resolveSmartResponse = (query: string): { text: string; actionLabel?: string; route?: string; finopsBadge?: string; actionType?: "navigate" | "sync_wallet" | "clear_shop_selection" } => {
     const allUsers = sharedSandboxStore.getUsers();
     const myReferrals = allUsers.filter(
       (u) =>
@@ -67,6 +68,17 @@ export function NetfitAiAssistant() {
     );
     const txCount = sharedSandboxStore.getUserTransactions(activeUser.id).length;
 
+    // Busca pedidos recentes do usuário logado para contextualização Grounded (Concierge Netfits)
+    const allOrders = sharedSandboxStore.getOrders();
+    const userOrders = allOrders.filter(
+      (o: any) =>
+        o.customer?.ref === activeUser.id ||
+        o.customerId === activeUser.id ||
+        (o.customer?.email && activeUser.email && o.customer.email.toLowerCase() === activeUser.email.toLowerCase()) ||
+        (o.customerEmail && activeUser.email && o.customerEmail.toLowerCase() === activeUser.email.toLowerCase()) ||
+        (o.customer?.document && activeUser.cpf && o.customer.document === activeUser.cpf)
+    );
+
     // Avaliação pelo FinOps Token Optimizer 100% Realtime com Parâmetros Oficiais
     const fastPath = tokenOptimizer.evaluateQuery(query, {
       nfsBalance,
@@ -74,6 +86,7 @@ export function NetfitAiAssistant() {
       cppResgateBrl: params.cppResgateBrl,
       userCategory: currentUser?.userCategory || activeUser.type,
       params,
+      recentOrders: userOrders,
       user: {
         id: activeUser.id,
         fullName: activeUser.fullName,
@@ -94,7 +107,8 @@ export function NetfitAiAssistant() {
       text: fastPath.text,
       actionLabel: fastPath.actionLabel,
       route: fastPath.route,
-      finopsBadge: fastPath.handled ? "⚡ Zero-Token Fast Path (<5ms)" : "✨ Gemini Flash (Realtime Grounded)",
+      actionType: fastPath.actionType,
+      finopsBadge: fastPath.handled ? "⚡ Concierge Inteligente (<5ms)" : "✨ Gemini Flash (Realtime Grounded)",
     };
   };
 
@@ -141,14 +155,28 @@ export function NetfitAiAssistant() {
         text: resolved.text,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         finopsBadge: resolved.finopsBadge,
-        action: resolved.actionLabel && resolved.route
+        action: resolved.actionLabel
           ? {
               label: resolved.actionLabel,
               targetRoute: resolved.route,
               onClick: () => {
-                toast.info(`Navegando para: ${resolved.actionLabel}`);
-                setIsOpen(false);
-                navigate({ to: resolved.route as any });
+                if (resolved.actionType === "sync_wallet") {
+                  toast.loading("Sincronizando saldo com o banco central...", { id: "sync-toast" });
+                  sharedSandboxStore.syncFromCloud().then(() => {
+                    const updatedBal = sharedSandboxStore.getActiveUser().nfsBalance;
+                    toast.success(`Saldo atualizado com sucesso! Você possui ${updatedBal.toLocaleString("pt-BR")} nfs.`, { id: "sync-toast" });
+                  }).catch(() => {
+                    toast.error("Não foi possível sincronizar o saldo no momento.", { id: "sync-toast" });
+                  });
+                } else if (resolved.actionType === "clear_shop_selection") {
+                  shopSelectionStore.clear();
+                  setIsOpen(false);
+                  navigate({ to: "/market", search: {} });
+                } else if (resolved.route) {
+                  toast.info(`Navegando para: ${resolved.actionLabel}`);
+                  setIsOpen(false);
+                  navigate({ to: resolved.route as any });
+                }
               },
             }
           : undefined,
