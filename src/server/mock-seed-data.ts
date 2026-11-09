@@ -199,7 +199,7 @@ export const DEFAULT_PRESEEDED_USERS = [
     "identifier": "c.queligallo@gmail.com",
     "email": "c.queligallo@gmail.com",
     "phone": "(11) 98210-9997",
-    "cpf": "000.000.000-00",
+    "cpf": "129.044.128-67",
     "birthDate": "12/04/1972",
     "fullName": "Cristiane Queli da Silva Gallo",
     "zipcode": "04004-011",
