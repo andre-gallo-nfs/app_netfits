@@ -71,7 +71,7 @@ export const DEFAULT_PRESEEDED_USERS = [
     "wearable": "Garmin Connect",
     "garminUserId": "garmin_usr_andre",
     "wearableConnectedAt": "2026-11-06T00:00:00Z",
-    "nfsBalance": 1466,
+    "nfsBalance": 411,
     "userCategory": "associado",
     "registeredAt": "2026-10-05T00:00:00Z",
     "identifier": "aacgallo@hotmail.com",
@@ -274,15 +274,7 @@ export const DEFAULT_PRESEEDED_TRANSACTIONS = [
     "category": "feed",
     "timestamp": "2026-10-15T20:31:41.675Z"
   },
-  {
-    "id": "tx-1792096282278-190",
-    "userId": "usr_andre",
-    "userName": "André Gallo",
-    "amount": 5,
-    "description": "Leitura Completa de Artigo: Força & Longevidade (Dr. Franco Merici)",
-    "category": "feed",
-    "timestamp": "2026-10-15T20:31:22.278Z"
-  },
+
   {
     "id": "tx-badge-usr_andre-mestre_cashback",
     "userId": "usr_andre",
@@ -485,7 +477,7 @@ export const DEFAULT_PRESEEDED_TRANSACTIONS = [
     "id": "tx-1791415135742",
     "userId": "usr_andre",
     "userName": "André Aparecido da Cruz Gallo",
-    "amount": 10,
+    "amount": 1,
     "description": "Compartilhamento pós-visualização: Fibios Medicina e Saúde",
     "category": "feed",
     "timestamp": "2026-10-07T23:18:55.742Z"
