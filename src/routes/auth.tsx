@@ -47,6 +47,10 @@ export const Route = createFileRoute("/auth")({
         content: "Crie sua conta ou faça login no aplicativo Netfits.",
       },
       { property: "og:title", content: "Cadastro & Login — Netfits" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/auth" },
     ],
   }),
   component: AuthPage,

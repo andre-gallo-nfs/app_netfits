@@ -55,6 +55,7 @@ export const Route = createFileRoute("/admin")({
     meta: [
       { title: "Painel Administrativo — Netfits Realtime" },
       { name: "description", content: "Indicadores em tempo real do ecossistema Netfits." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: AdminDashboardPage,

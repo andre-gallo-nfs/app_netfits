@@ -38,6 +38,9 @@ export const Route = createFileRoute("/faq")({
       },
       { property: "og:title", content: "FAQ & Central de Ajuda — Netfits Ltda." },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/faq" },
+    ],
   }),
   component: FaqPage,
 });

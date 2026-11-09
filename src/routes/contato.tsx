@@ -26,6 +26,9 @@ export const Route = createFileRoute("/contato")({
       },
       { property: "og:title", content: "Contato & Suporte — Netfits" },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/contato" },
+    ],
   }),
   component: ContatoPage,
 });

@@ -41,6 +41,33 @@ export default {
     }
 
     const url = new URL(req.url);
+
+    // Redirecionamento Canônico de Host e Protocolo (Google Search Console & SEO)
+    const host = url.hostname;
+    const isLocal =
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith(".workers.dev") ||
+      host.endsWith(".trycloudflare.com");
+
+    if (!isLocal) {
+      const isHttp = url.protocol === "http:";
+      const isApex = host === "netfits.com.br";
+      if (isHttp || isApex) {
+        const canonicalUrl = new URL(req.url);
+        canonicalUrl.protocol = "https:";
+        canonicalUrl.hostname = "www.netfits.com.br";
+        return Response.redirect(canonicalUrl.toString(), 301);
+      }
+    }
+
+    // Redirecionamento Canônico de /home para /
+    if (url.pathname === "/home" || url.pathname === "/home/") {
+      const canonicalHome = new URL("/", req.url);
+      canonicalHome.search = url.search;
+      return Response.redirect(canonicalHome.toString(), 301);
+    }
+
     const corsHeaders = serverState.getCorsHeaders();
 
     if (req.method === "OPTIONS") {

@@ -15,6 +15,9 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:title", content: "Netfits — A Vida em Movimento Vale Mais" },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/" },
+    ],
   }),
   component: RootIndexRoute,
 });

@@ -30,6 +30,9 @@ export const Route = createFileRoute("/feed")({
       },
       { property: "og:title", content: "Feed — Netfits" },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/feed" },
+    ],
   }),
   component: FeedPage,
 });
@@ -83,7 +86,7 @@ const INITIAL_FEED_CARDS: InteractiveFeedCardItem[] = [
     render: () => <DraIsabellaQuizCard isDailyChallenge={false} />,
   },
   {
-    id: "dr-isabella-video",
+    id: "dr-isabella-protocolo",
     quizPostId: "isabella-protocolo-quiz",
     title: "Dra. Isabella Formigari — Biomarcadores & Longevidade",
     badge: "Medicina Preventiva",

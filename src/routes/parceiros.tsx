@@ -46,6 +46,9 @@ export const Route = createFileRoute("/parceiros")({
       },
       { property: "og:title", content: "Cadastro de Parceiros Comerciais & Marketplace — Netfits" },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/parceiros" },
+    ],
   }),
   component: ParceirosRegistrationPage,
 });

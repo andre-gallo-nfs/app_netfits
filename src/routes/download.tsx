@@ -19,6 +19,9 @@ export const Route = createFileRoute("/download")({
       },
       { property: "og:title", content: "Baixar Aplicativo Netfits — App Store & Google Play" },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/download" },
+    ],
   }),
   component: DownloadAppPage,
 });
@@ -171,7 +174,7 @@ function DownloadAppPage() {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-zinc-900 text-center text-xs text-zinc-500 space-y-2">
         <p>© 2026 Netfits Ltda. Todos os direitos reservados.</p>
-        <p><Link to="/home" className="text-zinc-400 hover:underline">Voltar para a Homepage Institucional</Link></p>
+        <p><Link to="/" className="text-zinc-400 hover:underline">Voltar para a Homepage Institucional</Link></p>
       </footer>
     </div>
   );

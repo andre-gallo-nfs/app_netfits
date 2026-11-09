@@ -42,6 +42,9 @@ export const Route = createFileRoute("/home")({
       },
       { property: "og:title", content: "Netfits Ltda. — A vida em movimento vale mais" },
     ],
+    links: [
+      { rel: "canonical", href: "https://www.netfits.com.br/" },
+    ],
   }),
   component: InstitutionalHomePage,
 });
@@ -349,7 +352,7 @@ export function InstitutionalHomePage() {
 
           <div className="space-y-2">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider mb-2">Navegação Web</h4>
-            <p><Link to="/home" className="hover:text-white transition">Homepage Institucional</Link></p>
+            <p><Link to="/" className="hover:text-white transition">Homepage Institucional</Link></p>
             <p><Link to="/parceiros" className="hover:text-white transition">Cadastro de Parceiros</Link></p>
             <p><Link to="/faq" className="hover:text-white transition">FAQ / Central de Ajuda</Link></p>
             <p><Link to="/contato" className="hover:text-white transition">Contato & Suporte</Link></p>
