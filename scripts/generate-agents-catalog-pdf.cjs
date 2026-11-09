@@ -452,14 +452,14 @@ const htmlContent = `<!DOCTYPE html>
       <!-- Banner de Destaque -->
       <div class="banner-box">
         <div>
-          <h2>🏛️ A ORGANIZAÇÃO AUMENTADA POR IA (AI-FIRST & CAPITAL EFFICIENT)</h2>
+          <h2>🏛️ ARQUITETURA ANTHROPIC SINGLE-LOOP &amp; PROGRESSIVE DISCLOSURE</h2>
           <p>
-            A Netfits opera sob o paradigma <strong>Maker-Checker-Gatekeeper</strong>: cada agente autônomo de inteligência possui responsabilidades estritas, fronteiras invioláveis e comandos de veto determinístico, substituindo a complexidade de 5 squads tradicionais por um núcleo fundador ultraeficiente.
+            Alinhada ao padrão de engenharia da <strong>Anthropic</strong>, a Netfits unifica a cognição em um <strong>Loop Principal Único</strong> com revelação progressiva de habilidades (<em>Skills</em> sob demanda), blindada por <strong>8 Gatekeepers Determinísticos</strong> em contexto limpo com poder de veto absoluto.
           </p>
         </div>
         <div class="stat-pill">
           <div class="stat-number">22</div>
-          <div class="stat-label">Agentes de IA</div>
+          <div class="stat-label">Capacidades &amp; Agentes</div>
           <div style="font-size: 5.5pt; color: #FFF; margin-top: 2px;">+R$ 5,5M Poupados</div>
         </div>
       </div>
