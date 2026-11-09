@@ -375,6 +375,76 @@ export class D1Service {
       console.warn("[D1Service.upsertOrder] Erro ao salvar pedido no D1:", err);
     }
   }
+
+  /**
+   * Localiza um pedido por ID ou orderRef no D1
+   */
+  public async findOrder(orderRef: string): Promise<any | null> {
+    if (!this.isAvailable() || !orderRef) return null;
+    try {
+      const clean = String(orderRef).trim();
+      const res = await this.db
+        .prepare("SELECT * FROM orders WHERE id = ? OR orderRef = ? LIMIT 1")
+        .bind(clean, clean)
+        .first();
+      return res || null;
+    } catch (err) {
+      console.warn("[D1Service.findOrder] Erro:", err);
+      return null;
+    }
+  }
+
+  /**
+   * Atualiza status de um pedido no D1
+   */
+  public async updateOrderStatus(orderRef: string, status: string, paymentStatus?: string): Promise<void> {
+    if (!this.isAvailable() || !orderRef) return;
+    try {
+      const clean = String(orderRef).trim();
+      const now = new Date().toISOString();
+      await this.db
+        .prepare("UPDATE orders SET status = ?, paymentStatus = ?, updatedAt = ? WHERE id = ? OR orderRef = ?")
+        .bind(status, paymentStatus || status, now, clean, clean)
+        .run();
+    } catch (err) {
+      console.warn("[D1Service.updateOrderStatus] Erro:", err);
+    }
+  }
+
+  /**
+   * Busca uma transacao especifica por ID no D1
+   */
+  public async findTransaction(txId: string): Promise<any | null> {
+    if (!this.isAvailable() || !txId) return null;
+    try {
+      const res = await this.db
+        .prepare("SELECT * FROM transactions WHERE id = ? LIMIT 1")
+        .bind(txId)
+        .first();
+      return res || null;
+    } catch (err) {
+      console.warn("[D1Service.findTransaction] Erro:", err);
+      return null;
+    }
+  }
+
+  /**
+   * Retorna todas as transacoes associadas a um pedido no D1
+   */
+  public async findOrderTransactions(orderRef: string): Promise<any[]> {
+    if (!this.isAvailable() || !orderRef) return [];
+    try {
+      const clean = String(orderRef).trim();
+      const res = await this.db
+        .prepare("SELECT * FROM transactions WHERE orderRef = ? OR id LIKE ? ORDER BY timestamp ASC")
+        .bind(clean, `%${clean}%`)
+        .all();
+      return (res?.results || []) as any[];
+    } catch (err) {
+      console.warn("[D1Service.findOrderTransactions] Erro:", err);
+      return [];
+    }
+  }
   /**
    * Retorna os pedidos registrados no D1
    */

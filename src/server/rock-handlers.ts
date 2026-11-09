@@ -249,8 +249,22 @@ export async function handleRockRoutes(
       }
 
       const persistedOrders = await fetchPersistentOrders();
+      let allOrders = [...persistedOrders];
+      if (d1Service.isAvailable()) {
+        try {
+          const d1Orders = await d1Service.getAllOrders(200);
+          for (const d1Ord of d1Orders) {
+            const ordKey = String(d1Ord.id || d1Ord._id || d1Ord.orderRef || "");
+            if (ordKey && !allOrders.some((o: any) => String(o._id || o.orderRef || "") === ordKey)) {
+              allOrders.push(d1Ord);
+            }
+          }
+        } catch (d1Err) {
+          console.warn("[Orders Webhook GET] Erro ao buscar D1 orders:", d1Err);
+        }
+      }
 
-      const sanitizedOrders = persistedOrders.map((ord: any) => ({
+      const sanitizedOrders = allOrders.map((ord: any) => ({
         _id: ord._id,
         orderRef: ord.orderRef,
         type: ord.type,
@@ -346,7 +360,7 @@ export async function handleRockRoutes(
       const incomingStatus = String(rawOrder?.status || rawOrder?.paymentStatus || "WAITING-PAYMENT").toUpperCase().replace(/_/g, "-");
 
       try {
-        const user = resolveUserForOrder(rawOrder, serverState.users);
+        let user = resolveUserForOrder(rawOrder, serverState.users);
         const isClubMember = user?.isClubMember === true;
 
         const result = processMkplaceOrderNotification(rawOrder, isClubMember, {
@@ -381,14 +395,68 @@ export async function handleRockRoutes(
         const currentPersistentOrders = await fetchPersistentOrders();
         const existingOrder = currentPersistentOrders.find((o) => o._id === orderId);
 
+        // Consulta direta ao Cloudflare D1 (fonte canônica de verdade)
+        let d1ExistingOrder: any = null;
+        let d1EarnTx: any = null;
+        let d1SpendTx: any = null;
+        let d1RefundTx: any = null;
+        let d1CbRefundTx: any = null;
+        let d1RefBonusTx: any = null;
+        let d1RefCbRefundTx: any = null;
+
+        if (d1Service.isAvailable()) {
+          try {
+            d1ExistingOrder = await d1Service.findOrder(orderId);
+            d1EarnTx = await d1Service.findTransaction(`tx-mkp-earn-${orderId}`);
+            d1SpendTx = await d1Service.findTransaction(`tx-mkp-spend-${orderId}`);
+            d1RefundTx = await d1Service.findTransaction(`tx-mkp-refund-${orderId}`);
+            d1CbRefundTx = await d1Service.findTransaction(`tx-mkp-cb-refund-${orderId}`);
+            d1RefBonusTx = await d1Service.findTransaction(`tx-mkp-ref-bonus-${orderId}`);
+            d1RefCbRefundTx = await d1Service.findTransaction(`tx-mkp-ref-cb-refund-${orderId}`);
+          } catch (d1QueryErr) {
+            console.warn("[Rock Webhook] Erro ao consultar registros D1:", d1QueryErr);
+          }
+        }
+
+        // Se usuário não foi resolvido pelo resolvedor padrão, busca pelo D1
+        if (!user && (d1ExistingOrder?.customerId || d1ExistingOrder?.customerEmail)) {
+          const d1User = await d1Service.findUser(d1ExistingOrder.customerId || d1ExistingOrder.customerEmail);
+          if (d1User) {
+            user = d1User as any;
+            if (!serverState.users.some((u) => u.id === d1User.id)) {
+              serverState.users.push(d1User);
+            }
+          }
+        }
+
         const alreadyCreditedCashback = Boolean(
+          d1EarnTx ||
           existingOrder?.netfitsProcessing?.cashbackCredited === true ||
           serverState.transactions.some((t) => t.id === `tx-mkp-earn-${orderId}`)
         );
 
         const alreadyDebitedPoints = Boolean(
+          d1SpendTx ||
           existingOrder?.netfitsProcessing?.pointsDebited === true ||
           serverState.transactions.some((t) => t.id === `tx-mkp-spend-${orderId}`)
+        );
+
+        const alreadyRefundedCashback = Boolean(
+          d1CbRefundTx ||
+          serverState.transactions.some((t) => t.id === `tx-mkp-cb-refund-${orderId}`)
+        );
+
+        const alreadyRefundedPoints = Boolean(
+          d1RefundTx ||
+          serverState.transactions.some((t) => t.id === `tx-mkp-refund-${orderId}`)
+        );
+
+        const cashbackToRefund = Math.abs(
+          Number(d1EarnTx?.amount ?? d1ExistingOrder?.cashbackNfs ?? (existingOrder as any)?.cashbackNfs ?? existingOrder?.netfitsProcessing?.pointsEarned ?? result.nfsEarned ?? 0)
+        );
+
+        const pointsToRestore = Math.abs(
+          Number(d1SpendTx?.amount ? Math.abs(d1SpendTx.amount) : (d1ExistingOrder?.pointsRedeemed ?? existingOrder?.netfitsProcessing?.pointsUsed ?? result.pointsUsed ?? 0))
         );
 
         const alreadySentOrderEmail = Boolean(existingOrder?.netfitsProcessing?.orderEmailSent === true);
@@ -502,31 +570,75 @@ export async function handleRockRoutes(
               isReplay = true;
             }
           } else if (isCanceledOrRefunded) {
-            if (alreadyDebitedPoints) {
-              user.nfsBalance = (user.nfsBalance || 0) + result.pointsUsed;
+            if (alreadyDebitedPoints && !alreadyRefundedPoints && pointsToRestore > 0) {
+              user.nfsBalance = (user.nfsBalance || 0) + pointsToRestore;
               serverState.transactions.unshift({
                 id: `tx-mkp-refund-${orderId}`,
                 userId: user.id,
                 userName: user.fullName || "Atleta Netfits",
-                amount: result.pointsUsed,
+                amount: pointsToRestore,
                 description: `↩️ Estorno de pontos - Pedido cancelado #${orderId}`,
                 category: "shop",
                 timestamp: requestTimestamp,
               });
               pointsDebited = false;
             }
-            if (alreadyCreditedCashback) {
-              user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - result.nfsEarned);
+            if (alreadyCreditedCashback && !alreadyRefundedCashback && cashbackToRefund > 0) {
+              user.nfsBalance = Math.max(0, (user.nfsBalance || 0) - cashbackToRefund);
               serverState.transactions.unshift({
                 id: `tx-mkp-cb-refund-${orderId}`,
                 userId: user.id,
                 userName: user.fullName || "Atleta Netfits",
-                amount: -result.nfsEarned,
+                amount: -cashbackToRefund,
                 description: `↩️ Estorno de cashback - Pedido cancelado #${orderId}`,
                 category: "shop",
                 timestamp: requestTimestamp,
               });
               cashbackCredited = false;
+            }
+
+            // Estorno de comissão MGM para padrinho do Clube Netfits
+            const alreadyAwardedRefBonus = Boolean(
+              d1RefBonusTx ||
+              serverState.transactions.some((t) => t.id === `tx-mkp-ref-bonus-${orderId}`)
+            );
+            const alreadyRefundedRefBonus = Boolean(
+              d1RefCbRefundTx ||
+              serverState.transactions.some((t) => t.id === `tx-mkp-ref-cb-refund-${orderId}`)
+            );
+            if (alreadyAwardedRefBonus && !alreadyRefundedRefBonus) {
+              const refBonusAmount = Math.abs(Number(d1RefBonusTx?.amount ?? 0));
+              const refUserId = d1RefBonusTx?.userId;
+              if (refBonusAmount > 0 && refUserId) {
+                const referrer = serverState.users.find((u) => u.id === refUserId);
+                if (referrer) {
+                  referrer.nfsBalance = Math.max(0, (referrer.nfsBalance || 0) - refBonusAmount);
+                }
+                serverState.transactions.unshift({
+                  id: `tx-mkp-ref-cb-refund-${orderId}`,
+                  userId: refUserId,
+                  userName: d1RefBonusTx?.userName || referrer?.fullName || "Membro Clube Netfits",
+                  amount: -refBonusAmount,
+                  description: `↩️ Estorno de bônus Clube - Pedido cancelado #${orderId}`,
+                  category: "referral",
+                  timestamp: requestTimestamp,
+                });
+                if (d1Service.isAvailable()) {
+                  d1Service.insertTransaction({
+                    id: `tx-mkp-ref-cb-refund-${orderId}`,
+                    userId: refUserId,
+                    userName: d1RefBonusTx?.userName || referrer?.fullName || "Membro Clube Netfits",
+                    amount: -refBonusAmount,
+                    description: `↩️ Estorno de bônus Clube - Pedido cancelado #${orderId}`,
+                    category: "referral",
+                    orderRef: orderId,
+                    timestamp: requestTimestamp,
+                  }).catch((err) => console.warn("[D1 insertTransaction ref-refund]", err));
+                  if (referrer) {
+                    d1Service.updateUserBalance(referrer.id, referrer.nfsBalance).catch((err) => console.warn("[D1 updateReferrerBalance]", err));
+                  }
+                }
+              }
             }
             serverState.touchSync();
           }
@@ -585,34 +697,64 @@ export async function handleRockRoutes(
         if (d1Service.isAvailable()) {
           const finalOrderWithCashback = {
             ...finalOrder,
-            cashbackNfs: result.nfsEarned,
+            cashbackNfs: isCanceledOrRefunded ? 0 : result.nfsEarned,
+            status: incomingStatus,
+            paymentStatus: rawOrder?.paymentStatus || incomingStatus,
           };
-          d1Service.upsertOrder(finalOrderWithCashback).catch((err) => console.warn("[D1 upsertOrder]", err));
+          await d1Service.upsertOrder(finalOrderWithCashback).catch((err) => console.warn("[D1 upsertOrder]", err));
           if (user) {
-            d1Service.updateUserBalance(user.id, user.nfsBalance).catch((err) => console.warn("[D1 updateUserBalance]", err));
-            if (result.nfsEarned > 0) {
-              d1Service.insertTransaction({
-                id: `tx-mkp-earn-${orderId}`,
-                userId: user.id,
-                userName: user.fullName || "Atleta Netfits",
-                amount: result.nfsEarned,
-                description: `✨ Cashback compra Mkplace Pedido #${orderId}`,
-                category: "shop",
-                orderRef: orderId,
-                timestamp: requestTimestamp,
-              }).catch((err) => console.warn("[D1 insertTransaction earn]", err));
-            }
-            if (result.pointsUsed > 0) {
-              d1Service.insertTransaction({
-                id: `tx-mkp-spend-${orderId}`,
-                userId: user.id,
-                userName: user.fullName || "Atleta Netfits",
-                amount: -result.pointsUsed,
-                description: `🛍️ Resgate compra Mkplace Pedido #${orderId}`,
-                category: "shop",
-                orderRef: orderId,
-                timestamp: requestTimestamp,
-              }).catch((err) => console.warn("[D1 insertTransaction spend]", err));
+            await d1Service.updateUserBalance(user.id, user.nfsBalance).catch((err) => console.warn("[D1 updateUserBalance]", err));
+            if (isApproved) {
+              if (result.nfsEarned > 0 && !alreadyCreditedCashback) {
+                await d1Service.insertTransaction({
+                  id: `tx-mkp-earn-${orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: result.nfsEarned,
+                  description: `✨ Cashback compra Mkplace Pedido #${orderId}`,
+                  category: "shop",
+                  orderRef: orderId,
+                  timestamp: requestTimestamp,
+                }).catch((err) => console.warn("[D1 insertTransaction earn]", err));
+              }
+              if (result.pointsUsed > 0 && !alreadyDebitedPoints) {
+                await d1Service.insertTransaction({
+                  id: `tx-mkp-spend-${orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: -result.pointsUsed,
+                  description: `🛍️ Resgate compra Mkplace Pedido #${orderId}`,
+                  category: "shop",
+                  orderRef: orderId,
+                  timestamp: requestTimestamp,
+                }).catch((err) => console.warn("[D1 insertTransaction spend]", err));
+              }
+            } else if (isCanceledOrRefunded) {
+              if (alreadyCreditedCashback && !alreadyRefundedCashback && cashbackToRefund > 0) {
+                await d1Service.insertTransaction({
+                  id: `tx-mkp-cb-refund-${orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: -cashbackToRefund,
+                  description: `↩️ Estorno de cashback - Pedido cancelado #${orderId}`,
+                  category: "shop",
+                  orderRef: orderId,
+                  timestamp: requestTimestamp,
+                }).catch((err) => console.warn("[D1 insertTransaction cb-refund]", err));
+              }
+              if (alreadyDebitedPoints && !alreadyRefundedPoints && pointsToRestore > 0) {
+                await d1Service.insertTransaction({
+                  id: `tx-mkp-refund-${orderId}`,
+                  userId: user.id,
+                  userName: user.fullName || "Atleta Netfits",
+                  amount: pointsToRestore,
+                  description: `↩️ Estorno de pontos - Pedido cancelado #${orderId}`,
+                  category: "shop",
+                  orderRef: orderId,
+                  timestamp: requestTimestamp,
+                }).catch((err) => console.warn("[D1 insertTransaction refund]", err));
+              }
+              console.info(`[AUDIT EVENT - CANCELAMENTO ROCK] Pedido #${orderId} cancelado. Status: ${incomingStatus}. Estorno de cashback: -${cashbackToRefund} nfs. Pontos devolvidos: +${pointsToRestore} nfs. Usuário: ${user.id}`);
             }
           }
         }
