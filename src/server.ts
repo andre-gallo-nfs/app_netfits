@@ -103,6 +103,22 @@ export default {
     if (moderationRes) return moderationRes;
 
     // 8. Fallback to TanStack React Start SSR Handler
-    return handler(req);
+    const res = await handler(req);
+
+    // Blindagem de Cache para rotas HTML e navegação no app móvel (WKWebView / Chromium)
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("text/html")) {
+      const headers = new Headers(res.headers);
+      headers.set("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0, s-maxage=0");
+      headers.set("Pragma", "no-cache");
+      headers.set("Expires", "0");
+      return new Response(res.body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers,
+      });
+    }
+
+    return res;
   },
 };

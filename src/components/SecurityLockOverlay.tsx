@@ -239,7 +239,7 @@ export function SecurityLockOverlay() {
         </button>
 
         <span className="text-[10px] text-zinc-600">
-          Netfits Guard v1.6
+          Netfits Guard v1.7
         </span>
       </div>
     </div>

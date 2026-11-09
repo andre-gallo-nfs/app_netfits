@@ -346,7 +346,11 @@ class AppLockStore {
         error: "Biometria indisponível ou não reconhecida. Digite sua senha cadastrada.",
       };
     } finally {
-      this.isAuthenticatingBiometrics = false;
+      // No iOS WKWebView, a animação nativa de encerramento do modal do Face ID leva ~400-600ms.
+      // Mantém a flag ativa por 1500ms para absorver qualquer evento tardio de visibilitychange
+      setTimeout(() => {
+        this.isAuthenticatingBiometrics = false;
+      }, 1500);
     }
   }
 
