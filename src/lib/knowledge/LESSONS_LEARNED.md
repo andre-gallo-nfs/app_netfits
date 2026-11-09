@@ -188,3 +188,18 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
      - Injeção obrigatória dos headers de Cache-Control em `src/server.ts`.
   3. **Atraso de Segurança no Descarte de Biometria (Grace Delay)**: A flag `isAuthenticatingBiometrics` só deve ser desarmada com atraso programado (mínimo de 1500ms) após o retorno da API nativa, garantindo tempo hábil para o sistema operacional concluir a animação de fechamento do modal biométrico sem disparar bloqueios espúrios.
 * **Agentes Responsáveis**: Automated Runtime and Lifecycle Test Gatekeeper (`src/lib/__tests__/*.test.ts`) e Continuous Learning Gatekeeper (`scripts/multi-agent-orchestrator.mjs`).
+
+
+---
+
+### 🧬 LIÇÃO LL-016: ARQUITETURA DE AGENTES EFICIENTE (ANTHROPIC LOOP UNIFICADO & PROGRESSIVE DISCLOSURE VS. PROLIFERAÇÃO DE SUBAGENTES)
+* **ID Canônico**: `LL-016`
+* **Gravidade**: `CRITICAL` (Diretriz Arquitetural de Engenharia)
+* **Origem**: Avaliação e adoção das diretrizes de engenharia da Anthropic (*"Building agents: When to fold subagents into your main agent loop"*, Nov/2026).
+* **Contexto**: A tentativa de criar subagentes de IA para cada departamento (organograma humano) introduz 4 patologias graves: o "efeito telefone sem fio" (perda de nuances contextuais em repasses), duplicação de latência e custos de tokens, "Frankenprompts" (instruções colidentes) e avaliações ilhadas. A Anthropic recomenda como padrão a unificação em um **Único Loop Principal (Main Agent Loop)** com **Revelação Progressiva (Progressive Disclosure)** de ferramentas e diretrizes (*Skills*), reservando subagentes estritamente para: 1) Auditoria adversarial em contexto limpo (Fresh Context Verification / Gatekeepers); 2) Paralelização massiva real; 3) Fronteiras estritas de segurança e credenciais (Security & Permission Boundaries).
+* **Regras Inegociáveis**:
+  1. **Loop Principal Unificado (Main Agent Loop)**: Toda cognição de engenharia e desenvolvimento opera em um único loop cognitivo central, eliminando delegadores intermediários que degradam o contexto das instruções do fundador.
+  2. **Revelação Progressiva de Habilidades (Progressive Skills)**: Diretrizes especializadas (como Compliance CFM, Key Visual, cálculos atuariais FEFO e Acessibilidade WCAG) são estruturadas como *Skills* modulares ativadas sob demanda, sem a sobrecarga de subagentes independentes.
+  3. **Gatekeepers Adversariais em Contexto Limpo**: Os guardiões de veto do pipeline (`scripts/multi-agent-orchestrator.mjs` e testes Vitest) atuam como avaliadores determinísticos isolados, sem o viés do loop de geração de código.
+  4. **Isolamento de Segurança de Runtime**: O livro-razão no Cloudflare D1 e webhooks HMAC operam em workers de servidor protegidos, enquanto o *Netfit AI Concierge* opera isolado no app com prompt enxuto e escopo estrito de atendimento.
+* **Agentes Responsáveis**: Main Developer Agent, Continuous Learning Gatekeeper (`scripts/knowledge-learning-agent.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).

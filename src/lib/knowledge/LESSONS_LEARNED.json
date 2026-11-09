@@ -215,5 +215,19 @@
     "rule": "1) Invalidação Estrita de Cache para Documentos: Respostas HTTP para documentos HTML, navegações e SSR no Nitro/Cloudflare Workers DEVEM conter Cache-Control: 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0', 'Pragma: no-cache' e 'Expires: 0'. 2) Guardião de Testes Executáveis no Pipeline: A governança multiagêntica e o build de produção (npm run build:prod) DEVEM executar testes de runtime reais (npx vitest run) como gatekeeper obrigatório com poder de veto. 3) Atraso no Desarme de Biometria: A flag isAuthenticatingBiometrics só pode ser desarmada após delay de segurança (ex: 1500ms) para absorver a animação nativa de fechamento de modais do iOS/Android.",
     "antiPattern": [],
     "enforcedBy": "src/lib/__tests__/cache-headers-guard.test.ts, src/lib/__tests__/mobile-lifecycle-auth.test.ts & scripts/multi-agent-orchestrator.mjs"
+  },
+  {
+    "id": "LL-016",
+    "title": "Arquitetura de Agentes Eficiente (Anthropic Loop Unificado & Progressive Disclosure vs. Proliferação de Subagentes)",
+    "category": "ai_architecture_governance",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-09",
+    "context": "Conforme demonstrado pelo paper de engenharia da Anthropic ('Building agents: When to fold subagents into your main agent loop'), a criação excessiva de subagentes cognitivos para espelhar organogramas humanos provoca o 'jogo do telefone sem fio' (perda de nuances nas instruções), duplicação de latência, prompts conflitantes (Frankenprompts) e avaliações ilhadas. Subagentes só são tecnicamente justificados em 3 cenários: 1) Auditoria adversarial em contexto limpo (Fresh-Context Verification / Gatekeepers de Veto); 2) Paralelização massiva real; 3) Fronteiras rígidas de segurança e credenciais (Security & Permission Boundaries).",
+    "rule": "1) A cognição de desenvolvimento e engenharia da Netfits deve operar em um Único Loop Principal (Main Agent Loop), utilizando Revelação Progressiva (Progressive Disclosure) para carregar diretrizes médicas, regras de Key Visual, fórmulas FEFO e acessibilidade como Skills sob demanda. 2) Proibição de cadeias de subagentes aninhados para tarefas cognitivas que gerem degradação de contexto. 3) Manutenção estrita dos Gatekeepers determinísticos (scripts/vitest/multi-agent-orchestrator.mjs) como verificadores adversariais com poder de veto. 4) Manutenção do Netfit AI Concierge como agente isolado de front-of-house no app, com prompt enxuto e escopo restrito de atendimento.",
+    "antiPattern": [
+      "nested subagents telephone game",
+      "mirroring company org chart into LLM subagents"
+    ],
+    "enforcedBy": "scripts/knowledge-learning-agent.mjs & scripts/multi-agent-orchestrator.mjs"
   }
 ]
