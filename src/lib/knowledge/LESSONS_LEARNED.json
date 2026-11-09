@@ -175,5 +175,34 @@
       "TRUNCATE TABLE users"
     ],
     "enforcedBy": "scripts/knowledge-learning-agent.mjs"
+  },
+  {
+    "id": "LL-013",
+    "title": "Paridade Estrita e Conciliação Contábil por Partidas Dobradas entre Balanço de Usuários (users.nfsBalance) e Livro-Razão (transactions)",
+    "category": "ledger_integrity",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-09",
+    "context": "Em 09/11/2026, foi detectado que o saldo de pontos na tabela users (nfsBalance) divergia do extrato contábil da tabela transactions para 14 dos 16 usuários cadastrados. A migração inicial para o Cloudflare D1 provisionou os saldos numéricos na tabela users, mas omitiu a execução da carga de transações históricas no banco remoto. Quando novas transações em tempo real ocorreram (como a compra de 699 nfs e os quizzes do Carlos Formigari em 08/11), o extrato passou a somar apenas essas movimentações recentes (709 nfs), gerando divergência visível no painel Admin em relação ao saldo acumulado total.",
+    "rule": "1) Conciliação Contábil Mandatória: Para 100% dos usuários cadastrados no banco Cloudflare D1 (netfits-db), a soma das linhas de transactions.amount DEVE ser estritamente igual ao users.nfsBalance (diferença zero). 2) Proibição de Saldo Órfão: É terminantemente proibido atribuir, migrar ou alterar nfsBalance sem o respectivo registro detalhado no livro-razão (transactions) com id, userId, amount, category, description e timestamp. 3) Cargas e Migrações Atômicas: Qualquer script de seed, reconciliação ou migração de banco DEVE executar sincronamente a atualização de usuários e a inserção de todas as transações correspondentes no mesmo lote. 4) Auditoria Ativa de Ledger: O Ledger Sentinel e os scripts de governança devem auditar continuamente se existe qualquer discrepância entre users.nfsBalance e SUM(transactions.amount), bloqueando deploys em caso de assimetria contábil.",
+    "antiPattern": [
+      "users.nfsBalance != SUM(transactions.amount)",
+      "INSERT INTO users WITHOUT TRANSACTIONS"
+    ],
+    "enforcedBy": "scripts/knowledge-learning-agent.mjs & scripts/audit_ledger_sentinel.cjs"
+  },
+  {
+    "id": "LL-014",
+    "title": "Blindagem de Ciclo de Vida Mobile, Eventos de Visibilidade durante Biometria Nativa e Grace Period de Desbloqueio",
+    "category": "mobile_runtime_security",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-09",
+    "context": "Em 09/11/2026, a usuária Mariana Fernanda Pizone reportou: 'Oie! Pisca e não acessa' ao tentar autenticar via Face ID no iOS (Netfits Guard v1.6). Quando o app abria após o timeout de inatividade (>10 min), o timestamp local estava vencido. Ao clicar em 'Acessar com Face ID', o iOS exibia o modal nativo do LocalAuthentication, despachando eventos de ciclo de vida no WKWebView (visibilitychange: hidden -> visible). Quando a biometria era bem-sucedida, o modal nativo se fechava e o evento de visibilidade disparava antes/concomitantemente à atualização de atividade. O ouvinte de visibilidade reavaliava o timestamp antigo, sem verificar se uma biometria estava em andamento e sem tolerância temporal pós-desbloqueio, acionando imediatamente setUnlocked(false). Isso gerava um piscar efêmero da tela inicial (1 frame ~100ms) e o trancamento instantâneo de volta para a tela de bloqueio. Adicionalmente, Mariana caía em sessão temporária 'AV' (Atleta Visitante) por ausência de seed dos 10 usuários recentes no INITIAL_USERS do cliente.",
+    "rule": "1) Flag de Autenticação Ativa: Sempre proteger o fluxo de biometria nativa com a flag isAuthenticatingBiometrics. Ouvintes de visibilitychange e heartbeats de inatividade DEVEM ignorar eventos enquanto a autenticação nativa estiver em andamento. 2) Grace Period de Desbloqueio: Implementar período de carência (mínimo de 30 segundos) pós-desbloqueio bem-sucedido (lastUnlockTimestamp), impedindo que qualquer verificação assíncrona ou de visibilidade force o bloqueio imediato do app. 3) Atualização Imediata de Atividade: Ao validar biometria ou senha, executar recordActivity() imediatamente antes de transicionar o estado de bloqueio. 4) Timeout de Biometria Seguro: O timeout de cancelamento da biometria deve ser de pelo menos 15 segundos para comportar leitura lenta ou digitação do código do iOS. 5) Paridade de Usuários Iniciais e Recuperação de Sessão: Todos os usuários de produção devem existir em INITIAL_USERS no cliente ou possuir fallback resiliente no localStorage (netfits_profile_saved_*) para evitar que usuários legítimos caiam em sessão anônima 'AV'.",
+    "antiPattern": [
+      "visibilitychange lock without checking biometric flow",
+      "unlocked = true without updating lastActivity",
+      "lock screen race condition on modal dismiss"
+    ],
+    "enforcedBy": "scripts/knowledge-learning-agent.mjs & scripts/mobile-platform-checker.mjs"
   }
 ]

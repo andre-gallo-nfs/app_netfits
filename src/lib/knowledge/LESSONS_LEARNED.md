@@ -136,3 +136,33 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
   2. **Proibição de Comandos Destrutivos**: É estritamente vedada a execução de `DROP TABLE users`, `TRUNCATE TABLE users` ou `DELETE` indiscriminado. Migrações e scripts devem operar estritamente via UPSERT cumulativo (`ON CONFLICT(id) DO UPDATE`).
   3. **Contagem Monotonamente Não-Decrescente**: Qualquer script de migração, reconciliação ou sincronização deve assegurar que a contagem de usuários cadastrados permaneça igual ou maior após a operação.
 * **Anti-patterns Proibidos**: `DROP TABLE users`, `DELETE FROM users;`, migrações com listas estáticas parciais que não contemplem a totalidade dos usuários reais.
+
+---
+
+### 🏛️ LL-013: Paridade Estrita e Conciliação Contábil por Partidas Dobradas entre Balanço de Usuários (`users.nfsBalance`) e Livro-Razão (`transactions`)
+* **Severidade**: `CRITICAL`
+* **Data da Lição**: 09 de Novembro de 2026
+* **Contexto do Incidente**:
+  Em 09/11/2026, foi detectado que o saldo de pontos na tabela `users` (`nfsBalance`) divergia do extrato contábil da tabela `transactions` para 14 dos 16 usuários cadastrados. A migração inicial para o Cloudflare D1 provisionou os saldos numéricos na tabela `users`, mas omitiu a execução da carga de transações históricas no banco remoto. Quando novas transações em tempo real ocorreram (como a compra de 699 nfs e os quizzes do Carlos Formigari em 08/11), o extrato passou a somar apenas essas movimentações recentes (709 nfs), gerando divergência visível no painel Admin em relação ao saldo acumulado total.
+* **Regras Inegociáveis**:
+  1. **Conciliação Contábil Mandatória**: Para 100% dos usuários cadastrados no banco Cloudflare D1 (`netfits-db`), a soma das linhas de `transactions.amount` DEVE ser estritamente igual ao `users.nfsBalance` (diferença zero: $\sum transactions.amount == users.nfsBalance$).
+  2. **Proibição Absoluta de Saldo Órfão**: É terminantemente proibido atribuir, migrar ou alterar `nfsBalance` sem o respectivo registro detalhado no livro-razão (`transactions`) com `id`, `userId`, `amount`, `category`, `description` e `timestamp`.
+  3. **Cargas e Migrações Atômicas**: Qualquer script de seed, reconciliação ou migração de banco DEVE executar sincronamente a atualização de usuários e a inserção de todas as transações correspondentes no mesmo lote.
+  4. **Auditoria Ativa de Ledger**: O Ledger Sentinel e os scripts de governança multiagêntica devem auditar continuamente a paridade entre `users.nfsBalance` e `SUM(transactions.amount)`, bloqueando deploys em caso de assimetria contábil.
+* **Agentes Responsáveis**: Event Oracle & Ledger Gatekeeper Agent + Real-Time Online Ledger Sentinel (`scripts/audit_ledger_sentinel.cjs` e `scripts/knowledge-learning-agent.mjs`).
+
+
+---
+
+### 🛡️ LIÇÃO LL-014: BLINDAGEM DE CICLO DE VIDA MOBILE, EVENTOS DE VISIBILIDADE EM BIOMETRIA NATIVA E GRACE PERIOD DE DESBLOQUEIO
+* **ID Canônico**: `LL-014`
+* **Gravidade**: `CRITICAL` (Poder de Veto Imediato)
+* **Origem**: Incidente de Produção com Usuária Mariana Fernanda Pizone em 09/11/2026 ("Pisca e não acessa")
+* **Contexto**: No iOS WKWebView, a exibição e o fechamento do modal nativo de autenticação biométrica (`LocalAuthentication` / Face ID) despacham eventos de ciclo de vida (`visibilitychange`). Quando o app estava com timeout de inatividade expirado, o fechamento do modal biométrico disparava `visibilitychange` que reavaliava o timestamp de inatividade antigo antes de registrar a nova atividade, trancando a tela instantaneamente após o sucesso da leitura do Face ID (comportamento de "piscar" e retornar à tela de bloqueio).
+* **Regras Inegociáveis**:
+  1. **Flag de Autenticação Ativa**: O fluxo de biometria nativa DEVE ser envolvido por uma flag de estado (`isAuthenticatingBiometrics`). Qualquer ouvinte de visibilidade (`visibilitychange`) ou batimento cardíaco de inatividade (`setInterval`) DEVE ignorar verificações de timeout enquanto a biometria nativa estiver em progresso.
+  2. **Grace Period Pós-Desbloqueio (30s)**: Imediatamente após um desbloqueio bem-sucedido (`unlockWithBiometrics` ou `unlockWithPassword`), registrar `lastUnlockTimestamp = Date.now()`. O sistema é proibido de bloquear o app por inatividade durante os 30 segundos seguintes, blindando contra race conditions e eventos assíncronos de ciclo de vida.
+  3. **Atualização Atômica de Atividade**: Ao validar a biometria ou senha, executar `recordActivity()` imediatamente antes de transicionar o estado de bloqueio (`unlocked = true`).
+  4. **Timeout de Biometria Seguro**: O timeout de fallback do modal de biometria deve ser de pelo menos 15 segundos para comportar sensores biométricos lentos ou fallback para senha nativa do dispositivo.
+  5. **Paridade Canônica de Sessão e Usuários Iniciais**: Todos os usuários registrados em produção devem constar em `INITIAL_USERS` no cliente e possuir fallback resiliente de perfil salvo localmente (`netfits_profile_saved_*`), impedindo que usuários reais caiam na persona anônima "Atleta Visitante" (AV) em caso de latência na sincronização remota.
+* **Agentes Responsáveis**: Mobile Cross-Platform & Runtime Gatekeeper Agent (`scripts/mobile-platform-checker.mjs`) e Continuous Learning Gatekeeper (`scripts/knowledge-learning-agent.mjs`).

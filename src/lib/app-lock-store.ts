@@ -15,9 +15,13 @@ const CHECKOUT_INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutos em checkout
 
 class AppLockStore {
   private unlocked: boolean = true;
+  private isAuthenticatingBiometrics: boolean = false;
+  private lastUnlockTimestamp: number = 0;
+  private lastActivityTimestamp: number = 0;
   private listeners = new Set<() => void>();
 
-  private recordActivity() {
+  public recordActivity() {
+    this.lastActivityTimestamp = Date.now();
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(APP_LAST_ACTIVITY_KEY, String(Date.now()));
@@ -77,6 +81,18 @@ class AppLockStore {
             this.recordActivity();
           }
         } else {
+          // Se a validação biométrica nativa estiver em andamento (ex: Face ID modal fechando),
+          // NUNCA disparar bloqueio por visibilidade (o prompt nativo causa evento de visibilidade no iOS/Android)
+          if (this.isAuthenticatingBiometrics) {
+            return;
+          }
+
+          // Se acabou de ser desbloqueado (menos de 30s), garante atividade fresca e não bloqueia
+          if (Date.now() - this.lastUnlockTimestamp < 30000) {
+            this.recordActivity();
+            return;
+          }
+
           const isWeb = !nativeBridge.isNativePlatform();
           const hostname = window.location.hostname || "";
           const isStaging =
@@ -86,7 +102,8 @@ class AppLockStore {
             window.location.port === "3000";
 
           if (!isWeb && !isStaging) {
-            const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
+            const lastActivityRaw = localStorage.getItem(APP_LAST_ACTIVITY_KEY);
+            const lastActivity = Math.max(Number(lastActivityRaw || 0), this.lastActivityTimestamp);
             const now = Date.now();
             const isCheckout =
               typeof window !== "undefined" &&
@@ -94,8 +111,8 @@ class AppLockStore {
                 (window as any).__netfits_in_checkout === true);
             const allowedTimeout = isCheckout ? CHECKOUT_INACTIVITY_TIMEOUT_MS : INACTIVITY_TIMEOUT_MS;
 
-            // Só bloqueia se houver atividade prévia válida E o tempo ultrapassar o timeout
-            if (lastActivity > 0 && now - lastActivity > allowedTimeout) {
+            // Só bloqueia se o app já estiver desbloqueado e houver atividade prévia válida que estourou o timeout
+            if (this.unlocked && lastActivity > 0 && now - lastActivity > allowedTimeout) {
               this.setUnlocked(false);
             } else {
               this.recordActivity();
@@ -107,6 +124,11 @@ class AppLockStore {
       // Heartbeat contínuo de inatividade a cada 15 segundos
       setInterval(() => {
         if (this.unlocked) {
+          // Se biometria estiver em andamento ou se foi desbloqueado recentemente (< 30s), não bloqueia
+          if (this.isAuthenticatingBiometrics || Date.now() - this.lastUnlockTimestamp < 30000) {
+            return;
+          }
+
           const isWeb = !nativeBridge.isNativePlatform();
           const hostname = window.location.hostname || "";
           const isStaging =
@@ -116,7 +138,8 @@ class AppLockStore {
             window.location.port === "3000";
 
           if (!isWeb && !isStaging) {
-            const lastActivity = Number(localStorage.getItem(APP_LAST_ACTIVITY_KEY) || 0);
+            const lastActivityRaw = localStorage.getItem(APP_LAST_ACTIVITY_KEY);
+            const lastActivity = Math.max(Number(lastActivityRaw || 0), this.lastActivityTimestamp);
             const now = Date.now();
             const isCheckout =
               typeof window !== "undefined" &&
@@ -191,6 +214,10 @@ class AppLockStore {
    */
   public setUnlocked(unlocked: boolean) {
     this.unlocked = unlocked;
+    if (unlocked) {
+      this.lastUnlockTimestamp = Date.now();
+      this.lastActivityTimestamp = Date.now();
+    }
     if (typeof window !== "undefined") {
       try {
         if (unlocked) {
@@ -242,6 +269,7 @@ class AppLockStore {
       };
     }
 
+    this.isAuthenticatingBiometrics = true;
     try {
       // 1. No aplicativo móvel nativo (iOS / Android)
       if (nativeBridge.isNativePlatform()) {
@@ -268,6 +296,8 @@ class AppLockStore {
               iosFallbackTitle: "Digitar Código do iPhone",
             });
             this.setUnlocked(true);
+            this.recordActivity();
+            sharedSandboxStore.setActiveUser(activeUser.id);
             toast.success(`👋 Olá, ${activeUser.fullName}! Acesso autorizado.`);
             return { success: true };
           } else {
@@ -296,6 +326,8 @@ class AppLockStore {
       }));
       if (result.success) {
         this.setUnlocked(true);
+        this.recordActivity();
+        sharedSandboxStore.setActiveUser(activeUser.id);
         toast.success(`👋 Olá, ${activeUser.fullName}! Acesso biométrico autorizado.`);
         return { success: true };
       }
@@ -313,6 +345,8 @@ class AppLockStore {
         success: false,
         error: "Biometria indisponível ou não reconhecida. Digite sua senha cadastrada.",
       };
+    } finally {
+      this.isAuthenticatingBiometrics = false;
     }
   }
 
@@ -397,6 +431,8 @@ class AppLockStore {
 
     if (isCorrect) {
       this.setUnlocked(true);
+      this.recordActivity();
+      sharedSandboxStore.setActiveUser(activeUser.id);
       toast.success(`👋 Olá, ${activeUser.fullName}! Acesso autorizado.`);
       return { success: true };
     }

@@ -44,10 +44,21 @@ export function SecurityLockOverlay() {
 
     try {
       const timeoutPromise = new Promise<{ success: boolean; error?: string }>((resolve) =>
-        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler biometria. Digite sua senha." }), 8000)
+        setTimeout(() => resolve({ success: false, error: "Tempo esgotado ao ler biometria. Digite sua senha." }), 15000)
       );
       const res = await Promise.race([appLockStore.unlockWithBiometrics(), timeoutPromise]);
-      if (!res.success && res.error && !isAutoPrompt) {
+      if (res.success) {
+        // Assegura sincronização atômica imediata da sessão do usuário autenticado
+        sharedSandboxStore.setActiveUser(activeUser.id);
+        authStore.recordRegisteredUser({
+          id: activeUser.id,
+          fullName: activeUser.fullName,
+          email: activeUser.email || activeUser.identifier,
+          phone: activeUser.phone || "",
+          cpf: activeUser.cpf || "",
+          userCategory: activeUser.type === "associado" ? "associado" : "atleta",
+        });
+      } else if (!res.success && res.error && !isAutoPrompt) {
         setErrorMessage(res.error);
       }
     } catch (err: any) {
@@ -64,7 +75,17 @@ export function SecurityLockOverlay() {
     setErrorMessage(null);
     setIsAuthenticatingBio(false);
     const res = appLockStore.unlockWithPassword(password);
-    if (!res.success && res.error) {
+    if (res.success) {
+      sharedSandboxStore.setActiveUser(activeUser.id);
+      authStore.recordRegisteredUser({
+        id: activeUser.id,
+        fullName: activeUser.fullName,
+        email: activeUser.email || activeUser.identifier,
+        phone: activeUser.phone || "",
+        cpf: activeUser.cpf || "",
+        userCategory: activeUser.type === "associado" ? "associado" : "atleta",
+      });
+    } else if (!res.success && res.error) {
       setErrorMessage(res.error);
     }
   };

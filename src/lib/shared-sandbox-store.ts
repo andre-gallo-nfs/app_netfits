@@ -481,6 +481,139 @@ const INITIAL_USERS: SandboxUser[] = [
     "referralCode": "REVIEW-NETFITS",
     "passwordHash": "Netfits@2026!"
   },
+  {
+    "id": "user-1793802322018",
+    "fullName": "Mariana Fernanda Pizone",
+    "email": "maripizone@gmail.com",
+    "identifier": "maripizone@gmail.com",
+    "phone": "(11) 98231-6517",
+    "cpf": "285.031.348-37",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "NET-8302",
+    "registeredAt": "2026-11-04T14:25:22.018Z",
+    "passwordHash": "Pizone@1990"
+  },
+  {
+    "id": "user-1794018495670",
+    "fullName": "Claudia Noce Soares",
+    "email": "claudia.noce@icloud.com",
+    "identifier": "claudia.noce@icloud.com",
+    "phone": "11952228851",
+    "cpf": "15743014892",
+    "nfsBalance": 199,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "NET-9401",
+    "registeredAt": "2026-11-08T01:07:55.294Z",
+    "passwordHash": "Noce@1992"
+  },
+  {
+    "id": "user-1793578988883",
+    "fullName": "Luisa Ferreira Formigari",
+    "email": "luisa.formigari@netfits.com.br",
+    "identifier": "luisa.formigari@netfits.com.br",
+    "phone": "(11) 97699-6293",
+    "cpf": "539.263.148-77",
+    "address": "Alameda Itu, 1400 - Jardim Paulista, São Paulo · SP",
+    "street": "Alameda Itu",
+    "number": "1400",
+    "neighborhood": "Jardim Paulista",
+    "city": "São Paulo",
+    "state": "São Paulo",
+    "zipcode": "01421-004",
+    "nfsBalance": 80,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "NET-8584",
+    "registeredAt": "2026-11-08T01:07:55.294Z",
+    "passwordHash": "Luisa@2026"
+  },
+  {
+    "id": "usr_isabella_formigari",
+    "fullName": "Dra. Isabella Formigari",
+    "email": "isaformigari99@gmail.com",
+    "identifier": "isaformigari99@gmail.com",
+    "nfsBalance": 200,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "ISABELLA-NFS",
+    "registeredAt": "2026-11-02T17:07:56.000Z",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
+    "id": "usr_franco_merici_gmail",
+    "fullName": "Dr. Franco Merici",
+    "email": "Francomerici007@gmail.com",
+    "identifier": "Francomerici007@gmail.com",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "FRANCO-MERICI-NFS",
+    "registeredAt": "2026-11-02T18:07:25.000Z",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
+    "id": "usr_alcides",
+    "fullName": "Alcides",
+    "email": "Alcidesln@gmail.com",
+    "identifier": "Alcidesln@gmail.com",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "ALCIDES-NFS",
+    "registeredAt": "2026-11-06T09:39:14.000Z",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
+    "id": "usr_eduardo_ferreira",
+    "fullName": "Eduardo Ferreira dos Santos",
+    "email": "dumanga_maguerbes@yahoo.com.br",
+    "identifier": "dumanga_maguerbes@yahoo.com.br",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "EDUARDO-NFS",
+    "registeredAt": "2026-11-05T23:17:39.000Z",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
+    "id": "usr_ana_merici_yahoo",
+    "fullName": "Ana Merici",
+    "email": "anamerici@yahoo.com.br",
+    "identifier": "anamerici@yahoo.com.br",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "ANA-MERICI-NFS",
+    "registeredAt": "2026-11-02T17:22:18.000Z",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
+    "id": "usr_yuri_bezerra",
+    "fullName": "Yuri Bezerra",
+    "email": "yuribezerra1000@hotmail.com",
+    "identifier": "yuribezerra1000@hotmail.com",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "YURI-BEZERRA-NFS",
+    "registeredAt": "2026-11-02T17:20:17.000Z",
+    "passwordHash": "Netfits@2026!"
+  },
+  {
+    "id": "usr_jorge_miyane",
+    "fullName": "Jorge Miyane",
+    "email": "jorgemiyane@hotmail.com",
+    "identifier": "jorgemiyane@hotmail.com",
+    "nfsBalance": 50,
+    "userCategory": "atleta",
+    "type": "athlete",
+    "referralCode": "JORGE-MIYANE-NFS",
+    "registeredAt": "2026-10-27T22:23:54.000Z",
+    "passwordHash": "Netfits@2026!"
+  }
 ];
 
 const INITIAL_PARTNERS: SandboxPartner[] = [];
@@ -1937,7 +2070,8 @@ class HomologationSandboxStore {
       if (deviceUserId) {
         return (
           this.state.users.some((u) => u.id === deviceUserId) ||
-          INITIAL_USERS.some((u) => u.id === deviceUserId)
+          INITIAL_USERS.some((u) => u.id === deviceUserId) ||
+          Boolean(localStorage.getItem(`netfits_profile_saved_${deviceUserId}`))
         );
       }
     }
@@ -1980,7 +2114,24 @@ class HomologationSandboxStore {
 
       const deviceUserId = localStorage.getItem(DEVICE_SESSION_KEY);
       if (deviceUserId) {
-        const found = this.state.users.find((u) => u.id === deviceUserId);
+        let found = this.state.users.find((u) => u.id === deviceUserId);
+        if (!found) {
+          found = INITIAL_USERS.find((u) => u.id === deviceUserId);
+          if (found) {
+            this.state.users.push(found);
+          } else {
+            try {
+              const savedProfile = localStorage.getItem(`netfits_profile_saved_${deviceUserId}`);
+              if (savedProfile) {
+                const parsed = JSON.parse(savedProfile);
+                if (parsed && parsed.id) {
+                  this.state.users.push(parsed);
+                  found = parsed;
+                }
+              }
+            } catch {}
+          }
+        }
         if (found) return found;
       }
 
