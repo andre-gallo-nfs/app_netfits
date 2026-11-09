@@ -260,6 +260,7 @@ export async function handleSyncRoutes(
         }
 
         // 2. ATOMICIDADE MGM SERVER-SIDE: Creditar o padrinho no servidor central
+        const serverGeneratedTxs: any[] = [];
         for (const rawUser of incomingUsers) {
           if (rawUser && (rawUser.referredBy || rawUser.referralCodeUsed)) {
             const refCode = String(rawUser.referredBy || rawUser.referralCodeUsed).trim().toUpperCase();
@@ -288,6 +289,7 @@ export async function handleSyncRoutes(
                   timestamp: new Date().toISOString(),
                 };
                 serverState.transactions.unshift(refTx);
+                serverGeneratedTxs.push(refTx);
                 console.log(`[MGM Backend] +${referralBonus} nfs creditados para ${referrer.fullName} pela indicação de ${rawUser.fullName}`);
                 if (referrer.email && referrer.email.includes("@")) {
                   sendReferralCompletedEmail({
@@ -314,7 +316,7 @@ export async function handleSyncRoutes(
             for (const u of serverState.users) {
               await d1Service.upsertUser(u);
             }
-            for (const tx of incomingTxs) {
+            for (const tx of [...incomingTxs, ...serverGeneratedTxs]) {
               await d1Service.insertTransaction(tx);
             }
           } catch (d1WriteErr) {

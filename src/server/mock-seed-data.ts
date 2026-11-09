@@ -71,7 +71,7 @@ export const DEFAULT_PRESEEDED_USERS = [
     "wearable": "Garmin Connect",
     "garminUserId": "garmin_usr_andre",
     "wearableConnectedAt": "2026-11-06T00:00:00Z",
-    "nfsBalance": 411,
+    "nfsBalance": 461,
     "userCategory": "associado",
     "registeredAt": "2026-10-05T00:00:00Z",
     "identifier": "aacgallo@hotmail.com",
@@ -751,5 +751,14 @@ export const DEFAULT_PRESEEDED_TRANSACTIONS = [
     "description": "🏆 Selo Conquistado: Atleta de Alta Performance",
     "category": "badge",
     "timestamp": "2026-10-05T00:00:00Z"
+  },
+  {
+    "id": "tx-referral-andre-queli",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 50,
+    "description": "🤝 Bônus por Indicar Novo Usuário (Cristiane Queli da Silva Gallo)",
+    "category": "referral",
+    "timestamp": "2026-10-15T18:52:14.266Z"
   }
 ];

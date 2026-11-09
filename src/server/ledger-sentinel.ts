@@ -14,6 +14,7 @@
 
 import { serverState } from "./server-state.ts";
 import { fetchPersistentUsersAndTransactionsFromCloud, syncUsersAndTransactionsToCloud } from "../lib/persistent-orders-store.ts";
+import { d1Service } from "./d1-service.ts";
 
 export interface LedgerAuditResult {
   auditedAt: string;
@@ -173,6 +174,44 @@ export class RealTimeLedgerSentinel {
     let selfHealedCount = 0;
     let totalClubPoints = 0;
     let activeSubscribers = 0;
+    const healedTxs: any[] = [];
+
+    // 2. AUDITORIA RETROATIVA DE INDICAÇÕES (MGM RECONCILIATION):
+    // Garante que todo usuário cadastrado com código válido gerou o crédito de +50 nfs ao seu respectivo padrinho
+    for (const u of serverState.users) {
+      if (!u || (!u.referredBy && !(u as any).referralCodeUsed)) continue;
+      const refCode = String(u.referredBy || (u as any).referralCodeUsed).trim().toUpperCase();
+      const referrer = serverState.users.find(
+        r => r.referralCode && r.referralCode.trim().toUpperCase() === refCode && r.id !== u.id
+      );
+      if (referrer) {
+        const hasReferralTx = serverState.transactions.some(
+          t => t.userId === referrer.id && t.category === "referral" && t.description &&
+               t.description.includes(u.fullName || u.email || u.id)
+        );
+        if (!hasReferralTx) {
+          console.warn(`[Sentinel MGM Audit] Indicação pendente detectada: ${u.fullName} indicado por ${referrer.fullName} (${refCode}) sem tx de referral!`);
+          if (autoHeal) {
+            const referralBonus = 50;
+            const refTxId = `tx-referral-${referrer.id}-${u.id}`;
+            const refTx = {
+              id: refTxId,
+              userId: referrer.id,
+              userName: referrer.fullName || "Padrinho Netfits",
+              amount: referralBonus,
+              description: `🤝 Bônus por Indicar Novo Usuário (${u.fullName || "Novo Membro"}) — MGM Oficial`,
+              category: "referral" as const,
+              timestamp: u.createdAt || (u as any).registeredAt || new Date().toISOString(),
+            };
+            serverState.transactions.unshift(refTx);
+            healedTxs.push(refTx);
+            referrer.nfsBalance = (referrer.nfsBalance || 0) + referralBonus;
+            selfHealedCount++;
+            console.log(`[Sentinel MGM Auto-Heal] +${referralBonus} nfs creditados para ${referrer.fullName} pela indicação de ${u.fullName}`);
+          }
+        }
+      }
+    }
 
     for (const u of serverState.users) {
       if (!u || !u.id) continue;
@@ -210,6 +249,19 @@ export class RealTimeLedgerSentinel {
         await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
       } catch (err) {
         console.warn("[Sentinel] Aviso ao salvar correções na nuvem:", err);
+      }
+
+      if (d1Service.isAvailable()) {
+        try {
+          for (const tx of healedTxs) {
+            await d1Service.insertTransaction(tx);
+          }
+          for (const u of serverState.users) {
+            await d1Service.upsertUser(u);
+          }
+        } catch (d1Err) {
+          console.warn("[Sentinel] Aviso ao persistir correções no D1:", d1Err);
+        }
       }
     }
 
