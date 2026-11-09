@@ -148,6 +148,22 @@ export function runKnowledgeAudit() {
     }
   }
 
+  // 4. Verificação de Invalidação de Cache de Documentos HTML/SSR (LL-015)
+  const serverFile = path.join(rootDir, "src", "server.ts");
+  if (fs.existsSync(serverFile)) {
+    const serverContent = fs.readFileSync(serverFile, "utf-8");
+    if (!serverContent.includes("no-cache, no-store, must-revalidate")) {
+      violations.push({
+        lessonId: "LL-015",
+        title: "Invalidação Mandatória de Cache de HTML/SSR no iOS WKWebView",
+        severity: "CRITICAL",
+        file: "src/server.ts",
+        foundPattern: "Headers restritivos de Cache-Control ausentes",
+        rule: "Respostas HTML e SSR devem conter no-cache, no-store, must-revalidate para impedir travamento de bundles defasados em disco no iOS."
+      });
+    }
+  }
+
   // Relatório Final
   if (violations.length === 0) {
     console.log("-------------------------------------------------------");

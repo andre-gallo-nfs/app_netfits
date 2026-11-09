@@ -64,6 +64,13 @@ const AGENTS = [
     icon: "🔬",
     description: "Compilação estrita e verificação de tipagem completa de todo o ecossistema",
     command: "npx tsc --noEmit"
+  },
+  {
+    id: "automated-runtime-tests",
+    name: "Automated Runtime and Lifecycle Test Gatekeeper",
+    icon: "🧪",
+    description: "Executa a suíte de testes automatizados (Vitest: mobile lifecycle, biometria, headers, FEFO)",
+    command: "npx vitest run"
   }
 ];
 
@@ -131,7 +138,7 @@ if (hasVeto) {
 
   process.exit(1);
 } else {
-  console.log("\n🏆 GOVERNANÇA TOTAL APROVADA: / Agentes validaram a integridade do ecossistema!");
+  console.log(`\n🏆 GOVERNANÇA TOTAL APROVADA: ${AGENTS.length}/${AGENTS.length} Agentes validaram a integridade do ecossistema!`);
   console.log("   Plataforma 100% blindada contra regressões técnicas, médicas e de produto.\n");
   console.log("========================================================================");
   process.exit(0);

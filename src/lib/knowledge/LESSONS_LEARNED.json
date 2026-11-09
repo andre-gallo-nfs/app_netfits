@@ -204,5 +204,16 @@
       "lock screen race condition on modal dismiss"
     ],
     "enforcedBy": "scripts/knowledge-learning-agent.mjs & scripts/mobile-platform-checker.mjs"
+  },
+  {
+    "id": "LL-015",
+    "title": "Invalidação Mandatória de Cache de HTML/SSR no iOS WKWebView e Testes Automatizados Executáveis de Ciclo de Vida Mobile",
+    "category": "mobile_runtime_security",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-09",
+    "context": "Mesmo após a correção do race condition de visibilidade no Netfits Guard v1.6/v1.7, o aplicativo iOS WKWebView continuava executando o código antigo em disco (NSURLCache) para a usuária Mariana Pizone, pois as respostas HTTP de HTML e SSR eram servidas pelo servidor sem cabeçalhos restritivos de Cache-Control. Isso gerava persistência de versões defasadas no Safari/WebKit nativo. Além disso, as análises de governança anteriores utilizavam apenas linters estáticos baseados em expressões regulares (Regex AST), sem testes de runtime executáveis (Vitest) simulando eventos de ciclo de vida, grace period e integridade de headers antes de subir para produção.",
+    "rule": "1) Invalidação Estrita de Cache para Documentos: Respostas HTTP para documentos HTML, navegações e SSR no Nitro/Cloudflare Workers DEVEM conter Cache-Control: 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0', 'Pragma: no-cache' e 'Expires: 0'. 2) Guardião de Testes Executáveis no Pipeline: A governança multiagêntica e o build de produção (npm run build:prod) DEVEM executar testes de runtime reais (npx vitest run) como gatekeeper obrigatório com poder de veto. 3) Atraso no Desarme de Biometria: A flag isAuthenticatingBiometrics só pode ser desarmada após delay de segurança (ex: 1500ms) para absorver a animação nativa de fechamento de modais do iOS/Android.",
+    "antiPattern": [],
+    "enforcedBy": "src/lib/__tests__/cache-headers-guard.test.ts, src/lib/__tests__/mobile-lifecycle-auth.test.ts & scripts/multi-agent-orchestrator.mjs"
   }
 ]

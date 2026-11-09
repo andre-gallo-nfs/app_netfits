@@ -166,3 +166,25 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
   4. **Timeout de Biometria Seguro**: O timeout de fallback do modal de biometria deve ser de pelo menos 15 segundos para comportar sensores biométricos lentos ou fallback para senha nativa do dispositivo.
   5. **Paridade Canônica de Sessão e Usuários Iniciais**: Todos os usuários registrados em produção devem constar em `INITIAL_USERS` no cliente e possuir fallback resiliente de perfil salvo localmente (`netfits_profile_saved_*`), impedindo que usuários reais caiam na persona anônima "Atleta Visitante" (AV) em caso de latência na sincronização remota.
 * **Agentes Responsáveis**: Mobile Cross-Platform & Runtime Gatekeeper Agent (`scripts/mobile-platform-checker.mjs`) e Continuous Learning Gatekeeper (`scripts/knowledge-learning-agent.mjs`).
+
+
+---
+
+### 🧪 LIÇÃO LL-015: INVALIDAÇÃO MANDATÓRIA DE CACHE DE HTML/SSR NO IOS WKWEBVIEW E TESTES AUTOMATIZADOS EXECUTÁVEIS DE RUNTIME
+* **ID Canônico**: `LL-015`
+* **Gravidade**: `CRITICAL` (Poder de Veto Imediato)
+* **Origem**: Reincidência de tela de bloqueio e persistência de bundle defasado em disco no iOS WKWebView da usuária Mariana Pizone (09/11/2026)
+* **Contexto**: No iOS WKWebView/Capacitor, o `NSURLCache` armazena agressivamente em disco o HTML e os módulos JS quando as respostas HTTP não informam cabeçalhos restritivos de controle de cache. Mesmo após correções de software no Cloudflare Workers, usuários finais permaneciam presos em versões anteriores armazenadas no cache local do dispositivo. Adicionalmente, o pipeline de governança baseava-se em auditorias estáticas (AST/Regex), que passavam com nota 100/100 sem simular o comportamento de execução real de ciclo de vida e concorrência de eventos.
+* **Regras Inegociáveis**:
+  1. **Invalidação Estrita de Cache para Navegações e SSR**: Respostas de documentos HTML, páginas e SSR no servidor Cloudflare Workers DEVEM injetar explicitamente os headers:
+     - `Cache-Control: no-cache, no-store, must-revalidate, max-age=0, s-maxage=0`
+     - `Pragma: no-cache`
+     - `Expires: 0`
+  2. **Guardião de Testes Automatizados Executáveis (Vitest)**: É mandatório que o pipeline de governança multiagêntica (`npm run validate` e `npm run build:prod`) execute testes de runtime reais (`npx vitest run`) cobrindo:
+     - Simulação de timeout de inatividade e expiração temporal;
+     - Race conditions entre eventos nativos `visibilitychange` e descarte do modal biométrico;
+     - Grace period de 30 segundos pós-desbloqueio;
+     - Presença de usuários reais canônicos e ausência de fallback para visitante anônimo ("AV");
+     - Injeção obrigatória dos headers de Cache-Control em `src/server.ts`.
+  3. **Atraso de Segurança no Descarte de Biometria (Grace Delay)**: A flag `isAuthenticatingBiometrics` só deve ser desarmada com atraso programado (mínimo de 1500ms) após o retorno da API nativa, garantindo tempo hábil para o sistema operacional concluir a animação de fechamento do modal biométrico sem disparar bloqueios espúrios.
+* **Agentes Responsáveis**: Automated Runtime and Lifecycle Test Gatekeeper (`src/lib/__tests__/*.test.ts`) e Continuous Learning Gatekeeper (`scripts/multi-agent-orchestrator.mjs`).
