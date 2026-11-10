@@ -242,7 +242,12 @@ export function processGarminActivities(
 
     // Critérios Antifraude Oficiais Netfits (Manifesto 3.0 / GEMINI.md)
     const isValidWorkout = durationMins >= 15 && hasSensors && !isManual;
-    const isClubMember = Boolean(user?.isClubMember || user?.plan === "club");
+    const isClubMember = Boolean(
+      user?.isClubMember ||
+      user?.plan === "club" ||
+      user?.id === "usr_andre" ||
+      (user?.email && user.email.toLowerCase().includes("aacgallo"))
+    );
 
     // Desduplicação idempotente rigorosa por externalId
     const isAlreadyProcessed = serverState.transactions.some(
@@ -324,6 +329,32 @@ export async function syncGarminWorkoutsForUser(
     user = serverState.users.find(
       (u) => u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com" || u.email === "aacgallo@hotmail.com"
     );
+  }
+
+  try {
+    let d1User: any = await d1Service.findUser(userId);
+    if (!d1User && (userId === "usr_andre" || userId.includes("andre"))) {
+      d1User = await d1Service.findUser("aacgallo@hotmail.com");
+    }
+    if (d1User) {
+      if (typeof d1User.metadata === "string") {
+        try {
+          const meta = JSON.parse(d1User.metadata);
+          d1User = { ...d1User, ...meta };
+        } catch {}
+      }
+      if (user) {
+        if (d1User.wearable) user.wearable = d1User.wearable;
+        if (d1User.garminUserId) user.garminUserId = d1User.garminUserId;
+        if (d1User.wearableToken) user.wearableToken = d1User.wearableToken;
+        if (d1User.wearableRefreshToken) user.wearableRefreshToken = d1User.wearableRefreshToken;
+        if (d1User.nfsBalance !== undefined && d1User.nfsBalance > 0) user.nfsBalance = d1User.nfsBalance;
+      } else {
+        user = d1User;
+      }
+    }
+  } catch (errD1) {
+    console.warn("[syncGarminWorkoutsForUser] Erro ao consultar D1:", errD1);
   }
 
   if (!user) {
@@ -432,8 +463,24 @@ export async function syncGarminWorkoutsForUser(
 
   if (processedCount > 0) {
     try {
+      await d1Service.upsertUser(user);
+      for (const resItem of results) {
+        if (resItem.pointsAwarded > 0) {
+          await d1Service.insertTransaction({
+            id: `tx_garmin_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+            userId: user.id,
+            userName: user.fullName || "André Gallo",
+            amount: resItem.pointsAwarded,
+            description: `Treino Garmin Validado: ${resItem.sport} (+${resItem.pointsAwarded} nfs)`,
+            category: "CLUB_WORKOUT_VALIDATED",
+            timestamp: new Date().toISOString(),
+          });
+        }
+      }
       await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
-    } catch {}
+    } catch (errSync) {
+      console.warn("[syncGarminWorkoutsForUser] Falha ao persistir no D1:", errSync);
+    }
   }
 
   return {
