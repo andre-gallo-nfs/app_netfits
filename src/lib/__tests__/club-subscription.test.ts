@@ -18,7 +18,7 @@ describe("Clube Netfits Lifecycle Webhooks & Service", () => {
     serverState.transactions = [];
   });
 
-  it("deve ativar o Clube Netfits e alterar userCategory para associado no evento subscription.created", async () => {
+  it("deve ativar o Clube Netfits preservando a categoria institucional original do usuário (LL-017)", async () => {
     const payload = {
       event: "subscription.created",
       subscriptionId: "sub_live_12345",
@@ -42,19 +42,22 @@ describe("Clube Netfits Lifecycle Webhooks & Service", () => {
 
     const data = await res?.json();
     expect(data.isClubMember).toBe(true);
-    expect(data.userCategory).toBe("associado");
+    expect(data.plan).toBe("club");
+    expect(data.userCategory).toBe("atleta");
 
     const user = serverState.users.find((u) => u.id === "usr_athlete_sub_1");
     expect(user?.isClubMember).toBe(true);
-    expect(user?.userCategory).toBe("associado");
+    expect(user?.plan).toBe("club");
+    expect(user?.userCategory).toBe("atleta");
   });
 
-  it("deve suspender benefícios do Clube Netfits no evento subscription.canceled", async () => {
+  it("deve suspender benefícios do Clube Netfits mantendo a categoria institucional intacta (LL-017)", async () => {
     // Primeiro ativa
     const user = serverState.users.find((u) => u.id === "usr_athlete_sub_1");
     if (user) {
       user.isClubMember = true;
-      user.userCategory = "associado";
+      user.plan = "club";
+      user.userCategory = "atleta";
     }
 
     const payload = {
@@ -79,9 +82,11 @@ describe("Clube Netfits Lifecycle Webhooks & Service", () => {
 
     const data = await res?.json();
     expect(data.isClubMember).toBe(false);
+    expect(data.plan).toBe("free");
     expect(data.userCategory).toBe("atleta");
 
     expect(user?.isClubMember).toBe(false);
+    expect(user?.plan).toBe("free");
     expect(user?.userCategory).toBe("atleta");
   });
 

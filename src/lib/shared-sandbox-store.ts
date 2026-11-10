@@ -13,7 +13,7 @@ export interface SandboxUser {
   birthDate?: string;
   fullName: string;
   type: "athlete" | "associado" | "partner" | "admin";
-  userCategory?: "atleta" | "associado" | "parceiro" | "admin";
+  userCategory?: "atleta" | "associado" | "especialista" | "parceiro";
   isClubMember?: boolean;
   nfsBalance: number;
   referralCode: string;
@@ -41,6 +41,10 @@ export interface SandboxUser {
   gym?: string;
   coaching?: string;
   wearable?: string;
+  garminUserId?: string;
+  wearableConnectedAt?: string;
+  wearableToken?: string;
+  wearableRefreshToken?: string;
   otherWearable?: string;
   loyaltyPrograms?: string[];
   loyaltyPointsEstimate?: string;
@@ -299,9 +303,14 @@ const INITIAL_USERS: SandboxUser[] = [
     "healthPlan": "Sem plano",
     "gym": "Academia local / Independente",
     "coaching": "Limite Team",
-    "wearable": "Nenhum",
+    "wearable": "Garmin Connect",
+    "garminUserId": "garmin_usr_andre",
+    "wearableConnectedAt": "2026-11-06T00:00:00Z",
     "nfsBalance": 1835,
-    "userCategory": "associado",
+    "userCategory": "atleta",
+    "plan": "club",
+    "isClubMember": true,
+    "isClubSubscriber": true,
     "registeredAt": "2026-10-05T00:00:00Z",
     "identifier": "aacgallo@hotmail.com",
     "type": "admin",

@@ -164,6 +164,22 @@ export function runKnowledgeAudit() {
     }
   }
 
+  // 5. Verificação de Ortogonalidade de Categorias e Clube (LL-017)
+  const clubHandlersFile = path.join(rootDir, "src", "server", "club-subscription-handlers.ts");
+  if (fs.existsSync(clubHandlersFile)) {
+    const clubContent = fs.readFileSync(clubHandlersFile, "utf-8");
+    if (clubContent.includes('user.userCategory = "associado"') || clubContent.includes('user.userCategory = "atleta"')) {
+      violations.push({
+        lessonId: "LL-017",
+        title: "Segregação Ortogonal entre Categorias de Usuários e Planos do Clube",
+        severity: "CRITICAL",
+        file: "src/server/club-subscription-handlers.ts",
+        foundPattern: "Mutação de userCategory ao assinar/cancelar Clube",
+        rule: "A adesão ou cancelamento do Clube Netfits JAMAIS pode alterar userCategory. O papel institucional é fixo e independente do plano."
+      });
+    }
+  }
+
   // Relatório Final
   if (violations.length === 0) {
     console.log("-------------------------------------------------------");

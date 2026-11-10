@@ -56,7 +56,7 @@ export function SecurityLockOverlay() {
           email: activeUser.email || activeUser.identifier,
           phone: activeUser.phone || "",
           cpf: activeUser.cpf || "",
-          userCategory: activeUser.type === "associado" ? "associado" : "atleta",
+          userCategory: (activeUser.userCategory as any) || (activeUser.type === "associado" ? "associado" : "atleta"),
         });
       } else if (!res.success && res.error && !isAutoPrompt) {
         setErrorMessage(res.error);
@@ -83,7 +83,7 @@ export function SecurityLockOverlay() {
         email: activeUser.email || activeUser.identifier,
         phone: activeUser.phone || "",
         cpf: activeUser.cpf || "",
-        userCategory: activeUser.type === "associado" ? "associado" : "atleta",
+        userCategory: (activeUser.userCategory as any) || (activeUser.type === "associado" ? "associado" : "atleta"),
       });
     } else if (!res.success && res.error) {
       setErrorMessage(res.error);

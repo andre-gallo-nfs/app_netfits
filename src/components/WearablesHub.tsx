@@ -19,6 +19,7 @@ import {
   X,
   Radio,
   Copy,
+  RefreshCw,
 } from "lucide-react";
 
 export interface WearableBrand {
@@ -224,6 +225,32 @@ export function WearablesHub() {
     }
   };
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.processedCount > 0) {
+          sharedSandboxStore.updateUser(activeUser.id, {
+            nfsBalance: (activeUser.nfsBalance || 0) + (data.pointsAwarded || 0),
+          });
+          toast.success(`🎉 ${data.processedCount} novo(s) treino(s) Garmin validado(s)! (+${data.pointsAwarded} nfs)`);
+        } else {
+          toast.info("Tudo em dia! Nenhum novo treino pendente de validação nas últimas 72 horas.");
+        }
+      } else {
+        toast.error("Não foi possível sincronizar no momento. Tente novamente em instantes.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao buscar treinos na nuvem Garmin.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   // APENAS Garmin é uma conexão real e ativa no momento
   
   // Escuta retorno ou retomada de foco do aplicativo (garante ativação instantânea no retorno ao app)
@@ -236,8 +263,25 @@ export function WearablesHub() {
         if (res.ok) {
           const data = await res.json();
           if (data.userConnected) {
-            sharedSandboxStore.updateUser(activeUser.id, { wearable: "Garmin" });
-            toast.success("🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits!");
+            const wasConnected = Boolean(activeUser.wearable && activeUser.wearable.toLowerCase().includes("garmin"));
+            if (!wasConnected) {
+              sharedSandboxStore.updateUser(activeUser.id, { wearable: "Garmin Connect" });
+              toast.success("🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits!");
+            }
+
+            // Sincronização passiva silenciosa de treinos recentes (frictionless)
+            try {
+              const syncRes = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+              if (syncRes.ok) {
+                const syncData = await syncRes.json();
+                if (syncData.pointsAwarded > 0) {
+                  sharedSandboxStore.updateUser(activeUser.id, {
+                    nfsBalance: (activeUser.nfsBalance || 0) + syncData.pointsAwarded,
+                  });
+                  toast.success(`🏃 ${syncData.processedCount} novo(s) treino(s) Garmin sincronizado(s)! (+${syncData.pointsAwarded} nfs)`);
+                }
+              }
+            } catch {}
           }
         }
       } catch {
@@ -258,7 +302,7 @@ export function WearablesHub() {
       window.removeEventListener("focus", checkCloudGarminStatus);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [activeUser.id]);
+  }, [activeUser.id, activeUser.wearable, activeUser.nfsBalance]);
 
   const isGarminConnected = Boolean(
     activeUser.wearable &&
@@ -349,13 +393,24 @@ export function WearablesHub() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleDisconnect}
-              className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-red-400 text-xs font-bold transition active:scale-95 cursor-pointer"
-            >
-              Desconectar
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleManualSync}
+                disabled={isSyncing}
+                className="px-3 py-1.5 rounded-lg bg-lime-400 hover:bg-lime-300 text-zinc-950 text-xs font-black transition active:scale-95 cursor-pointer disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+              >
+                <RefreshCw className={`size-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+                {isSyncing ? "Buscando..." : "Sincronizar"}
+              </button>
+              <button
+                type="button"
+                onClick={handleDisconnect}
+                className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-red-400 text-xs font-bold transition active:scale-95 cursor-pointer"
+              >
+                Desconectar
+              </button>
+            </div>
           </div>
 
           {/* Painel de Métricas Sincronizadas */}

@@ -164,16 +164,32 @@ export function ClubPage() {
         const res = await fetch(`/api/garmin/status?userId=${activeUser.id}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.userConnected && connectedBrandId !== "garmin") {
-            setConnectedBrandId("garmin");
-            localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, "garmin");
-            sharedSandboxStore.updateUser(activeUser.id, {
-              connectedWearable: "garmin",
-              wearable: "Garmin Connect",
-            } as any);
-            toast.success(
-              "🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus treinos serão auditados e pontuados automaticamente (+20 nfs por treino)."
-            );
+          if (data.userConnected) {
+            if (connectedBrandId !== "garmin") {
+              setConnectedBrandId("garmin");
+              localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, "garmin");
+              sharedSandboxStore.updateUser(activeUser.id, {
+                connectedWearable: "garmin",
+                wearable: "Garmin Connect",
+              } as any);
+              toast.success(
+                "🎉 Seu Garmin Connect™ foi conectado com sucesso à Netfits! Seus treinos serão auditados e pontuados automaticamente (+20 nfs por treino)."
+              );
+            }
+
+            // Sincronização passiva silenciosa de treinos recentes (frictionless)
+            try {
+              const syncRes = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+              if (syncRes.ok) {
+                const syncData = await syncRes.json();
+                if (syncData.pointsAwarded > 0) {
+                  sharedSandboxStore.updateUser(activeUser.id, {
+                    nfsBalance: (activeUser.nfsBalance || 0) + syncData.pointsAwarded,
+                  });
+                  toast.success(`🏃 ${syncData.processedCount} novo(s) treino(s) Garmin validado(s)! (+${syncData.pointsAwarded} nfs)`);
+                }
+              }
+            } catch {}
           }
         }
       } catch {
@@ -251,6 +267,30 @@ export function ClubPage() {
       toast.success("Link copiado com sucesso! Abra o Google Chrome e cole para autorizar.");
     } else {
       toast.info("Acesse: " + authUrl);
+    }
+  };
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.processedCount > 0) {
+          sharedSandboxStore.updateUser(activeUser.id, {
+            nfsBalance: (activeUser.nfsBalance || 0) + (data.pointsAwarded || 0),
+          });
+          toast.success(`🎉 ${data.processedCount} novo(s) treino(s) Garmin validado(s)! (+${data.pointsAwarded} nfs)`);
+        } else {
+          toast.info("Tudo em dia! Nenhum novo treino pendente de validação nas últimas 72 horas.");
+        }
+      } else {
+        toast.error("Não foi possível sincronizar no momento. Tente novamente em instantes.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao buscar treinos na nuvem Garmin.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -545,13 +585,24 @@ export function ClubPage() {
                       Seus treinos são auditados e validados automaticamente via nuvem Garmin Connect™ e Terra API. Nenhuma ação manual é necessária para pontuar.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleDisconnect}
-                    className="w-full py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] text-xs font-bold border border-zinc-200 transition active:scale-95 cursor-pointer text-center"
-                  >
-                    Desconectar Dispositivo
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleManualSync}
+                      disabled={isSyncing}
+                      className="flex-1 py-2.5 px-3 rounded-xl bg-[#C8F135] hover:bg-[#b8e025] text-[#202127] text-xs font-black transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 shadow-xs disabled:opacity-50"
+                    >
+                      <RefreshCw className={`size-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+                      {isSyncing ? "Sincronizando..." : "Sincronizar Treinos Agora"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDisconnect}
+                      className="py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-[#5F6270] hover:text-[#202127] text-xs font-bold border border-zinc-200 transition active:scale-95 cursor-pointer text-center"
+                    >
+                      Desconectar
+                    </button>
+                  </div>
                 </div>
                 </div>
               </div>

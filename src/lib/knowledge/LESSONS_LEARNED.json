@@ -229,5 +229,21 @@
       "mirroring company org chart into LLM subagents"
     ],
     "enforcedBy": "scripts/knowledge-learning-agent.mjs & scripts/multi-agent-orchestrator.mjs"
+  },
+  {
+    "id": "LL-017",
+    "title": "Segregação Ortogonal entre Categorias de Usuários (userCategory) e Planos de Fidelidade (isClubMember), com Substrato Universal de Atleta",
+    "category": "domain_data_architecture",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-10",
+    "context": "Em 10/11/2026, identificou-se uma confusão conceitual grave no sistema: rotinas de assinatura e cancelamento do Clube Netfits estavam mutando 'userCategory' (ex: definindo userCategory='associado' ao ativar e userCategory='atleta' ao cancelar). Isso corrompia o papel institucional dos usuários (ex: um atleta comum que assinava o Clube virava 'associado' como se fosse promotor B2B2C com rev-share de 10%; e o fundador André Gallo, que é 'associado' e estava temporariamente com Clube ativo para homologar Garmin, tinha seu perfil desestabilizado). Além disso, não estava formalizado que todo usuário da Netfits é, antes de tudo, um Atleta (substrato universal praticante de atividade física, com direito a conectar wearables, responder quizzes e assinar o Clube), sendo as categorias adicionais ('especialista', 'associado', 'parceiro') papéis aditivos de ecossistema.",
+    "rule": "1) Substrato Universal de Atleta: Todo ser humano cadastrado na Netfits é um atleta praticante e elegível a conectar sensores, responder quizzes, comprar no Shop e assinar o Clube Netfits. Especialistas (médicos Fibios, nutricionistas), Associados (promotores B2B2C) e Parceiros podem ser membros do Clube e pontuar seus próprios treinos. 2) Ortogonalidade Estrita: userCategory ('atleta' | 'associado' | 'especialista' | 'parceiro') e status de assinatura do Clube (isClubMember: boolean / plan: 'free' | 'club') são grandezas completamente independentes. 3) Proibição de Mutação Concorrente: NENHUMA rotina de assinatura, cancelamento, webhook ou recálculo de ledger pode alterar a propriedade 'userCategory'. Apenas as flags 'isClubMember' e 'plan' podem ser modificadas.",
+    "antiPattern": [
+      "user.userCategory = 'associado' on club subscribe",
+      "user.userCategory = 'atleta' on club cancel",
+      "confusing club loyalty membership with B2B2C associado role",
+      "barring specialists or associates from club workouts"
+    ],
+    "enforcedBy": "src/lib/__tests__/user-category-orthogonal-guard.test.ts & scripts/knowledge-learning-agent.mjs"
   }
 ]

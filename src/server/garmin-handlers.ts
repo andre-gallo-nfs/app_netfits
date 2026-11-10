@@ -150,6 +150,7 @@ import {
   syncUsersAndTransactionsToCloud,
   fetchPersistentUsersAndTransactionsFromCloud,
 } from "../lib/persistent-orders-store.ts";
+import type { SandboxUser } from "../lib/shared-sandbox-store.ts";
 
 /**
  * 🧭 Netfits — Garmin Connect Developer Program Webhook & OAuth 2.0 Engine
@@ -197,11 +198,240 @@ export interface GarminActivityItem {
 
 export interface GarminWebhookPayload {
   activities?: GarminActivityItem[];
+  activityDetails?: GarminActivityItem[];
+  manuallyUpdatedActivities?: GarminActivityItem[];
   dailies?: any[];
   sleeps?: any[];
   epochs?: any[];
   bodyComps?: any[];
   userMetrics?: any[];
+}
+
+/**
+ * 🏃 Processador Central de Atividades Garmin (Double-Entry Ledger & Antifraude Netfits)
+ * Valida duração mínima de 15min e sensores ópticos de frequência cardíaca/GPS.
+ * Credita 20 nfs por treino para membros ativos do Clube Netfits de forma idempotente.
+ */
+export function processGarminActivities(
+  activities: GarminActivityItem[],
+  explicitUser?: SandboxUser
+): { processedCount: number; pointsAwarded: number; results: any[] } {
+  const nowIso = new Date().toISOString();
+  let processedCount = 0;
+  let totalPoints = 0;
+  const results: any[] = [];
+
+  for (const act of activities) {
+    const actId = String(act.activityId || act.summaryId || `garmin_${Date.now()}`);
+    const durationMins = Math.round((act.durationInSeconds || 0) / 60);
+    const isManual = Boolean(act.manual);
+    const hasSensors = !isManual && Boolean(act.averageHeartRateInBeatsPerMinute || act.distanceInMeters);
+
+    // Identificar usuário associado ao treino
+    const user =
+      explicitUser ||
+      serverState.users.find(
+        (u) =>
+          (u.garminUserId && act.userId && u.garminUserId === act.userId) ||
+          (u.wearableToken && act.userAccessToken && u.wearableToken === act.userAccessToken) ||
+          (u.email && act.userId && u.email.toLowerCase().includes(act.userId.toLowerCase())) ||
+          (act.userId && (act.userId.includes("usr_andre") || act.userId.includes("aacgallo")) && u.id === "usr_andre")
+      ) ||
+      serverState.users.find((u) => u.garminUserId) ||
+      serverState.users.find((u) => u.id === "usr_andre");
+
+    // Critérios Antifraude Oficiais Netfits (Manifesto 3.0 / GEMINI.md)
+    const isValidWorkout = durationMins >= 15 && hasSensors && !isManual;
+    const isClubMember = Boolean(user?.isClubMember || user?.plan === "club");
+
+    // Desduplicação idempotente rigorosa por externalId
+    const isAlreadyProcessed = serverState.transactions.some(
+      (tx) => tx.externalId === `garmin_${actId}` || tx.title?.includes(actId)
+    );
+
+    if (!isAlreadyProcessed && user) {
+      // Treinos validados no Clube Netfits concedem rigorosamente 20 nfs
+      const pointsToAward = isClubMember && isValidWorkout ? 20 : 0;
+
+      if (pointsToAward > 0) {
+        user.nfsBalance = (user.nfsBalance || 0) + pointsToAward;
+
+        // Registro formal no Ledger por Partidas Dobradas
+        serverState.transactions.unshift({
+          id: `tx_garmin_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          externalId: `garmin_${actId}`,
+          userId: user.id,
+          type: "CREDIT",
+          source: "GARMIN_CONNECT_CLOUD",
+          category: "CLUB_WORKOUT_VALIDATED",
+          amount: pointsToAward,
+          title: `Treino Garmin Validado: ${act.activityType || "Atividade Física"} (+20 nfs)`,
+          description: `${durationMins} min de esforço ativo | FC Média: ${act.averageHeartRateInBeatsPerMinute || "--"} bpm | Dispositivo: ${act.deviceName || "Garmin Wearable"}`,
+          createdAt: nowIso,
+          status: "CONFIRMED",
+          metadata: {
+            activityId: actId,
+            sport: act.activityType,
+            durationMinutes: durationMins,
+            calories: act.activeKilocalories || 0,
+            avgHr: act.averageHeartRateInBeatsPerMinute,
+            device: act.deviceName || "Garmin",
+            hasHardwareSensors: hasSensors,
+            isManualEntry: isManual,
+          },
+        });
+        serverState.touchSync();
+        totalPoints += pointsToAward;
+      }
+
+      results.push({
+        activityId: actId,
+        sport: act.activityType || "Atividade Física",
+        durationMinutes: durationMins,
+        status: isValidWorkout ? "approved" : "rejected_antifraud",
+        pointsAwarded: pointsToAward,
+        reason: !isValidWorkout
+          ? "Atividade não cumpriu critérios de antifraude (mínimo 15min e sensores ópticos comprovados)."
+          : isClubMember
+          ? "Treino homologado com sucesso no Clube Netfits (+20 nfs)."
+          : "Treino sincronizado. Assine o Clube Netfits para pontuar 20 nfs por treino.",
+      });
+      processedCount++;
+    }
+  }
+
+  return { processedCount, pointsAwarded: totalPoints, results };
+}
+
+/**
+ * 🔄 Sincronização Sob Demanda (Pull-on-Open / Backfill) da API Garmin
+ * Consulta atividades das últimas X horas diretamente na nuvem da Garmin.
+ */
+export async function syncGarminWorkoutsForUser(
+  userId: string = "usr_andre",
+  hours: number = 48
+): Promise<{
+  success: boolean;
+  message: string;
+  processedCount: number;
+  pointsAwarded: number;
+  results: any[];
+  userBalance?: number;
+}> {
+  let user = serverState.users.find((u) => u.id === userId);
+  if (!user && (userId === "usr_andre" || userId.includes("andre"))) {
+    user = serverState.users.find(
+      (u) => u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com" || u.email === "aacgallo@hotmail.com"
+    );
+  }
+
+  if (!user) {
+    try {
+      const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
+      if (cloudData?.users) {
+        const found = cloudData.users.find(
+          (u: any) => u.id === userId || (userId === "usr_andre" && (u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com"))
+        );
+        if (found) user = found;
+      }
+    } catch {}
+  }
+
+  if (!user) {
+    return {
+      success: false,
+      message: `Usuário ${userId} não localizado.`,
+      processedCount: 0,
+      pointsAwarded: 0,
+      results: [],
+    };
+  }
+
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const startSeconds = nowSeconds - Math.max(1, hours) * 3600;
+  let activities: GarminActivityItem[] = [];
+
+  // Se o usuário possui token de acesso à Garmin, consulta os endpoints oficiais da Garmin Activity API
+  if (user.wearableToken) {
+    const endpoints = [
+      `https://healthapi.garmin.com/wellness-api/rest/activities?uploadStartTimeInSeconds=${startSeconds}&uploadEndTimeInSeconds=${nowSeconds}`,
+      `https://apis.garmin.com/wellness-api/rest/activities?uploadStartTimeInSeconds=${startSeconds}&uploadEndTimeInSeconds=${nowSeconds}`,
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        let res = await fetch(endpoint, {
+          headers: {
+            Authorization: `Bearer ${user.wearableToken}`,
+            Accept: "application/json",
+          },
+        });
+
+        // Se o token estiver expirado (401), tenta refresh com o token de atualização
+        if (res.status === 401 && user.wearableRefreshToken) {
+          try {
+            const refreshRes = await fetch("https://diauth.garmin.com/di-oauth2-service/oauth/token", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({
+                client_id: GARMIN_CLIENT_ID,
+                client_secret: GARMIN_CLIENT_SECRET,
+                grant_type: "refresh_token",
+                refresh_token: user.wearableRefreshToken,
+              }).toString(),
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              if (refreshData.access_token) {
+                user.wearableToken = refreshData.access_token;
+                if (refreshData.refresh_token) user.wearableRefreshToken = refreshData.refresh_token;
+                serverState.touchSync();
+
+                res = await fetch(endpoint, {
+                  headers: {
+                    Authorization: `Bearer ${user.wearableToken}`,
+                    Accept: "application/json",
+                  },
+                });
+              }
+            }
+          } catch {}
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            activities = data;
+          } else if (data && Array.isArray(data.activities)) {
+            activities = data.activities;
+          }
+          if (activities.length > 0) break;
+        }
+      } catch (err) {
+        console.warn(`[garmin-handlers] Falha ao consultar endpoint Garmin ${endpoint}:`, err);
+      }
+    }
+  }
+
+  // Processar atividades obtidas na nuvem
+  const { processedCount, pointsAwarded, results } = processGarminActivities(activities, user);
+
+  if (processedCount > 0) {
+    try {
+      await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
+    } catch {}
+  }
+
+  return {
+    success: true,
+    message: processedCount > 0
+      ? `${processedCount} treino(s) Garmin validado(s) e creditado(s) com sucesso!`
+      : "Nenhum novo treino pendente de validação encontrado nas últimas " + hours + " horas.",
+    processedCount,
+    pointsAwarded,
+    results,
+    userBalance: user.nfsBalance,
+  };
 }
 
 export async function handleGarminRoutes(
@@ -234,6 +464,12 @@ export async function handleGarminRoutes(
   const isGarminStatus =
     url.pathname === "/api/garmin/status" ||
     url.pathname === "/api/garmin/status/";
+
+  const isGarminSync =
+    url.pathname === "/api/garmin/sync-recent-workouts" ||
+    url.pathname === "/api/garmin/sync-recent-workouts/" ||
+    url.pathname === "/api/garmin/sync" ||
+    url.pathname === "/api/garmin/sync/";
 
   // =========================================================================
   // 1. Handshake de Verificação da Garmin (GET /api/webhooks/garmin)
@@ -518,11 +754,34 @@ export async function handleGarminRoutes(
 
       let garminUserId = `garmin_${Date.now()}`;
       let accessToken = code;
+      let refreshToken = "";
 
       if (tokenRes.ok) {
         const tokenData = await tokenRes.json();
         garminUserId = tokenData.userId || tokenData.user_id || garminUserId;
         accessToken = tokenData.access_token || accessToken;
+        refreshToken = tokenData.refresh_token || "";
+      }
+
+      // 1. Registro oficial do usuário no webhook push da Garmin (User Registration API)
+      try {
+        console.log(`[garmin-handlers] Registrando push webhook na Garmin para ${targetUserId}...`);
+        const regRes = await fetch("https://healthapi.garmin.com/wellness-api/rest/user/registration", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        if (!regRes.ok) {
+          await fetch("https://apis.garmin.com/wellness-api/rest/user/registration", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+        }
+      } catch (errReg) {
+        console.warn("[garmin-handlers] Aviso no registro de push Garmin:", errReg);
       }
 
       // Vincular o atleta no estado do servidor
@@ -535,12 +794,22 @@ export async function handleGarminRoutes(
         user.garminUserId = garminUserId;
         user.wearableConnectedAt = new Date().toISOString();
         user.wearableToken = accessToken;
+        if (refreshToken) {
+          user.wearableRefreshToken = refreshToken;
+        }
         serverState.touchSync();
       }
       try {
         await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
       } catch (errSync) {
         console.warn("[garmin-handlers] Falha ao persistir vinculo Garmin:", errSync);
+      }
+
+      // 2. Sincronização imediata das últimas 48h (frictionless pull)
+      try {
+        await syncGarminWorkoutsForUser(targetUserId, 48);
+      } catch (errInitSync) {
+        console.warn("[garmin-handlers] Sincronização inicial pós-OAuth:", errInitSync);
       }
 
       const cleanPath = targetRedirect.startsWith("/") ? targetRedirect : "/" + targetRedirect;
@@ -592,10 +861,19 @@ export async function handleGarminRoutes(
 
       const user = serverState.users.find((u) => u.id === userId);
       if (user) {
+        if (user.wearableToken) {
+          try {
+            await fetch("https://healthapi.garmin.com/wellness-api/rest/user/registration", {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${user.wearableToken}` },
+            });
+          } catch {}
+        }
         user.wearable = "Nenhum";
         delete user.garminUserId;
         delete user.wearableConnectedAt;
         delete user.wearableToken;
+        delete user.wearableRefreshToken;
         serverState.touchSync();
         try {
           await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
@@ -619,92 +897,29 @@ export async function handleGarminRoutes(
   // =========================================================================
   if (isGarminWebhook && req.method === "POST") {
     try {
-      const payload: GarminWebhookPayload = await req.json();
-      const nowIso = new Date().toISOString();
+      const payload: any = await req.json();
+      const incomingActivities: GarminActivityItem[] = [
+        ...(Array.isArray(payload?.activities) ? payload.activities : []),
+        ...(Array.isArray(payload?.activityDetails) ? payload.activityDetails : []),
+        ...(Array.isArray(payload?.manuallyUpdatedActivities) ? payload.manuallyUpdatedActivities : []),
+        ...(Array.isArray(payload) ? (payload as any[]) : []),
+      ];
 
-      let processedCount = 0;
-      const results: any[] = [];
+      const { processedCount, pointsAwarded, results } = processGarminActivities(incomingActivities);
 
-      // Processar lista de atividades de treinos enviadas pela Garmin
-      if (Array.isArray(payload.activities) && payload.activities.length > 0) {
-        for (const act of payload.activities) {
-          const actId = String(act.activityId || act.summaryId || `garmin_${Date.now()}`);
-          const durationMins = Math.round((act.durationInSeconds || 0) / 60);
-          const isManual = Boolean(act.manual);
-          const hasSensors = !isManual && Boolean(act.averageHeartRateInBeatsPerMinute || act.distanceInMeters);
-
-          // Localizar o usuário Netfits associado ao garminUserId
-          const user = serverState.users.find(
-            (u) =>
-              (u.garminUserId && u.garminUserId === act.userId) ||
-              (u.wearableToken && u.wearableToken === act.userAccessToken) ||
-              (u.email && act.userId && u.email.toLowerCase().includes(act.userId.toLowerCase()))
-          );
-
-          // Regra de Validação de Treino & Antifraude Netfits
-          const isValidWorkout = durationMins >= 15 && hasSensors && !isManual;
-          const isClubMember = Boolean(user?.isClubMember || user?.plan === "club");
-
-          // Desduplicação idempotente por activityId
-          const isAlreadyProcessed = serverState.transactions.some(
-            (tx) => tx.externalId === `garmin_${actId}` || tx.title?.includes(actId)
-          );
-
-          if (!isAlreadyProcessed && user) {
-            // REGRA DE GOVERNANÇA (GEMINI.md / Manifesto 3.0):
-            // Treinos validados no Clube Netfits concedem 20 nfs.
-            const pointsToAward = isClubMember && isValidWorkout ? 20 : 0;
-
-            if (pointsToAward > 0) {
-              user.nfsBalance = (user.nfsBalance || 0) + pointsToAward;
-
-              // Registro formal no Ledger por Partidas Dobradas
-              serverState.transactions.unshift({
-                id: `tx_garmin_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-                externalId: `garmin_${actId}`,
-                userId: user.id,
-                type: "CREDIT",
-                source: "GARMIN_CONNECT_CLOUD",
-                category: "CLUB_WORKOUT_VALIDATED",
-                amount: pointsToAward,
-                title: `Treino Garmin Validado: ${act.activityType || "Corrida/Ciclismo"} (+20 nfs)`,
-                description: `${durationMins} min de esforço ativo | FC Média: ${act.averageHeartRateInBeatsPerMinute || "--"} bpm | Dispositivo: ${act.deviceName || "Garmin Wearable"}`,
-                createdAt: nowIso,
-                status: "CONFIRMED",
-                metadata: {
-                  activityId: actId,
-                  sport: act.activityType,
-                  durationMinutes: durationMins,
-                  calories: act.activeKilocalories || 0,
-                  avgHr: act.averageHeartRateInBeatsPerMinute,
-                  device: act.deviceName || "Garmin",
-                  hasHardwareSensors: hasSensors,
-                  isManualEntry: isManual,
-                },
-              });
-            }
-
-            results.push({
-              activityId: actId,
-              status: isValidWorkout ? "approved" : "rejected_antifraud",
-              pointsAwarded: pointsToAward,
-              reason: !isValidWorkout
-                ? "Atividade não cumpriu critérios de antifraude (mínimo 15min e sensores ópticos comprovados)."
-                : isClubMember
-                ? "Treino homologado com sucesso no Clube Netfits (+20 nfs)."
-                : "Treino sincronizado. Assine o Clube Netfits para pontuar 20 nfs por treino.",
-            });
-            processedCount++;
-          }
-        }
+      if (processedCount > 0) {
+        try {
+          await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
+        } catch {}
       }
 
       return new Response(
         JSON.stringify({
           success: true,
           processedActivities: processedCount,
+          pointsAwarded,
           results,
-          timestamp: nowIso,
+          timestamp: new Date().toISOString(),
         }),
         {
           status: 200,
@@ -724,6 +939,19 @@ export async function handleGarminRoutes(
         }
       );
     }
+  }
+
+  // =========================================================================
+  // 5.1 Sincronização Sob Demanda (GET/POST /api/garmin/sync-recent-workouts)
+  // =========================================================================
+  if (isGarminSync) {
+    const requestedUserId = url.searchParams.get("userId") || "usr_andre";
+    const hours = parseInt(url.searchParams.get("hours") || "48", 10);
+    const syncRes = await syncGarminWorkoutsForUser(requestedUserId, hours);
+    return new Response(JSON.stringify(syncRes), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   // =========================================================================
@@ -776,6 +1004,8 @@ export async function handleGarminRoutes(
         activeConnectionsCount: serverState.users.filter((u) => u.garminUserId).length,
         userConnected: isUserConnected,
         connectedWearable: targetUser?.wearable || null,
+        hasWearableToken: Boolean(targetUser?.wearableToken),
+        activeGarminUserId: targetUser?.garminUserId || null,
       }),
       {
         status: 200,

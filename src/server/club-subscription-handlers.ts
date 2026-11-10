@@ -62,10 +62,10 @@ export async function handleClubSubscriptionRoutes(
       const isDeactivating = body.event === "subscription.past_due" || body.event === "subscription.canceled";
 
       if (isActivating) {
-        // REGRA DE GOVERNANÇA: O Clube Netfits, a cobrança de assinaturas e a Terra API ainda não estão ativos em produção.
-        // Nenhuma pontuação (nfs) de adesão ou de treinos pode ser atribuída até o lançamento oficial (14/Nov/2026).
+        // REGRA DE GOVERNANÇA (LL-017): O papel institucional (userCategory) é ortogonal à assinatura.
+        // Todo usuário é um atleta na base e pode ser membro do Clube mantendo seu papel (atleta, associado, especialista, parceiro).
         user.isClubMember = true;
-        user.userCategory = "associado";
+        user.plan = "club";
 
         // Atribuição oficial e auditada dos 250 nfs pelo Real-Time Ledger Sentinel
         realTimeLedgerSentinel.attributeClubSubscriptionPoints(user.id, body.planName || "Plano Mensal Oficial");
@@ -75,10 +75,11 @@ export async function handleClubSubscriptionRoutes(
         return new Response(
           JSON.stringify({
             success: true,
-            message: "Assinatura do Clube Netfits confirmada e benefícios ativados. (Pontuação retida até o lançamento oficial de cobrança e Terra API).",
+            message: "Assinatura do Clube Netfits confirmada e benefícios ativados.",
             userId: user.id,
             isClubMember: true,
-            userCategory: "associado",
+            plan: "club",
+            userCategory: user.userCategory || "atleta",
             currentPeriodEnd: body.currentPeriodEnd,
           }),
           { status: 200, headers: corsHeaders }
@@ -87,7 +88,8 @@ export async function handleClubSubscriptionRoutes(
 
       if (isDeactivating) {
         user.isClubMember = false;
-        user.userCategory = "atleta"; // Reverte para perfil padrão
+        user.plan = "free";
+        // REGRA DE GOVERNANÇA (LL-017): Cancelamento do clube NUNCA rebaixa ou altera a categoria institucional (userCategory)
 
         serverState.transactions.unshift({
           id: `tx-club-cancel-${Date.now()}`,
@@ -107,7 +109,8 @@ export async function handleClubSubscriptionRoutes(
             message: "Benefícios do Clube Netfits suspensos com sucesso.",
             userId: user.id,
             isClubMember: false,
-            userCategory: "atleta",
+            plan: "free",
+            userCategory: user.userCategory || "atleta",
             reason: body.event,
           }),
           { status: 200, headers: corsHeaders }

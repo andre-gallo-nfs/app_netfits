@@ -63,7 +63,8 @@ export function ClubMembershipModal() {
 
       sharedSandboxStore.updateUser(activeUser.id, {
         isClubMember: false,
-        userCategory: "atleta",
+        plan: "free",
+        // LL-017: userCategory original é preservado
       });
 
       toast.info("Assinatura do Clube suspensa em homologação. Você retornou ao plano padrão Atleta.");

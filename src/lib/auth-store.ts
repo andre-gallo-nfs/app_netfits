@@ -46,7 +46,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     shortState: "SP",
     zipcode: "04004011",
     passwordHash: "Admin@2026",
-    userCategory: "associado",
+    userCategory: "atleta",
     registeredAt: "2026-10-05T00:00:00Z",
   },
   {

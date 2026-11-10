@@ -89,7 +89,8 @@ export class RealTimeLedgerSentinel {
     }
 
     user.isClubMember = true;
-    user.userCategory = "associado";
+    user.plan = "club";
+    // REGRA DE GOVERNANÇA (LL-017): Nunca alterar userCategory (preserva atleta, associado, especialista ou parceiro)
     user.nfsBalance = (user.nfsBalance || 0) + clubBonusNfs;
 
     const tx = {

@@ -203,3 +203,16 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
   3. **Gatekeepers Adversariais em Contexto Limpo**: Os guardiões de veto do pipeline (`scripts/multi-agent-orchestrator.mjs` e testes Vitest) atuam como avaliadores determinísticos isolados, sem o viés do loop de geração de código.
   4. **Isolamento de Segurança de Runtime**: O livro-razão no Cloudflare D1 e webhooks HMAC operam em workers de servidor protegidos, enquanto o *Netfit AI Concierge* opera isolado no app com prompt enxuto e escopo estrito de atendimento.
 * **Agentes Responsáveis**: Main Developer Agent, Continuous Learning Gatekeeper (`scripts/knowledge-learning-agent.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).
+
+---
+
+### 🧬 LIÇÃO LL-017: SEGREGAÇÃO ORTOGONAL ENTRE CATEGORIAS DE USUÁRIOS (USERCATEGORY) E PLANOS DE FIDELIDADE (ISCLUBMEMBER), COM SUBSTRATO UNIVERSAL DE ATLETA
+* **ID Canônico**: `LL-017`
+* **Gravidade**: `CRITICAL` (Diretriz Canônica de Domínio e Dados)
+* **Origem**: Alinhamento estratégico com o CEO André Gallo em 10/11/2026.
+* **Contexto**: Identificou-se uma confusão conceitual grave no sistema: rotinas de assinatura e cancelamento do Clube Netfits estavam mutando `userCategory` (ex: definindo `userCategory="associado"` ao ativar e `userCategory="atleta"` ao cancelar). Isso corrompia o papel institucional dos usuários (ex: um atleta comum que assinava o Clube virava `associado` como se fosse um promotor B2B2C com rev-share de 10%; e o fundador André Gallo, que é `associado` e estava temporariamente com Clube ativo para homologar Garmin, tinha seu perfil desestabilizado). Além disso, não estava formalizado que todo usuário da Netfits é, antes de tudo, um Atleta (substrato universal praticante de atividade física, com direito a conectar wearables, responder quizzes e assinar o Clube), sendo as categorias adicionais (`especialista`, `associado`, `parceiro`) papéis aditivos de ecossistema.
+* **Regras Inegociáveis**:
+  1. **Substrato Universal de Atleta**: Todo ser humano cadastrado na Netfits é um atleta praticante e elegível a conectar sensores (Apple Watch, Garmin), responder quizzes, comprar no Shop e assinar o Clube Netfits. Especialistas (médicos Fibios, nutricionistas), Associados (promotores B2B2C) e Parceiros podem ser membros do Clube e pontuar seus próprios treinos.
+  2. **Ortogonalidade Estrita**: `userCategory` (`'atleta' | 'associado' | 'especialista' | 'parceiro'`) e status de assinatura do Clube (`isClubMember: boolean` / `plan: 'free' | 'club'`) são grandezas completamente independentes.
+  3. **Proibição Absoluta de Mutação Concorrente**: NENHUMA rotina de assinatura, cancelamento, webhook ou recálculo de ledger pode alterar a propriedade `userCategory`. Apenas as flags `isClubMember` e `plan` podem ser modificadas.
+* **Agentes Responsáveis**: User Category Orthogonal Guard (`src/lib/__tests__/user-category-orthogonal-guard.test.ts`), Continuous Learning Gatekeeper (`scripts/knowledge-learning-agent.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).
