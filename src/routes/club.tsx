@@ -117,6 +117,7 @@ export function ClubPage() {
   const [showGarminModal, setShowGarminModal] = useState(false);
   const [selectedBrandToConnect, setSelectedBrandToConnect] = useState<WearableDeviceOption | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasLiveToken, setHasLiveToken] = useState<boolean | null>(null);
 
   // Identificação do Dispositivo Conectado com Persistência Segura
   // Apenas Garmin possui integração oficial ativa
@@ -164,7 +165,10 @@ export function ClubPage() {
         const res = await fetch(`/api/garmin/status?userId=${activeUser.id}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.userConnected) {
+          const hasToken = Boolean(data.hasWearableToken);
+          setHasLiveToken(hasToken);
+
+          if (data.userConnected && hasToken) {
             if (connectedBrandId !== "garmin") {
               setConnectedBrandId("garmin");
               localStorage.setItem(`netfits_connected_wearable_${activeUser.id}`, "garmin");
@@ -190,6 +194,11 @@ export function ClubPage() {
                 }
               }
             } catch {}
+          } else if (data.hasWearableToken === false) {
+            setConnectedBrandId(null);
+            if (typeof window !== "undefined") {
+              localStorage.removeItem(`netfits_connected_wearable_${activeUser.id}`);
+            }
           }
         }
       } catch {
@@ -276,6 +285,11 @@ export function ClubPage() {
       const res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
       if (res.ok) {
         const data = await res.json();
+        if (data.requiresAuth) {
+          toast.info("Vincule sua conta Garmin Connect para sincronizar treinos.");
+          setShowGarminModal(true);
+          return;
+        }
         if (data.processedCount > 0) {
           sharedSandboxStore.updateUser(activeUser.id, {
             nfsBalance: (activeUser.nfsBalance || 0) + (data.pointsAwarded || 0),

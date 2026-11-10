@@ -233,6 +233,11 @@ export function WearablesHub() {
       const res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
       if (res.ok) {
         const data = await res.json();
+        if (data.requiresAuth) {
+          toast.info("Vincule sua conta Garmin Connect para sincronizar seus treinos.");
+          setConnectingBrand(WEARABLE_BRANDS.find((b) => b.id === "garmin") || null);
+          return;
+        }
         if (data.processedCount > 0) {
           sharedSandboxStore.updateUser(activeUser.id, {
             nfsBalance: (activeUser.nfsBalance || 0) + (data.pointsAwarded || 0),
