@@ -236,7 +236,7 @@ export function ClubPage() {
 
   // Geração de URL de autorização Garmin com suporte cross-platform
   const getGarminAuthUrl = () => {
-    return `https://app-netfits.andre-gallo.workers.dev/api/garmin/authorize?userId=${encodeURIComponent(
+    return `https://www.netfits.com.br/api/garmin/authorize?userId=${encodeURIComponent(
       activeUser.id
     )}&redirect=/club`;
   };

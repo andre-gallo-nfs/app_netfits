@@ -23,8 +23,8 @@ function buildGarminReturnHtml(
   success: boolean = true,
   customMessage?: string
 ) {
-  const intentUri = `intent://www.netfits.com.br${targetPath}?${success ? "garmin_connected=true" : "garmin_cancelled=true"}#Intent;package=br.com.netfits.app;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end;`;
-  const launcherIntent = "intent:#Intent;package=br.com.netfits.app;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
+  const cleanRoute = targetPath.startsWith("/") ? targetPath.substring(1) : targetPath;
+  const appSchemeUrl = `netfits://${cleanRoute}?${success ? "garmin_connected=true" : "garmin_cancelled=true"}`;
   const title = success ? "Garmin Conectado!" : "Retornando à Netfits";
   const icon = success ? "✓" : "↩";
   const desc = customMessage || (success
@@ -110,35 +110,24 @@ function buildGarminReturnHtml(
     <div class="icon">${icon}</div>
     <h1>${title}</h1>
     <p>${desc}</p>
-    <a id="btn-open" class="btn" href="${intentUri}">${btnText}</a>
-    <div class="spinner">Se o app não abrir em instantes, toque no botão acima.</div>
+    <a id="btn-open" class="btn" href="${appSchemeUrl}">${btnText}</a>
+    <div class="spinner">Retornando automaticamente ao Netfits...</div>
   </div>
 
   <script>
     (function() {
-      var isAndroid = /Android/i.test(navigator.userAgent);
-      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-      var intentUri = "${intentUri}";
-      var launcherUri = "${launcherIntent}";
+      var appSchemeUrl = "${appSchemeUrl}";
       var webFinal = "${webFinal}";
 
-      if (isAndroid) {
-        try {
-          window.location.href = intentUri;
-          setTimeout(function() {
-            window.location.href = launcherUri;
-          }, 600);
-        } catch(e) {
-          window.location.href = launcherUri;
-        }
-      } else if (isIOS) {
-        window.location.href = "netfits://club?garmin_${success ? "connected=true" : "cancelled=true"}";
-        setTimeout(function() {
-          window.location.replace(webFinal);
-        }, 800);
-      } else {
+      // 1. Tentar abrir o aplicativo diretamente via Custom Scheme (netfits://)
+      try {
+        window.location.href = appSchemeUrl;
+      } catch(e) {}
+
+      // 2. Fallback suave para a tela web sem passar por loja de apps
+      setTimeout(function() {
         window.location.replace(webFinal);
-      }
+      }, 1000);
     })();
   </script>
 </body>
@@ -733,20 +722,35 @@ export async function handleGarminRoutes(
         tokenParams.code_verifier = verifier;
       }
 
+      const basicAuthHeader = `Basic ${Buffer.from(`${GARMIN_CLIENT_ID}:${GARMIN_CLIENT_SECRET}`).toString("base64")}`;
+
       let tokenRes = await fetch(tokenEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": basicAuthHeader,
         },
         body: new URLSearchParams(tokenParams).toString(),
       });
 
-      // Fallback para endpoint legado caso o novo recuse
+      // Fallback sem header Authorization (apenas no body) caso diauth recuse Basic Auth
+      if (!tokenRes.ok) {
+        tokenRes = await fetch(tokenEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams(tokenParams).toString(),
+        });
+      }
+
+      // Fallback para endpoint legado
       if (!tokenRes.ok) {
         tokenRes = await fetch("https://apis.garmin.com/oauth-service/oauth/exchange/user/2.0", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": basicAuthHeader,
           },
           body: new URLSearchParams(tokenParams).toString(),
         });
@@ -970,19 +974,23 @@ export async function handleGarminRoutes(
       (targetUser?.wearable && targetUser.wearable.toLowerCase().includes("garmin"))
     );
 
-    if (!isUserConnected) {
+    if (!targetUser?.wearableToken || !isUserConnected) {
       try {
         const cloudData = await fetchPersistentUsersAndTransactionsFromCloud();
         if (cloudData?.users) {
           const cloudUser = cloudData.users.find(
             (u: any) => u.id === requestedUserId || (requestedUserId === "usr_andre" && (u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com"))
           );
-          if (cloudUser && (cloudUser.garminUserId || (cloudUser.wearable && cloudUser.wearable.toLowerCase().includes("garmin")))) {
+          if (cloudUser) {
             if (targetUser) {
-              targetUser.wearable = cloudUser.wearable || "Garmin Connect";
-              targetUser.garminUserId = cloudUser.garminUserId;
+              if (cloudUser.wearable) targetUser.wearable = cloudUser.wearable;
+              if (cloudUser.garminUserId) targetUser.garminUserId = cloudUser.garminUserId;
+              if (cloudUser.wearableToken) targetUser.wearableToken = cloudUser.wearableToken;
+              if (cloudUser.wearableRefreshToken) targetUser.wearableRefreshToken = cloudUser.wearableRefreshToken;
             }
-            isUserConnected = true;
+            if (cloudUser.garminUserId || (cloudUser.wearable && cloudUser.wearable.toLowerCase().includes("garmin"))) {
+              isUserConnected = true;
+            }
           }
         }
       } catch {}
