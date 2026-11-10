@@ -353,14 +353,25 @@ function AuthPage() {
     e.preventDefault();
     setFormError(null);
 
-    if (!loginIdentifier.trim() || !password) {
-      setFormError("Preencha todos os campos para fazer login.");
+    const cleanIdentifier = loginIdentifier.trim();
+    if (!cleanIdentifier) {
+      const msg = "Por favor, informe seu e-mail, celular ou CPF para entrar.";
+      setFormError(msg);
+      toast.error(msg);
       return;
     }
 
-    const res = authStore.loginUser(loginIdentifier, password);
+    if (!password) {
+      const msg = "Por favor, digite sua senha para entrar no aplicativo.";
+      setFormError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const res = authStore.loginUser(cleanIdentifier, password);
     if (!res.success) {
       setFormError(res.error || "Dados incorretos.");
+      toast.error(res.error || "Dados incorretos.");
       return;
     }
 
@@ -1060,7 +1071,12 @@ function AuthPage() {
 
       {/* Login Form */}
       {mode === "login" && (
-        <form onSubmit={handleLoginSubmit} className="space-y-4">
+        <form
+          action="javascript:void(0);"
+          noValidate
+          onSubmit={handleLoginSubmit}
+          className="space-y-4"
+        >
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-foreground">E-mail, Celular ou CPF *</label>
             <div className="relative">
@@ -1070,12 +1086,14 @@ function AuthPage() {
               <input
                 type="text"
                 value={loginIdentifier}
-                onChange={(e) => setLoginIdentifier(e.target.value)}
+                onChange={(e) => {
+                  setLoginIdentifier(e.target.value);
+                  setFormError(null);
+                }}
                 placeholder="Seu e-mail, celular ou CPF"
                 autoComplete="username"
                 autoCapitalize="none"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
-                required
               />
             </div>
           </div>
@@ -1099,12 +1117,14 @@ function AuthPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Sua senha"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setFormError(null);
+                }}
+                placeholder="Sua senha cadastrada"
                 autoComplete="current-password"
                 autoCapitalize="none"
                 className="w-full bg-card border border-border rounded-xl pl-10 pr-10 py-3 text-base sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-purple-600"
-                required
               />
               <button
                 type="button"
@@ -1118,7 +1138,7 @@ function AuthPage() {
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl font-bold text-xs bg-purple-600 text-white hover:bg-purple-700 transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-xl font-bold text-xs bg-purple-600 text-white hover:bg-purple-700 transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
             <LogIn className="size-4" />
             Entrar no Aplicativo
@@ -1129,14 +1149,28 @@ function AuthPage() {
             <button
               type="button"
               onClick={async () => {
-                const res = await authStore.loginWithPasskey();
+                setFormError(null);
+                const cleanIdentifier = loginIdentifier.trim();
+                let targetId: string | undefined;
+                if (cleanIdentifier) {
+                  const check = authStore.checkIdentifierExists(cleanIdentifier);
+                  if (check.exists && check.matchedUser) {
+                    targetId = check.matchedUser.id;
+                  }
+                }
+
+                const res = await authStore.loginWithPasskey(targetId);
                 if (res.success) {
                   const finops = passkeyService.getFinOpsMetrics();
                   toast.success(`⚡ FinOps: Login biométrico realizado sem custo de SMS OTP (Economia: ${finops.costSavedFormatted})`);
                   appLockStore.setUnlocked(true);
                   navigate({ to: "/feed" });
-                } else if (res.error) {
-                  toast.error(res.error);
+                } else {
+                  const friendlyMsg = res.error?.includes("cancel")
+                    ? "Autenticação biométrica cancelada."
+                    : "Para o primeiro acesso neste dispositivo, digite sua senha cadastrada. Seu Face ID / Touch ID ficará disponível para os próximos acessos.";
+                  setFormError(friendlyMsg);
+                  toast.info(friendlyMsg);
                 }
               }}
               className="w-full py-3 rounded-xl font-bold text-xs bg-zinc-900 dark:bg-zinc-800 text-white border border-purple-500/40 hover:bg-zinc-800 dark:hover:bg-zinc-700 transition-all flex items-center justify-center gap-2 active:scale-98 shadow-md cursor-pointer"

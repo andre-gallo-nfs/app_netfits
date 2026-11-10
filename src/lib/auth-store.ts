@@ -4,6 +4,7 @@ import { wallet } from "./wallet-store";
 import { sharedSandboxStore } from "./shared-sandbox-store";
 import { passkeyService } from "./webauthn-passkeys";
 import { nativeBridge } from "./native-bridge";
+import { appLockStore } from "./app-lock-store";
 import { BiometricAuth } from "@aparajita/capacitor-biometric-auth";
 
 export type StoredUser = {
@@ -711,14 +712,37 @@ export const authStore = {
           : false;
 
         if (isAvail && BiometricAuth && typeof BiometricAuth.authenticate === "function") {
-          await BiometricAuth.authenticate({
-            reason: "Confirme sua digital ou Face ID para entrar na sua conta Netfits",
-            cancelTitle: "Cancelar",
-          });
+          // LL-014 / LL-015: Protege ciclo de vida mobile contra eventos de visibilidade
+          (appLockStore as any).isAuthenticatingBiometrics = true;
+          try {
+            await BiometricAuth.authenticate({
+              reason: "Confirme sua digital ou Face ID para entrar na sua conta Netfits",
+              cancelTitle: "Cancelar",
+            });
+          } finally {
+            setTimeout(() => {
+              (appLockStore as any).isAuthenticatingBiometrics = false;
+            }, 1500);
+          }
 
           // Usuário alvo para autenticação
           let targetUser = expectedUserId
-            ? storedUsers.find((u) => u.id === expectedUserId)
+            ? (storedUsers.find((u) => u.id === expectedUserId) ||
+               (() => {
+                 const sb = sharedSandboxStore.getUsers().find((u) => u.id === expectedUserId);
+                 return sb
+                   ? {
+                       id: sb.id,
+                       fullName: sb.fullName,
+                       email: sb.email || sb.identifier,
+                       phone: sb.phone || "",
+                       cpf: sb.cpf || "",
+                       userCategory: sb.type === "associado" ? "associado" : "atleta",
+                       passwordHash: sb.passwordHash || "",
+                       registeredAt: sb.registeredAt || new Date().toISOString(),
+                     } as StoredUser
+                   : null;
+               })())
             : storedUsers[0];
 
           if (!targetUser) {
