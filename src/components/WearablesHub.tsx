@@ -201,7 +201,7 @@ export function WearablesHub() {
         ? btoa(JSON.stringify({ userId: activeUser.id, redirectTarget: "/activities" }))
         : activeUser.id;
 
-    return `https://connect.garmin.com/oauthConfirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent(
+    return `https://connect.garmin.com/oauth2Confirm?client_id=e654043f-8094-4d1f-af62-970df6a17ab2&response_type=code&redirect_uri=${encodeURIComponent(
       "https://www.netfits.com.br/api/garmin/oauth/callback"
     )}&state=${encodeURIComponent(statePayload)}`;
   };

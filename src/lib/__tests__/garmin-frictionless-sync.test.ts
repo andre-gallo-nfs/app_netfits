@@ -155,4 +155,63 @@ describe("🏃 Garmin Connect Frictionless Integration & Antifraud Guard (LL-017
     const syncData = await syncRes?.json();
     expect(syncData.success).toBe(true);
   });
+
+  it("deve emitir redirecionamento HTTP 302 canônico no endpoint /api/garmin/authorize sem HTML intermediário ou intent://", async () => {
+    const corsHeaders = { "Access-Control-Allow-Origin": "*" };
+    const authUrl = new URL("https://www.netfits.com.br/api/garmin/authorize?userId=usr_andre&redirect=/club");
+    const authReq = new Request(authUrl.toString(), { method: "GET" });
+    const authRes = await handleGarminRoutes(authReq, authUrl, corsHeaders);
+
+    expect(authRes).not.toBeNull();
+    // HTTP 302 - Redirecionamento Direto para o OAuth Garmin oficial
+    expect(authRes?.status).toBe(302);
+
+    const redirectLocation = authRes?.headers.get("location");
+    expect(redirectLocation).toBeDefined();
+    expect(redirectLocation).toContain("https://connect.garmin.com/oauth2Confirm");
+    expect(redirectLocation).toContain("client_id=e654043f-8094-4d1f-af62-970df6a17ab2");
+    expect(redirectLocation).toContain("code_challenge=");
+    expect(redirectLocation).toContain("code_challenge_method=S256");
+    expect(redirectLocation).toContain("redirect_uri=https%3A%2F%2Fwww.netfits.com.br%2Fapi%2Fgarmin%2Foauth%2Fcallback");
+
+    // Garantir que NÃO existe HTML intermediário, nem intent:// nem botões mortos
+    const contentType = authRes?.headers.get("content-type") || "";
+    expect(contentType).not.toContain("text/html");
+    expect(redirectLocation).not.toContain("intent://");
+  });
+
+  it("deve retornar requiresAuth: true quando o atleta tentar sincronizar sem token ativo no servidor", async () => {
+    const corsHeaders = { "Access-Control-Allow-Origin": "*" };
+    const userNoToken: SandboxUser = {
+      id: "usr_sem_token",
+      fullName: "Atleta Sem Token",
+      email: "semtoken@netfits.com.br",
+      identifier: "semtoken@netfits.com.br",
+      type: "athlete",
+      userCategory: "atleta",
+      isClubMember: true,
+      plan: "club",
+      wearable: "Nenhum",
+      nfsBalance: 50,
+      referralCode: "SEMTOKEN",
+      registeredAt: "2026-11-01T00:00:00Z",
+    };
+    serverState.users.push(userNoToken);
+
+    // 1. Checar status
+    const statusUrl = new URL("https://www.netfits.com.br/api/garmin/status?userId=" + userNoToken.id);
+    const statusReq = new Request(statusUrl.toString(), { method: "GET" });
+    const statusRes = await handleGarminRoutes(statusReq, statusUrl, corsHeaders);
+    const statusData = await statusRes?.json();
+    expect(statusData.hasWearableToken).toBe(false);
+    expect(statusData.userConnected).toBe(false);
+
+    // 2. Tentar sincronizar sem token -> deve exigir autorização explícita
+    const syncUrl = new URL("https://www.netfits.com.br/api/garmin/sync-recent-workouts?userId=" + userNoToken.id);
+    const syncReq = new Request(syncUrl.toString(), { method: "GET" });
+    const syncRes = await handleGarminRoutes(syncReq, syncUrl, corsHeaders);
+    const syncData = await syncRes?.json();
+    expect(syncData.success).toBe(false);
+    expect(syncData.requiresAuth).toBe(true);
+  });
 });

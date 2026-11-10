@@ -1,4 +1,7 @@
 import { toast } from "sonner";
+import { Browser } from "@capacitor/browser";
+import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
 
 export type NativeDevicePlatform = "ios" | "android" | "web";
 
@@ -9,6 +12,11 @@ export const nativeBridge = {
    */
   getPlatform(): NativeDevicePlatform {
     if (typeof window === "undefined") return "web";
+    try {
+      if (Capacitor.isNativePlatform()) {
+        return Capacitor.getPlatform() as NativeDevicePlatform;
+      }
+    } catch {}
     const cap = (window as any).Capacitor;
     if (cap && typeof cap.isNativePlatform === "function" && cap.isNativePlatform()) {
       return cap.getPlatform() as NativeDevicePlatform;
@@ -24,6 +32,10 @@ export const nativeBridge = {
   },
 
   isNativePlatform(): boolean {
+    if (typeof window === "undefined") return false;
+    try {
+      if (Capacitor.isNativePlatform()) return true;
+    } catch {}
     return this.getPlatform() !== "web";
   },
 
@@ -171,23 +183,49 @@ export const nativeBridge = {
 
     // 2. Escutar eventos nativos do Capacitor (Universal Links no iOS & App Links no Android)
     if (this.isNativePlatform()) {
-      const App = (window as any).Capacitor?.Plugins?.App;
-      if (App) {
-        App.addListener("appUrlOpen", (data: { url: string }) => {
+      try {
+        App.addListener("appUrlOpen", async (data: { url: string }) => {
           try {
-            const urlObj = new URL(data.url);
-            const refCode = urlObj.searchParams.get("ref") || urlObj.searchParams.get("code") || urlObj.searchParams.get("referral");
-            if (refCode) {
-              const cleanCode = refCode.trim().toUpperCase();
-              localStorage.setItem("netfits_deferred_referral_code", cleanCode);
-              sessionStorage.setItem("netfits_deferred_referral_code", cleanCode);
-              toast.info(`✨ Indicação "${cleanCode}" capturada do app nativo!`);
-              if (onReferralCaptured) onReferralCaptured(cleanCode);
+            // Fecha qualquer Custom Tab ou navegador nativo aberto no fluxo OAuth
+            await Browser.close().catch(() => {});
+
+            const urlStr = data?.url || "";
+            let urlObj: URL | null = null;
+            try {
+              urlObj = new URL(urlStr);
+            } catch {
+              if (urlStr.startsWith("netfits://")) {
+                urlObj = new URL(urlStr.replace("netfits://", "https://app.netfits.local/"));
+              }
+            }
+
+            // Retorno do fluxo OAuth do Garmin Connect
+            if (urlStr.includes("garmin_connected=true")) {
+              if (typeof window !== "undefined") {
+                window.location.href = "/club?garmin_connected=true";
+              }
+              return;
+            }
+
+            if (urlObj) {
+              const refCode =
+                urlObj.searchParams.get("ref") ||
+                urlObj.searchParams.get("code") ||
+                urlObj.searchParams.get("referral");
+              if (refCode) {
+                const cleanCode = refCode.trim().toUpperCase();
+                localStorage.setItem("netfits_deferred_referral_code", cleanCode);
+                sessionStorage.setItem("netfits_deferred_referral_code", cleanCode);
+                toast.info(`✨ Indicação "${cleanCode}" capturada do app nativo!`);
+                if (onReferralCaptured) onReferralCaptured(cleanCode);
+              }
             }
           } catch (e) {
             console.warn("[DeepLink Error]", e);
           }
         });
+      } catch (errListener) {
+        console.warn("[NativeBridge] Falha ao registrar listener appUrlOpen:", errListener);
       }
     }
   },
@@ -198,37 +236,32 @@ export const nativeBridge = {
   /**
    * Abre URLs externas (como Garmin Connect OAuth) com suporte cross-platform seguro:
    * 1. No ambiente nativo (Android/iOS via Capacitor): Aciona o Chrome Custom Tabs ou SFSafariViewController
-   *    através do plugin oficial @capacitor/browser, garantindo que o bot-shield da Cloudflare e o SSO não bloqueiem a requisição.
-   * 2. No ambiente Web convencional: Abre em nova aba ("_blank") com noopener/noreferrer.
-   *    Se o navegador bloquear o popup (popup blocker padrão do Chrome/Safari/Edge), executa fallback
-   *    instantâneo para redirecionamento direto (window.location.assign), garantindo que o usuário
-   *    nunca fique sem a página de autorização.
+   *    através do plugin oficial @capacitor/browser, garantindo isolamento de processo, compatibilidade
+   *    com cookies e logins existentes do usuário e retorno seguro sem bloqueio de WebViews.
+   * 2. No ambiente Web convencional: Abre em nova aba ("_blank") com noopener/noreferrer com fallback direto.
    */
   async openExternalUrl(url: string): Promise<void> {
     if (typeof window === "undefined") return;
 
-    let targetUrl = url;
-    if (targetUrl.includes("connect.garmin.com")) {
-      targetUrl = targetUrl.replace(
-        "https://connect.garmin.com",
-        "https://app-netfits.andre-gallo.workers.dev/api/garmin/authorize"
-      );
+    // 1. No ambiente nativo (Android / iOS via Capacitor):
+    // Aciona o Chrome Custom Tabs (Android) ou SFSafariViewController (iOS)
+    if (this.isNativePlatform()) {
+      try {
+        await Browser.open({ url, presentationStyle: "popover" });
+        return;
+      } catch (e) {
+        console.warn("[NativeBridge] Browser.open nativo falhou, aplicando fallback:", e);
+      }
     }
 
+    // 2. No ambiente Web convencional: Abre em nova aba ("_blank") com noopener/noreferrer
     try {
-      const win = window.open(targetUrl, "_system");
-      if (win) return;
-    } catch (e) {
-      console.warn("[NativeBridge] window.open _system fallback:", e);
-    }
-
-    try {
-      const win = window.open(targetUrl, "_blank", "noopener,noreferrer");
+      const win = window.open(url, "_blank", "noopener,noreferrer");
       if (!win || win.closed || typeof win.closed === "undefined") {
-        window.location.assign(targetUrl);
+        window.location.assign(url);
       }
     } catch {
-      window.location.assign(targetUrl);
+      window.location.assign(url);
     }
   },
   getStoredReferralCode(): string | null {

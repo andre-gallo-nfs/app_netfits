@@ -542,7 +542,7 @@ export async function handleGarminRoutes(
 
   // =========================================================================
   // 2.1 Redirecionamento Direto para Garmin OAuth 2.0 PKCE (GET /api/garmin/authorize)
-  // Dispara Intent explícito para o Google Chrome no Android (ignora app Garmin e Edge)
+  // Redirecionamento canônico HTTP 302 para a tela oficial de login da Garmin Connect™
   // =========================================================================
   if (isGarminAuthorize && req.method === "GET") {
     const userId = url.searchParams.get("userId") || "usr_andre";
@@ -559,114 +559,7 @@ export async function handleGarminRoutes(
       GARMIN_REDIRECT_URI
     )}&code_challenge=${encodeURIComponent(challenge)}&code_challenge_method=S256&state=${encodeURIComponent(statePayload)}`;
 
-    const cleanUrl = authUrl.replace(/^https?:\/\//i, "");
-    const chromeIntent = `intent://${cleanUrl}#Intent;scheme=https;package=com.android.chrome;category=android.intent.category.BROWSABLE;S.browser_fallback_url=${encodeURIComponent(authUrl)};end;`;
-
-    const html = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Conectando Garmin Connect™...</title>
-  <style>
-    body {
-      background-color: #0b0c10;
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .card {
-      background: #181920;
-      border: 1px solid #282a36;
-      border-radius: 24px;
-      padding: 32px 24px;
-      text-align: center;
-      max-width: 380px;
-      width: 100%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    }
-    .logo {
-      font-size: 32px;
-      margin-bottom: 16px;
-    }
-    h1 {
-      font-size: 18px;
-      font-weight: 800;
-      margin: 0 0 8px;
-      color: #ffffff;
-    }
-    p {
-      font-size: 13px;
-      color: #a0a5b5;
-      line-height: 1.5;
-      margin: 0 0 24px;
-    }
-    .btn {
-      display: block;
-      width: 100%;
-      box-sizing: border-box;
-      padding: 14px;
-      background: #C8F135;
-      color: #121316;
-      font-size: 14px;
-      font-weight: 800;
-      border-radius: 14px;
-      text-decoration: none;
-      transition: transform 0.1s ease;
-    }
-    .btn:active {
-      transform: scale(0.98);
-    }
-    .spinner {
-      margin-top: 20px;
-      font-size: 11px;
-      color: #6B7280;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="logo">⌚</div>
-    <h1>Conectando Garmin Connect™</h1>
-    <p>Abrindo com segurança a autorização oficial no Google Chrome...</p>
-    <a id="btn-chrome" class="btn" href="${chromeIntent}">Abrir no Google Chrome</a>
-    <div class="spinner">Abertura automática em andamento...</div>
-  </div>
-
-  <script>
-    (function() {
-      var isAndroid = /Android/i.test(navigator.userAgent);
-      var chromeIntent = "${chromeIntent}";
-      var authUrl = "${authUrl}";
-
-      if (isAndroid) {
-        try {
-          window.location.href = chromeIntent;
-        } catch (e) {
-          window.location.href = authUrl;
-        }
-      } else {
-        window.location.replace(authUrl);
-      }
-    })();
-  </script>
-</body>
-</html>`;
-
-    return new Response(html, {
-      status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-      },
-    });
+    return Response.redirect(authUrl, 302);
   }
 
   // =========================================================================
