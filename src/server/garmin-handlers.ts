@@ -21,14 +21,19 @@ function buildGarminReturnHtml(
   targetPath: string,
   webFinal: string,
   success: boolean = true,
-  customMessage?: string
+  customMessage?: string,
+  userAgent?: string
 ) {
   const cleanRoute = targetPath.startsWith("/") ? targetPath.substring(1) : targetPath;
-  const appSchemeUrl = `netfits://${cleanRoute}?${success ? "garmin_connected=true" : "garmin_cancelled=true"}`;
-  const title = success ? "Garmin Conectado!" : "Retornando à Netfits";
+  const param = success ? "garmin_connected=true" : "garmin_cancelled=true";
+  const appSchemeUrl = `netfits://${cleanRoute}?${param}`;
+  const androidIntentUrl = `intent://${cleanRoute}?${param}#Intent;scheme=netfits;package=br.com.netfits.app;end`;
+  const isAndroidServer = Boolean(userAgent && /Android/i.test(userAgent));
+  const serverInitialUrl = isAndroidServer ? androidIntentUrl : appSchemeUrl;
+  const title = success ? "Garmin Conectado com Sucesso!" : "Retornando à Netfits";
   const icon = success ? "✓" : "↩";
   const desc = customMessage || (success
-    ? "Sua conta Garmin Connect™ foi vinculada com sucesso à Netfits. Retornando ao aplicativo..."
+    ? "Sua conta Garmin Connect™ foi vinculada com sucesso! Toque no botão abaixo para abrir o aplicativo Netfits:"
     : "Retornando ao aplicativo Netfits...");
   const btnText = success ? "Abrir Aplicativo Netfits" : "Voltar ao Netfits";
 
@@ -110,24 +115,29 @@ function buildGarminReturnHtml(
     <div class="icon">${icon}</div>
     <h1>${title}</h1>
     <p>${desc}</p>
-    <a id="btn-open" class="btn" href="${appSchemeUrl}">${btnText}</a>
-    <div class="spinner">Retornando automaticamente ao Netfits...</div>
+    <a id="btn-open" class="btn" href="${serverInitialUrl}">${btnText}</a>
+    <div class="spinner">Aguardando abertura do aplicativo...</div>
   </div>
 
   <script>
     (function() {
+      var isAndroid = /Android/i.test(navigator.userAgent);
       var appSchemeUrl = "${appSchemeUrl}";
-      var webFinal = "${webFinal}";
+      var androidIntentUrl = "${androidIntentUrl}";
+      var targetUrl = isAndroid ? androidIntentUrl : appSchemeUrl;
 
-      // 1. Tentar abrir o aplicativo diretamente via Custom Scheme (netfits://)
+      var btn = document.getElementById("btn-open");
+      if (btn) {
+        btn.href = targetUrl;
+        btn.onclick = function() {
+          window.location.href = targetUrl;
+        };
+      }
+
+      // Tenta abrir o aplicativo nativo automaticamente
       try {
-        window.location.href = appSchemeUrl;
+        window.location.href = targetUrl;
       } catch(e) {}
-
-      // 2. Fallback suave para a tela web sem passar por loja de apps
-      setTimeout(function() {
-        window.location.replace(webFinal);
-      }, 1000);
     })();
   </script>
 </body>
@@ -135,6 +145,7 @@ function buildGarminReturnHtml(
 }
 
 import { serverState } from "./server-state.ts";
+import { d1Service } from "./d1-service.ts";
 import {
   syncUsersAndTransactionsToCloud,
   fetchPersistentUsersAndTransactionsFromCloud,
@@ -551,7 +562,7 @@ export async function handleGarminRoutes(
     const verifier = generatePkceVerifier();
     const challenge = await sha256Base64Url(verifier);
 
-    const statePayload = Buffer.from(JSON.stringify({ userId, redirectTarget, verifier })).toString("base64");
+    const statePayload = Buffer.from(JSON.stringify({ userId, redirectTarget, verifier })).toString("base64url");
 
     const authUrl = `https://connect.garmin.com/oauth2Confirm?client_id=${encodeURIComponent(
       GARMIN_CLIENT_ID
@@ -574,19 +585,22 @@ export async function handleGarminRoutes(
       let targetRedirect = "/club";
       if (state) {
         try {
-          const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+          const cleanState = state.replace(/ /g, "+").replace(/-/g, "+").replace(/_/g, "/");
+          const decoded = JSON.parse(Buffer.from(cleanState, "base64").toString("utf-8"));
           if (decoded.redirectTarget) targetRedirect = decoded.redirectTarget;
         } catch {}
       }
       const cleanPath = targetRedirect.startsWith("/") ? targetRedirect : "/" + targetRedirect;
       const webFinal = `https://www.netfits.com.br${cleanPath}?garmin_error=${encodeURIComponent(error || "missing_code")}`;
+      const userAgent = req.headers.get("user-agent") || "";
       const html = buildGarminReturnHtml(
         cleanPath,
         webFinal,
         false,
         error === "access_denied"
           ? "Você optou por não autorizar a conexão na Garmin. Retornando ao aplicativo Netfits..."
-          : "Não foi possível concluir a autorização na Garmin. Retornando ao aplicativo Netfits..."
+          : "Não foi possível concluir a autorização na Garmin. Retornando ao aplicativo Netfits...",
+        userAgent
       );
       return new Response(html, {
         status: 200,
@@ -595,24 +609,19 @@ export async function handleGarminRoutes(
     }
 
     let targetUserId = "usr_andre";
-    let targetRedirect = "/activities";
+    let targetRedirect = "/club";
+    let verifier = "";
 
     if (state) {
       try {
-        const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
+        const cleanState = state.replace(/ /g, "+").replace(/-/g, "+").replace(/_/g, "/");
+        const decoded = JSON.parse(Buffer.from(cleanState, "base64").toString("utf-8"));
         if (decoded.userId) targetUserId = decoded.userId;
         if (decoded.redirectTarget) targetRedirect = decoded.redirectTarget;
-      } catch {
-        targetUserId = state;
-      }
-    }
-
-    let verifier = "";
-    if (state) {
-      try {
-        const decoded = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
         if (decoded.verifier) verifier = decoded.verifier;
-      } catch {}
+      } catch (errState) {
+        console.warn("[garmin-handlers] Falha ao decodificar state:", errState);
+      }
     }
 
     try {
@@ -629,73 +638,86 @@ export async function handleGarminRoutes(
         tokenParams.code_verifier = verifier;
       }
 
-      const basicAuthHeader = `Basic ${Buffer.from(`${GARMIN_CLIENT_ID}:${GARMIN_CLIENT_SECRET}`).toString("base64")}`;
-
+      console.log(`[garmin-handlers] Trocando code por token na Garmin diauth para ${targetUserId}...`);
       let tokenRes = await fetch(tokenEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": basicAuthHeader,
         },
         body: new URLSearchParams(tokenParams).toString(),
       });
 
-      // Fallback sem header Authorization (apenas no body) caso diauth recuse Basic Auth
+      // Fallback com Basic Auth se a requisição sem header for recusada
       if (!tokenRes.ok) {
+        const basicAuthHeader = `Basic ${Buffer.from(`${GARMIN_CLIENT_ID}:${GARMIN_CLIENT_SECRET}`).toString("base64")}`;
         tokenRes = await fetch(tokenEndpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: basicAuthHeader,
           },
           body: new URLSearchParams(tokenParams).toString(),
         });
       }
 
-      // Fallback para endpoint legado
-      if (!tokenRes.ok) {
-        tokenRes = await fetch("https://apis.garmin.com/oauth-service/oauth/exchange/user/2.0", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": basicAuthHeader,
-          },
-          body: new URLSearchParams(tokenParams).toString(),
-        });
-      }
-
-      let garminUserId = `garmin_${Date.now()}`;
-      let accessToken = code;
+      let garminUserId = `garmin_${targetUserId}_${Date.now()}`;
+      let accessToken = "";
       let refreshToken = "";
 
       if (tokenRes.ok) {
-        const tokenData = await tokenRes.json();
+        const tokenData: any = await tokenRes.json();
         garminUserId = tokenData.userId || tokenData.user_id || garminUserId;
-        accessToken = tokenData.access_token || accessToken;
+        accessToken = tokenData.access_token || "";
         refreshToken = tokenData.refresh_token || "";
+        console.log(`[garmin-handlers] Token obtido com sucesso para ${targetUserId}!`);
+      } else {
+        const errText = await tokenRes.text();
+        console.warn(`[garmin-handlers] Aviso na troca de token diauth (${tokenRes.status}):`, errText);
       }
 
       // 1. Registro oficial do usuário no webhook push da Garmin (User Registration API)
-      try {
-        console.log(`[garmin-handlers] Registrando push webhook na Garmin para ${targetUserId}...`);
-        const regRes = await fetch("https://healthapi.garmin.com/wellness-api/rest/user/registration", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        if (!regRes.ok) {
-          await fetch("https://apis.garmin.com/wellness-api/rest/user/registration", {
+      if (accessToken) {
+        try {
+          console.log(`[garmin-handlers] Registrando push webhook na Garmin para ${targetUserId}...`);
+          const regRes = await fetch("https://healthapi.garmin.com/wellness-api/rest/user/registration", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
+          if (!regRes.ok) {
+            await fetch("https://apis.garmin.com/wellness-api/rest/user/registration", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            });
+          }
+        } catch (errReg) {
+          console.warn("[garmin-handlers] Aviso no registro de push Garmin:", errReg);
         }
-      } catch (errReg) {
-        console.warn("[garmin-handlers] Aviso no registro de push Garmin:", errReg);
       }
 
-      // Vincular o atleta no estado do servidor
+      // 2. Gravação no Cloudflare D1 persistentemente
+      try {
+        const existingD1User = (await d1Service.findUser(targetUserId)) || (await d1Service.findUser("aacgallo@hotmail.com"));
+        if (existingD1User) {
+          const updatedD1User = {
+            ...existingD1User,
+            wearable: "Garmin Connect",
+            garminUserId,
+            wearableConnectedAt: new Date().toISOString(),
+            wearableToken: accessToken || (existingD1User as any).wearableToken,
+            wearableRefreshToken: refreshToken || (existingD1User as any).wearableRefreshToken,
+          };
+          await d1Service.upsertUser(updatedD1User);
+          console.log(`[garmin-handlers] Vínculo Garmin gravado no Cloudflare D1 para ${targetUserId}`);
+        }
+      } catch (errD1) {
+        console.warn("[garmin-handlers] Falha ao persistir no D1:", errD1);
+      }
+
+      // Vincular o atleta no estado em memória do servidor
       let user = serverState.users.find((u) => u.id === targetUserId);
       if (!user) {
         user = serverState.users.find((u) => u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com" || u.email === "aacgallo@hotmail.com");
@@ -704,23 +726,23 @@ export async function handleGarminRoutes(
         user.wearable = "Garmin Connect";
         user.garminUserId = garminUserId;
         user.wearableConnectedAt = new Date().toISOString();
-        user.wearableToken = accessToken;
-        if (refreshToken) {
-          user.wearableRefreshToken = refreshToken;
-        }
+        if (accessToken) user.wearableToken = accessToken;
+        if (refreshToken) user.wearableRefreshToken = refreshToken;
         serverState.touchSync();
       }
       try {
         await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
       } catch (errSync) {
-        console.warn("[garmin-handlers] Falha ao persistir vinculo Garmin:", errSync);
+        console.warn("[garmin-handlers] Falha ao sincronizar com nuvem auxiliar:", errSync);
       }
 
-      // 2. Sincronização imediata das últimas 48h (frictionless pull)
-      try {
-        await syncGarminWorkoutsForUser(targetUserId, 48);
-      } catch (errInitSync) {
-        console.warn("[garmin-handlers] Sincronização inicial pós-OAuth:", errInitSync);
+      // 3. Sincronização imediata das últimas 48h (frictionless pull)
+      if (accessToken) {
+        try {
+          await syncGarminWorkoutsForUser(targetUserId, 48);
+        } catch (errInitSync) {
+          console.warn("[garmin-handlers] Sincronização inicial pós-OAuth:", errInitSync);
+        }
       }
 
       const cleanPath = targetRedirect.startsWith("/") ? targetRedirect : "/" + targetRedirect;
@@ -728,7 +750,8 @@ export async function handleGarminRoutes(
         ? targetRedirect
         : `https://www.netfits.com.br${cleanPath}?garmin_connected=true`;
 
-      const html = buildGarminReturnHtml(cleanPath, redirectFinal);
+      const userAgent = req.headers.get("user-agent") || "";
+      const html = buildGarminReturnHtml(cleanPath, redirectFinal, true, undefined, userAgent);
       return new Response(html, {
         status: 200,
         headers: {
@@ -736,8 +759,8 @@ export async function handleGarminRoutes(
           "Content-Type": "text/html; charset=utf-8",
         },
       });
-    } catch {
-      // Fallback seguro caso a chamada de rede ao token exchange demore
+    } catch (errCatch) {
+      console.warn("[garmin-handlers] Fallback no callback:", errCatch);
       let user = serverState.users.find((u) => u.id === targetUserId);
       if (!user) {
         user = serverState.users.find((u) => u.id === "usr_andre" || u.identifier === "aacgallo@hotmail.com" || u.email === "aacgallo@hotmail.com");
@@ -748,10 +771,8 @@ export async function handleGarminRoutes(
         user.wearableConnectedAt = new Date().toISOString();
         serverState.touchSync();
       }
-      try {
-        await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
-      } catch {}
-      const htmlFallback = buildGarminReturnHtml("/club", "https://www.netfits.com.br/club?garmin_connected=true");
+      const userAgentFallback = req.headers.get("user-agent") || "";
+      const htmlFallback = buildGarminReturnHtml("/club", "https://www.netfits.com.br/club?garmin_connected=true", true, undefined, userAgentFallback);
       return new Response(htmlFallback, {
         status: 200,
         headers: {
@@ -870,9 +891,34 @@ export async function handleGarminRoutes(
   // =========================================================================
   if (isGarminStatus) {
     const requestedUserId = url.searchParams.get("userId") || "usr_andre";
-    let targetUser = serverState.users.find((u) => u.id === requestedUserId);
+    let targetUser: any = serverState.users.find((u) => u.id === requestedUserId);
     if (!targetUser && (requestedUserId === "usr_andre" || requestedUserId.includes("andre"))) {
       targetUser = serverState.users.find((u) => u.id === "usr_andre");
+    }
+
+    try {
+      let d1User: any = await d1Service.findUser(requestedUserId);
+      if (!d1User && (requestedUserId === "usr_andre" || requestedUserId.includes("andre"))) {
+        d1User = await d1Service.findUser("aacgallo@hotmail.com");
+      }
+      if (d1User) {
+        if (typeof d1User.metadata === "string") {
+          try {
+            const meta = JSON.parse(d1User.metadata);
+            d1User = { ...d1User, ...meta };
+          } catch {}
+        }
+        if (targetUser) {
+          if (d1User.wearable) targetUser.wearable = d1User.wearable;
+          if (d1User.garminUserId) targetUser.garminUserId = d1User.garminUserId;
+          if (d1User.wearableToken) targetUser.wearableToken = d1User.wearableToken;
+          if (d1User.wearableRefreshToken) targetUser.wearableRefreshToken = d1User.wearableRefreshToken;
+        } else {
+          targetUser = d1User;
+        }
+      }
+    } catch (errD1) {
+      console.warn("[garmin-status] Erro ao consultar D1:", errD1);
     }
 
     let isUserConnected = Boolean(
