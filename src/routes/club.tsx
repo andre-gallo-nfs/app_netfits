@@ -347,7 +347,7 @@ export function ClubPage() {
           <div className="relative z-10 flex flex-col items-center justify-center space-y-3">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black uppercase tracking-wider shadow-md">
               <Clock className="size-4 text-[#202127] animate-pulse" />
-              <span>Em Breve</span>
+              <span>Entrar na Lista VIP (Em Breve)</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
@@ -394,10 +394,10 @@ export function ClubPage() {
           <div className="flex items-baseline justify-between pt-1">
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-black text-[#202127]">R$ 19,90</span>
-                <span className="text-xs font-semibold text-[#5F6270]">/ mês</span>
+                <span className="text-2xl font-black text-[#202127]">Adesão VIP</span>
+                <span className="text-xs font-bold text-[#6B2AD9] px-2 py-0.5 rounded-full bg-[#F2ECFD]">Em Breve</span>
               </div>
-              <span className="text-xs text-[#5F6270] block mt-0.5">Sem carência ou fidelidade</span>
+              <span className="text-xs text-[#5F6270] block mt-0.5">Programa de incentivo ao movimento</span>
             </div>
             <div className="text-right">
               <span className="text-xs font-black text-[#35106E] block">250 nfs todo mês</span>
@@ -448,7 +448,7 @@ export function ClubPage() {
               <button
                 type="button"
                 onClick={() => {
-                  toast.info("⏳ O Clube Netfits estará disponível em breve!", { duration: 3000 });
+                  toast.success("🔔 Você foi cadastrado na Lista VIP do Clube Netfits! Avisaremos em primeira mão.", { duration: 4000 });
                 }}
                 className="w-full py-3.5 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-black text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer border border-zinc-700"
               >
@@ -764,7 +764,7 @@ export function ClubPage() {
           },
           {
             q: "Existe carência ou taxa de cancelamento?",
-            a: "Não. A assinatura do Clube Netfits custa R$ 19,90 por mês e pode ser cancelada a qualquer momento sem taxas, multas ou fidelidade contratual.",
+            a: "Não. O Clube Netfits é um programa exclusivo de benefícios e incentivo ao esporte totalmente livre de taxas de cancelamento e pode ser pausado a qualquer momento.",
           },
         ].map((faq, i) => {
           const isOpen = openFaq === i;
@@ -836,8 +836,8 @@ export function ClubPage() {
 
             <div className="p-3.5 rounded-2xl bg-[#F5F5F7] border border-zinc-200 space-y-2">
               <div className="flex items-baseline justify-between">
-                <span className="text-xs font-bold text-[#5F6270]">Valor da Mensalidade:</span>
-                <span className="text-base font-black text-[#202127]">R$ 19,90 / mês</span>
+                <span className="text-xs font-bold text-[#5F6270]">Status da Adesão:</span>
+                <span className="text-base font-black text-[#202127]">Em Breve</span>
               </div>
               <div className="flex items-baseline justify-between border-t border-zinc-200 pt-1.5">
                 <span className="text-xs font-bold text-[#5F6270]">Pontos Imediatos:</span>

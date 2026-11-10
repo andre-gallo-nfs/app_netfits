@@ -106,9 +106,9 @@ const FAQ_ITEMS: FaqItem[] = [
     id: "faq_7",
     category: "club",
     categoryLabel: "Netfits Club",
-    question: "O que é o Netfits Club e quais são as vantagens da assinatura de R$ 19,90/mês?",
+    question: "O que é o Netfits Club e quais são suas vantagens?",
     answer:
-      "O Netfits Club é o clube oficial de benefícios e saúde por assinatura do ecossistema Netfits. Por R$ 19,90/mês, os membros contam com benefícios exclusivos, descontos em exames de check-up e prioridade em inscrições de corridas de rua e eventos esportivos credenciados."
+      "O Netfits Club é o clube oficial de benefícios e incentivo ao movimento do ecossistema Netfits. Os membros contam com benefícios exclusivos, aceleração de pontos com smartwatches, descontos em exames de check-up e prioridade em inscrições de corridas de rua e eventos esportivos credenciados."
   }
 ];
 

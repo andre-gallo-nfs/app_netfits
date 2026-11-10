@@ -34,7 +34,7 @@ export function ClubMembershipModal() {
   // Ativação da assinatura do Clube: Checkout pendente de definição
   const handleSubscribe = () => {
     clubModalStore.close();
-    toast.info("A tela de checkout da assinatura está pendente de definição dos gateways bancários. Nenhum valor foi cobrado e nenhum ponto foi creditado.");
+    toast.success("🔔 Você está na Lista VIP do Clube Netfits! Avisaremos em primeira mão assim que a adesão for aberta.");
   };
 
   // Cancelamento de teste em homologação
@@ -125,8 +125,8 @@ export function ClubMembershipModal() {
                   {isMember ? "Seu Plano Atual" : "Assinatura Mensal"}
                 </span>
                 <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-2xl font-black text-white">R$ 19,90</span>
-                  <span className="text-xs text-zinc-400">/ mês</span>
+                  <span className="text-2xl font-black text-white">Adesão VIP</span>
+                  <span className="text-xs text-amber-300 font-bold ml-1">(Em Breve)</span>
                 </div>
               </div>
               <div className="text-right">
@@ -270,7 +270,7 @@ export function ClubMembershipModal() {
               <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
                 <h5 className="font-bold text-white mb-1">Como funciona a cobrança?</h5>
                 <p className="text-zinc-400 leading-relaxed">
-                  A assinatura do Clube custa R$ 19,90 cobrados mensalmente no cartão de crédito cadastrado na plataforma ou via Pix recorrente.
+                  A adesão ao Clube Netfits estará disponível em breve com benefícios exclusivos de pontuação acelerada e conexão de wearables.
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
@@ -306,7 +306,7 @@ export function ClubMembershipModal() {
               ) : (
                 <>
                   <Crown className="size-4 text-zinc-950" />
-                  Assinar Clube Netfits — R$ 19,90/mês
+                  Entrar na Lista VIP do Clube (Em Breve)
                   <ArrowRight className="size-4 text-zinc-950 ml-1" />
                 </>
               )}

@@ -133,7 +133,7 @@ function ActivitiesPage() {
                   </div>
                   <div>
                     <h3 className="text-xs font-black text-[#35106E]">Clube Netfits • 250 nfs/mês + 20 nfs por treino</h3>
-                    <p className="text-[11px] text-[#5F6270]">250 nfs na mensalidade + 20 nfs por treino validado por R$ 19,90/mês.</p>
+                    <p className="text-[11px] text-[#5F6270]">250 nfs na ativação + 20 nfs por treino validado com relógio.</p>
                   </div>
                 </div>
                 <Link
