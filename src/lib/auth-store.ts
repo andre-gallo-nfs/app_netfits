@@ -581,6 +581,17 @@ export const authStore = {
       } catch {}
     }
 
+    // 4. Busca senha padrão canônica cadastrada no banco oficial (EXISTING_DATABASE_USERS)
+    const canonicalDbUser = EXISTING_DATABASE_USERS.find(
+      (u) =>
+        u.id === check.matchedUser!.id ||
+        (u.email && check.matchedUser!.email && u.email.toLowerCase() === check.matchedUser!.email.toLowerCase()) ||
+        (u.email && u.email.toLowerCase() === identifier.trim().toLowerCase())
+    );
+    if (canonicalDbUser?.passwordHash) {
+      validPasswords.push(canonicalDbUser.passwordHash);
+    }
+
     const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));
 
     const isCorrect = uniqueValidPasswords.some(
@@ -593,6 +604,15 @@ export const authStore = {
         error: "Senha incorreta. Digite sua senha pessoal cadastrada.",
       };
     }
+
+    // Ao autenticar com sucesso, sincroniza a senha em todos os stores locais para consistência permanente
+    check.matchedUser.passwordHash = cleanPwd;
+    const userIdx = storedUsers.findIndex((u) => u.id === check.matchedUser!.id);
+    if (userIdx >= 0) {
+      storedUsers[userIdx].passwordHash = cleanPwd;
+      saveStoredUsers(storedUsers);
+    }
+    sharedSandboxStore.updateUser(check.matchedUser.id, { passwordHash: cleanPwd });
 
     currentUser = check.matchedUser;
     sharedSandboxStore.setActiveUser(check.matchedUser.id);

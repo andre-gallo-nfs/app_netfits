@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { appLockStore } from "../app-lock-store";
 import { sharedSandboxStore } from "../shared-sandbox-store";
+import { authStore } from "../auth-store";
 
 describe("Mobile Runtime Lifecycle, Biometrics & Screen Lock Security (LL-014)", () => {
   const store = new Map<string, string>();
@@ -109,5 +110,13 @@ describe("Mobile Runtime Lifecycle, Biometrics & Screen Lock Security (LL-014)",
     const res = appLockStore.unlockWithPassword("Pizone@1990");
     expect(res.success).toBe(true);
     expect(appLockStore.isUnlocked()).toBe(true);
+  });
+
+  it("7. Login com e-mail e senha canônica (Pizone@1990) deve autenticar Mariana com sucesso irrestrito", () => {
+    // Simula tentativa de login com as credenciais oficiais
+    const loginRes = authStore.loginUser("maripizone@gmail.com", "Pizone@1990");
+    expect(loginRes.success).toBe(true);
+    expect(loginRes.user?.id).toBe("user-1793802322018");
+    expect(loginRes.user?.fullName).toBe("Mariana Fernanda Pizone");
   });
 });

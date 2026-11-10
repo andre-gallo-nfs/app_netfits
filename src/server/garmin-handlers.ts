@@ -306,6 +306,7 @@ export async function syncGarminWorkoutsForUser(
   pointsAwarded: number;
   results: any[];
   userBalance?: number;
+  requiresAuth?: boolean;
 }> {
   let user = serverState.users.find((u) => u.id === userId);
   if (!user && (userId === "usr_andre" || userId.includes("andre"))) {
@@ -339,6 +340,19 @@ export async function syncGarminWorkoutsForUser(
   const nowSeconds = Math.floor(Date.now() / 1000);
   const startSeconds = nowSeconds - Math.max(1, hours) * 3600;
   let activities: GarminActivityItem[] = [];
+
+  // Se o usuário não possui token de acesso válido à Garmin, requer autorização OAuth
+  if (!user.wearableToken) {
+    return {
+      success: false,
+      requiresAuth: true,
+      message: "Autorização da Garmin Connect™ pendente. Toque em 'Conectar Garmin' para autenticar sua conta.",
+      processedCount: 0,
+      pointsAwarded: 0,
+      results: [],
+      userBalance: user.nfsBalance,
+    };
+  }
 
   // Se o usuário possui token de acesso à Garmin, consulta os endpoints oficiais da Garmin Activity API
   if (user.wearableToken) {
