@@ -123,7 +123,7 @@ interface RecommendedProduct {
 interface SportRecommendationProfile {
   sportName: string;
   medicalTip: string;
-  medicalDoctor: string;
+  curatorTitle: string;
   products: RecommendedProduct[];
 }
 
@@ -140,8 +140,8 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
     return {
       sportName: "Musculação & Força",
       medicalTip:
-        "O esforço de sobrecarga miofibrilar gera microlesões necessárias para a hipertrofia. O aporte imediato de proteínas de alto valor biológico e creatina nas primeiras horas maximiza a síntese proteica e a preservação de massa magra.",
-      medicalDoctor: "Curadoria Médica Fibios Longevidade",
+        "O esforço de sobrecarga miofibrilar gera microlesões necessárias para a hipertrofia. O aporte de proteínas de alto valor biológico e creatina nas primeiras horas auxilia na síntese proteica e na preservação de massa magra.",
+      curatorTitle: "Curadoria e Inteligência Esportiva Netfits",
       products: [
         {
           id: "prod_whey_iso",
@@ -163,7 +163,7 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
         },
         {
           id: "prod_palatinose_fibios",
-          name: "Palatinose Fibios (Energia Limpa)",
+          name: "Palatinose 100% Pura (Energia Limpa)",
           category: "Nutrição Funcional",
           priceBrl: 89.9,
           badge: "Baixo Índice Glicêmico",
@@ -183,8 +183,8 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
     return {
       sportName: "Ciclismo & Endurance",
       medicalTip:
-        "Em treinos de pedal contínuo, a taxa de sudorese pode ultrapassar 1,2L por hora. A reposição hidroeletrolítica frequente evita a queda de potência muscular, cãibras e fadiga neuromuscular.",
-      medicalDoctor: "Curadoria Médica Fibios Longevidade",
+        "Em treinos de pedal contínuo, a taxa de sudorese pode ultrapassar 1,2L por hora. A reposição hidroeletrolítica frequente previne a queda de rendimento muscular e a fadiga prematura.",
+      curatorTitle: "Curadoria e Inteligência Esportiva Netfits",
       products: [
         {
           id: "prod_electrolyte_tabs",
@@ -221,12 +221,12 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
   return {
     sportName: "Corrida & Endurance",
     medicalTip:
-      "Após treinos de alta demanda cárdio, as reservas de glicogênio muscular e hepático sofrem depleção acentuada. Ingerir carboidratos de absorção equilibrada e eletrólitos na janela de recuperação acelera o healthspan biológico.",
-    medicalDoctor: "Curadoria Médica Fibios Longevidade",
+      "Após treinos de alta demanda cárdio, as reservas de glicogênio muscular sofrem depleção. Ingerir carboidratos de absorção equilibrada e eletrólitos na janela de recuperação acelera o restabelecimento energético e biológico.",
+    curatorTitle: "Curadoria e Inteligência Esportiva Netfits",
     products: [
       {
         id: "prod_palatinose_fibios",
-        name: "Palatinose Fibios (Energia Limpa)",
+        name: "Palatinose 100% Pura (Energia Limpa)",
         category: "Nutrição Funcional",
         priceBrl: 89.9,
         badge: "Glicogênio Estável",
@@ -879,18 +879,15 @@ export function ClubPage() {
             </span>
           </div>
 
-          {/* Dica Médica da Fibios (Em estrito cumprimento ao CFM e RQE) */}
+          {/* Dica de Nutrição e Recuperação Netfits */}
           <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1">
             <div className="flex items-center gap-1.5 font-bold text-[#202127] text-[11px]">
               <ShieldCheck className="size-3.5 text-[#5D7600]" />
-              <span>Curadoria Médica Fibios Longevidade</span>
+              <span>{recommendation.curatorTitle}</span>
             </div>
-            <p className="text-[11px] text-[#5F6270] leading-relaxed italic">
+            <p className="text-[11px] text-[#5F6270] leading-relaxed">
               &ldquo;{recommendation.medicalTip}&rdquo;
             </p>
-            <div className="text-[9px] text-[#5F6270]/80 pt-0.5 border-t border-zinc-200/60 font-medium">
-              Dr. Franco Merici (CRM-SP 212567) e Dra. Isabella Formigari (CRM-SP 282951) — Médicos sócios fundadores da Fibios
-            </div>
           </div>
 
           {/* Grid de Produtos Recomendados para o Esporte */}
