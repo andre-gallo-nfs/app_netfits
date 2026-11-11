@@ -160,7 +160,7 @@ function MarketEmbeddedPage() {
   const targetProductPath = (() => {
     const raw = search.product;
     if (!raw) return undefined;
-    const lower = raw.toLowerCase();
+    const lower = raw.toLowerCase().trim();
     if (
       lower.includes("mizuno") ||
       lower.includes("bone") ||
@@ -168,7 +168,33 @@ function MarketEmbeddedPage() {
     ) {
       return "https://loja.netfits.com.br/bone-aba-curva-mizuno-run-sky";
     }
-    return raw;
+    if (
+      lower.includes("puma") ||
+      lower.includes("meia-soquete") ||
+      lower.includes("mku-1cdk93sa2ryzq")
+    ) {
+      return "https://loja.netfits.com.br/meia-soquete-puma-invisivel-c-3-pares";
+    }
+    if (
+      lower.includes("maratona") ||
+      lower.includes("stickers") ||
+      lower.includes("mku-infbk0fzpb3ri")
+    ) {
+      return "https://loja.netfits.com.br/camiseta-maratona-do-rio-stickers";
+    }
+    if (lower.includes("toalha") || lower.includes("atlantica")) {
+      return "https://loja.netfits.com.br/toalha-de-academia-100-algodao-30x80cm-400g-m-atlantica-azul-marinho";
+    }
+    if (lower.includes("defiant") || lower.includes("adidas")) {
+      return "https://loja.netfits.com.br/tenis-adidas-defiant-speed-2-feminino-003";
+    }
+    if (lower.includes("hering")) {
+      return "https://loja.netfits.com.br/camiseta-hering-premium-fresh-feminina-006";
+    }
+    if (raw.startsWith("http://") || raw.startsWith("https://")) {
+      return raw;
+    }
+    return `https://loja.netfits.com.br/${raw.replace(/^\/+/, "")}`;
   })();
 
   // Se a rota for acessada sem parâmetro de produto (ex: toque na aba Shop), limpa o produto residual

@@ -34,12 +34,9 @@ import {
   Award,
 } from "lucide-react";
 import { shopSelectionStore } from "@/lib/shop-selection-store";
-import electrolyteImg from "@/assets/product-electrolyte.jpg";
-import gelImg from "@/assets/product-gel.jpg";
-import palatinoseImg from "@/assets/product-palatinose.jpg";
-import wheyImg from "@/assets/product-whey.jpg";
-import creatineImg from "@/assets/product-creatine.jpg";
-import helmetImg from "@/assets/product-helmet.jpg";
+import productMizunoCap from "@/assets/product-mizuno-cap.jpg";
+import apparelSocks from "@/assets/apparel-socks.jpg";
+import apparelTee from "@/assets/apparel-tee.jpg";
 
 export const Route = createFileRoute("/club")({
   head: () => ({
@@ -118,6 +115,8 @@ interface RecommendedProduct {
   badge: string;
   image: string;
   targetPath: string;
+  slug: string;
+  seller?: string;
 }
 
 interface SportRecommendationProfile {
@@ -140,35 +139,41 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
     return {
       sportName: "Musculação & Força",
       medicalTip:
-        "O esforço de sobrecarga miofibrilar gera microlesões necessárias para a hipertrofia. O aporte de proteínas de alto valor biológico e creatina nas primeiras horas auxilia na síntese proteica e na preservação de massa magra.",
+        "Sessões de força e hipertrofia demandam estabilidade nos apoios, controle de sudorese e vestuário com amplitude de movimento para garantir a consistência dos treinos.",
       curatorTitle: "Curadoria e Inteligência Esportiva Netfits",
       products: [
         {
-          id: "prod_whey_iso",
-          name: "Whey Protein Isolado 900g",
-          category: "Suplementação & Saúde",
-          priceBrl: 159.9,
-          badge: "Síntese Proteica",
-          image: wheyImg,
-          targetPath: "categoria/suplementos",
+          id: "prod_toalha_academia",
+          name: "Toalha de Academia 100% Algodão Atlântica",
+          category: "Acessórios de Treino & Higiene",
+          priceBrl: 26.9,
+          badge: "100% Algodão Alta Absorção",
+          image: "https://cdn.luxuryloyalty.com/media/product/detail/48421a9d-1403-41b1-9495-6387be8bb54b-1.jpg",
+          targetPath: "toalha-de-academia-100-algodao-30x80cm-400g-m-atlantica-azul-marinho",
+          slug: "toalha-de-academia-100-algodao-30x80cm-400g-m-atlantica-azul-marinho",
+          seller: "Atlântica Oficial",
         },
         {
-          id: "prod_creatine_pure",
-          name: "Creatina Monohidratada 300g",
-          category: "Força & Potência",
-          priceBrl: 119.9,
-          badge: "Recuperação ATP",
-          image: creatineImg,
-          targetPath: "categoria/suplementos",
+          id: "prod_meia_puma",
+          name: "Meia Soquete Puma Invisível c/ 3 Pares",
+          category: "Vestuário & Performance",
+          priceBrl: 32.62,
+          badge: "Ajuste Anatômico & Algodão",
+          image: apparelSocks,
+          targetPath: "meia-soquete-puma-invisivel-c-3-pares",
+          slug: "meia-soquete-puma-invisivel-c-3-pares",
+          seller: "Netshoes Oficial",
         },
         {
-          id: "prod_palatinose_fibios",
-          name: "Palatinose 100% Pura (Energia Limpa)",
-          category: "Nutrição Funcional",
-          priceBrl: 89.9,
-          badge: "Baixo Índice Glicêmico",
-          image: palatinoseImg,
-          targetPath: "categoria/nutricao-esportiva",
+          id: "prod_camiseta_hering",
+          name: "Camiseta Hering Premium Fresh",
+          category: "Vestuário Leve & Conforto",
+          priceBrl: 34.99,
+          badge: "Tecido Frescor Respirável",
+          image: "https://cdn.luxuryloyalty.com/media/product/detail/c3f55f36-c52c-4693-a6e9-142f3ce35be5-1.jpg",
+          targetPath: "camiseta-hering-premium-fresh-feminina-006",
+          slug: "camiseta-hering-premium-fresh-feminina-006",
+          seller: "Hering Oficial",
         },
       ],
     };
@@ -183,35 +188,41 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
     return {
       sportName: "Ciclismo & Endurance",
       medicalTip:
-        "Em treinos de pedal contínuo, a taxa de sudorese pode ultrapassar 1,2L por hora. A reposição hidroeletrolítica frequente previne a queda de rendimento muscular e a fadiga prematura.",
+        "Em treinos de pedal contínuo, a termorregulação craniana contra a radiação solar e o uso de tecidos de rápida evaporação preservam a clareza decisória e o rendimento muscular.",
       curatorTitle: "Curadoria e Inteligência Esportiva Netfits",
       products: [
         {
-          id: "prod_electrolyte_tabs",
-          name: "Repositores Eletrolíticos Líquidos",
-          category: "Hidratação Avançada",
-          priceBrl: 49.9,
-          badge: "Anti-Cãibras",
-          image: electrolyteImg,
-          targetPath: "categoria/nutricao-esportiva",
+          id: "prod_mizuno_cap",
+          name: "Boné Aba Curva Mizuno Run Sky",
+          category: "Acessórios & Proteção UV50+",
+          priceBrl: 89.99,
+          badge: "Proteção UV50+ & Quick-Dry",
+          image: productMizunoCap,
+          targetPath: "bone-aba-curva-mizuno-run-sky",
+          slug: "bone-aba-curva-mizuno-run-sky",
+          seller: "Mizuno Oficial",
         },
         {
-          id: "prod_gel_carbo",
-          name: "Gel de Carboidrato de Alta Absorção",
-          category: "Energia Rápida",
-          priceBrl: 14.9,
-          badge: "Reposição Glicêmica",
-          image: gelImg,
-          targetPath: "categoria/nutricao-esportiva",
+          id: "prod_meia_puma",
+          name: "Meia Soquete Puma Invisível c/ 3 Pares",
+          category: "Vestuário & Performance",
+          priceBrl: 32.62,
+          badge: "Anti-Atrito & Conforto",
+          image: apparelSocks,
+          targetPath: "meia-soquete-puma-invisivel-c-3-pares",
+          slug: "meia-soquete-puma-invisivel-c-3-pares",
+          seller: "Netshoes Oficial",
         },
         {
-          id: "prod_helmet_aero",
-          name: "Capacete Aero Performance",
-          category: "Acessórios & Segurança",
-          priceBrl: 249.9,
-          badge: "Segurança de Elite",
-          image: helmetImg,
-          targetPath: "categoria/ciclismo",
+          id: "prod_camiseta_maratona_rio",
+          name: "Camiseta Maratona do Rio Stickers",
+          category: "Vestuário Técnico de Corrida",
+          priceBrl: 52.62,
+          badge: "Secagem Rápida & Ventilação",
+          image: apparelTee,
+          targetPath: "camiseta-maratona-do-rio-stickers",
+          slug: "camiseta-maratona-do-rio-stickers",
+          seller: "Netshoes Oficial",
         },
       ],
     };
@@ -221,35 +232,41 @@ function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
   return {
     sportName: "Corrida & Endurance",
     medicalTip:
-      "Após treinos de alta demanda cárdio, as reservas de glicogênio muscular sofrem depleção. Ingerir carboidratos de absorção equilibrada e eletrólitos na janela de recuperação acelera o restabelecimento energético e biológico.",
+      "Após treinos de corrida e endurance, a termorregulação craniana, a proteção contra fricção nos pés e o uso de vestuário de secagem rápida aceleram a recuperação do atleta e evitam sobreaquecimento.",
     curatorTitle: "Curadoria e Inteligência Esportiva Netfits",
     products: [
       {
-        id: "prod_palatinose_fibios",
-        name: "Palatinose 100% Pura (Energia Limpa)",
-        category: "Nutrição Funcional",
-        priceBrl: 89.9,
-        badge: "Glicogênio Estável",
-        image: palatinoseImg,
-        targetPath: "categoria/nutricao-esportiva",
+        id: "prod_mizuno_cap",
+        name: "Boné Aba Curva Mizuno Run Sky",
+        category: "Acessórios & Proteção UV50+",
+        priceBrl: 89.99,
+        badge: "Proteção UV50+ & Quick-Dry",
+        image: productMizunoCap,
+        targetPath: "bone-aba-curva-mizuno-run-sky",
+        slug: "bone-aba-curva-mizuno-run-sky",
+        seller: "Mizuno Oficial",
       },
       {
-        id: "prod_gel_carbo",
-        name: "Gel de Carboidrato de Alta Absorção",
-        category: "Energia Rápida",
-        priceBrl: 14.9,
-        badge: "Restauração Muscular",
-        image: gelImg,
-        targetPath: "categoria/nutricao-esportiva",
+        id: "prod_meia_puma",
+        name: "Meia Soquete Puma Invisível c/ 3 Pares",
+        category: "Vestuário & Performance",
+        priceBrl: 32.62,
+        badge: "Anti-Bolhas & Anatômica",
+        image: apparelSocks,
+        targetPath: "meia-soquete-puma-invisivel-c-3-pares",
+        slug: "meia-soquete-puma-invisivel-c-3-pares",
+        seller: "Netshoes Oficial",
       },
       {
-        id: "prod_electrolyte_tabs",
-        name: "Repositores Eletrolíticos Líquidos",
-        category: "Hidratação Celular",
-        priceBrl: 49.9,
-        badge: "Balanço Iônico",
-        image: electrolyteImg,
-        targetPath: "categoria/nutricao-esportiva",
+        id: "prod_camiseta_maratona_rio",
+        name: "Camiseta Maratona do Rio Stickers",
+        category: "Vestuário Técnico de Corrida",
+        priceBrl: 52.62,
+        badge: "Performance & Evaporação",
+        image: apparelTee,
+        targetPath: "camiseta-maratona-do-rio-stickers",
+        slug: "camiseta-maratona-do-rio-stickers",
+        seller: "Netshoes Oficial",
       },
     ],
   };
@@ -857,7 +874,7 @@ export function ClubPage() {
         </section>
       )}
 
-      {/* 2.6. RECOMENDAÇÃO HIPERPERSONALIZADA PÓS-TREINO: NUTRIÇÃO & SHOP (FIBIOS + ROCK ENCANTECH) */}
+      {/* 2.6. RECOMENDAÇÃO HIPERPERSONALIZADA PÓS-TREINO: EQUIPAMENTOS REAIS & SHOP (ROCK ENCANTECH) */}
       <section className="px-4 space-y-3">
         <div className="p-4 sm:p-5 rounded-3xl bg-white border border-purple-200/90 shadow-sm space-y-4">
           <div className="flex items-start justify-between gap-3">
@@ -870,7 +887,7 @@ export function ClubPage() {
                   Recomendação Personalizada • {recommendation.sportName}
                 </span>
                 <h3 className="text-sm font-black text-[#202127]">
-                  Nutrição &amp; Recuperação Estratégica
+                  Equipamentos &amp; Recuperação Estratégica
                 </h3>
               </div>
             </div>
@@ -879,7 +896,7 @@ export function ClubPage() {
             </span>
           </div>
 
-          {/* Dica de Nutrição e Recuperação Netfits */}
+          {/* Dica de Curadoria Esportiva Netfits */}
           <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1">
             <div className="flex items-center gap-1.5 font-bold text-[#202127] text-[11px]">
               <ShieldCheck className="size-3.5 text-[#5D7600]" />
@@ -902,10 +919,11 @@ export function ClubPage() {
                   key={prod.id}
                   className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 flex flex-col justify-between hover:border-purple-300 transition space-y-2 group"
                 >
-                  <div className="relative w-full h-24 rounded-xl overflow-hidden bg-zinc-200">
+                  <div className="relative w-full h-28 rounded-xl overflow-hidden bg-zinc-200">
                     <img
                       src={prod.image}
                       alt={prod.name}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                     />
                     <span className="absolute top-1.5 left-1.5 text-[9px] font-black bg-zinc-950/80 text-white px-2 py-0.5 rounded-full backdrop-blur-xs">
@@ -914,7 +932,7 @@ export function ClubPage() {
                   </div>
 
                   <div>
-                    <h4 className="text-xs font-bold text-[#202127] line-clamp-1">
+                    <h4 className="text-xs font-bold text-[#202127] line-clamp-1" title={prod.name}>
                       {prod.name}
                     </h4>
                     <span className="text-[10px] text-[#5F6270] block">
@@ -934,20 +952,24 @@ export function ClubPage() {
 
                     <Link
                       to="/market"
-                      search={{ product: prod.targetPath }}
+                      search={{ product: prod.slug }}
                       onClick={() => {
                         shopSelectionStore.setProduct({
                           id: prod.id,
                           title: prod.name,
                           price: `R$ ${prod.priceBrl.toFixed(2).replace(".", ",")}`,
                           cashback: `+${pointsEarned} nfs`,
-                          targetPath: prod.targetPath,
+                          seller: prod.seller || "Loja Oficial Netfits",
+                          targetPath: `https://loja.netfits.com.br/${prod.slug}`,
                           image: prod.image,
+                        });
+                        toast.success("Abrindo produto no Shop Netfits...", {
+                          description: `${prod.name} · Ganhe +${pointsEarned} nfs`,
                         });
                       }}
                       className="py-1.5 px-2.5 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white text-[10px] font-black flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
                     >
-                      <span>Ver</span>
+                      <span>Ver no Shop</span>
                       <ArrowRight className="size-3 text-[#C8F135]" />
                     </Link>
                   </div>
@@ -957,9 +979,10 @@ export function ClubPage() {
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-[#5F6270] pt-1">
-            <span>⚡ Entregue pelos parceiros oficiais Rock Encantech</span>
+            <span>⚡ Produtos oficiais do catálogo Netfits Shop (Rock Encantech)</span>
             <Link
               to="/market"
+              search={{}}
               className="text-[#6B2AD9] font-bold hover:underline flex items-center gap-1"
             >
               <span>Explorar todo o Shop</span>
