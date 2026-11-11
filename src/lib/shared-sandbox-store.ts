@@ -306,11 +306,11 @@ const INITIAL_USERS: SandboxUser[] = [
     "wearable": "Garmin Connect",
     "garminUserId": "garmin_usr_andre",
     "wearableConnectedAt": "2026-11-06T00:00:00Z",
-    "nfsBalance": 1835,
+    "nfsBalance": 854,
     "userCategory": "atleta",
-    "plan": "club",
-    "isClubMember": true,
-    "isClubSubscriber": true,
+    "plan": "free",
+    "isClubMember": false,
+    "isClubSubscriber": false,
     "registeredAt": "2026-10-05T00:00:00Z",
     "identifier": "aacgallo@hotmail.com",
     "type": "admin",
@@ -484,9 +484,9 @@ const INITIAL_USERS: SandboxUser[] = [
     "registeredAt": "2026-10-24T00:00:00Z",
     "identifier": "demo@netfits.com.br",
     "type": "athlete",
-    "plan": "club",
-    "isClubMember": true,
-    "isClubSubscriber": true,
+    "plan": "free",
+    "isClubMember": false,
+    "isClubSubscriber": false,
     "referralCode": "REVIEW-NETFITS",
     "passwordHash": "Netfits@2026!"
   },
@@ -1124,6 +1124,51 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "timestamp": "2026-10-05T00:00:00Z"
   },
   {
+    "id": "tx-referral-cristiane-queli",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 50,
+    "description": "Bônus por Indicar Novo Usuário (Cristiane Queli da Silva Gallo) — MGM",
+    "category": "referral",
+    "timestamp": "2026-10-15T18:52:14.266Z"
+  },
+  {
+    "id": "tx-mkp-earn-FFP2716595769",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 359,
+    "description": "✨ Cashback compra Mkplace Pedido #FFP2716595769 (R$ 89,99) — Boné Mizuno Run Sky",
+    "category": "shop",
+    "timestamp": "2026-10-27T16:59:48.251Z"
+  },
+  {
+    "id": "tx_garmin_1794361702539_uqyaqqf",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 20,
+    "description": "Treino Garmin Validado no Clube: Treino Físico Garmin (+20 nfs)",
+    "category": "workout",
+    "timestamp": "2026-11-10T22:48:22.423Z"
+  },
+  {
+    "id": "tx-mkp-refund-GTJ0522372096",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": -814,
+    "description": "Estorno de Cashback: Pedido Cancelado na Rock #GTJ0522372096",
+    "category": "shop",
+    "timestamp": "2026-11-09T18:00:00.000Z"
+  },
+  {
+    "id": "tx-mkp-refund-PFM0610443019",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": -227,
+    "description": "Estorno de Cashback: Pedido Cancelado na Rock #PFM0610443019",
+    "category": "shop",
+    "timestamp": "2026-11-09T18:01:00.000Z"
+  },
+  {
     "id": "tx-apple-review-welcome",
     "userId": "usr_apple_review",
     "userName": "Avaliador Netfits (Apple Review)",
@@ -1131,15 +1176,6 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "description": "Boas-vindas à Netfits! Bônus de Cadastro Inicial",
     "category": "welcome",
     "timestamp": "2026-10-24T10:00:00.000Z"
-  },
-  {
-    "id": "tx-apple-review-club",
-    "userId": "usr_apple_review",
-    "userName": "Avaliador Netfits (Apple Review)",
-    "amount": 1000,
-    "description": "Mensalidade Clube Netfits: Pontuação Recorrente",
-    "category": "associado_bonus",
-    "timestamp": "2026-10-24T10:05:00.000Z"
   },
   {
     "id": "tx-apple-review-feed",

@@ -366,6 +366,7 @@ export async function handleSyncRoutes(
               try { meta = typeof du.metadata === "string" ? JSON.parse(du.metadata) : du.metadata; } catch {}
             }
             return {
+              ...meta,
               id: du.id,
               email: du.email,
               cpf: du.cpf,
@@ -386,7 +387,6 @@ export async function handleSyncRoutes(
               state: du.state,
               createdAt: du.createdAt,
               updatedAt: du.updatedAt,
-              ...meta,
             };
           });
 

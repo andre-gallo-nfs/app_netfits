@@ -190,13 +190,25 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
 
     const itemsText = orderProductName ? ` Produto(s): ${orderProductName}.` : "";
 
-    if (t.amount < 0 || /resgate/i.test(desc)) {
+    const isRefund =
+      /estorno|cancel|refund/i.test(desc) ||
+      t.id.includes("refund");
+
+    if (isRefund) {
+      displayCategory = "Estorno no Shop";
+      title = "Estorno: Pedido Cancelado";
+      eventDescription = orderRef
+        ? `Estorno de pontuação decorrente do cancelamento do Pedido ${orderRef} na Rock Encantech.${itemsText} O cashback atribuído na confirmação de pagamento foi estornado em cumprimento irrestrito à política de processamento de pedidos da Netfits.`
+        : `Estorno de pontuação decorrente de cancelamento de pedido no Shop Netfits.${itemsText} O cashback foi revertido conforme a política de pedidos.`;
+    } else if (t.amount < 0 || /resgate/i.test(desc)) {
+      displayCategory = "Resgate no Shop";
       title = "Resgate no Shop";
       eventDescription = orderRef
         ? `Resgate de produto realizado no Shop Netfits (Pedido ${orderRef}).${itemsText} A pontuação foi utilizada como pagamento e debitada do seu saldo.`
         : `Resgate de produto realizado no Shop Netfits utilizando seu saldo de pontos.${itemsText}`;
     } else {
-      title = "Compra no Shop";
+      displayCategory = "Compras no Shop";
+      title = "Cashback no Shop";
       const orderPart = orderRef
         ? ` (Pedido ${orderRef}${orderTotalBrl ? ` no valor de R$ ${orderTotalBrl}` : ""})`
         : orderTotalBrl
