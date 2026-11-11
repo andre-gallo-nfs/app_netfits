@@ -33,6 +33,13 @@ import {
   Zap,
   Award,
 } from "lucide-react";
+import { shopSelectionStore } from "@/lib/shop-selection-store";
+import electrolyteImg from "@/assets/product-electrolyte.jpg";
+import gelImg from "@/assets/product-gel.jpg";
+import palatinoseImg from "@/assets/product-palatinose.jpg";
+import wheyImg from "@/assets/product-whey.jpg";
+import creatineImg from "@/assets/product-creatine.jpg";
+import helmetImg from "@/assets/product-helmet.jpg";
 
 export const Route = createFileRoute("/club")({
   head: () => ({
@@ -103,6 +110,151 @@ const WEARABLE_OPTIONS: WearableDeviceOption[] = [
   },
 ];
 
+interface RecommendedProduct {
+  id: string;
+  name: string;
+  category: string;
+  priceBrl: number;
+  badge: string;
+  image: string;
+  targetPath: string;
+}
+
+interface SportRecommendationProfile {
+  sportName: string;
+  medicalTip: string;
+  medicalDoctor: string;
+  products: RecommendedProduct[];
+}
+
+function getSportRecommendation(rawSport?: string): SportRecommendationProfile {
+  const sport = (rawSport || "").toLowerCase();
+
+  if (
+    sport.includes("muscul") ||
+    sport.includes("strength") ||
+    sport.includes("funcional") ||
+    sport.includes("peso") ||
+    sport.includes("gym")
+  ) {
+    return {
+      sportName: "Musculação & Força",
+      medicalTip:
+        "O esforço de sobrecarga miofibrilar gera microlesões necessárias para a hipertrofia. O aporte imediato de proteínas de alto valor biológico e creatina nas primeiras horas maximiza a síntese proteica e a preservação de massa magra.",
+      medicalDoctor: "Curadoria Médica Fibios Longevidade",
+      products: [
+        {
+          id: "prod_whey_iso",
+          name: "Whey Protein Isolado 900g",
+          category: "Suplementação & Saúde",
+          priceBrl: 159.9,
+          badge: "Síntese Proteica",
+          image: wheyImg,
+          targetPath: "categoria/suplementos",
+        },
+        {
+          id: "prod_creatine_pure",
+          name: "Creatina Monohidratada 300g",
+          category: "Força & Potência",
+          priceBrl: 119.9,
+          badge: "Recuperação ATP",
+          image: creatineImg,
+          targetPath: "categoria/suplementos",
+        },
+        {
+          id: "prod_palatinose_fibios",
+          name: "Palatinose Fibios (Energia Limpa)",
+          category: "Nutrição Funcional",
+          priceBrl: 89.9,
+          badge: "Baixo Índice Glicêmico",
+          image: palatinoseImg,
+          targetPath: "categoria/nutricao-esportiva",
+        },
+      ],
+    };
+  }
+
+  if (
+    sport.includes("cicl") ||
+    sport.includes("bike") ||
+    sport.includes("cycl") ||
+    sport.includes("pedal")
+  ) {
+    return {
+      sportName: "Ciclismo & Endurance",
+      medicalTip:
+        "Em treinos de pedal contínuo, a taxa de sudorese pode ultrapassar 1,2L por hora. A reposição hidroeletrolítica frequente evita a queda de potência muscular, cãibras e fadiga neuromuscular.",
+      medicalDoctor: "Curadoria Médica Fibios Longevidade",
+      products: [
+        {
+          id: "prod_electrolyte_tabs",
+          name: "Repositores Eletrolíticos Líquidos",
+          category: "Hidratação Avançada",
+          priceBrl: 49.9,
+          badge: "Anti-Cãibras",
+          image: electrolyteImg,
+          targetPath: "categoria/nutricao-esportiva",
+        },
+        {
+          id: "prod_gel_carbo",
+          name: "Gel de Carboidrato de Alta Absorção",
+          category: "Energia Rápida",
+          priceBrl: 14.9,
+          badge: "Reposição Glicêmica",
+          image: gelImg,
+          targetPath: "categoria/nutricao-esportiva",
+        },
+        {
+          id: "prod_helmet_aero",
+          name: "Capacete Aero Performance",
+          category: "Acessórios & Segurança",
+          priceBrl: 249.9,
+          badge: "Segurança de Elite",
+          image: helmetImg,
+          targetPath: "categoria/ciclismo",
+        },
+      ],
+    };
+  }
+
+  // Padrão canônico: Corrida / Endurance / Treino Físico Geral
+  return {
+    sportName: "Corrida & Endurance",
+    medicalTip:
+      "Após treinos de alta demanda cárdio, as reservas de glicogênio muscular e hepático sofrem depleção acentuada. Ingerir carboidratos de absorção equilibrada e eletrólitos na janela de recuperação acelera o healthspan biológico.",
+    medicalDoctor: "Curadoria Médica Fibios Longevidade",
+    products: [
+      {
+        id: "prod_palatinose_fibios",
+        name: "Palatinose Fibios (Energia Limpa)",
+        category: "Nutrição Funcional",
+        priceBrl: 89.9,
+        badge: "Glicogênio Estável",
+        image: palatinoseImg,
+        targetPath: "categoria/nutricao-esportiva",
+      },
+      {
+        id: "prod_gel_carbo",
+        name: "Gel de Carboidrato de Alta Absorção",
+        category: "Energia Rápida",
+        priceBrl: 14.9,
+        badge: "Restauração Muscular",
+        image: gelImg,
+        targetPath: "categoria/nutricao-esportiva",
+      },
+      {
+        id: "prod_electrolyte_tabs",
+        name: "Repositores Eletrolíticos Líquidos",
+        category: "Hidratação Celular",
+        priceBrl: 49.9,
+        badge: "Balanço Iônico",
+        image: electrolyteImg,
+        targetPath: "categoria/nutricao-esportiva",
+      },
+    ],
+  };
+}
+
 export function ClubPage() {
   const activeUser = sharedSandboxStore.useActiveUser();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -123,6 +275,28 @@ export function ClubPage() {
   // Treinos detectados e pendentes de validação (Ritual do Clube)
   const [pendingWorkouts, setPendingWorkouts] = useState<any[]>([]);
   const [isClaimingWorkoutId, setIsClaimingWorkoutId] = useState<string | null>(null);
+
+  // Armazena último treino validado para exibir recomendações pós-treino personalizadas
+  const [lastClaimedWorkout, setLastClaimedWorkout] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(`netfits_last_claimed_workout_${activeUser.id}`);
+        return raw ? JSON.parse(raw) : null;
+      } catch {}
+    }
+    return null;
+  });
+
+  const activeSportForRecommendations =
+    pendingWorkouts[0]?.sport ||
+    lastClaimedWorkout?.sport ||
+    (activeUser.sports && activeUser.sports[0]) ||
+    "Corrida";
+
+  const recommendation = useMemo(
+    () => getSportRecommendation(activeSportForRecommendations),
+    [activeSportForRecommendations]
+  );
 
   // Identificação do Dispositivo Conectado com Persistência Segura
   // Apenas Garmin possui integração oficial ativa
@@ -327,6 +501,13 @@ export function ClubPage() {
           });
         }
         toast.success(data.message || "🎉 Treino validado com sucesso! +20 nfs creditados na sua carteira.");
+        const claimed = pendingWorkouts.find((w) => w.id === workoutId);
+        if (claimed) {
+          setLastClaimedWorkout(claimed);
+          if (typeof window !== "undefined") {
+            localStorage.setItem(`netfits_last_claimed_workout_${activeUser.id}`, JSON.stringify(claimed));
+          }
+        }
         setPendingWorkouts((prev) => {
           const updated = prev.filter((w) => w.id !== workoutId);
           if (typeof window !== "undefined") {
@@ -675,6 +856,121 @@ export function ClubPage() {
           )}
         </section>
       )}
+
+      {/* 2.6. RECOMENDAÇÃO HIPERPERSONALIZADA PÓS-TREINO: NUTRIÇÃO & SHOP (FIBIOS + ROCK ENCANTECH) */}
+      <section className="px-4 space-y-3">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white border border-purple-200/90 shadow-sm space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="size-10 rounded-2xl bg-[#F2ECFD] text-[#6B2AD9] grid place-items-center shrink-0">
+                <ShoppingBag className="size-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9] block">
+                  Recomendação Personalizada • {recommendation.sportName}
+                </span>
+                <h3 className="text-sm font-black text-[#202127]">
+                  Nutrição &amp; Recuperação Estratégica
+                </h3>
+              </div>
+            </div>
+            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-[#C8F135] text-[#202127] shrink-0 border border-lime-400">
+              {isMember ? "4,8 nfs / R$" : "4 nfs / R$"}
+            </span>
+          </div>
+
+          {/* Dica Médica da Fibios (Em estrito cumprimento ao CFM e RQE) */}
+          <div className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 text-xs space-y-1">
+            <div className="flex items-center gap-1.5 font-bold text-[#202127] text-[11px]">
+              <ShieldCheck className="size-3.5 text-[#5D7600]" />
+              <span>Curadoria Médica Fibios Longevidade</span>
+            </div>
+            <p className="text-[11px] text-[#5F6270] leading-relaxed italic">
+              &ldquo;{recommendation.medicalTip}&rdquo;
+            </p>
+            <div className="text-[9px] text-[#5F6270]/80 pt-0.5 border-t border-zinc-200/60 font-medium">
+              Dr. Franco Merici (CRM-SP 212567) e Dra. Isabella Formigari (CRM-SP 282951) — Médicos sócios fundadores da Fibios
+            </div>
+          </div>
+
+          {/* Grid de Produtos Recomendados para o Esporte */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+            {recommendation.products.map((prod) => {
+              const pointsEarned = isMember
+                ? Math.round(prod.priceBrl * 4.8)
+                : Math.round(prod.priceBrl * 4.0);
+
+              return (
+                <div
+                  key={prod.id}
+                  className="p-3 rounded-2xl bg-[#F5F5F7] border border-zinc-200 flex flex-col justify-between hover:border-purple-300 transition space-y-2 group"
+                >
+                  <div className="relative w-full h-24 rounded-xl overflow-hidden bg-zinc-200">
+                    <img
+                      src={prod.image}
+                      alt={prod.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    />
+                    <span className="absolute top-1.5 left-1.5 text-[9px] font-black bg-zinc-950/80 text-white px-2 py-0.5 rounded-full backdrop-blur-xs">
+                      {prod.badge}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="text-xs font-bold text-[#202127] line-clamp-1">
+                      {prod.name}
+                    </h4>
+                    <span className="text-[10px] text-[#5F6270] block">
+                      {prod.category}
+                    </span>
+                  </div>
+
+                  <div className="pt-1 border-t border-zinc-200/60 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-black text-[#202127] block">
+                        R$ {prod.priceBrl.toFixed(2).replace(".", ",")}
+                      </span>
+                      <span className="text-[10px] font-bold text-[#6B2AD9] font-mono">
+                        +{pointsEarned} nfs
+                      </span>
+                    </div>
+
+                    <Link
+                      to="/market"
+                      search={{ product: prod.targetPath }}
+                      onClick={() => {
+                        shopSelectionStore.setProduct({
+                          id: prod.id,
+                          title: prod.name,
+                          price: `R$ ${prod.priceBrl.toFixed(2).replace(".", ",")}`,
+                          cashback: `+${pointsEarned} nfs`,
+                          targetPath: prod.targetPath,
+                          image: prod.image,
+                        });
+                      }}
+                      className="py-1.5 px-2.5 rounded-xl bg-[#35106E] hover:bg-[#280c55] text-white text-[10px] font-black flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer"
+                    >
+                      <span>Ver</span>
+                      <ArrowRight className="size-3 text-[#C8F135]" />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center justify-between text-[11px] text-[#5F6270] pt-1">
+            <span>⚡ Entregue pelos parceiros oficiais Rock Encantech</span>
+            <Link
+              to="/market"
+              className="text-[#6B2AD9] font-bold hover:underline flex items-center gap-1"
+            >
+              <span>Explorar todo o Shop</span>
+              <ArrowRight className="size-3" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* 3. HUB DE WEARABLES INTEGRADO (EXCLUSIVO PARA O CLUBE) */}
       <section className="px-4 space-y-3">
