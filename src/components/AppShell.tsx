@@ -68,6 +68,19 @@ export function AppShell({ children }: { children: ReactNode }) {
     nativeBridge.initNativeStatusBar();
     // Checagem de atualizações transparentes em nuvem (Over-The-Air)
     nativeBridge.checkForLiveUpdates();
+
+    // Consulta passiva de treinos pendentes para acender badge no Clube
+    const user = sharedSandboxStore.getActiveUser();
+    if (user?.id) {
+      fetch(`/api/garmin/pending-workouts?userId=${encodeURIComponent(user.id)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data?.workouts) && typeof window !== "undefined") {
+            localStorage.setItem("netfits_pending_workouts_count", String(data.workouts.length));
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const isPublicRoute =
@@ -121,6 +134,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           {tabs.map((t) => {
             const active = path === t.to;
             const Icon = t.icon;
+            const pendingCount = typeof window !== "undefined"
+              ? Number(localStorage.getItem("netfits_pending_workouts_count") || "0")
+              : 0;
+
             return (
               <Link
                 key={t.to}
@@ -133,11 +150,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                 }}
                 aria-label={`Aba ${t.label}`}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-col items-center justify-center min-h-[44px] min-w-[48px] gap-1 transition-all active:scale-95 ${
+                className={`relative flex flex-col items-center justify-center min-h-[44px] min-w-[48px] gap-1 transition-all active:scale-95 ${
                   active ? "text-purple-600 font-bold" : "text-zinc-500 hover:text-zinc-900"
                 }`}
               >
-                <Icon className="size-5 shrink-0" strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
+                <div className="relative">
+                  <Icon className="size-5 shrink-0" strokeWidth={active ? 2.5 : 2} aria-hidden="true" />
+                  {t.to === "/club" && pendingCount > 0 && (
+                    <span
+                      title="Treino pendente de validação"
+                      className="absolute -top-1 -right-1.5 size-2.5 bg-[#C8F135] ring-2 ring-white rounded-full animate-pulse shadow-xs"
+                    />
+                  )}
+                </div>
                 <span className="text-[10px] font-medium leading-none">{t.label}</span>
               </Link>
             );

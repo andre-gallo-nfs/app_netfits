@@ -532,6 +532,14 @@ export async function handleGarminRoutes(
     url.pathname === "/api/garmin/sync" ||
     url.pathname === "/api/garmin/sync/";
 
+  const isGarminPendingWorkouts =
+    url.pathname === "/api/garmin/pending-workouts" ||
+    url.pathname === "/api/garmin/pending-workouts/";
+
+  const isGarminClaimWorkout =
+    url.pathname === "/api/garmin/claim-workout" ||
+    url.pathname === "/api/garmin/claim-workout/";
+
   // =========================================================================
   // 1. Handshake de Verificação da Garmin (GET /api/webhooks/garmin)
   // =========================================================================
@@ -713,10 +721,23 @@ export async function handleGarminRoutes(
 
       if (tokenRes.ok) {
         const tokenData: any = await tokenRes.json();
-        garminUserId = tokenData.userId || tokenData.user_id || garminUserId;
         accessToken = tokenData.access_token || "";
         refreshToken = tokenData.refresh_token || "";
-        console.log(`[garmin-handlers] Token obtido com sucesso para ${targetUserId}!`);
+        garminUserId = tokenData.userId || tokenData.user_id || garminUserId;
+
+        // Obter o Garmin User ID real diretamente da API da Garmin
+        if (accessToken) {
+          try {
+            const idRes = await fetch("https://healthapi.garmin.com/wellness-api/rest/user/id", {
+              headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+            });
+            if (idRes.ok) {
+              const idData: any = await idRes.json();
+              if (idData.userId) garminUserId = idData.userId;
+            }
+          } catch {}
+        }
+        console.log(`[garmin-handlers] Token obtido com sucesso para ${targetUserId} (Garmin User ID: ${garminUserId})!`);
       } else {
         const errText = await tokenRes.text();
         console.warn(`[garmin-handlers] Aviso na troca de token diauth (${tokenRes.status}):`, errText);
@@ -884,12 +905,76 @@ export async function handleGarminRoutes(
         ...(Array.isArray(payload) ? (payload as any[]) : []),
       ];
 
-      const { processedCount, pointsAwarded, results } = processGarminActivities(incomingActivities);
+      // Sincronizar dados do atleta no D1 para garantir casamento exato de garminUserId
+      let targetUser = serverState.users.find((u) => u.id === "usr_andre");
+      try {
+        let d1User: any = await d1Service.findUser("usr_andre");
+        if (d1User) {
+          if (typeof d1User.metadata === "string") {
+            try {
+              d1User = { ...d1User, ...JSON.parse(d1User.metadata) };
+            } catch {}
+          }
+          if (targetUser) {
+            Object.assign(targetUser, d1User);
+          } else {
+            targetUser = d1User;
+            serverState.users.push(targetUser);
+          }
+        }
+      } catch (errD1) {
+        console.warn("[webhook] Erro ao carregar D1:", errD1);
+      }
+
+      // 1. Armazenar atividades válidas como treinos pendentes de validação no D1 (Ritual do Clube)
+      for (const act of incomingActivities) {
+        const actId = String(act.activityId || act.summaryId || `act_${Date.now()}`);
+        const durationMins = Math.round((act.durationInSeconds || 0) / 60);
+        const isManual = Boolean(act.manual);
+        const hasSensors = !isManual && Boolean(act.averageHeartRateInBeatsPerMinute || act.distanceInMeters);
+
+        if (durationMins >= 15 && hasSensors) {
+          const workoutId = `pw_${actId}`;
+          await d1Service.insertPendingWorkout({
+            id: workoutId,
+            userId: targetUser?.id || "usr_andre",
+            garminActivityId: actId,
+            sport: act.activityType || "Atividade Física",
+            durationMinutes: durationMins,
+            calories: act.activeKilocalories || 0,
+            avgHr: act.averageHeartRateInBeatsPerMinute || null,
+            maxHr: act.maxHeartRateInBeatsPerMinute || null,
+            distanceMeters: act.distanceInMeters || null,
+            device: act.deviceName || "Garmin Connect",
+            hasSensors: true,
+            pointsToAward: 20,
+            rawPayload: act,
+          });
+        }
+      }
+
+      const { processedCount, pointsAwarded, results } = processGarminActivities(incomingActivities, targetUser);
 
       if (processedCount > 0) {
         try {
+          if (targetUser) await d1Service.upsertUser(targetUser);
+          for (const resItem of results) {
+            if (resItem.pointsAwarded > 0) {
+              await d1Service.insertTransaction({
+                id: `tx_garmin_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+                userId: "usr_andre",
+                userName: "André Gallo",
+                amount: resItem.pointsAwarded,
+                description: `Treino Garmin Validado: ${resItem.sport} (+${resItem.pointsAwarded} nfs)`,
+                category: "CLUB_WORKOUT_VALIDATED",
+                timestamp: new Date().toISOString(),
+              });
+            }
+          }
           await syncUsersAndTransactionsToCloud(serverState.users, serverState.transactions);
-        } catch {}
+        } catch (errSync) {
+          console.warn("[webhook] Erro ao persistir webhook no D1:", errSync);
+        }
       }
 
       return new Response(
@@ -931,6 +1016,62 @@ export async function handleGarminRoutes(
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+  }
+
+  // =========================================================================
+  // 5.2 Consulta de Treinos Pendentes de Validação (GET /api/garmin/pending-workouts)
+  // =========================================================================
+  if (isGarminPendingWorkouts && req.method === "GET") {
+    const requestedUserId = url.searchParams.get("userId") || "usr_andre";
+    const pending = await d1Service.getPendingWorkouts(requestedUserId);
+    return new Response(
+      JSON.stringify({ success: true, count: pending.length, workouts: pending }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // =========================================================================
+  // 5.3 Validação e Resgate de Treino pelo Atleta (POST /api/garmin/claim-workout)
+  // =========================================================================
+  if (isGarminClaimWorkout && req.method === "POST") {
+    try {
+      const body: any = await req.json();
+      const workoutId = body?.workoutId;
+      const requestedUserId = body?.userId || "usr_andre";
+      const targetUser = serverState.users.find((u) => u.id === requestedUserId);
+      const userName = targetUser?.fullName || "André Gallo";
+
+      if (!workoutId) {
+        return new Response(
+          JSON.stringify({ success: false, message: "workoutId é obrigatório" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const claimRes = await d1Service.claimPendingWorkout({
+        workoutId,
+        userId: requestedUserId,
+        userName,
+      });
+
+      if (claimRes.success && targetUser) {
+        targetUser.nfsBalance = claimRes.newBalance;
+        serverState.touchSync();
+      }
+
+      return new Response(JSON.stringify(claimRes), {
+        status: claimRes.success ? 200 : 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } catch (err: any) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Erro ao processar resgate: " + err?.message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
   }
 
   // =========================================================================

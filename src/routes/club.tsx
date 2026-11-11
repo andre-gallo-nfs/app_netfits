@@ -31,6 +31,7 @@ import {
   Bell,
   Layers,
   Zap,
+  Award,
 } from "lucide-react";
 
 export const Route = createFileRoute("/club")({
@@ -119,6 +120,10 @@ export function ClubPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasLiveToken, setHasLiveToken] = useState<boolean | null>(null);
 
+  // Treinos detectados e pendentes de validação (Ritual do Clube)
+  const [pendingWorkouts, setPendingWorkouts] = useState<any[]>([]);
+  const [isClaimingWorkoutId, setIsClaimingWorkoutId] = useState<string | null>(null);
+
   // Identificação do Dispositivo Conectado com Persistência Segura
   // Apenas Garmin possui integração oficial ativa
   const [connectedBrandId, setConnectedBrandId] = useState<string | null>(() => {
@@ -156,6 +161,37 @@ export function ClubPage() {
   }, [activeUser.id]);
 
   
+  // Busca treinos detectados pela Garmin que aguardam validação do atleta
+  const fetchPendingWorkouts = async () => {
+    if (!activeUser?.id) return;
+    try {
+      const res = await fetch(`/api/garmin/pending-workouts?userId=${encodeURIComponent(activeUser.id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.workouts)) {
+          setPendingWorkouts(data.workouts);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("netfits_pending_workouts_count", String(data.workouts.length));
+          }
+          // Dispara notificação nativa se o usuário tiver autorizado
+          if (data.workouts.length > 0 && typeof window !== "undefined" && "Notification" in window) {
+            if (Notification.permission === "granted") {
+              try {
+                const w = data.workouts[0];
+                new Notification("🏃 Treino Detectado no Clube Netfits!", {
+                  body: `${w.sport || "Treino Físico"} (${w.durationMinutes || 0} min) aguardando sua validação para creditar +${w.pointsToAward || 20} nfs!`,
+                  icon: "/favicon.ico",
+                });
+              } catch {}
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Erro ao buscar treinos pendentes:", err);
+    }
+  };
+
   // Escuta retorno ou retomada de foco do aplicativo (garante ativação instantânea no retorno ao app)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -181,19 +217,8 @@ export function ClubPage() {
               );
             }
 
-            // Sincronização passiva silenciosa de treinos recentes (frictionless)
-            try {
-              const syncRes = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
-              if (syncRes.ok) {
-                const syncData = await syncRes.json();
-                if (syncData.pointsAwarded > 0) {
-                  sharedSandboxStore.updateUser(activeUser.id, {
-                    nfsBalance: (activeUser.nfsBalance || 0) + syncData.pointsAwarded,
-                  });
-                  toast.success(`🏃 ${syncData.processedCount} novo(s) treino(s) Garmin validado(s)! (+${syncData.pointsAwarded} nfs)`);
-                }
-              }
-            } catch {}
+            // Ingestão orientada a eventos: carrega treinos detectados que aguardam validação
+            fetchPendingWorkouts();
           } else if (data.hasWearableToken === false) {
             setConnectedBrandId(null);
             if (typeof window !== "undefined") {
@@ -208,10 +233,17 @@ export function ClubPage() {
 
     // Executa verificação ativa imediatamente no carregamento da tela
     checkCloudGarminStatus();
+    fetchPendingWorkouts();
 
-    window.addEventListener("focus", checkCloudGarminStatus);
+    window.addEventListener("focus", () => {
+      checkCloudGarminStatus();
+      fetchPendingWorkouts();
+    });
     const onVis = () => {
-      if (document.visibilityState === "visible") checkCloudGarminStatus();
+      if (document.visibilityState === "visible") {
+        checkCloudGarminStatus();
+        fetchPendingWorkouts();
+      }
     };
     document.addEventListener("visibilitychange", onVis);
 
@@ -279,32 +311,82 @@ export function ClubPage() {
     }
   };
 
+  const handleClaimWorkout = async (workoutId: string) => {
+    setIsClaimingWorkoutId(workoutId);
+    try {
+      const res = await fetch("/api/garmin/claim-workout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workoutId, userId: activeUser.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof data.newBalance === "number") {
+          sharedSandboxStore.updateUser(activeUser.id, {
+            nfsBalance: data.newBalance,
+          });
+        }
+        toast.success(data.message || "🎉 Treino validado com sucesso! +20 nfs creditados na sua carteira.");
+        setPendingWorkouts((prev) => {
+          const updated = prev.filter((w) => w.id !== workoutId);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("netfits_pending_workouts_count", String(updated.length));
+          }
+          return updated;
+        });
+      } else {
+        toast.error(data.message || "Não foi possível validar o treino.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao validar treino.");
+    } finally {
+      setIsClaimingWorkoutId(null);
+    }
+  };
+
   const handleManualSync = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+      await fetchPendingWorkouts();
+      const res = await fetch(`/api/garmin/status?userId=${encodeURIComponent(activeUser.id)}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.requiresAuth) {
+        if (data.hasWearableToken) {
+          const pendingRes = await fetch(`/api/garmin/pending-workouts?userId=${encodeURIComponent(activeUser.id)}`);
+          if (pendingRes.ok) {
+            const pendingData = await pendingRes.json();
+            const list = pendingData.workouts || [];
+            setPendingWorkouts(list);
+            if (list.length > 0) {
+              toast.success(`🏃 ${list.length} treino(s) detectado(s) pronto(s) para validação no card abaixo!`);
+            } else {
+              toast.info("Tudo em dia! Seus dados de conexão com a Garmin Connect™ estão ativos. Assim que concluir um treino, ele aparecerá aqui para você validar e pontuar.");
+            }
+          }
+        } else {
           toast.info("Vincule sua conta Garmin Connect para sincronizar treinos.");
           setShowGarminModal(true);
-          return;
-        }
-        if (data.processedCount > 0) {
-          sharedSandboxStore.updateUser(activeUser.id, {
-            nfsBalance: (activeUser.nfsBalance || 0) + (data.pointsAwarded || 0),
-          });
-          toast.success(`🎉 ${data.processedCount} novo(s) treino(s) Garmin validado(s)! (+${data.pointsAwarded} nfs)`);
-        } else {
-          toast.info("Tudo em dia! Nenhum novo treino pendente de validação nas últimas 72 horas.");
         }
       } else {
-        toast.error("Não foi possível sincronizar no momento. Tente novamente em instantes.");
+        toast.error("Não foi possível verificar status da Garmin. Tente novamente em instantes.");
       }
     } catch {
       toast.error("Erro de conexão ao buscar treinos na nuvem Garmin.");
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const requestNotificationPermission = async () => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        if (perm === "granted") {
+          toast.success("🔔 Notificações ativadas! Avisaremos assim que um novo treino for detectado.");
+        } else {
+          toast.info("Notificações desativadas nas configurações do dispositivo.");
+        }
+      } catch {}
     }
   };
 
@@ -473,6 +555,126 @@ export function ClubPage() {
           )}
         </div>
       </section>
+
+      {/* 2.5. CARD DE TREINOS DETECTADOS PENDENTES DE VALIDAÇÃO (RITUAL DO CLUBE) */}
+      {pendingWorkouts.length > 0 && (
+        <section className="px-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-[#C8F135] text-[#202127]">
+                <Sparkles className="size-4" />
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#6B2AD9]">
+                  Ação Recomendada • Resgate de Pontos
+                </span>
+                <h2 className="text-base font-black text-[#202127]">
+                  Treino Detectado ({pendingWorkouts.length})
+                </h2>
+              </div>
+            </div>
+            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-[#C8F135] text-[#202127] border border-lime-400">
+              +20 nfs por treino
+            </span>
+          </div>
+
+          {pendingWorkouts.map((workout) => (
+            <div
+              key={workout.id}
+              className="p-5 rounded-3xl bg-gradient-to-br from-[#35106E] to-[#6B2AD9] text-white shadow-xl border-2 border-[#C8F135]/70 relative overflow-hidden space-y-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="size-11 rounded-2xl bg-[#C8F135] text-[#202127] grid place-items-center font-black text-sm shrink-0 shadow-md">
+                    <Activity className="size-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 text-white px-2 py-0.5 rounded-full">
+                        Auditado via Hardware
+                      </span>
+                      <span className="text-[10px] font-black text-[#C8F135] flex items-center gap-1">
+                        <CheckCircle2 className="size-3" />
+                        Garmin Connect™
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-black tracking-tight text-white mt-1">
+                      {workout.sport || "Treino Físico Garmin"}
+                    </h3>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xl font-black text-[#C8F135] font-mono block">
+                    +{workout.pointsToAward || 20} nfs
+                  </span>
+                  <span className="text-[10px] text-purple-200">Pronto p/ Resgate</span>
+                </div>
+              </div>
+
+              {/* Grid de Métricas Auditadas */}
+              <div className="grid grid-cols-3 gap-2 py-1 text-center">
+                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10">
+                  <Clock className="size-4 text-[#C8F135] mx-auto mb-1" />
+                  <span className="text-[10px] text-purple-200 block font-medium">Duração</span>
+                  <span className="text-xs font-mono font-bold text-white">
+                    {workout.durationMinutes} min
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10">
+                  <HeartPulse className="size-4 text-pink-300 mx-auto mb-1" />
+                  <span className="text-[10px] text-purple-200 block font-medium">Cardíaco</span>
+                  <span className="text-xs font-mono font-bold text-white">
+                    {workout.avgHr ? `${workout.avgHr} bpm` : "Auditado"}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10">
+                  <Flame className="size-4 text-amber-300 mx-auto mb-1" />
+                  <span className="text-[10px] text-purple-200 block font-medium">Calorias</span>
+                  <span className="text-xs font-mono font-bold text-white">
+                    {workout.calories ? `${workout.calories} kcal` : "Ativas"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Botão de Validação e Resgate */}
+              <button
+                type="button"
+                onClick={() => handleClaimWorkout(workout.id)}
+                disabled={isClaimingWorkoutId === workout.id}
+                className="w-full py-3.5 px-4 rounded-2xl bg-[#C8F135] hover:bg-[#b8e025] text-[#202127] font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              >
+                {isClaimingWorkoutId === workout.id ? (
+                  <>
+                    <RefreshCw className="size-4 animate-spin text-[#202127]" />
+                    <span>Auditando e Creditando no Ledger...</span>
+                  </>
+                ) : (
+                  <>
+                    <Award className="size-4 text-[#202127]" />
+                    <span>Validar Treino e Resgatar +{workout.pointsToAward || 20} nfs</span>
+                  </>
+                )}
+              </button>
+
+              <div className="flex items-center justify-between text-[10px] text-purple-200/90 pt-1 border-t border-white/10">
+                <span>🛡️ Registro atômico no livro-razão Cloudflare D1</span>
+                <span>Recebido via nuvem</span>
+              </div>
+            </div>
+          ))}
+
+          {typeof window !== "undefined" && "Notification" in window && Notification.permission === "default" && (
+            <button
+              type="button"
+              onClick={requestNotificationPermission}
+              className="w-full py-2.5 px-3 rounded-2xl bg-[#F2ECFD] hover:bg-purple-100 border border-purple-200 text-[#35106E] text-xs font-bold flex items-center justify-center gap-2 transition active:scale-[0.99] cursor-pointer"
+            >
+              <Bell className="size-3.5 text-[#6B2AD9]" />
+              <span>Ativar Notificações de Treinos no Celular</span>
+            </button>
+          )}
+        </section>
+      )}
 
       {/* 3. HUB DE WEARABLES INTEGRADO (EXCLUSIVO PARA O CLUBE) */}
       <section className="px-4 space-y-3">

@@ -213,6 +213,154 @@ export class D1Service {
   }
 
   /**
+   * Registra um treino detectado da Garmin pendente de validação pelo atleta
+   */
+  public async insertPendingWorkout(w: {
+    id: string;
+    userId: string;
+    garminActivityId?: string | null;
+    sport: string;
+    durationMinutes: number;
+    calories?: number | null;
+    avgHr?: number | null;
+    maxHr?: number | null;
+    distanceMeters?: number | null;
+    device?: string | null;
+    hasSensors?: boolean;
+    pointsToAward?: number;
+    rawPayload?: any;
+  }): Promise<boolean> {
+    if (!this.isAvailable()) return false;
+    try {
+      const now = new Date().toISOString();
+      const raw = typeof w.rawPayload === "string" ? w.rawPayload : JSON.stringify(w.rawPayload || {});
+      await this.db
+        .prepare(
+          `INSERT OR IGNORE INTO pending_workouts (
+            id, userId, garminActivityId, sport, durationMinutes, calories, avgHr, maxHr, distanceMeters, device, hasSensors, status, pointsToAward, createdAt, rawPayload
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_CLAIM', ?, ?, ?)`
+        )
+        .bind(
+          w.id,
+          w.userId,
+          w.garminActivityId || null,
+          w.sport,
+          w.durationMinutes,
+          w.calories || 0,
+          w.avgHr || null,
+          w.maxHr || null,
+          w.distanceMeters || null,
+          w.device || "Garmin Connect",
+          w.hasSensors !== false ? 1 : 0,
+          w.pointsToAward || 20,
+          now,
+          raw
+        )
+        .run();
+      return true;
+    } catch (err) {
+      console.warn("[D1Service.insertPendingWorkout] Erro:", err);
+      return false;
+    }
+  }
+
+  /**
+   * Obtém os treinos pendentes de validação de um usuário
+   */
+  public async getPendingWorkouts(userId: string): Promise<any[]> {
+    if (!this.isAvailable()) return [];
+    try {
+      const res = await this.db
+        .prepare("SELECT * FROM pending_workouts WHERE userId = ? AND status = 'PENDING_CLAIM' ORDER BY createdAt DESC LIMIT 10")
+        .bind(userId)
+        .all();
+      return res?.results || [];
+    } catch (err) {
+      console.warn("[D1Service.getPendingWorkouts] Erro:", err);
+      return [];
+    }
+  }
+
+  /**
+   * Valida e resgata o treino no Clube Netfits (Ritual Atômico: +20 nfs no Ledger e no Saldo)
+   */
+  public async claimPendingWorkout(params: {
+    workoutId: string;
+    userId: string;
+    userName?: string;
+  }): Promise<{ success: boolean; newBalance: number; pointsAwarded: number; message: string; workout?: any }> {
+    const { workoutId, userId, userName } = params;
+    const now = new Date().toISOString();
+
+    if (!this.isAvailable()) {
+      return { success: false, newBalance: 0, pointsAwarded: 0, message: "Banco D1 indisponível" };
+    }
+
+    try {
+      const workout = await this.db
+        .prepare("SELECT * FROM pending_workouts WHERE id = ? AND userId = ? LIMIT 1")
+        .bind(workoutId, userId)
+        .first();
+
+      if (!workout) {
+        return { success: false, newBalance: await this.getBalance(userId), pointsAwarded: 0, message: "Treino não localizado." };
+      }
+
+      if (workout.status === "CLAIMED") {
+        return {
+          success: false,
+          newBalance: await this.getBalance(userId),
+          pointsAwarded: 0,
+          message: "Este treino já foi validado e creditado anteriormente.",
+        };
+      }
+
+      const pointsToAward = workout.pointsToAward || 20;
+
+      // Execução transacional atômica por partidas dobradas (LL-013)
+      const txId = `tx_garmin_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const desc = `Treino Garmin Validado no Clube: ${workout.sport} (+${pointsToAward} nfs)`;
+
+      await this.db.batch([
+        // 1. Marca treino como CLAIMED
+        this.db
+          .prepare("UPDATE pending_workouts SET status = 'CLAIMED', claimedAt = ? WHERE id = ?")
+          .bind(now, workoutId),
+
+        // 2. Insere no Ledger oficial
+        this.db
+          .prepare(
+            "INSERT INTO transactions (id, userId, userName, amount, description, category, timestamp, orderRef) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+          )
+          .bind(txId, userId, userName || "Atleta Netfits", pointsToAward, desc, "CLUB_WORKOUT_VALIDATED", now, workoutId),
+
+        // 3. Incrementa saldo do usuário
+        this.db
+          .prepare("UPDATE users SET nfsBalance = nfsBalance + ?, updatedAt = ? WHERE id = ?")
+          .bind(pointsToAward, now, userId),
+      ]);
+
+      const updatedBalance = await this.getBalance(userId);
+
+      return {
+        success: true,
+        newBalance: updatedBalance,
+        pointsAwarded: pointsToAward,
+        message: `Parabéns! Treino validado com sucesso (+${pointsToAward} nfs no Clube Netfits)!`,
+        workout: { ...workout, status: "CLAIMED", claimedAt: now },
+      };
+    } catch (err: any) {
+      console.warn("[D1Service.claimPendingWorkout] Erro:", err);
+      return {
+        success: false,
+        newBalance: await this.getBalance(userId),
+        pointsAwarded: 0,
+        message: "Falha ao validar treino: " + err?.message,
+      };
+    }
+  }
+
+  /**
    * Credita pontuação atômica de Quizzes ou Interações de Feed com trava de idempotência
    */
   public async creditFeedReward(params: {

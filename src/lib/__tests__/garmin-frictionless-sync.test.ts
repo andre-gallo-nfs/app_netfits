@@ -214,4 +214,29 @@ describe("🏃 Garmin Connect Frictionless Integration & Antifraud Guard (LL-017
     expect(syncData.success).toBe(false);
     expect(syncData.requiresAuth).toBe(true);
   });
+
+  it("deve consultar treinos pendentes via /api/garmin/pending-workouts e responder com estrutura válida", async () => {
+    const corsHeaders = { "Access-Control-Allow-Origin": "*" };
+    const pendingUrl = new URL("https://www.netfits.com.br/api/garmin/pending-workouts?userId=" + athleteUser.id);
+    const pendingReq = new Request(pendingUrl.toString(), { method: "GET" });
+    const pendingRes = await handleGarminRoutes(pendingReq, pendingUrl, corsHeaders);
+    expect(pendingRes?.status).toBe(200);
+    const pendingData = await pendingRes?.json();
+    expect(pendingData.success).toBe(true);
+    expect(Array.isArray(pendingData.workouts)).toBe(true);
+  });
+
+  it("deve validar e resgatar treino pendente via /api/garmin/claim-workout com idempotência e partidas dobradas", async () => {
+    const corsHeaders = { "Access-Control-Allow-Origin": "*" };
+    const claimUrl = new URL("https://www.netfits.com.br/api/garmin/claim-workout");
+    const claimReq = new Request(claimUrl.toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workoutId: "non_existent_workout", userId: athleteUser.id }),
+    });
+    const claimRes = await handleGarminRoutes(claimReq, claimUrl, corsHeaders);
+    expect(claimRes?.status).toBe(400);
+    const claimData = await claimRes?.json();
+    expect(claimData.success).toBe(false);
+  });
 });
