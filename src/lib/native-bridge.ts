@@ -298,7 +298,7 @@ export const nativeBridge = {
       await RookConfig.initRook({
         environment: "sandbox",
         clientUUID: "c2c5c434-d355-4247-b0fe-1bd150ac1ba3",
-        secret: "bGb8t3g4y4aoVyKfGex4pVHzHNFauV9syKy7",
+        secret: "W#arables",
         bundleId: "br.com.netfits.app",
         packageName: "br.com.netfits.app",
         enableBackgroundSync: true,
@@ -316,6 +316,23 @@ export const nativeBridge = {
       return true;
     } catch (e) {
       console.warn("[NativeBridge] initRookConnect falhou:", e);
+      return false;
+    }
+  },
+
+  /**
+   * Dispara a sincronização manual de eventos e resumos de saúde via ROOK Connect
+   */
+  async syncRookWorkouts(dateStr?: string): Promise<boolean> {
+    if (!this.isNativePlatform()) return false;
+    try {
+      const today = dateStr || new Date().toISOString().split("T")[0];
+      const { RookSummaries, RookEvents } = await import("capacitor-rook-sdk");
+      await RookSummaries.sync({ date: today }).catch(() => {});
+      await RookEvents.syncPendingEvents().catch(() => {});
+      return true;
+    } catch (e) {
+      console.warn("[NativeBridge] syncRookWorkouts falhou:", e);
       return false;
     }
   }
