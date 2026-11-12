@@ -27,26 +27,34 @@ const SHARE_CHANNELS = [
   { key: "mail", label: "E-mail", color: "bg-zinc-700", Icon: MailIcon },
 ] as const;
 
+import { UgcSafetyMenuModal } from "@/components/UgcSafetyMenuModal";
+
 export interface FeedSocialActionsProps {
   id: string;
   title: string;
+  authorId?: string;
+  authorName?: string;
   showViewButton?: boolean;
   showLinkButton?: boolean;
   externalLink?: string;
   isOwnPost?: boolean;
   postCategory?: "educational" | "sponsored";
   onOpenArticle?: () => void;
+  onBlocked?: () => void;
 }
 
 export function FeedSocialActions({
   id,
   title,
+  authorId,
+  authorName,
   showViewButton = false,
   showLinkButton = false,
   externalLink,
   isOwnPost = false,
   postCategory = "educational",
   onOpenArticle,
+  onBlocked,
 }: FeedSocialActionsProps) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -312,6 +320,15 @@ export function FeedSocialActions({
           <Bookmark className={`size-4 ${saved ? "fill-current" : ""}`} />
           Salvar
         </button>
+
+        {/* Botão de Moderação & Segurança (Apple Guideline 1.2: Flag & Block) */}
+        <UgcSafetyMenuModal
+          contentId={id}
+          contentTitle={title}
+          authorId={authorId || id}
+          authorName={authorName || "Autor da Publicação"}
+          onBlocked={onBlocked}
+        />
       </div>
 
       {shareOpen && (

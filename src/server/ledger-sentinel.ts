@@ -159,16 +159,18 @@ export class RealTimeLedgerSentinel {
    * Compara o saldo do perfil de cada usuário com o somatório exato de suas transações no ledger.
    * Se autoHeal for true, repara instantaneamente o saldo do cliente defasado.
    */
-  public async runFullAudit(autoHeal: boolean = true): Promise<LedgerAuditResult> {
-    // 1. Assegurar sincronização com nuvem
-    try {
-      const freshCloud = await fetchPersistentUsersAndTransactionsFromCloud();
-      if (freshCloud && Array.isArray(freshCloud.users) && freshCloud.users.length > 0) {
-        serverState.users = freshCloud.users;
-        serverState.transactions = freshCloud.transactions || [];
+  public async runFullAudit(autoHeal: boolean = true, syncCloud: boolean = true): Promise<LedgerAuditResult> {
+    // 1. Assegurar sincronização com nuvem (se habilitado)
+    if (syncCloud) {
+      try {
+        const freshCloud = await fetchPersistentUsersAndTransactionsFromCloud();
+        if (freshCloud && Array.isArray(freshCloud.users) && freshCloud.users.length > 0) {
+          serverState.users = freshCloud.users;
+          serverState.transactions = freshCloud.transactions || [];
+        }
+      } catch (e) {
+        console.warn("[Ledger Sentinel] Aviso ao consultar nuvem:", e);
       }
-    } catch (e) {
-      console.warn("[Ledger Sentinel] Aviso ao consultar nuvem:", e);
     }
 
     const discrepancies: LedgerAuditResult["discrepancies"] = [];
@@ -234,9 +236,15 @@ export class RealTimeLedgerSentinel {
         });
 
         if (autoHeal) {
-          u.nfsBalance = ledgerSum;
-          selfHealedCount++;
-          console.log(`[Sentinel Auto-Heal] Saldo de ${u.fullName} corrigido de ${profileBalance} para ${ledgerSum} nfs.`);
+          // REGRA DE GOVERNANÇA (LL-013): Nunca rebaixar saldo automaticamente se faltam transações na memória.
+          // Se ledgerSum for maior, podemos elevar. Se for menor, é discrepância crítica que exige restauração do extrato.
+          if (diff < 0) {
+            u.nfsBalance = ledgerSum;
+            selfHealedCount++;
+            console.log(`[Sentinel Auto-Heal] Saldo de ${u.fullName} atualizado para cima de ${profileBalance} para ${ledgerSum} nfs.`);
+          } else {
+            console.warn(`[Sentinel Guard] ⚠️ Discrepância impeditiva: ${u.fullName} possui ${profileBalance} nfs mas extrato em memória soma apenas ${ledgerSum} nfs (diff = +${diff}). Proibido rebaixar saldo (LL-013).`);
+          }
         }
       }
 

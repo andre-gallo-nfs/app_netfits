@@ -931,7 +931,7 @@ export function renderNpsEmail(data: NpsEmailData): string {
 // 6. Template: Confirmação de Assinatura do Clube Netfits (NOVO)
 // -------------------------------------------------------------
 export function renderClubSubscriptionEmail(data: ClubSubscriptionEmailData): string {
-  const nome = data.nomeUsuario || "Assinante VIP";
+  const nome = data.nomeUsuario || "Membro do Clube";
   const appUrl = data.appUrl || "https://www.netfits.com.br";
   const mensalidade = data.valorMensalidadeBrl !== undefined ? String(data.valorMensalidadeBrl).replace(".", ",") : "19,90";
   const pontosAdesao = data.pontosAdesao ?? 250;
@@ -961,7 +961,7 @@ export function renderClubSubscriptionEmail(data: ClubSubscriptionEmailData): st
                         <td align="center" style="padding: 36px 30px 24px 30px; background: linear-gradient(135deg, #18181b 0%, #35106E 100%); border-bottom: 1px solid #6B2AD9;">
                             <a href="${appUrl}" target="_blank" style="text-decoration: none;">
                                 <div style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff;">
-                                    NET<span style="color: #C8F135;">FITS</span> <span style="font-size: 14px; font-mono text-purple-400 font-bold bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/40">CLUBE VIP</span>
+                                    NET<span style="color: #C8F135;">FITS</span> <span style="font-size: 14px; font-mono text-purple-400 font-bold bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/40">CLUBE NETFITS</span>
                                 </div>
                             </a>
                             <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: #C8F135; text-transform: uppercase; margin-top: 8px;">

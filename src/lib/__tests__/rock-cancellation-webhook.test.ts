@@ -7,7 +7,7 @@ describe("Rock Encantech Webhook - Cancellation & Refund Flow", () => {
   const TEST_USER_ID = "usr_cancel_test";
 
   beforeEach(() => {
-    // Configura usuário de teste com saldo inicial de 1000 nfs
+    // Configura usuário de teste com saldo inicial de 1000 nfs e respectiva transação canônica (LL-013)
     serverState.users = [
       {
         id: TEST_USER_ID,
@@ -18,7 +18,17 @@ describe("Rock Encantech Webhook - Cancellation & Refund Flow", () => {
         isClubMember: false,
       },
     ];
-    serverState.transactions = [];
+    serverState.transactions = [
+      {
+        id: `tx-init-${TEST_USER_ID}`,
+        userId: TEST_USER_ID,
+        userName: "Atleta Cancelamento Teste",
+        amount: 1000,
+        category: "welcome",
+        description: "Saldo inicial de teste",
+        timestamp: new Date().toISOString(),
+      },
+    ];
     serverState.receivedOrders = [];
   });
 

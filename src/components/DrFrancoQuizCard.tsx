@@ -25,7 +25,28 @@ import drFrancoBanner from "@/assets/dr-franco-banner.png";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
+import { MedicalCitationsAccordion, type CitationItem } from "@/components/MedicalCitationsAccordion";
 import { toast } from "sonner";
+
+const DR_FRANCO_CITATIONS: CitationItem[] = [
+  {
+    title: "Resistance Training for Health and Longevity: A Systematic Review and Meta-Analysis",
+    source: "Momma H, Kawakami R, Honda T, Sawada SS. British Journal of Sports Medicine (BJSM). 2022;56(13):755-763.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/35228201/",
+    pmid: "35228201",
+  },
+  {
+    title: "American College of Sports Medicine (ACSM) Guidelines: Muscle-Strengthening Activities and Mortality Risk",
+    source: "Medicine & Science in Sports & Exercise. 2022;54(6):1020-1032.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/35228586/",
+    pmid: "35228586",
+  },
+  {
+    title: "Diretriz Brasileira de Medicina do Exercício e do Esporte em Adultos e Idosos",
+    source: "Sociedade Brasileira de Medicina do Exercício e do Esporte (SBMEE).",
+    url: "https://www.medicinadoesporte.org.br/",
+  },
+];
 
 interface QuizOption {
   id: string;
@@ -422,10 +443,15 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
           </p>
         </div>
 
-        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar */}
+        {/* 4.5. Seção Mandatória Apple Guideline 1.4.1: Evidências Científicas & Diretrizes Médicas */}
+        <MedicalCitationsAccordion citations={DR_FRANCO_CITATIONS} />
+
+        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar, Denunciar & Bloquear */}
         <FeedSocialActions
           id={ARTICLE_POST_ID}
           title="Dr. Franco Merici — Por que a força muscular importa para a longevidade? (Fibios)"
+          authorId="dr_franco"
+          authorName="Dr. Franco Merici"
           onOpenArticle={() => setArticleOpen(true)}
         />
         {/* Divisor Elegante de Postagem */}
@@ -544,6 +570,9 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                   <li><strong>Acompanhamento Médico</strong>: Avaliação clínica para adequar volumes e prevenir lesões tendíneas.</li>
                 </ul>
               </div>
+
+              {/* Evidências Científicas dentro do Modal do Artigo */}
+              <MedicalCitationsAccordion citations={DR_FRANCO_CITATIONS} defaultOpen={true} />
 
               {/* Botão de Bonificação por Leitura Concluída com Trava Antifraude */}
               <div className="pt-2">

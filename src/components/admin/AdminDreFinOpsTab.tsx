@@ -283,7 +283,7 @@ export function AdminDreFinOpsTab({
 
                 <div className="bg-zinc-950/90 p-3.5 rounded-2xl border border-zinc-800 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-400">👑 6. Partner & VIP Co-Pilot</span>
+                    <span className="text-xs font-black text-amber-400">👑 6. Partner & Co-Pilot</span>
                     <span className="text-[9px] font-mono bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded">Flash</span>
                   </div>
                   <p className="text-[11px] font-bold text-white">Growth B2B & Associados</p>
@@ -1433,7 +1433,7 @@ export function AdminDreFinOpsTab({
                       </div>
                       <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 space-y-1">
                         <h4 className="font-bold text-purple-300 text-xs">Mídia &amp; Anúncios Feed</h4>
-                        <p className="text-zinc-400">Monetização de artigos patrocinados de marcas e Associados VIP.</p>
+                        <p className="text-zinc-400">Monetização de artigos patrocinados de marcas e Associados Parceiros.</p>
                       </div>
                       <div className="bg-zinc-900 p-4 rounded-2xl border border-emerald-400/30 space-y-1">
                         <h4 className="font-bold text-emerald-300 text-xs">Inscrições em Eventos</h4>
@@ -1645,7 +1645,7 @@ export function AdminDreFinOpsTab({
                       </div>
                       <div className="bg-zinc-900 p-3 rounded-xl border border-emerald-400/30">
                         <span className="text-emerald-300 font-bold block">Conselho Médico</span>
-                        <p className="text-zinc-400 text-[11px] mt-0.5">Médicos do esporte e nutricionistas conectados à rede de Associados VIP.</p>
+                        <p className="text-zinc-400 text-[11px] mt-0.5">Médicos do esporte e nutricionistas conectados à rede de Associados Parceiros.</p>
                       </div>
                     </div>
                   </div>

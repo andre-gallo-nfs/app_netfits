@@ -131,7 +131,7 @@ export function InstitutionalHomePage() {
             </div>
             <h3 className="text-xl font-bold text-white">3. Netfits Club</h3>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Clube de vantagens por assinatura mensal que concede cupons exclusivos, condições especiais no marketplace, conteúdos aprofundados e acessos VIP a eventos e corridas de rua.
+              Clube de vantagens por assinatura mensal que concede cupons exclusivos, condições especiais no marketplace, conteúdos aprofundados e acessos especiais a eventos e corridas de rua.
             </p>
           </div>
 

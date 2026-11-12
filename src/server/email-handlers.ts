@@ -211,7 +211,7 @@ export async function handleEmailRoutes(
         }
 
         const matchedUser = findUserByAnyIdentifier(to, serverState.users);
-        const nomeUsuario = body.nomeUsuario || body.fullName || matchedUser?.fullName || "Assinante VIP";
+        const nomeUsuario = body.nomeUsuario || body.fullName || matchedUser?.fullName || "Membro do Clube";
         const pontosAdesao = body.pontosAdesao ?? 250;
         const pontosPorTreino = body.pontosPorTreino ?? serverState.operationalParams.nfsPerWorkout ?? 25;
         const valorMensalidadeBrl = body.valorMensalidadeBrl ?? serverState.operationalParams.netfitsClubMonthlyFeeBrl ?? 19.90;

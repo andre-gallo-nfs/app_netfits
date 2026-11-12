@@ -893,6 +893,12 @@ export async function fetchPersistentUsersAndTransactionsFromCloud(): Promise<{
  * Sincroniza usuários e transações com a nuvem persistente
  */
 export async function syncUsersAndTransactionsToCloud(users: any[], transactions: any[]): Promise<boolean> {
+  // TRAVA DE SEGURANÇA MANDATÓRIA: Em ambiente de testes automatizados (Vitest/CI),
+  // NUNCA disparar mutação na nuvem de produção persistente!
+  if (process.env.NODE_ENV === "test" || process.env.VITEST || process.env.TEST) {
+    return true;
+  }
+
   inMemoryUsersCache = [...users];
   inMemoryTxsCache = [...transactions];
   lastUsersCacheSyncTime = Date.now();
@@ -902,8 +908,8 @@ export async function syncUsersAndTransactionsToCloud(users: any[], transactions
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const payload = {
-      users: users.slice(0, 50),
-      transactions: transactions.slice(0, 100),
+      users: users,
+      transactions: transactions,
       updatedAt: new Date().toISOString(),
     };
 

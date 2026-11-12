@@ -13,6 +13,8 @@ import {
 } from "./server/finops-handlers.ts";
 import { handleClubSubscriptionRoutes } from "./server/club-subscription-handlers.ts";
 import { handleGarminRoutes } from "./server/garmin-handlers.ts";
+import { handleVitalRoutes } from "./server/vital-handlers.ts";
+import { handleStravaRoutes } from "./server/strava-handlers.ts";
 import { handleFeedModerationRoutes } from "./server/feed-moderation-handlers.ts";
 import {
   normalizeString,
@@ -98,7 +100,15 @@ export default {
     const garminRes = await handleGarminRoutes(req, url, corsHeaders);
     if (garminRes) return garminRes;
 
-    // 7. AI Feed Content Moderation Routes (/api/feed/moderate)
+    // 7. Vital API (Junction) Wearable Aggregator Routes (/api/vital/*, /api/webhooks/vital)
+    const vitalRes = await handleVitalRoutes(req, url, corsHeaders);
+    if (vitalRes) return vitalRes;
+
+    // 8. Strava API Direct Integration Routes (/api/strava/*, /api/webhooks/strava)
+    const stravaRes = await handleStravaRoutes(req, url, corsHeaders);
+    if (stravaRes) return stravaRes;
+
+    // 9. AI Feed Content Moderation Routes (/api/feed/moderate)
     const moderationRes = await handleFeedModerationRoutes(req, url, corsHeaders);
     if (moderationRes) return moderationRes;
 

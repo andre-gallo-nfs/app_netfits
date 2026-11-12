@@ -34,7 +34,7 @@ export function ClubMembershipModal() {
   // Ativação da assinatura do Clube: Checkout pendente de definição
   const handleSubscribe = () => {
     clubModalStore.close();
-    toast.success("🔔 Você está na Lista VIP do Clube Netfits! Avisaremos em primeira mão assim que a adesão for aberta.");
+    toast.success("🔔 Você está na Lista de Espera do Clube Netfits! Avisaremos em primeira mão assim que a adesão for aberta.");
   };
 
   // Cancelamento de teste em homologação
@@ -98,7 +98,7 @@ export function ClubMembershipModal() {
             <div>
               <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 flex items-center gap-1">
                 <Sparkles className="size-3" />
-                Experiência VIP
+                Experiência do Clube
               </span>
               <h2 id="club-modal-title" className="text-lg font-black tracking-tight text-white">
                 Clube Netfits
@@ -125,7 +125,7 @@ export function ClubMembershipModal() {
                   {isMember ? "Seu Plano Atual" : "Assinatura Mensal"}
                 </span>
                 <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className="text-2xl font-black text-white">Adesão VIP</span>
+                  <span className="text-2xl font-black text-white">Adesão ao Clube</span>
                   <span className="text-xs text-amber-300 font-bold ml-1">(Em Breve)</span>
                 </div>
               </div>
@@ -306,7 +306,7 @@ export function ClubMembershipModal() {
               ) : (
                 <>
                   <Crown className="size-4 text-zinc-950" />
-                  Entrar na Lista VIP do Clube (Em Breve)
+                  Entrar na Lista de Espera do Clube (Em Breve)
                   <ArrowRight className="size-4 text-zinc-950 ml-1" />
                 </>
               )}

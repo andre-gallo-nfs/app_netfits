@@ -1000,7 +1000,7 @@ function AuthPage() {
                     <span className="size-4 rounded-full border border-zinc-400 grid place-items-center text-[10px] font-bold text-zinc-500">1</span>
                   )}
                   <span className={acceptedTerms ? "text-lime-600 dark:text-lime-400 font-bold" : "text-foreground"}>
-                    Termos de Uso do Programa
+                    Termos de Uso & EULA (Apple 1.2)
                   </span>
                 </div>
                 <button

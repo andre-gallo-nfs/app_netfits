@@ -48,9 +48,9 @@ export const ALL_KR_MAP: Record<string, KrItemDetail> = {
   "KR 1.2": { code: "KR 1.2", title: "Engajamento Ativo MAU", okrTitle: "OKR 1: Tração, Aquisição & Engajamento de Atletas", target: ">50.0%", currentValue: "50.0%", unit: "%", targetNum: 50.0, currentNum: 50.0, badge: "No Alvo ✅" },
   "KR 1.3": { code: "KR 1.3", title: "Retenção de 90 Dias", okrTitle: "OKR 1: Tração, Aquisição & Engajamento de Atletas", target: ">80.0%", currentValue: "86.2%", unit: "%", targetNum: 80.0, currentNum: 86.2, badge: "Superado 🚀" },
   
-  "KR 2.1": { code: "KR 2.1", title: "Captação via Associados", okrTitle: "OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC", target: ">70.0%", currentValue: "78.4%", unit: "% da base", targetNum: 70.0, currentNum: 78.4, badge: "No Alvo ✅" },
-  "KR 2.2": { code: "KR 2.2", title: "Rede Credenciada Master", okrTitle: "OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC", target: "20 parceiros", currentValue: "18 ativos", unit: "parceiros", targetNum: 20, currentNum: 18, badge: "Em Progresso ⏳" },
-  "KR 2.3": { code: "KR 2.3", title: "CAC Médio Orgânico", okrTitle: "OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC", target: "< R$ 2,00", currentValue: "R$ 1,42", unit: "R$", targetNum: 2.00, currentNum: 1.42, badge: "Excelente 🚀", isReverse: true },
+  "KR 2.1": { code: "KR 2.1", title: "Captação via Associados", okrTitle: "OKR 2: Rede de ASSOCIADOS EMBAIXADORES & Eficiência de CAC", target: ">70.0%", currentValue: "78.4%", unit: "% da base", targetNum: 70.0, currentNum: 78.4, badge: "No Alvo ✅" },
+  "KR 2.2": { code: "KR 2.2", title: "Rede Credenciada Master", okrTitle: "OKR 2: Rede de ASSOCIADOS EMBAIXADORES & Eficiência de CAC", target: "20 parceiros", currentValue: "18 ativos", unit: "parceiros", targetNum: 20, currentNum: 18, badge: "Em Progresso ⏳" },
+  "KR 2.3": { code: "KR 2.3", title: "CAC Médio Orgânico", okrTitle: "OKR 2: Rede de ASSOCIADOS EMBAIXADORES & Eficiência de CAC", target: "< R$ 2,00", currentValue: "R$ 1,42", unit: "R$", targetNum: 2.00, currentNum: 1.42, badge: "Excelente 🚀", isReverse: true },
   
   "KR 3.1": { code: "KR 3.1", title: "GMV Shopping Marketplace", okrTitle: "OKR 3: GMV do Marketplace & Utilização de nfs", target: "R$ 1.500.000,00", currentValue: "R$ 1.849.000,00", unit: "R$", targetNum: 1500000, currentNum: 1849000, badge: "Superado 🚀" },
   "KR 3.2": { code: "KR 3.2", title: "Taxa de Resgate com nfs", okrTitle: "OKR 3: GMV do Marketplace & Utilização de nfs", target: ">80.0%", currentValue: "88.0%", unit: "%", targetNum: 80.0, currentNum: 88.0, badge: "Superado 🚀" },
@@ -579,7 +579,7 @@ export function AdminOverviewTab({
                 subtext={
                   adminDataSource === "real"
                     ? "Prescritores ativos na plataforma"
-                    : "Associados VIP ativos"
+                    : "Associados Parceiros ativos"
                 }
                 periodBadge={adminDataSource === "real" ? "Banco Oficial" : currentPeriodObj.shortLabel}
               />
@@ -873,7 +873,7 @@ export function AdminOverviewTab({
                 <div className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
-                      OKR 2: Rede de ASSOCIADOS VIP & Eficiência de CAC
+                      OKR 2: Rede de ASSOCIADOS EMBAIXADORES & Eficiência de CAC
                     </span>
                     <span
                       onClick={() => setSelectedKrForModal(resolveKrForModal("KR 2.1"))}

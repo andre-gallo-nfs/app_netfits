@@ -245,5 +245,21 @@
       "barring specialists or associates from club workouts"
     ],
     "enforcedBy": "src/lib/__tests__/user-category-orthogonal-guard.test.ts & scripts/knowledge-learning-agent.mjs"
+  },
+  {
+    "id": "LL-018",
+    "title": "Arquitetura Event-Driven em Loyalty: Proibição de Hotfix Escalar de Saldo, Blindagem contra Esmagamento Descendente e Isolamento de Testes",
+    "category": "ledger_event_sourcing",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-11",
+    "context": "Em 10/11 e 11/11/2026, ocorreram incidentes críticos de oscilação e regressão de saldos com Carlos Rodrigo Formigari (saldo caiu de 1206 para 709 nfs) e Luisa Ferreira Formigari (saldo saltou para 90 e caiu para 20 nfs). O problema decorreu da falácia do hotfix escalar: atualizou-se o campo users.nfsBalance no D1, mas omitiu-se a gravação das transações históricas no banco remoto. Como o cliente mobile recalcula o saldo localmente pela soma do extrato (syncFromCloud), o saldo dos usuários foi esmagado para a soma das poucas transações existentes. Adicionalmente, rotinas de autoHeal no Sentinel rebaixavam saldos para baixo silenciosamente quando o extrato em memória estava truncado, e testes automatizados de webhook mutavam o backup da nuvem por ausência de guarda contra ambiente de testes.",
+    "rule": "1) O Saldo é Projeção do Evento: Em fidelidade e carteiras digitais, o saldo não existe de forma independente. Toda mutação de pontos deve nascer como INSERT INTO transactions e refletir sincronamente em users.nfsBalance. É terminantemente proibido qualquer hotfix ou UPDATE users SET nfsBalance sem o respectivo evento no extrato. 2) Proibição de Esmagamento Descendente Automático: Rotinas de auto-reconciliação (Sentinel) NUNCA podem rebaixar o saldo de um usuário para baixo (diff > 0) sob alegação de auto-heal; se o extrato local somar menos que o saldo cadastral, o sistema deve disparar VETO e flag impeditiva para restaurar as transações faltantes. 3) Isolamento Estrito de Testes: NENHUM teste automatizado (Vitest/CI) pode disparar mutações em backups ou persistência de produção. 4) Não-Truncamento de Transações: Proibido o uso de slice(0, 100) em extratos ou livros-razão contábeis.",
+    "antiPattern": [
+      "UPDATE users SET nfsBalance sem INSERT INTO transactions",
+      "u.nfsBalance = ledgerSum quando ledgerSum < profileBalance",
+      "transactions.slice(0, 100)",
+      "syncUsersAndTransactionsToCloud durante testes"
+    ],
+    "enforcedBy": "src/lib/__tests__/ledger-parity-guard.test.ts, scripts/audit_ledger_sentinel.cjs & scripts/multi-agent-orchestrator.mjs"
   }
 ]

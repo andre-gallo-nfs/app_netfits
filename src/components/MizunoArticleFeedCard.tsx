@@ -23,7 +23,23 @@ import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
+import { MedicalCitationsAccordion, type CitationItem } from "@/components/MedicalCitationsAccordion";
 import { shopSelectionStore } from "@/lib/shop-selection-store";
+
+const MIZUNO_PHYSIOLOGY_CITATIONS: CitationItem[] = [
+  {
+    title: "Human Tolerance to Heat: Temperature Regulation and Cognitive Performance During Prolonged Exercise",
+    source: "Nielsen B, et al. European Journal of Applied Physiology. 2011;111(9):2058-2070.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/21720790/",
+    pmid: "21720790",
+  },
+  {
+    title: "Fluid and Electrolyte Requirements for Exercise, Heat Stress, and Athletic Performance",
+    source: "Cheuvront SN, Sawka MN. Sports Medicine. 2007;37(4-5):329-332.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/17927542/",
+    pmid: "17927542",
+  },
+];
 import { trackProductSelect } from "@/lib/analytics";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -484,11 +500,16 @@ export function MizunoArticleFeedCard() {
           </button>
         </div>
 
+        {/* Evidências Fisiológicas e Térmicas (Apple Guideline 1.4.1) */}
+        <MedicalCitationsAccordion citations={MIZUNO_PHYSIOLOGY_CITATIONS} />
+
         {/* 8. Ações Sociais (Curtir, Comentar, Compartilhar = +1 nf) */}
         <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
           <FeedSocialActions
             id="mizuno-bone-artigo-uv50"
             title="Por que atletas de alta performance usam boné técnico com proteção UV50+?"
+            authorId="mizuno_brasil"
+            authorName="Mizuno Running"
             postCategory="sponsored"
           />
         </div>

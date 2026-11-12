@@ -103,7 +103,7 @@ export const PARTNERS_DATABASE: PartnerAdminItem[] = [
     activeCampaigns: 5,
     npsScore: 92,
     conversionRatePct: 3.60,
-    exclusiveCoupon: "SMARTFIT_NETFITS_VIP",
+    exclusiveCoupon: "SMARTFIT_NETFITS_PRO",
   },
   {
     id: "partner_liquidz",

@@ -740,7 +740,7 @@ export function AdminAssociadosTab({
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500"
                 >
                   <option value="Médico / Nutrologia Esportiva">Médico / Nutrologia Esportiva</option>
-                  <option value="Embaixador Esportivo / Influenciador VIP">Embaixador Esportivo / Influenciador VIP</option>
+                  <option value="Embaixador Esportivo / Influenciador Oficial">Embaixador Esportivo / Influenciador Oficial</option>
                   <option value="Sócio Regional de Expansão Netfits">Sócio Regional de Expansão Netfits</option>
                   <option value="Líder de Rede Esportiva">Líder de Rede Esportiva</option>
                 </select>

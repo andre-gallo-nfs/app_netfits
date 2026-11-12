@@ -21,7 +21,23 @@ import netfitsLogoDark from "@/assets/netfits-logo-dark.png";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
+import { MedicalCitationsAccordion, type CitationItem } from "@/components/MedicalCitationsAccordion";
 import { toast } from "sonner";
+
+const HEALTHSPAN_CITATIONS: CitationItem[] = [
+  {
+    title: "From Lifespan to Healthspan: The Critical Need for Measurable Functional Longevity",
+    source: "Olshansky SJ. JAMA. 2018;320(13):1323–1324.",
+    url: "https://jamanetwork.com/journals/jama/article-abstract/2704251",
+    doi: "10.1001/jama.2018.12621",
+  },
+  {
+    title: "World Health Organization (WHO) Guidelines on Physical Activity and Sedentary Behaviour",
+    source: "Bull FC, et al. British Journal of Sports Medicine. 2020;54(24):1451-1462.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/33239350/",
+    pmid: "33239350",
+  },
+];
 
 interface QuizOption {
   id: string;
@@ -426,10 +442,15 @@ export function NetfitsEducationalCard() {
           </div>
         </div>
 
-        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar */}
+        {/* Evidências Científicas & Diretrizes Médicas (Apple Guideline 1.4.1) */}
+        <MedicalCitationsAccordion citations={HEALTHSPAN_CITATIONS} />
+
+        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar, Denunciar & Bloquear */}
         <FeedSocialActions
           id={ARTICLE_POST_ID}
           title="Netfits — O Propósito: Longevidade, Saúde & Bem-Estar"
+          authorId="time_netfits"
+          authorName="Time Netfits"
           onOpenArticle={() => setArticleOpen(true)}
         />
         {/* Divisor Elegante de Postagem */}
@@ -488,6 +509,9 @@ export function NetfitsEducationalCard() {
               <p>
                 Quando você abre o Netfits e sincroniza seu Garmin, Apple Watch ou Strava, você não está alimentando um aplicativo. Você está assinando um compromisso com o seu futuro.
               </p>
+
+              {/* Evidências Científicas dentro do Modal do Artigo */}
+              <MedicalCitationsAccordion citations={HEALTHSPAN_CITATIONS} defaultOpen={true} />
             </div>
 
             {/* Painel de Recompensa de Leitura (Dwell Time & Scroll Total) */}

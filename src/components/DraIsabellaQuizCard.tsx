@@ -28,7 +28,28 @@ import draIsabellaImg from "@/assets/dra-isabella.jpeg";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
+import { MedicalCitationsAccordion, type CitationItem } from "@/components/MedicalCitationsAccordion";
 import { toast } from "sonner";
+
+const DRA_ISABELLA_CITATIONS: CitationItem[] = [
+  {
+    title: "Recommended Amount of Sleep for a Healthy Adult: A Joint Consensus Statement",
+    source: "Watson NF, et al. American Academy of Sleep Medicine and Sleep Research Society. Sleep. 2015;38(6):843-844.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/25979105/",
+    pmid: "25979105",
+  },
+  {
+    title: "Biomarkers of Human Aging and Lifestyle Medicine Interventions for Healthspan",
+    source: "The Lancet Healthy Longevity. 2021;2(9):e567-e578.",
+    url: "https://www.thelancet.com/journals/lanhl/article/PIIS2666-7568(21)00171-8/fulltext",
+    doi: "10.1016/S2666-7568(21)00171-8",
+  },
+  {
+    title: "Diretrizes Clínicas e Diagnósticas dos Transtornos do Sono no Atleta",
+    source: "Associação Brasileira do Sono (ABS) & Sociedade Brasileira de Medicina do Exercício e do Esporte (SBMEE).",
+    url: "https://absono.com.br/",
+  },
+];
 
 interface QuizOption {
   id: string;
@@ -450,10 +471,15 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
           </p>
         </div>
 
-        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar */}
+        {/* 4.5. Seção Mandatória Apple Guideline 1.4.1: Evidências Científicas & Diretrizes Médicas */}
+        <MedicalCitationsAccordion citations={DRA_ISABELLA_CITATIONS} />
+
+        {/* 5. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar, Denunciar & Bloquear */}
         <FeedSocialActions
           id={ARTICLE_POST_ID}
           title="Dra. Isabella Formigari — Como os biomarcadores e o sono transformam a longevidade? (Fibios)"
+          authorId="dra_isabella"
+          authorName="Dra. Isabella Formigari"
           onOpenArticle={() => setArticleOpen(true)}
         />
         {/* Divisor Elegante de Postagem */}
@@ -571,6 +597,9 @@ export function DraIsabellaQuizCard({ isDailyChallenge = false }: { isDailyChall
                   <li><strong>Acompanhamento Periódico</strong>: Dosar biomarcadores a cada 3 a 4 meses para calibrar suplementação individualizada.</li>
                 </ul>
               </div>
+
+              {/* Evidências Científicas dentro do Modal do Artigo */}
+              <MedicalCitationsAccordion citations={DRA_ISABELLA_CITATIONS} defaultOpen={true} />
 
               {/* Botão de Bonificação por Leitura Concluída com Trava Antifraude */}
               <div className="pt-2">

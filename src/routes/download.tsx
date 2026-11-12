@@ -59,14 +59,14 @@ function DownloadAppPage() {
               O App Oficial Netfits estará disponível nas lojas!
             </h2>
             <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
-              Estamos concluindo os preparativos finais para a publicação nas lojas móveis oficiais. Cadastre-se na Lista VIP de Lançamento para receber o link de download antecipado assim que os binários forem liberados!
+              Estamos concluindo os preparativos finais para a publicação nas lojas móveis oficiais. Cadastre-se na Lista de Notificação de Lançamento para receber o link de download antecipado assim que os binários forem liberados!
             </p>
           </div>
           <Link
             to="/contato"
             className="shrink-0 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-300 hover:to-lime-400 text-zinc-950 font-black text-xs uppercase tracking-wider shadow-xl shadow-lime-500/20 hover:scale-105 transition-all flex items-center gap-2 cursor-pointer"
           >
-            Entrar na Lista VIP
+            Notificar no Lançamento
             <ArrowRight className="size-4" />
           </Link>
         </div>
@@ -116,7 +116,7 @@ function DownloadAppPage() {
                 className="w-full py-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 border border-zinc-700 transition"
               >
                 <Apple className="size-4" />
-                Entrar na Lista VIP (iOS)
+                Notificar no Lançamento (iOS)
               </Link>
               <p className="text-[10px] text-center text-zinc-500">Lançamento oficial nas lojas em breve</p>
             </div>
@@ -163,7 +163,7 @@ function DownloadAppPage() {
                 className="w-full py-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 border border-zinc-700 transition"
               >
                 <Smartphone className="size-4" />
-                Entrar na Lista VIP (Android)
+                Notificar no Lançamento (Android)
               </Link>
               <p className="text-[10px] text-center text-zinc-500">Lançamento oficial nas lojas em breve</p>
             </div>

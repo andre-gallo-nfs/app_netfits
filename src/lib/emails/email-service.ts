@@ -175,7 +175,7 @@ export async function sendClubSubscriptionEmail(params: ClubSubscriptionEmailDat
 
   return sendViaResend({
     to: params.to,
-    subject: `Assinatura Confirmada! Bem-vindo ao Clube Netfits VIP (+${params.pontosAdesao ?? 250} nfs) 👑`,
+    subject: `Assinatura Confirmada! Bem-vindo ao Clube Netfits (+${params.pontosAdesao ?? 250} nfs) 👑`,
     html,
     from: "Netfits Clube <clube@netfits.com.br>",
   });

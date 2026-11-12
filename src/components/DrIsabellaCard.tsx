@@ -26,7 +26,28 @@ import draIsabellaImg from "@/assets/dra-isabella.jpeg";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
+import { MedicalCitationsAccordion, type CitationItem } from "@/components/MedicalCitationsAccordion";
 import { toast } from "sonner";
+
+const DRA_ISABELLA_CITATIONS: CitationItem[] = [
+  {
+    title: "Biomarkers of Human Aging and Lifestyle Medicine Interventions for Healthspan",
+    source: "The Lancet Healthy Longevity. 2021;2(9):e567-e578.",
+    url: "https://www.thelancet.com/journals/lanhl/article/PIIS2666-7568(21)00171-8/fulltext",
+    doi: "10.1016/S2666-7568(21)00171-8",
+  },
+  {
+    title: "Consenso de Avaliação Clínica e Biomarcadores de Rendimento no Esporte",
+    source: "Sociedade Brasileira de Medicina do Exercício e do Esporte (SBMEE).",
+    url: "https://www.medicinadoesporte.org.br/",
+  },
+  {
+    title: "Inflammation, High-Sensitivity C-Reactive Protein and Cardiovascular Longevity in Active Individuals",
+    source: "Ridker PM. Circulation Research. 2016;118(1):145-156.",
+    url: "https://pubmed.ncbi.nlm.nih.gov/26837745/",
+    pmid: "26837745",
+  },
+];
 
 interface QuizOption {
   id: string;
@@ -426,6 +447,9 @@ export function DrIsabellaCard() {
           )}
         </div>
 
+        {/* Evidências Científicas & Diretrizes Médicas (Apple Guideline 1.4.1) */}
+        <MedicalCitationsAccordion citations={DRA_ISABELLA_CITATIONS} />
+
         {/* 7. Ações Sociais */}
         <FeedSocialActions
           id={ARTICLE_POST_ID}
@@ -544,6 +568,9 @@ export function DrIsabellaCard() {
               <p className="font-semibold text-zinc-900 dark:text-zinc-100">
                 A verdadeira longevidade ativa nasce dessa harmonia: treinar com máxima eficiência, recuperar com profundidade e acompanhar a evolução biológica ano após ano.
               </p>
+
+              {/* Evidências Científicas dentro do Modal do Artigo */}
+              <MedicalCitationsAccordion citations={DRA_ISABELLA_CITATIONS} defaultOpen={true} />
 
               {/* Botão de Conclusão da Leitura */}
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">

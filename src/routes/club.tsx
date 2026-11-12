@@ -41,13 +41,13 @@ import apparelTee from "@/assets/apparel-tee.jpg";
 export const Route = createFileRoute("/club")({
   head: () => ({
     meta: [
-      { title: "Clube Netfits — Experiência VIP & Longevidade Ativa" },
+      { title: "Clube Netfits — Longevidade Ativa & Saúde Integrada" },
       {
         name: "description",
         content:
           "Acelere sua vida em movimento. 250 nfs por mês garantidos + 20 nfs por treino validado, telemetria de sensores e benefícios exclusivos no Shop.",
       },
-      { property: "og:title", content: "Clube Netfits — Experiência VIP" },
+      { property: "og:title", content: "Clube Netfits — Longevidade Ativa" },
     ],
   }),
   component: ClubPage,
@@ -641,7 +641,7 @@ export function ClubPage() {
           <div className="relative z-10 flex flex-col items-center justify-center space-y-3">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black uppercase tracking-wider shadow-md">
               <Clock className="size-4 text-[#202127] animate-pulse" />
-              <span>Entrar na Lista VIP (Em Breve)</span>
+              <span>Entrar na Lista de Espera (Em Breve)</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
@@ -676,7 +676,7 @@ export function ClubPage() {
           <div className="flex items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F2ECFD] text-[#35106E] text-xs font-black border border-purple-200">
               <Sparkles className="size-3.5 text-[#6B2AD9]" />
-              {isMember ? "Assinatura VIP Ativa" : "Plano Oficial"}
+              {isMember ? "Assinatura do Clube Ativa" : "Plano Oficial"}
             </span>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C8F135] text-[#202127] text-xs font-black shadow-xs">
               <Coins className="size-3.5 text-[#202127]" />
@@ -688,7 +688,7 @@ export function ClubPage() {
           <div className="flex items-baseline justify-between pt-1">
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-[#202127]">Adesão VIP</span>
+                <span className="text-2xl font-black text-[#202127]">Adesão ao Clube</span>
                 <span className="text-xs font-bold text-[#6B2AD9] px-2 py-0.5 rounded-full bg-[#F2ECFD]">Em Breve</span>
               </div>
               <span className="text-xs text-[#5F6270] block mt-0.5">Programa de incentivo ao movimento</span>
@@ -726,7 +726,7 @@ export function ClubPage() {
 
               <div className="pt-2 flex items-center gap-2">
                 <div className="flex-1 py-2.5 px-3 rounded-xl bg-[#F2ECFD] text-[#35106E] font-extrabold text-xs border border-purple-200 text-center">
-                  Benefícios VIP Ativos
+                  Benefícios do Clube Ativos
                 </div>
                 <button
                   type="button"
@@ -742,7 +742,7 @@ export function ClubPage() {
               <button
                 type="button"
                 onClick={() => {
-                  toast.success("🔔 Você foi cadastrado na Lista VIP do Clube Netfits! Avisaremos em primeira mão.", { duration: 4000 });
+                  toast.success("🔔 Você foi cadastrado na Lista de Espera do Clube Netfits! Avisaremos em primeira mão.", { duration: 4000 });
                 }}
                 className="w-full py-3.5 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-black text-sm flex items-center justify-center gap-2 shadow-sm transition active:scale-[0.99] cursor-pointer border border-zinc-700"
               >
@@ -1255,7 +1255,7 @@ export function ClubPage() {
                 +20% no Shop
               </span>
             </div>
-            <h3 className="text-sm font-black text-[#202127]">Multiplicador VIP no Shop</h3>
+            <h3 className="text-sm font-black text-[#202127]">Multiplicador do Clube no Shop</h3>
             <p className="text-xs text-[#5F6270] leading-relaxed">
               Acumule 4,8 nfs para cada R$ 1,00 gasto no Shop oficial da Netfits (20% mais pontos que planos gratuitos).
             </p>
@@ -1359,10 +1359,10 @@ export function ClubPage() {
                 <Crown className="size-7" />
               </div>
               <h3 className="text-base font-black text-[#202127]">
-                Ativar Clube Netfits VIP
+                Ativar Clube Netfits
               </h3>
               <p className="text-xs text-[#5F6270] leading-relaxed max-w-xs mx-auto">
-                Desbloqueie agora mesmo 250 nfs na carteira, pontuação de 20 nfs por treino físico com relógio e benefícios VIP no Shop.
+                Desbloqueie agora mesmo 250 nfs na carteira, pontuação de 20 nfs por treino físico com relógio e benefícios exclusivos no Shop.
               </p>
             </div>
 
@@ -1381,12 +1381,12 @@ export function ClubPage() {
               type="button"
               onClick={() => {
                 setShowSubscribeModal(false);
-                toast.success("🔔 Você foi cadastrado na Lista VIP do Clube! Avisaremos assim que a cobrança for liberada.", { duration: 4000 });
+                toast.success("🔔 Você foi cadastrado na Lista de Espera do Clube! Avisaremos assim que a cobrança for liberada.", { duration: 4000 });
               }}
               className="w-full py-3.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm active:scale-[0.99] border border-zinc-700"
             >
               <Clock className="size-4 text-[#C8F135]" />
-              Entrar na Lista VIP (Aguardando Lançamento)
+              Entrar na Lista de Espera (Aguardando Lançamento)
             </button>
           </div>
         </div>

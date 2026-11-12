@@ -199,10 +199,22 @@ export const nativeBridge = {
               }
             }
 
-            // Retorno do fluxo OAuth do Garmin Connect
+            // Retorno do fluxo OAuth do Garmin Connect, Strava e Vital
             if (urlStr.includes("garmin_connected=true")) {
               if (typeof window !== "undefined") {
                 window.location.href = "/club?garmin_connected=true";
+              }
+              return;
+            }
+            if (urlStr.includes("strava_connected=true")) {
+              if (typeof window !== "undefined") {
+                window.location.href = "/activities?strava_connected=true";
+              }
+              return;
+            }
+            if (urlStr.includes("vital_connected=true")) {
+              if (typeof window !== "undefined") {
+                window.location.href = "/activities?vital_connected=true";
               }
               return;
             }

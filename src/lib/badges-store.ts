@@ -156,9 +156,9 @@ export const INITIAL_BADGES: BadgeItem[] = [
     taskInstruction: "Indicar amigos com seu código exclusivo",
   },
   {
-    id: "associado_vip",
+    id: "associado_embaixador",
     category: "tribo",
-    title: "Associado VIP",
+    title: "Associado Embaixador",
     description: "Captou mais de 10 novos usuários através do seu link exclusivo de associado.",
     icon: "👑",
     unlocked: false,
@@ -342,14 +342,14 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   const isLeitor = totalReads >= 5;
   const isSuperCurtidor = totalLikes >= 10;
 
-  // 8. Indicações (Embaixador & Associado VIP)
+  // 8. Indicações (Embaixador & Associado Master)
   const referralTxs = txs.filter((t: any) =>
     t.category === "referral" ||
     (t.description && /indica|amigo|indicado/i.test(t.description))
   );
   const referralCount = referralTxs.length;
   const isEmbaixador = referralCount >= 1;
-  const isAssociadoVip = referralCount >= 10;
+  const isAssociadoEmbaixador = referralCount >= 10;
 
   // Validação selo por selo
   badgesList = badgesList.map((badge) => {
@@ -401,9 +401,9 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
         newProgress = Math.min(badge.maxProgress, referralCount);
         meetsCriteria = isEmbaixador;
         break;
-      case "associado_vip":
+      case "associado_embaixador":
         newProgress = Math.min(badge.maxProgress, referralCount);
-        meetsCriteria = isAssociadoVip;
+        meetsCriteria = isAssociadoEmbaixador;
         break;
     }
 

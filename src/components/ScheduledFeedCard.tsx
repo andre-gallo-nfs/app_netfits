@@ -44,8 +44,45 @@ import andreGalloIronmanImg from "@/assets/andre-gallo-ironman.jpg";
 import { wallet } from "@/lib/wallet-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
 import { FeedSocialActions } from "@/components/FeedSocialActions";
+import { MedicalCitationsAccordion, type CitationItem } from "@/components/MedicalCitationsAccordion";
 import { toast } from "sonner";
 import scheduledPostsRaw from "@/lib/scheduled-posts-data.json";
+
+function getPostCitations(post: ScheduledPostDef): CitationItem[] {
+  if (post.citations && post.citations.length > 0) return post.citations;
+  const role = (post.authorRole || "").toLowerCase();
+  const author = (post.author || "").toLowerCase();
+  const line = (post.line || "").toLowerCase();
+  const isMedical =
+    role.includes("médic") ||
+    author.includes("dr") ||
+    line.includes("fibios") ||
+    line.includes("saúde") ||
+    line.includes("medicina");
+
+  if (isMedical) {
+    return [
+      {
+        title: "Diretriz Brasileira de Medicina do Exercício e do Esporte em Adultos e Idosos",
+        source: "Sociedade Brasileira de Medicina do Exercício e do Esporte (SBMEE) & SBC.",
+        url: "https://www.medicinadoesporte.org.br/",
+      },
+      {
+        title: "ACSM Guidelines for Exercise Testing and Prescription: Healthspan & Longevity Biomarkers",
+        source: "American College of Sports Medicine. Medicine & Science in Sports & Exercise. DOI: 10.1249/MSS.0000000000002875.",
+        url: "https://pubmed.ncbi.nlm.nih.gov/35228586/",
+        pmid: "35228586",
+      },
+      {
+        title: "Momma H, et al. Muscle-strengthening activities and non-communicable disease mortality: systematic review and meta-analysis",
+        source: "Br J Sports Med. 2022;56(13):755-763.",
+        url: "https://pubmed.ncbi.nlm.nih.gov/35228201/",
+        pmid: "35228201",
+      },
+    ];
+  }
+  return [];
+}
 
 export interface ScheduledPostOption {
   id: string;
@@ -76,6 +113,7 @@ export interface ScheduledPostDef {
   line: string;
   author: string;
   authorRole: string;
+  authorId?: string;
   authorAvatar: "netfits" | "dr_franco" | "dra_isabella" | "fibios";
   badge: string;
   title: string;
@@ -91,6 +129,7 @@ export interface ScheduledPostDef {
   quizOptions: ScheduledPostOption[];
   videoUrl?: string;
   videoStoryboard?: ScheduledVideoScene[];
+  citations?: CitationItem[];
 }
 
 export const SCHEDULED_POSTS: ScheduledPostDef[] = scheduledPostsRaw as ScheduledPostDef[];
@@ -163,6 +202,7 @@ interface ScheduledFeedCardProps {
 
 export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFeedCardProps) {
   const isNetfitsAuthor = post.authorAvatar === "netfits" || post.author.toLowerCase().includes("netfits");
+  const citations = useMemo(() => getPostCitations(post), [post]);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -680,10 +720,15 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
           </p>
         </div>
 
-        {/* 6. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar */}
+        {/* 5.5. Evidências Científicas & Diretrizes Médicas (Apple Guideline 1.4.1) */}
+        {citations.length > 0 && <MedicalCitationsAccordion citations={citations} />}
+
+        {/* 6. Ações Sociais: Curtir, Compartilhar (+1 nf), Salvar, Denunciar & Bloquear (Apple Guideline 1.2) */}
         <FeedSocialActions
           id={post.articlePostId || post.id}
           title={`${post.author} — ${post.title}`}
+          authorId={post.authorId || post.author}
+          authorName={post.author}
           onOpenArticle={handleOpenContent}
         />
 
@@ -835,6 +880,9 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                     {paragraph}
                   </p>
                 ))}
+
+                {/* Evidências Científicas dentro do Modal do Artigo */}
+                {citations.length > 0 && <MedicalCitationsAccordion citations={citations} defaultOpen={true} />}
 
                 <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">
                   <div className="p-3.5 rounded-2xl bg-[#F2ECFD] dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 space-y-1">

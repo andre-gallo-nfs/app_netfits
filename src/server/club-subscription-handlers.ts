@@ -7,7 +7,7 @@ export interface ClubSubscriptionPayload {
   userId?: string;
   email?: string;
   cpf?: string;
-  planId: "club_monthly" | "club_annual" | "club_vip";
+  planId: "club_monthly" | "club_annual" | "club_pro";
   planName: string;
   amountBrl: number;
   status: "active" | "past_due" | "canceled";

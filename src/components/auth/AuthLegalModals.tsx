@@ -59,6 +59,23 @@ export function TermsModal({
           <p>
             Os pontos <b>nfs</b> possuem validade de 24 meses. Ao utilizá-los, a Netfits consome sempre os pontos mais antigos primeiro, protegendo a sua pontuação. Contas sem atividade por mais de 360 dias expiram de pleno direito. Em compras híbridas (pontos + cartão/Pix) canceladas no Marketplace, a devolução é realizada proporcionalmente na carteira e no gateway conforme o Art. 49 do CDC.
           </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">5. Tolerância Zero para Conteúdos Impróprios, Moderação em 24h & EULA (Apple Guideline 1.2)</h3>
+          <div className="bg-red-50 p-3 rounded-2xl border border-red-200 text-xs text-red-950 space-y-2">
+            <p>
+              <b>Contrato de Licença de Usuário Final (EULA):</b> A Netfits adota <b>tolerância zero</b> contra qualquer forma de assédio, ódio, discriminação, difamação, nudez, violência, desinformação perigosa ou comportamento abusivo por parte de usuários.
+            </p>
+            <p>
+              <b>Mecanismos de Proteção Ativa:</b> Todo usuário tem o direito e a ferramenta no aplicativo para:
+            </p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li><b>Sinalizar / Denunciar Conteúdo:</b> Notificando imediatamente nossa equipe de moderação.</li>
+              <li><b>Bloquear Usuário Abusivo:</b> Ocultando instantaneamente todas as publicações e interações daquele autor do seu feed e disparando alerta prioritário aos administradores.</li>
+            </ul>
+            <p>
+              <b>Compromisso Operacional de 24 Horas:</b> A Netfits Ltda. compromete-se a analisar e agir sobre qualquer conteúdo sinalizado em <b>no máximo 24 horas</b>, removendo o conteúdo inadequado e <b>expulsando e banindo sumariamente o usuário infrator</b> da plataforma.
+            </p>
+          </div>
         </div>
 
         {/* Footer Action */}

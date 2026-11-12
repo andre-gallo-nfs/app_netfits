@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { useOperationalParams } from "@/lib/operational-params-store";
 import { feedAntifraud } from "@/lib/feed-antifraud";
+import { ugcSafetyStore, useBlockedUsers } from "@/lib/ugc-safety-store";
 
 export const Route = createFileRoute("/feed")({
   head: () => ({
@@ -122,6 +123,7 @@ function getActiveFeedCards(): InteractiveFeedCardItem[] {
 export function FeedPage() {
   const [sessionCompletedIds, setSessionCompletedIds] = useState<string[]>([]);
   const [reorderKey, setReorderKey] = useState<number>(0);
+  const blockedUsers = useBlockedUsers();
 
   useEffect(() => {
     badgesStore.evaluate();
@@ -151,7 +153,12 @@ export function FeedPage() {
     const pendingEducational: InteractiveFeedCardItem[] = [];
     const completed: InteractiveFeedCardItem[] = [];
 
-    const activeCards = getActiveFeedCards();
+    const activeCards = getActiveFeedCards().filter(
+      (card) =>
+        !ugcSafetyStore.isBlocked(card.id) &&
+        !ugcSafetyStore.isBlocked(card.badge) &&
+        !ugcSafetyStore.isBlocked(card.title)
+    );
     for (const card of activeCards) {
       const isClaimed = typeof window !== "undefined" && feedAntifraud.hasClaimed("quiz", card.quizPostId);
       
@@ -183,7 +190,7 @@ export function FeedPage() {
     const pending = [...pendingSponsored, ...pendingEducational];
 
     return { pendingCards: pending, completedCards: completed };
-  }, [reorderKey]);
+  }, [reorderKey, blockedUsers]);
 
   const hasNewCompletionsInSession = sessionCompletedIds.some((id) =>
     pendingCards.some((c) => c.quizPostId === id)

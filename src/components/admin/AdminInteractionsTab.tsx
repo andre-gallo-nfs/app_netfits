@@ -88,7 +88,7 @@ export function AdminInteractionsTab({ selectedPeriod, isReal }: AdminInteractio
               <span>💡 Central de Inteligência de Interações & Insights</span>
             </h2>
             <p className="text-xs text-zinc-300 max-w-3xl">
-              Todas as interações de Usuários, Parceiros, Associados VIP e Colaboradores (via E-mail, Chat AI, WhatsApp, Formulários e Pesquisas) tabuladas e estruturadas em tempo real para geração de decisões táticas e diretrizes do roadmap Netfits.
+              Todas as interações de Usuários, Parceiros, Associados Parceiros e Colaboradores (via E-mail, Chat AI, WhatsApp, Formulários e Pesquisas) tabuladas e estruturadas em tempo real para geração de decisões táticas e diretrizes do roadmap Netfits.
             </p>
           </div>
 
@@ -156,7 +156,7 @@ export function AdminInteractionsTab({ selectedPeriod, isReal }: AdminInteractio
               <option value="all">👥 Todos os Públicos</option>
               <option value="atleta">🏃 Usuários (Atletas)</option>
               <option value="parceiro">🤝 Parceiros B2B</option>
-              <option value="associado">👑 Associados VIP</option>
+              <option value="associado">👑 Associados Parceiros</option>
               <option value="colaborador">🛡️ Colaboradores</option>
             </select>
 
