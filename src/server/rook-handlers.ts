@@ -106,36 +106,64 @@ export function processRookData(
   explicitUser?: SandboxUser
 ): { success: boolean; pointsAwarded: number; reason?: string; workoutId?: string } {
   const nowIso = new Date().toISOString();
-  const userId = payload.user_id;
 
-  // 1. Extração de métricas (resumo diário ou evento de treino pontual)
-  const summary = payload.physical_health?.summary?.physical_summary;
-  const event = payload.activity_events?.[0];
+  // 1. Extração flexível de métricas (suporta formato plano e wrapper ROOKConnect_*_dataset)
+  const rawEvent =
+    payload.activity_events?.[0] ||
+    (payload as any).physical_health?.activity_events?.[0]?.physical_health?.events?.activity_event?.[0] ||
+    (payload as any).physical_health?.activity_events?.[0];
+
+  const rawSummary =
+    payload.physical_health?.summary?.physical_summary ||
+    (payload as any).physical_health?.physical_summaries?.[0]?.physical_health?.summary?.physical_summary ||
+    (payload as any).physical_health?.physical_summaries?.[0];
 
   const durationSeconds =
-    event?.activity_duration_seconds_int ||
-    summary?.activity?.active_seconds_int ||
+    rawEvent?.activity_duration_seconds_int ||
+    rawEvent?.activity?.activity_duration_seconds_int ||
+    rawSummary?.activity?.active_seconds_int ||
     0;
   const durationMins = Math.round(durationSeconds / 60);
 
   const calories =
-    event?.calories_burned_kcal_float ||
-    summary?.calories_net_active_kcal_float ||
+    rawEvent?.calories_burned_kcal_float ||
+    rawEvent?.calories?.calories_expenditure_kcal_float ||
+    rawEvent?.calories?.calories_net_active_kcal_float ||
+    rawSummary?.calories_net_active_kcal_float ||
+    rawSummary?.calories?.calories_expenditure_kcal_float ||
     0;
 
-  const avgHr = event?.hr_avg_bpm_int || summary?.hr_avg_bpm_int;
+  const avgHr =
+    rawEvent?.hr_avg_bpm_int ||
+    rawEvent?.heart_rate?.hr_avg_bpm_int ||
+    rawSummary?.hr_avg_bpm_int ||
+    rawSummary?.heart_rate?.hr_avg_bpm_int;
+
   const distance =
-    event?.distance_meters_float ||
-    summary?.distance?.walked_distance_meters_float ||
-    summary?.distance?.traveled_distance_meters_float;
+    rawEvent?.distance_meters_float ||
+    rawEvent?.distance?.traveled_distance_meters_float ||
+    rawSummary?.distance?.walked_distance_meters_float ||
+    rawSummary?.distance?.traveled_distance_meters_float;
 
   const deviceSource =
-    event?.source ||
-    summary?.metadata?.sources_of_data_array?.[0] ||
+    rawEvent?.source ||
+    rawEvent?.metadata?.sources_of_data_array?.[0] ||
+    rawSummary?.metadata?.sources_of_data_array?.[0] ||
     "Apple Watch / ROOK";
 
-  const sportName = event?.sport_name || "Atividade Física ROOK";
+  const sportName =
+    rawEvent?.sport_name ||
+    rawEvent?.activity?.activity_type_name_string ||
+    "Atividade Física ROOK";
+
   const hasSensors = Boolean(avgHr || distance || calories > 100);
+
+  const userId =
+    payload.user_id ||
+    (payload as any).physical_health?.activity_events?.[0]?.user_id ||
+    (payload as any).physical_health?.physical_summaries?.[0]?.user_id ||
+    (payload as any).body_health?.body_summaries?.[0]?.user_id ||
+    "template_uuid";
 
   const docId = String(payload.document_version || Date.now());
   const actId = `rook_${userId}_${docId}`;
@@ -300,13 +328,20 @@ export async function handleRookRoutes(
           }
         }
 
-        // Verificação de desafio ou handshake sintético da ROOK
-        if (!payload || !payload.user_id) {
+        // Identificar userId de forma flexível (suporta tanto formato plano quanto wrapper ROOKConnect_*_dataset)
+        const effectiveUserId =
+          payload.user_id ||
+          payload.physical_health?.activity_events?.[0]?.user_id ||
+          payload.physical_health?.physical_summaries?.[0]?.user_id ||
+          (payload as any).body_health?.body_summaries?.[0]?.user_id;
+
+        // Se for envio de teste do portal ROOK ("template_uuid") ou handshake sintético:
+        if (!effectiveUserId || effectiveUserId === "template_uuid") {
           return new Response(
             JSON.stringify({
               received: true,
               status: "ready",
-              message: "Netfits ROOK Webhook Handshake Verified",
+              message: "Netfits ROOK Webhook Sample Test Verified Successfully",
             }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );

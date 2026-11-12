@@ -69,6 +69,40 @@ describe("🦅 ROOK Connect Integration & Telemetry Tests", () => {
     expect(data.status).toBe("ready");
   });
 
+  it("deve responder 200 com sucesso no envio de amostra do portal ROOK (Whoop dataset sample com template_uuid)", async () => {
+    const whoopSample = {
+      data_structure: "ROOKConnect_Whoop_dataset",
+      version: 2,
+      created_at: "2025-11-14T01:12:29.733343Z",
+      physical_health: {
+        activity_events: [
+          {
+            version: 2,
+            data_structure: "activity_event",
+            client_uuid: "template_uuid",
+            user_id: "template_uuid",
+            document_version: 1,
+            auto_detected: false,
+          },
+        ],
+      },
+    };
+
+    const req = new Request("https://www.netfits.com.br/api/webhooks/rook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(whoopSample),
+    });
+    const url = new URL(req.url);
+    const res = await handleRookRoutes(req, url, serverState.getCorsHeaders());
+
+    expect(res).not.toBeNull();
+    expect(res!.status).toBe(200);
+    const data = await res!.json();
+    expect(data.received).toBe(true);
+    expect(data.status).toBe("ready");
+  });
+
   it("deve validar assinatura HMAC-SHA256 para requisições seguras", async () => {
     const rawBody = JSON.stringify({ test: "data" });
     const isValid = await verifyRookHmac(rawBody, "any_hash", "rook_secret_key_sample");
