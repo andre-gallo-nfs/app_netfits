@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { operationalParamsStore } from "./operational-params-store";
+import { generatePersonalReferralCode } from "./referral-utils";
 import { dispatchPointsCreditedEmailSafe,
   dispatchReferralCompletedEmailSafe, dispatchShopOrderEmailSafe } from "./emails/email-service";
 
@@ -2437,7 +2438,10 @@ class HomologationSandboxStore {
     }
 
     const newId = `user-${Date.now()}`;
-    const newRefCode = `NET-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newRefCode = generatePersonalReferralCode(
+      data.fullName,
+      this.state.users.map((u) => u.referralCode)
+    );
 
     let referrer: SandboxUser | undefined;
     if (data.referralCode) {
