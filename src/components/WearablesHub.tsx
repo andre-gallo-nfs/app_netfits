@@ -50,11 +50,11 @@ export const WEARABLE_BRANDS: WearableBrand[] = [
     id: "apple",
     name: "Apple Watch",
     category: "smartwatch",
-    brandTitle: "Apple HealthKit",
+    brandTitle: "Apple HealthKit & Vital",
     color: "#000000",
     fg: "#ffffff",
-    badge: "Em Breve",
-    protocol: "Apple HealthKit Nativo",
+    badge: "Oficial & Ativo",
+    protocol: "Apple HealthKit / Vital Hub",
     popularIn: "Dia a dia, Corrida, Funcional",
   },
   {
@@ -64,8 +64,8 @@ export const WEARABLE_BRANDS: WearableBrand[] = [
     brandTitle: "Strava API Hub",
     color: "#FC4C02",
     fg: "#ffffff",
-    badge: "Em Breve",
-    protocol: "Strava API Cloud",
+    badge: "Oficial & Ativo",
+    protocol: "Strava API Direct (Cloud OAuth 2.0)",
     popularIn: "Comunidade Esportiva Global",
   },
   {
@@ -186,8 +186,63 @@ export function WearablesHub() {
         url.searchParams.delete("garmin_connected");
         window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : ""));
       }
+      if (url.searchParams.get("strava_connected") === "true") {
+        sharedSandboxStore.updateUser(activeUser.id, { wearable: "Strava" });
+        toast.success("🎉 Sua conta Strava foi conectada com sucesso à Netfits! Seus treinos serão validados no Clube.");
+        url.searchParams.delete("strava_connected");
+        window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : ""));
+      }
+      if (url.searchParams.get("vital_connected") === "true") {
+        sharedSandboxStore.updateUser(activeUser.id, { wearable: "Apple Watch (Vital)" });
+        toast.success("🎉 Seu dispositivo foi vinculado via Vital Hub! Treinos ativos pontuarão automaticamente.");
+        url.searchParams.delete("vital_connected");
+        window.history.replaceState({}, document.title, url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : ""));
+      }
     }
   }, [activeUser.id]);
+
+  const handleOpenStrava = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    try {
+      const res = await fetch(`/api/strava/auth-url?userId=${encodeURIComponent(activeUser.id)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authUrl) {
+          toast.info("Abrindo login oficial do Strava...");
+          setConnectingBrand(null);
+          await nativeBridge.openExternalUrl(data.authUrl);
+          return;
+        }
+      }
+      toast.error("Falha ao gerar link do Strava.");
+    } catch {
+      toast.error("Erro ao conectar com Strava.");
+    }
+  };
+
+  const handleOpenVital = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    try {
+      toast.info("Iniciando conexão com Vital Hub...");
+      const res = await fetch(`/api/vital/link-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: activeUser.id }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.link_web_url) {
+          toast.info("Abrindo tela de conexão de dispositivos...");
+          setConnectingBrand(null);
+          await nativeBridge.openExternalUrl(data.link_web_url);
+          return;
+        }
+      }
+      toast.error("Falha ao inicializar Vital Link.");
+    } catch {
+      toast.error("Erro de conexão com Vital API.");
+    }
+  };
 
   const getGarminAuthUrl = () => {
     return `https://www.netfits.com.br/api/garmin/authorize?userId=${encodeURIComponent(
@@ -230,27 +285,33 @@ export function WearablesHub() {
   const handleManualSync = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+      let res: Response;
+      if (connectedBrandId === "apple") {
+        res = await fetch(`/api/vital/sync-recent-workouts?userId=${activeUser.id}`);
+      } else {
+        res = await fetch(`/api/garmin/sync-recent-workouts?userId=${activeUser.id}&hours=72`);
+      }
+
       if (res.ok) {
         const data = await res.json();
         if (data.requiresAuth) {
-          toast.info("Vincule sua conta Garmin Connect para sincronizar seus treinos.");
-          setConnectingBrand(WEARABLE_BRANDS.find((b) => b.id === "garmin") || null);
+          toast.info("Vincule sua conta para sincronizar seus treinos.");
+          setConnectingBrand(WEARABLE_BRANDS.find((b) => b.id === (connectedBrandId || "garmin")) || null);
           return;
         }
         if (data.processedCount > 0) {
           sharedSandboxStore.updateUser(activeUser.id, {
             nfsBalance: (activeUser.nfsBalance || 0) + (data.pointsAwarded || 0),
           });
-          toast.success(`🎉 ${data.processedCount} novo(s) treino(s) Garmin validado(s)! (+${data.pointsAwarded} nfs)`);
+          toast.success(`🎉 ${data.processedCount} novo(s) treino(s) validado(s)! (+${data.pointsAwarded} nfs)`);
         } else {
-          toast.info("Tudo em dia! Nenhum novo treino pendente de validação nas últimas 72 horas.");
+          toast.info("Tudo em dia! Nenhum novo treino pendente de validação.");
         }
       } else {
         toast.error("Não foi possível sincronizar no momento. Tente novamente em instantes.");
       }
     } catch {
-      toast.error("Erro de conexão ao buscar treinos na nuvem Garmin.");
+      toast.error("Erro de conexão ao buscar treinos na nuvem.");
     } finally {
       setIsSyncing(false);
     }
@@ -309,12 +370,13 @@ export function WearablesHub() {
     };
   }, [activeUser.id, activeUser.wearable, activeUser.nfsBalance]);
 
-  const isGarminConnected = Boolean(
-    activeUser.wearable &&
-    activeUser.wearable.toLowerCase().includes("garmin")
-  );
-  const connectedBrandId = isGarminConnected ? "garmin" : null;
-  const activeConnectedBrand = WEARABLE_BRANDS.find((b) => b.id === "garmin") || WEARABLE_BRANDS[0];
+  const userWearableStr = (activeUser.wearable || "").toLowerCase();
+  const isGarminConnected = userWearableStr.includes("garmin");
+  const isStravaConnected = userWearableStr.includes("strava");
+  const isAppleConnected = userWearableStr.includes("apple") || userWearableStr.includes("vital");
+
+  const connectedBrandId = isGarminConnected ? "garmin" : isStravaConnected ? "strava" : isAppleConnected ? "apple" : null;
+  const activeConnectedBrand = WEARABLE_BRANDS.find((b) => b.id === connectedBrandId) || WEARABLE_BRANDS[0];
 
   const handleConnectBrand = (brand: WearableBrand) => {
     if (!isClubMember) {
@@ -338,13 +400,27 @@ export function WearablesHub() {
           <div className="space-y-1">
             <span className="text-[10px] font-black uppercase tracking-widest text-[#00A6E0] flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-[#00A6E0] animate-pulse" />
-              Garmin Developer Program • Conexão Oficial Ativa
+              {connectedBrandId === "strava"
+                ? "Strava API Direct • Conexão Oficial Ativa"
+                : connectedBrandId === "apple"
+                ? "Vital Hub • Conexão Oficial Ativa"
+                : connectedBrandId === "garmin"
+                ? "Garmin Developer Program • Conexão Oficial Ativa"
+                : "Telemetria Multidispositivos em Nuvem"}
             </span>
             <h3 className="text-base font-black text-white">
-              {connectedBrandId ? "Garmin Connect™ Conectado" : "Nenhum Wearable Vinculado"}
+              {connectedBrandId === "strava"
+                ? "Strava Conectado"
+                : connectedBrandId === "apple"
+                ? "Apple Watch / Vital Conectado"
+                : connectedBrandId === "garmin"
+                ? "Garmin Connect™ Conectado"
+                : "Nenhum Wearable Vinculado"}
             </h3>
             <p className="text-xs text-zinc-400 max-w-sm leading-relaxed">
-              Integração de nuvem direta com a Garmin Connect™. Seus treinos físicos com dados ópticos e GPS são validados e pontuados no Clube Netfits.
+              {connectedBrandId
+                ? `Integração de nuvem ativa com ${activeConnectedBrand.name}. Seus treinos físicos com dados ópticos e GPS são validados e pontuados no Clube Netfits.`
+                : "Conecte seu Garmin, Strava ou Apple Watch para validar seus treinos diários e pontuar 20 nfs no Clube Netfits."}
             </p>
           </div>
           <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-[#00A6E0] shrink-0">
@@ -451,7 +527,7 @@ export function WearablesHub() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {WEARABLE_BRANDS.map((brand) => {
             const isConnected = brand.id === connectedBrandId;
-            const isGarmin = brand.id === "garmin";
+            const isConnectable = brand.id === "garmin" || brand.id === "strava" || brand.id === "apple";
 
             return (
               <div
@@ -479,7 +555,7 @@ export function WearablesHub() {
                       </h5>
                       <span
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
-                          isGarmin
+                          isConnectable
                             ? "bg-sky-500/20 text-[#00A6E0] border border-sky-500/30"
                             : "bg-zinc-800 text-zinc-400 border border-zinc-700/50"
                         }`}
@@ -499,7 +575,7 @@ export function WearablesHub() {
                       <Check className="size-3" />
                       Conectado
                     </span>
-                  ) : isGarmin ? (
+                  ) : isConnectable ? (
                     isClubMember ? (
                       <button
                         type="button"
@@ -534,7 +610,7 @@ export function WearablesHub() {
         </div>
       </div>
 
-      {/* Modal de Conexão Oficial Garmin ou Informação Em Breve */}
+      {/* Modal de Conexão Oficial Garmin, Strava ou Vital */}
       {connectingBrand && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
@@ -545,7 +621,13 @@ export function WearablesHub() {
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-widest text-lime-400 flex items-center gap-1">
                 <Radio className="size-3" />
-                {connectingBrand.id === "garmin" ? "Garmin Connect™ OAuth 2.0" : "Integração em Desenvolvimento"}
+                {connectingBrand.id === "garmin"
+                  ? "Garmin Connect™ OAuth 2.0"
+                  : connectingBrand.id === "strava"
+                  ? "Strava API Direct OAuth"
+                  : connectingBrand.id === "apple"
+                  ? "Apple Watch / Vital Hub"
+                  : "Integração em Desenvolvimento"}
               </span>
               <button
                 type="button"
@@ -568,6 +650,10 @@ export function WearablesHub() {
               <p className="text-xs text-zinc-400 leading-relaxed max-w-xs mx-auto">
                 {connectingBrand.id === "garmin"
                   ? "A Netfits solicitará permissão segura diretamente na nuvem da Garmin Connect™ para ler suas atividades esportivas (duração, distância, frequência cardíaca e calorias)."
+                  : connectingBrand.id === "strava"
+                  ? "A Netfits conectará diretamente com a API do Strava para importar suas corridas, pedaladas e treinos com dados de GPS e esforço."
+                  : connectingBrand.id === "apple"
+                  ? "A Netfits conectará via Vital Hub para ler os treinos registrados pelo seu Apple Watch no Apple Saúde."
                   : `A sincronização oficial com ${connectingBrand.name} está em fase de homologação e será liberada em breve.`}
               </p>
             </div>
@@ -583,6 +669,28 @@ export function WearablesHub() {
                   <span className="font-mono text-emerald-400 font-bold">Garmin Developer Program (Oficial)</span>
                 </div>
               </div>
+            ) : connectingBrand.id === "strava" ? (
+              <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1 text-xs">
+                <div className="flex justify-between text-zinc-400">
+                  <span>Protocolo</span>
+                  <span className="font-mono text-zinc-200">Strava API Direct (OAuth 2.0)</span>
+                </div>
+                <div className="flex justify-between text-zinc-400">
+                  <span>Ambiente</span>
+                  <span className="font-mono text-[#FC4C02] font-bold">Strava Developers (Direto)</span>
+                </div>
+              </div>
+            ) : connectingBrand.id === "apple" ? (
+              <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1 text-xs">
+                <div className="flex justify-between text-zinc-400">
+                  <span>Protocolo</span>
+                  <span className="font-mono text-zinc-200">Vital Link / HealthKit</span>
+                </div>
+                <div className="flex justify-between text-zinc-400">
+                  <span>Ambiente</span>
+                  <span className="font-mono text-purple-400 font-bold">Vital Cloud Aggregator</span>
+                </div>
+              </div>
             ) : (
               <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1.5 text-amber-200">
                 <p className="font-bold flex items-center gap-1.5 text-amber-400">
@@ -590,7 +698,7 @@ export function WearablesHub() {
                   Conexão em Desenvolvimento
                 </p>
                 <p className="text-[11px] text-zinc-300 leading-relaxed">
-                  Atualmente, a única integração oficial e ativa para validação de treinos físicos na Netfits é a <b>Garmin Connect™</b>.
+                  Atualmente, as integrações ativas no Clube Netfits são <b>Garmin Connect™</b>, <b>Strava</b> e <b>Apple Watch</b>.
                 </p>
               </div>
             )}
@@ -599,26 +707,55 @@ export function WearablesHub() {
               <div className="space-y-2 pt-1">
                 <a
                   href={getGarminAuthUrl()}
-                  target="_system"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    toast.info("Abrindo Google Chrome para autorizar Garmin...");
-                    setTimeout(() => {
-                      setConnectingBrand(null);
-                    }, 1200);
-                  }}
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-sky-500/25 text-center"
+                  onClick={handleOpenGarmin}
+                  className="w-full py-3 px-4 rounded-xl bg-[#00A6E0] hover:bg-[#0094c9] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-md text-center"
                 >
-                  Conectar Oficialmente no Garmin Connect™
                   <ExternalLink className="size-4" />
+                  Conectar com Garmin Connect™
                 </a>
                 <button
                   type="button"
                   onClick={handleCopyGarminLink}
-                  className="w-full py-2.5 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   <Copy className="size-3.5" />
                   Copiar Link para o Google Chrome
+                </button>
+              </div>
+            ) : connectingBrand.id === "strava" ? (
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleOpenStrava}
+                  className="w-full py-3 px-4 rounded-xl bg-[#FC4C02] hover:bg-[#e04300] active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-md text-center"
+                >
+                  <ExternalLink className="size-4" />
+                  Conectar com Strava Oficial
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConnectingBrand(null)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs flex items-center justify-center transition cursor-pointer"
+                >
+                  Voltar
+                </button>
+              </div>
+            ) : connectingBrand.id === "apple" ? (
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleOpenVital}
+                  className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-md text-center"
+                >
+                  <ExternalLink className="size-4" />
+                  Conectar Apple Watch via Vital Hub
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConnectingBrand(null)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-xs flex items-center justify-center transition cursor-pointer"
+                >
+                  Voltar
                 </button>
               </div>
             ) : (
