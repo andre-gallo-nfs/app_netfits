@@ -50,11 +50,11 @@ export const WEARABLE_BRANDS: WearableBrand[] = [
     id: "apple",
     name: "Apple Watch",
     category: "smartwatch",
-    brandTitle: "Apple HealthKit & Vital",
+    brandTitle: "Apple HealthKit & ROOK",
     color: "#000000",
     fg: "#ffffff",
     badge: "Oficial & Ativo",
-    protocol: "Apple HealthKit / Vital Hub",
+    protocol: "ROOK Connect SDK (Capacitor)",
     popularIn: "Dia a dia, Corrida, Funcional",
   },
   {
@@ -241,6 +241,21 @@ export function WearablesHub() {
       toast.error("Falha ao inicializar Vital Link.");
     } catch {
       toast.error("Erro de conexão com Vital API.");
+    }
+  };
+
+  const handleOpenRook = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (nativeBridge.isNativePlatform()) {
+      toast.info("Iniciando permissões do Apple Health via ROOK Connect...");
+      setConnectingBrand(null);
+      const ok = await nativeBridge.initRookConnect(activeUser.id);
+      if (ok) {
+        sharedSandboxStore.updateUser(activeUser.id, { wearable: "Apple Watch (ROOK)" });
+      }
+    } else {
+      toast.info("A sincronização nativa com o Apple Watch ocorre diretamente no app da Netfits no seu iPhone.");
+      setConnectingBrand(null);
     }
   };
 
@@ -653,7 +668,7 @@ export function WearablesHub() {
                   : connectingBrand.id === "strava"
                   ? "A Netfits conectará diretamente com a API do Strava para importar suas corridas, pedaladas e treinos com dados de GPS e esforço."
                   : connectingBrand.id === "apple"
-                  ? "A Netfits conectará via Vital Hub para ler os treinos registrados pelo seu Apple Watch no Apple Saúde."
+                  ? "A Netfits conecta diretamente ao Apple Health no seu iPhone via ROOK Connect para sincronizar seus treinos de musculação, corrida e funcionais mesmo em segundo plano."
                   : `A sincronização oficial com ${connectingBrand.name} está em fase de homologação e será liberada em breve.`}
               </p>
             </div>
@@ -684,11 +699,11 @@ export function WearablesHub() {
               <div className="p-3 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-1 text-xs">
                 <div className="flex justify-between text-zinc-400">
                   <span>Protocolo</span>
-                  <span className="font-mono text-zinc-200">Vital Link / HealthKit</span>
+                  <span className="font-mono text-zinc-200">ROOK Connect SDK (Capacitor)</span>
                 </div>
                 <div className="flex justify-between text-zinc-400">
                   <span>Ambiente</span>
-                  <span className="font-mono text-purple-400 font-bold">Vital Cloud Aggregator</span>
+                  <span className="font-mono text-emerald-400 font-bold">Apple HealthKit Nativo</span>
                 </div>
               </div>
             ) : (
@@ -744,11 +759,11 @@ export function WearablesHub() {
               <div className="space-y-2 pt-1">
                 <button
                   type="button"
-                  onClick={handleOpenVital}
-                  className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-md text-center"
+                  onClick={handleOpenRook}
+                  className="w-full py-3 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 active:scale-[0.99] text-white font-black text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-md text-center border border-zinc-700"
                 >
-                  <ExternalLink className="size-4" />
-                  Conectar Apple Watch via Vital Hub
+                  <Watch className="size-4 text-lime-400" />
+                  Conectar Apple Watch via ROOK
                 </button>
                 <button
                   type="button"

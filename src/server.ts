@@ -15,6 +15,7 @@ import { handleClubSubscriptionRoutes } from "./server/club-subscription-handler
 import { handleGarminRoutes } from "./server/garmin-handlers.ts";
 import { handleVitalRoutes } from "./server/vital-handlers.ts";
 import { handleStravaRoutes } from "./server/strava-handlers.ts";
+import { handleRookRoutes } from "./server/rook-handlers.ts";
 import { handleFeedModerationRoutes } from "./server/feed-moderation-handlers.ts";
 import {
   normalizeString,
@@ -108,7 +109,11 @@ export default {
     const stravaRes = await handleStravaRoutes(req, url, corsHeaders);
     if (stravaRes) return stravaRes;
 
-    // 9. AI Feed Content Moderation Routes (/api/feed/moderate)
+    // 9. ROOK Connect Wearable Aggregator Routes (/api/rook/*, /api/webhooks/rook)
+    const rookRes = await handleRookRoutes(req, url, corsHeaders);
+    if (rookRes) return rookRes;
+
+    // 10. AI Feed Content Moderation Routes (/api/feed/moderate)
     const moderationRes = await handleFeedModerationRoutes(req, url, corsHeaders);
     if (moderationRes) return moderationRes;
 

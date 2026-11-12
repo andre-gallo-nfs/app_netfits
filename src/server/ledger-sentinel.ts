@@ -165,8 +165,16 @@ export class RealTimeLedgerSentinel {
       try {
         const freshCloud = await fetchPersistentUsersAndTransactionsFromCloud();
         if (freshCloud && Array.isArray(freshCloud.users) && freshCloud.users.length > 0) {
-          serverState.users = freshCloud.users;
-          serverState.transactions = freshCloud.transactions || [];
+          // MONOTONIC COUNT GUARD (LL-012): Nunca permitir que uma sincronização da nuvem reduza a base
+          // se a nuvem contiver contagem truncada em relação ao estado pré-semeado canônico!
+          if (freshCloud.users.length >= serverState.users.length) {
+            serverState.users = freshCloud.users;
+            serverState.transactions = freshCloud.transactions || [];
+          } else {
+            console.warn(
+              `[Ledger Sentinel] ⚠️ Nuvem retornou contagem truncada (${freshCloud.users.length} < ${serverState.users.length}). Mantendo base canônica de produção (LL-012).`
+            );
+          }
         }
       } catch (e) {
         console.warn("[Ledger Sentinel] Aviso ao consultar nuvem:", e);

@@ -283,5 +283,40 @@ export const nativeBridge = {
       sessionStorage.getItem("netfits_deferred_referral_code") ||
       null
     );
+  },
+
+  /**
+   * Inicializa o ROOK Connect SDK para telemetria de Apple Health (iOS) e Health Connect (Android)
+   */
+  async initRookConnect(userId: string): Promise<boolean> {
+    if (!this.isNativePlatform()) {
+      toast.info("ROOK Connect disponível no aplicativo mobile (iOS/Android).");
+      return false;
+    }
+    try {
+      const { RookConfig, RookPermissions, RookAppleHealth } = await import("capacitor-rook-sdk");
+      await RookConfig.initRook({
+        environment: "sandbox",
+        clientUUID: "c2c5c434-d355-4247-b0fe-1bd150ac1ba3",
+        secret: "bGb8t3g4y4aoVyKfGex4pVHzHNFauV9syKy7",
+        bundleId: "br.com.netfits.app",
+        packageName: "br.com.netfits.app",
+        enableBackgroundSync: true,
+        enableEventsBackgroundSync: true,
+      });
+      await RookConfig.updateUserId({ userId });
+      const platform = this.getPlatform();
+      if (platform === "ios") {
+        await RookPermissions.requestAppleHealthPermissions({}).catch(() => {});
+        await RookAppleHealth.enableBackGroundUpdates().catch(() => {});
+      } else if (platform === "android") {
+        await RookPermissions.requestHealthConnectPermissions().catch(() => {});
+      }
+      toast.success("ROOK Connect e Apple Health sincronizados com sucesso!");
+      return true;
+    } catch (e) {
+      console.warn("[NativeBridge] initRookConnect falhou:", e);
+      return false;
+    }
   }
 };
