@@ -56,7 +56,8 @@ export default {
     if (!isLocal) {
       const isHttp = url.protocol === "http:";
       const isApex = host === "netfits.com.br";
-      if (isHttp || isApex) {
+      // Não redirecionar rotas de /api/ para não quebrar webhooks/APIs que consom o apex domain diretamente
+      if (!url.pathname.startsWith("/api/") && (isHttp || isApex)) {
         const canonicalUrl = new URL(req.url);
         canonicalUrl.protocol = "https:";
         canonicalUrl.hostname = "www.netfits.com.br";

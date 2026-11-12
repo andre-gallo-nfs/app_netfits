@@ -237,49 +237,82 @@ export async function handleRookRoutes(
   }
 
   // 2. Ingestão de Webhooks da ROOK (POST /api/webhooks/rook)
-  if (url.pathname === "/api/webhooks/rook" && req.method === "POST") {
-    try {
-      const rookHash = req.headers.get("X-ROOK-HASH");
-      const rawText = await req.text();
+  const isRookWebhookPath =
+    url.pathname === "/api/webhooks/rook" ||
+    url.pathname === "/api/webhooks/rook/";
 
-      // Validação de Segurança HMAC-SHA256 (quando o cabeçalho X-ROOK-HASH estiver presente)
-      if (rookHash) {
-        const isValidHmac = await verifyRookHmac(rawText, rookHash, ROOK_SECRET_KEY);
-        if (!isValidHmac && !ROOK_SECRET_KEY.includes("sample")) {
-          return new Response(JSON.stringify({ error: "Assinatura X-ROOK-HASH inválida" }), {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+  if (isRookWebhookPath) {
+    if (req.method === "GET" || req.method === "HEAD") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          received: true,
+          message: "Netfits ROOK Webhook Endpoint Ready",
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (req.method === "POST") {
+      try {
+        const rookHash = req.headers.get("X-ROOK-HASH");
+        const rawText = await req.text();
+
+        // Se for ping de verificação, teste de conexão ou payload vazio:
+        if (!rawText || rawText.trim() === "" || rawText.trim() === "{}") {
+          return new Response(
+            JSON.stringify({
+              received: true,
+              status: "ready",
+              message: "Netfits ROOK Webhook Endpoint Ready",
+            }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
         }
-      }
 
-      // Handshake / Ping de validação de URL do portal ROOK Connect
-      if (!rawText || rawText.trim() === "" || rawText.trim() === "{}") {
-        return new Response(
-          JSON.stringify({
-            received: true,
-            status: "ready",
-            message: "Netfits ROOK Webhook Endpoint Ready",
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+        let payload: any = {};
+        try {
+          payload = JSON.parse(rawText);
+        } catch {
+          // Se o body não for JSON estrito (ex: ping de verificação em texto simples), confirma recebimento com 200
+          return new Response(
+            JSON.stringify({ received: true, status: "ready" }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
 
-      const payload: RookPhysicalSummaryPayload = JSON.parse(rawText);
+        // Se a ROOK enviar challenge ou verificação de URL:
+        if (payload?.challenge) {
+          return new Response(
+            JSON.stringify({ challenge: payload.challenge }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
 
-      // Verificação de desafio ou handshake sintético da ROOK
-      if (!payload || !payload.user_id) {
-        return new Response(
-          JSON.stringify({
-            received: true,
-            status: "ready",
-            message: "Netfits ROOK Webhook Handshake Verified",
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+        // Validação de Segurança HMAC-SHA256 (quando o cabeçalho X-ROOK-HASH estiver presente)
+        if (rookHash) {
+          const isValidHmac = await verifyRookHmac(rawText, rookHash, ROOK_SECRET_KEY);
+          if (!isValidHmac && !ROOK_SECRET_KEY.includes("sample")) {
+            return new Response(JSON.stringify({ error: "Assinatura X-ROOK-HASH inválida" }), {
+              status: 401,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        }
 
-      const result = processRookData(payload);
+        // Verificação de desafio ou handshake sintético da ROOK
+        if (!payload || !payload.user_id) {
+          return new Response(
+            JSON.stringify({
+              received: true,
+              status: "ready",
+              message: "Netfits ROOK Webhook Handshake Verified",
+            }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const result = processRookData(payload as RookPhysicalSummaryPayload);
 
       // Inserção na tabela D1 pending_workouts para visibilidade no app
       if (d1Service.isAvailable()) {
@@ -330,6 +363,7 @@ export async function handleRookRoutes(
       );
     }
   }
+}
 
-  return null;
+return null;
 }
