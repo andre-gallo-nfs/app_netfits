@@ -313,7 +313,63 @@ export async function handleRookRoutes(
     );
   }
 
-  // 2. Ingestão de Webhooks da ROOK (POST /api/webhooks/rook)
+  // 2. Callback de Retorno da Connection Page (ROOK Web Widget / Data Sources)
+  if (
+    url.pathname.startsWith("/connection/success") ||
+    url.pathname.startsWith("/api/rook/callback")
+  ) {
+    const matchUser = url.pathname.match(/user_id\/([^\/]+)/);
+    const rookUserId = matchUser ? matchUser[1] : url.searchParams.get("user_id");
+
+    if (rookUserId && rookUserId !== "template_uuid") {
+      const user = serverState.users.find(
+        (u) => u.id === rookUserId || u.email === rookUserId || u.identifier === rookUserId
+      );
+      if (user) {
+        user.wearable = "ROOK Connect";
+        user.wearableConnectedAt = new Date().toISOString();
+        serverState.touchSync();
+      }
+    }
+
+    const redirectTarget = "https://www.netfits.com.br/activities?rook_connected=true";
+    return new Response(
+      `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conexão Concluída — Netfits</title>
+  <meta http-equiv="refresh" content="2;url=${redirectTarget}"/>
+  <style>
+    body { background-color: #202127; color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+    .card { background: #2A2B32; border: 1px solid rgba(200, 241, 53, 0.2); border-radius: 20px; padding: 32px; max-width: 380px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .badge { width: 56px; height: 56px; border-radius: 50%; background: #C8F135; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; color: #202127; font-size: 28px; }
+    h1 { font-size: 20px; margin-bottom: 8px; font-weight: 700; }
+    p { font-size: 14px; color: #9CA3AF; margin-bottom: 20px; line-height: 1.5; }
+    .btn { display: inline-block; background: #6B2AD9; color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">✓</div>
+    <h1>Dispositivo Conectado!</h1>
+    <p>Sua conta e sensores foram vinculados com sucesso ao ecossistema Netfits.</p>
+    <a class="btn" href="${redirectTarget}">Voltar para o App</a>
+  </div>
+</body>
+</html>`,
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      }
+    );
+  }
+
+  // 3. Ingestão de Webhooks da ROOK (POST /api/webhooks/rook)
   const isRookWebhookPath =
     url.pathname === "/api/webhooks/rook" ||
     url.pathname === "/api/webhooks/rook/";

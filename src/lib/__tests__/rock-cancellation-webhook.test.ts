@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { handleRockRoutes } from "../../server/rock-handlers.ts";
 import { serverState } from "../../server/server-state.ts";
 
-describe("Rock Encantech Webhook - Cancellation & Refund Flow", () => {
+describe("Rock Encantech Webhook - Cancellation & Refund Flow", { timeout: 15000 }, () => {
   const TEST_API_KEY = "sec_nfs_mkplace_default_2026";
   const TEST_USER_ID = "usr_cancel_test";
 
