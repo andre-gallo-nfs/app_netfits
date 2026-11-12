@@ -25,6 +25,7 @@
 		"BiometricAuthNative",
 		"AppPlugin",
 		"CAPBrowserPlugin",
-		"KeyboardPlugin"
+		"KeyboardPlugin",
+		"RookSDKPlugin"
 	]
 }
