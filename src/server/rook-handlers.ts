@@ -19,6 +19,10 @@ const ROOK_SECRET_KEY =
   (typeof process !== "undefined" && process.env?.ROOK_SECRET_KEY) ||
   "bGb8t3g4y4aoVyKfGex4pVHzHNFauV9syKy7";
 
+const ROOK_SIGNING_KEY =
+  (typeof process !== "undefined" && process.env?.ROOK_SIGNING_KEY) ||
+  "856a1d69e93f3d7eeba85a2203f78af599918fe8f09186e6a32e60f35e7a114d";
+
 export interface RookPhysicalSummaryPayload {
   client_uuid?: string;
   user_id: string;
@@ -63,33 +67,78 @@ export interface RookPhysicalSummaryPayload {
 }
 
 /**
- * Validação de Assinatura Criptográfica HMAC-SHA256 (X-ROOK-HASH)
+ * Validação de Assinatura Criptográfica HMAC-SHA256 Oficial ROOK v2 (X-ROOK-HASH)
+ * A ROOK v2 assina a concatenação direta sem separadores de:
+ * client_uuid + user_id + datetime
  */
 export async function verifyRookHmac(
   rawBody: string,
   providedHash: string | null,
-  secret: string
+  key: string = ROOK_SIGNING_KEY
 ): Promise<boolean> {
   if (!providedHash) return false;
   // Se for chave de teste/sample em ambiente de desenvolvimento, aceita validação
-  if (secret.includes("sample")) return true;
+  if (key.includes("sample")) return true;
 
   try {
     const encoder = new TextEncoder();
-    const keyData = encoder.encode(secret);
-    const key = await crypto.subtle.importKey(
-      "raw",
-      keyData,
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"]
-    );
 
-    const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
-    const hashArray = Array.from(new Uint8Array(signature));
-    const expectedHash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    // Helper interno para computar hash HMAC-SHA256
+    const computeHmac = async (secretKey: string, message: string): Promise<string> => {
+      const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        encoder.encode(secretKey),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+      const signature = await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(message));
+      return Array.from(new Uint8Array(signature))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+    };
 
-    return expectedHash.toLowerCase() === providedHash.toLowerCase();
+    // 1. Tentar validação oficial ROOK v2: client_uuid + user_id + datetime_string
+    try {
+      const obj = JSON.parse(rawBody);
+      const clientUuid =
+        obj.client_uuid ||
+        obj.physical_health?.activity_events?.[0]?.client_uuid ||
+        obj.body_health?.body_summaries?.[0]?.client_uuid ||
+        ROOK_CLIENT_UUID;
+
+      const userId =
+        obj.user_id ||
+        obj.physical_health?.activity_events?.[0]?.user_id ||
+        obj.body_health?.body_summaries?.[0]?.user_id ||
+        "";
+
+      const datetimes = [
+        obj.body_health?.body_summaries?.[0]?.body_health?.summary?.body_summary?.metadata?.datetime_string,
+        obj.physical_health?.activity_events?.[0]?.physical_health?.events?.activity_event?.[0]?.metadata?.datetime_string,
+        obj.physical_health?.physical_summaries?.[0]?.physical_health?.summary?.physical_summary?.metadata?.datetime_string,
+        obj.sleep_health?.sleep_summaries?.[0]?.sleep_health?.summary?.sleep_summary?.metadata?.datetime_string,
+        obj.created_at,
+        obj.metadata?.datetime,
+      ].filter(Boolean);
+
+      for (const dt of datetimes) {
+        const msg = `${clientUuid}${userId}${dt}`;
+        const computed = await computeHmac(key, msg);
+        if (computed.toLowerCase() === providedHash.toLowerCase()) return true;
+        // Testar também com a ROOK_SIGNING_KEY oficial caso uma chave antiga tenha sido repassada
+        if (key !== ROOK_SIGNING_KEY) {
+          const computedSigning = await computeHmac(ROOK_SIGNING_KEY, msg);
+          if (computedSigning.toLowerCase() === providedHash.toLowerCase()) return true;
+        }
+      }
+    } catch {}
+
+    // 2. Fallback: Assinatura direta sobre o corpo da requisição (raw body)
+    const directComputed = await computeHmac(key, rawBody);
+    if (directComputed.toLowerCase() === providedHash.toLowerCase()) return true;
+
+    return false;
   } catch (err) {
     console.warn("[verifyRookHmac] Erro ao validar assinatura:", err);
     return false;
