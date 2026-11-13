@@ -63,7 +63,11 @@ export function ProfileLegalModal({
                 <p><b>2. Pontos nfs & Validade Atuarial:</b> Os pontos acumulados por treinos validados e compras no marketplace seguem a regra atuarial FEFO (First-Expired, First-Out), com validade padrão de 24 meses.</p>
                 <p><b>3. Shop Netfits & Marketplace:</b> A venda e entrega de produtos físicos (suplementos, tênis, vestuário) é operada em parceria com sellers homologados e integrada de ponta a ponta com emissão de nota fiscal direta de mercadorias.</p>
                 <p><b>4. Políticas Antifraude:</b> Treinos e interações com vídeos/quizzes exigem tempo de visualização mínimo auditado (dwell time). Suspeitas de spoofing de GPS ou automação fraudulenta implicam bloqueio da conta.</p>
-                <p><b>5. Disposições Finais:</b> O regulamento integral pode ser baixado em PDF ou consultado na íntegra a qualquer momento através do nosso portal oficial.</p>
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-2.5 my-1.5 text-red-300">
+                  <p className="font-bold text-white mb-1">5. Tolerância Zero para Conteúdos Impróprios, Moderação em 24h & EULA (Apple Guideline 1.2):</p>
+                  <p>A Netfits adota <b>tolerância zero</b> contra qualquer forma de assédio, ódio, discriminação, difamação, nudez, violência ou comportamento abusivo por parte de usuários. Todo usuário tem ferramentas integradas no Feed para <b>denunciar conteúdos impróprios</b> e <b>bloquear autores abusivos</b> instantaneamente. Nossa moderação analisa e age em até <b>24 horas</b>, removendo o conteúdo e banindo contas infratoras.</p>
+                </div>
+                <p><b>6. Disposições Finais:</b> O regulamento integral pode ser baixado em PDF ou consultado na íntegra a qualquer momento através do nosso portal oficial.</p>
               </div>
             </>
           ) : (
@@ -88,6 +92,8 @@ export function ProfileLegalModal({
           <a
             href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
             download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition"
           >
             <Download className="size-3.5 text-lime-400" />

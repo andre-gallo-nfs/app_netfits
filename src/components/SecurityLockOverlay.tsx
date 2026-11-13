@@ -14,6 +14,7 @@ import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { appLockStore } from "@/lib/app-lock-store";
 import { authStore } from "@/lib/auth-store";
+import { TermsModal } from "@/components/auth/AuthLegalModals";
 
 export function SecurityLockOverlay() {
   const activeUser = sharedSandboxStore.useActiveUser();
@@ -21,6 +22,7 @@ export function SecurityLockOverlay() {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticatingBio, setIsAuthenticatingBio] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Se não houver usuário autenticado no dispositivo, nunca exibir overlay de bloqueio.
@@ -238,10 +240,25 @@ export function SecurityLockOverlay() {
           <span>Trocar de Conta / Sair</span>
         </button>
 
+        <button
+          type="button"
+          onClick={() => setShowTermsModal(true)}
+          className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer"
+        >
+          Termos & EULA (Apple 1.2)
+        </button>
+
         <span className="text-[10px] text-zinc-600">
           Netfits Guard v1.7
         </span>
       </div>
+
+      {showTermsModal && (
+        <TermsModal
+          onClose={() => setShowTermsModal(false)}
+          onAgree={() => setShowTermsModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1187,6 +1187,28 @@ function AuthPage() {
               </span>
             </div>
           </div>
+
+          {/* Links Legais e EULA na aba de Login (Apple Guideline 1.2) */}
+          <div className="pt-3 border-t border-border/60 text-center space-y-1">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+              Ao entrar ou se cadastrar, você concorda com os{" "}
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(true)}
+                className="text-purple-600 hover:text-purple-700 dark:text-purple-400 underline font-bold cursor-pointer inline-flex items-center gap-1"
+              >
+                <span>Termos de Uso & EULA (Apple 1.2)</span>
+              </button>{" "}
+              e o{" "}
+              <button
+                type="button"
+                onClick={() => setShowLgpdModal(true)}
+                className="text-purple-600 hover:text-purple-700 dark:text-purple-400 underline font-bold cursor-pointer inline-flex items-center gap-1"
+              >
+                <span>Consentimento LGPD</span>
+              </button>.
+            </p>
+          </div>
         </form>
       )}
 

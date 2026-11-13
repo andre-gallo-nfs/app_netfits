@@ -224,6 +224,33 @@ export class RealTimeLedgerSentinel {
       }
     }
 
+    // 2b. AUDITORIA RETROATIVA DE BÔNUS DE CADASTRO (WELCOME BONUS RECONCILIATION):
+    // Garante que todo novo usuário que recebeu o bônus de 50 nfs tenha a respectiva transação gravada no extrato (LL-013)
+    for (const u of serverState.users) {
+      if (!u || !u.id) continue;
+      const uTxs = serverState.transactions.filter(t => t.userId === u.id);
+      const ledgerSum = uTxs.reduce((acc, t) => acc + (t.amount || 0), 0);
+      const profileBalance = Number(u.nfsBalance) || 0;
+      if (profileBalance >= 50 && ledgerSum === 0) {
+        console.warn(`[Sentinel Welcome Audit] Usuário ${u.fullName} possui ${profileBalance} nfs sem transação de boas-vindas no extrato!`);
+        if (autoHeal) {
+          const welcomeTx = {
+            id: `tx-welcome-${u.id}`,
+            userId: u.id,
+            userName: u.fullName || "Novo Atleta",
+            amount: 50,
+            description: "🎉 Bônus de Boas-Vindas Netfits (Cadastro Oficial)",
+            category: "bonus" as const,
+            timestamp: u.createdAt || (u as any).registeredAt || new Date().toISOString(),
+          };
+          serverState.transactions.unshift(welcomeTx);
+          healedTxs.push(welcomeTx);
+          selfHealedCount++;
+          console.log(`[Sentinel Welcome Auto-Heal] +50 nfs registrados no extrato para ${u.fullName} (Welcome Bonus).`);
+        }
+      }
+    }
+
     for (const u of serverState.users) {
       if (!u || !u.id) continue;
       if (u.isClubMember) activeSubscribers++;

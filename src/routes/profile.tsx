@@ -1120,6 +1120,8 @@ function ProfilePage() {
               <a
                 href="/Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
                 download="Netfits_Regulamento_e_Termo_LGPD_Oficial.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
               >
                 <Download className="size-3" />
