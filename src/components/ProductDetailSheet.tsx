@@ -65,15 +65,14 @@ export function ProductDetailSheet({
     returnPolicyDays: 30,
   };
 
-  const handleBuyInRockStore = () => {
+  const handleBuyInRockStore = async () => {
     trackAddToCart(product.id, product.title, product.price, product.cashback);
     toast.success(`Abrindo "${product.title}" no Shop Netfits...`, {
-      description: "Conectando ao catálogo Rock Encantech dentro do aplicativo.",
+      description: "Conectando ao catálogo Rock Encantech com saldo sincronizado.",
     });
     onClose();
-    navigate({
-      to: "/market",
-      search: { product: product.id },
+    await launchMkplaceShop({
+      targetQueryOrPath: product.targetPath || product.id,
     });
   };
 
