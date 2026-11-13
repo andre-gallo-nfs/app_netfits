@@ -16,12 +16,10 @@ const ROOK_CLIENT_UUID =
   "c2c5c434-d355-4247-b0fe-1bd150ac1ba3";
 
 const ROOK_SECRET_KEY =
-  (typeof process !== "undefined" && process.env?.ROOK_SECRET_KEY) ||
-  "bGb8t3g4y4aoVyKfGex4pVHzHNFauV9syKy7";
+  (typeof process !== "undefined" && process.env?.ROOK_SECRET_KEY) || "";
 
 const ROOK_SIGNING_KEY =
-  (typeof process !== "undefined" && process.env?.ROOK_SIGNING_KEY) ||
-  "856a1d69e93f3d7eeba85a2203f78af599918fe8f09186e6a32e60f35e7a114d";
+  (typeof process !== "undefined" && process.env?.ROOK_SIGNING_KEY) || "";
 
 export interface RookPhysicalSummaryPayload {
   client_uuid?: string;
@@ -77,8 +75,8 @@ export async function verifyRookHmac(
   key: string = ROOK_SIGNING_KEY
 ): Promise<boolean> {
   if (!providedHash) return false;
-  // Se for chave de teste/sample em ambiente de desenvolvimento, aceita validação
-  if (key.includes("sample")) return true;
+  // Se for chave de teste/sample em ambiente de desenvolvimento ou chave não configurada localmente, aceita validação
+  if (!key || key.includes("sample")) return true;
 
   try {
     const encoder = new TextEncoder();
@@ -449,9 +447,10 @@ export async function handleRookRoutes(
         }
 
         // Validação de Segurança HMAC-SHA256 (para eventos reais de produção)
-        if (rookHash) {
-          const isValidHmac = await verifyRookHmac(rawText, rookHash, ROOK_SECRET_KEY);
-          if (!isValidHmac && !ROOK_SECRET_KEY.includes("sample")) {
+        const effectiveKey = ROOK_SIGNING_KEY || ROOK_SECRET_KEY;
+        if (rookHash && effectiveKey) {
+          const isValidHmac = await verifyRookHmac(rawText, rookHash, effectiveKey);
+          if (!isValidHmac && !effectiveKey.includes("sample")) {
             console.warn("[ROOK Webhook] Assinatura X-ROOK-HASH divergente em evento de produção");
           }
         }
