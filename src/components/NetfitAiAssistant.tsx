@@ -44,10 +44,6 @@ export function NetfitAiAssistant() {
   
   const { balance: nfsBalance } = useWallet();
   const params = useOperationalParams();
-  const balanceBRL = (nfsBalance * params.cppResgateBrl).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
   const navigate = useNavigate();
 
   const [viewportBottomOffset, setViewportBottomOffset] = useState(0);
@@ -99,7 +95,6 @@ export function NetfitAiAssistant() {
     // Avaliação pelo FinOps Token Optimizer 100% Realtime com Parâmetros Oficiais
     const fastPath = tokenOptimizer.evaluateQuery(query, {
       nfsBalance,
-      balanceBRL,
       cppResgateBrl: params.cppResgateBrl,
       userCategory: currentUser?.userCategory || activeUser.type,
       params,
@@ -109,6 +104,8 @@ export function NetfitAiAssistant() {
         fullName: activeUser.fullName,
         email: activeUser.email || activeUser.identifier || "",
         userCategory: currentUser?.userCategory || activeUser.type,
+        plan: activeUser.plan,
+        isClubMember: activeUser.isClubMember || activeUser.plan === "club",
         referralCode: activeUser.referralCode,
         referredBy: activeUser.referredBy,
         sports: activeUser.sports,
@@ -260,16 +257,28 @@ export function NetfitAiAssistant() {
                 Meu Saldo ({nfsBalance.toLocaleString()} nfs)
               </button>
               <button
+                onClick={() => handleSend("O que ganho aqui na Netfits e quais são os benefícios?")}
+                className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
+              >
+                ✨ O que ganho aqui?
+              </button>
+              <button
+                onClick={() => handleSend("Quais os benefícios exclusivos do Clube Netfits?")}
+                className="shrink-0 bg-purple-950/40 hover:bg-purple-950/80 border border-purple-500/40 text-purple-300 font-medium rounded-full px-3 py-1.5 transition-colors cursor-pointer"
+              >
+                👑 Clube Netfits (+20 nfs/treino)
+              </button>
+              <button
                 onClick={() => handleSend("Como resgatar meus pontos em compras no Shop?")}
                 className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
                 🛍️ Resgates no Shop
               </button>
               <button
-                onClick={() => handleSend("Quantos pontos ganho por treino com relógio ou na Smart Fit?")}
+                onClick={() => handleSend("Como funcionam os Quizzes e pontos no Feed?")}
                 className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
-                🏃 Treinos (+{params.nfsPerWorkout || 20} nfs)
+                🧠 Quizzes no Feed (+5 a +10 nfs)
               </button>
               <button
                 onClick={() => handleSend("Como funciona o bônus de indicação e qual meu código?")}
@@ -284,7 +293,7 @@ export function NetfitAiAssistant() {
                 🩺 Dra. Isabella & Fibios
               </button>
               <button
-                onClick={() => handleSend("Como funciona o cashback e resgates no Netfits Shop?")}
+                onClick={() => handleSend("Como funciona o cashback no Netfits Shop?")}
                 className="shrink-0 bg-zinc-800 hover:bg-purple-950/60 border border-zinc-700/60 text-zinc-300 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
               >
                 🛍️ Shop ({params.nfsEarnedPerBrlSpent || 4.0} nfs/R$)

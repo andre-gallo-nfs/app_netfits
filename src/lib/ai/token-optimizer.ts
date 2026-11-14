@@ -3,6 +3,12 @@
  * 
  * Camada inteligente para respostas 100% online, em tempo real e fundamentadas
  * nos parâmetros operacionais vigentes da plataforma e nos dados reais do usuário.
+ * 
+ * DIRETRIZES FUNDAMENTAIS & POLÍTICAS INEGOCIÁVEIS:
+ * 1. Proibição de paridade cambial fixa pública (NUNCA citar "R$ 0,01" ou "100 nfs = R$ 1,00" ou saldo em R$).
+ * 2. Pontuação por treinos (+20 nfs com smartwatch): EXCLUSIVO para assinantes do Clube Netfits (R$ 19,90/mês).
+ * 3. Feed educativo: Leitura de artigos e vídeos rende 0 nfs; pontos vêm de Quizzes pedagógicos (+5 nfs / +10 nfs).
+ * 4. Compliance CFM: Médicos Fibios identificados estritamente como sócios fundadores da Fibios (sem especialidades não registradas).
  */
 
 import type { OperationalParams } from "../operational-params-store";
@@ -30,6 +36,8 @@ export interface RealtimeAiUserContext {
   fullName: string;
   email: string;
   userCategory?: string;
+  plan?: string;
+  isClubMember?: boolean;
   referralCode?: string;
   referredBy?: string;
   sports?: string[];
@@ -42,7 +50,7 @@ export interface RealtimeAiUserContext {
 
 export interface RealtimeAiContext {
   nfsBalance: number;
-  balanceBRL: string;
+  balanceBRL?: string;
   cppResgateBrl?: number;
   userCategory?: string;
   user?: RealtimeAiUserContext;
@@ -64,8 +72,8 @@ class TokenOptimizerService {
       return { totalQueries: 4280, fastPathHits: 3680, tokensSavedTotal: 1545600, estimatedCostSavedBrl: 850.08 };
     }
     try {
-      const raw = localStorage.getItem(TELEMETRY_STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      const stored = localStorage.getItem(TELEMETRY_STORAGE_KEY);
+      if (stored) return JSON.parse(stored);
     } catch {
       // Ignora falhas de leitura no localStorage
     }
@@ -95,14 +103,8 @@ class TokenOptimizerService {
     const params = context.params || DEFAULT_OPERATIONAL_PARAMS;
     const user = context.user;
     const nfsBalance = context.nfsBalance ?? 0;
-    const balanceBRL =
-      context.balanceBRL ||
-      (nfsBalance * (params.cppResgateBrl || 0.01)).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      });
-
     const firstName = user?.fullName ? user.fullName.split(" ")[0] : "Atleta";
+    const isMember = user?.isClubMember || user?.plan === "club";
 
     // [CONCIERGE NETFITS] A. Dúvidas sobre pontos de compras, cashback não creditado ou status de pedidos
     const isOrderSupportQuery =
@@ -168,7 +170,7 @@ class TokenOptimizerService {
 
       return {
         handled: true,
-        text: `Fala ${firstName}! As compras realizadas no Netfits Shop geram **${params.nfsEarnedPerBrlSpent || 4.0} netfits por R$ 1,00 gasto**. O crédito de pontos ocorre automaticamente assim que a adquirente da loja parceira aprova a transação e o pagamento é compensado.\n\nSe você concluiu uma compra e os pontos ainda não apareceram no cabeçalho do app, toque no botão abaixo para puxar a atualização mais recente do banco de dados central!`,
+        text: `Fala ${firstName}! As compras realizadas no Netfits Shop geram **${params.nfsEarnedPerBrlSpent || 4.0} netfits por R$ 1,00 gasto** (ou **4,8 nfs/R$** para membros do Clube Netfits). O crédito de pontos ocorre automaticamente assim que a adquirente da loja parceira aprova a transação e o pagamento é compensado.\n\nSe você concluiu uma compra e os pontos ainda não apareceram no cabeçalho do app, toque no botão abaixo para puxar a atualização mais recente do banco de dados central!`,
         actionLabel: "🔄 Sincronizar Meu Saldo Agora",
         actionType: "sync_wallet",
         source: "deterministic_fast_path",
@@ -262,10 +264,11 @@ class TokenOptimizerService {
     ) {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       const cashbackRate = params.nfsEarnedPerBrlSpent || 4.0;
+      const clubRate = (cashbackRate * 1.2).toFixed(1).replace(".", ",");
 
       return {
         handled: true,
-        text: `No Netfits Shop (integrado à Rock Encantech), todas as compras aprovadas geram cashback de **${cashbackRate.toFixed(2)} nfs por R$ 1,00 gasto**! O catálogo conta com vestuário esportivo, tênis de alta performance, suplementação clínica (Liquidz, whey, creatina, géis de carboidrato), smartwatches e inscrições de provas esportivas com pagamento de até 100% em pontos.`,
+        text: `No Netfits Shop (integrado à Rock Encantech), todas as compras aprovadas geram cashback de **${cashbackRate.toFixed(2)} nfs por R$ 1,00 gasto** (ou **${clubRate} nfs/R$** para assinantes do Clube Netfits)! O catálogo conta com vestuário esportivo, tênis de alta performance, suplementação clínica (Liquidz, whey, creatina, géis de carboidrato), smartwatches e inscrições de eventos esportivos, com a possibilidade de usar seus pontos para pagar até 100% dos produtos no checkout.`,
         actionLabel: "Ir para o Netfits Shop",
         route: "/market",
         source: "deterministic_fast_path",
@@ -279,8 +282,7 @@ class TokenOptimizerService {
       q.includes("clube") ||
       q.includes("assinatura") ||
       q.includes("mensalidade") ||
-      q.includes("plano") ||
-      q.includes("benefício")
+      q.includes("plano")
     ) {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       const monthlyFee = (params.netfitsClubMonthlyFeeBrl || 19.90).toLocaleString("pt-BR", {
@@ -289,12 +291,13 @@ class TokenOptimizerService {
       });
       const memberShopPct = params.clubMemberReferralShopPointsPct || 10.0;
       const baseCashback = params.nfsEarnedPerBrlSpent || 4.0;
+      const clubCashback = (baseCashback * 1.2).toFixed(1).replace(".", ",");
 
       return {
         handled: true,
-        text: `O **Netfits Club (${monthlyFee}/mês)** é o programa de fidelidade premium. Assinantes acumulam **${baseCashback} nfs/R$** no Shop e garantem a regra exclusiva Member-Get-Member: **${memberShopPct}% de comissão em pontos** sobre todas as compras que seus amigos indicados realizarem no Shop, além de desafios exclusivos e acesso antecipado a eventos!`,
-        actionLabel: "Conhecer o Netfits Club",
-        route: "/home",
+        text: `O **Clube Netfits (${monthlyFee}/mês)** é o nosso programa de assinatura premium voltado à longevidade e constância esportiva. Seus benefícios exclusivos são:\n\n1. **250 nfs garantidos todo mês** creditados na adesão e em cada mensalidade;\n2. **Pontuação por treinos (+20 nfs por treino)** validados via smartwatch (Garmin, Apple Watch, Strava), até 5 treinos/semana (até 100 nfs/semana);\n3. **+20% de pontos em compras no Shop** (${clubCashback} nfs por R$ 1,00 gasto);\n4. **${memberShopPct}% de comissão em pontos** sobre todas as compras que seus amigos indicados realizarem no Shop!\n\nOs treinos com relógio pontuam exclusivamente para membros do Clube.`,
+        actionLabel: "Conhecer o Clube Netfits",
+        route: "/club",
         source: "deterministic_fast_path",
         tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
       };
@@ -327,9 +330,9 @@ class TokenOptimizerService {
 
       return {
         handled: true,
-        text: `No programa Sweat-to-Earn, você ganha **+${ptsWorkout} nfs por atividade física validada**, com limite de até **${maxWorkouts} treinos por semana** (máx. 1/dia). Ao bater a meta semanal dos 5 treinos, você conquista o Golden Streak e recebe mais **+${streakBonus} nfs de bônus**! Regras antifraude ativas: duração mínima de **${minDuration} min** (${minHiit} min para HIIT), gasto de ao menos **${minCalories} kcal ativas** e validação exclusiva por sensores ópticos de FC/GPS (Garmin, Apple Watch, Strava, Polar, Samsung Health e presença em catracas da Smart Fit).`,
-        actionLabel: "Ver Minhas Atividades",
-        route: "/activities",
+        text: `O acúmulo de pontos por treinos (**+${ptsWorkout} nfs por treino validado**) é um benefício **exclusivo para assinantes do Clube Netfits (R$ 19,90/mês)**!\n\nAssinando o Clube e conectando seu relógio inteligente (Garmin, Apple Watch ou Strava via Terra API), você pontua em até **${maxWorkouts} treinos por semana** (até 100 nfs/semana) e conquista o bônus Golden Streak (+${streakBonus} nfs) ao bater a meta semanal. Critérios de validação: duração mínima de **${minDuration} min** (${minHiit} min para HIIT), gasto de ao menos **${minCalories} kcal ativas** e validação por sensores de FC/GPS.`,
+        actionLabel: "Conhecer o Clube Netfits",
+        route: "/club",
         source: "deterministic_fast_path",
         tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
       };
@@ -357,7 +360,7 @@ class TokenOptimizerService {
 
       return {
         handled: true,
-        text: `Ao indicar amigos, você ganha **+${referralBonus} nfs** para cada amigo cadastrado e seu amigo recebe **+${welcomeBonus} nfs de boas-vindas**! ${codeInfo} Assinantes do Netfits Club ainda ganham **${params.clubMemberReferralShopPointsPct || 10}% de comissão em pontos** sobre todas as compras que os indicados realizarem no Shop!`,
+        text: `Ao indicar amigos, você ganha **+${referralBonus} nfs** para cada amigo cadastrado e seu amigo recebe **+${welcomeBonus} nfs de boas-vindas**! ${codeInfo}\n\nE se você assinar o **Clube Netfits**, você ainda ganha **${params.clubMemberReferralShopPointsPct || 10}% de comissão em pontos** sobre todas as compras que seus amigos indicados realizarem no Shop!`,
         actionLabel: "Ver Meu Código no Perfil",
         route: "/profile",
         source: "deterministic_fast_path",
@@ -365,7 +368,7 @@ class TokenOptimizerService {
       };
     }
 
-    // 7. Feed, Leitura de Conteúdo, Vídeos & Antifraude
+    // 7. Feed, Quizzes & Educação em Longevidade
     if (
       q.includes("feed") ||
       q.includes("ler") ||
@@ -373,21 +376,19 @@ class TokenOptimizerService {
       q.includes("artigo") ||
       q.includes("post") ||
       q.includes("vídeo") ||
-      q.includes("link") ||
+      q.includes("quiz") ||
+      q.includes("quizzes") ||
+      q.includes("pergunta do quiz") ||
+      q.includes("perguntas do quiz") ||
       q.includes("interação") ||
       q.includes("antifraude")
     ) {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
-      const ptsView = params.nfsPerPostView || 10;
-      const ptsLink = params.nfsPerLinkClick || 10;
-      const dailyLimit = params.dailyThirdPartyInteractionsLimit || 10;
-      const minVideo = params.minVideoCompletionPct || 90;
-      const minDwell = params.minDwellTimeSecondsForView || 3;
 
       return {
         handled: true,
-        text: `No Feed oficial da Fibios você acumula pontos interagindo com conteúdos de saúde e longevidade: **+${ptsView} nfs por leitura de post** (mínimo de ${minDwell}s de leitura auditada), **+${ptsView} nfs por assistir a vídeos de especialistas** (exige ${minVideo}%+ de retenção assistida) e **+${ptsLink} nfs ao acessar links de parceiros**. O limite diário de interações bonificadas é de até **${dailyLimit} interações/dia**, com trava contra auto-engajamento.`,
-        actionLabel: "Explorar o Feed",
+        text: `No Feed educativo da Netfits (com curadoria médica dos fundadores da Fibios), os pontos são conquistados através dos **Quizzes Pedagógicos de Fixação**:\n\n• **+5 nfs** por resposta correta nos Quizzes de conteúdos Netfits e Fibios;\n• **+10 nfs** por resposta correta nos Quizzes de posts patrocinados por marcas parceiras;\n• **+1 nf** por compartilhamento de conteúdos;\n• A simples leitura de artigos ou visualização de vídeos **não gera pontos diretamente** (exige tempo mínimo de leitura/retenção para destravar o Quiz pedagógico).\n\nAprendizado ativo que gera hábitos duradouros!`,
+        actionLabel: "Explorar o Feed & Quizzes",
         route: "/feed",
         source: "deterministic_fast_path",
         tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
@@ -408,7 +409,7 @@ class TokenOptimizerService {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       return {
         handled: true,
-        text: `O ecossistema conta com os especialistas oficiais da **Clínica Fibios** (Pinheiros, São Paulo): a **Dra. Isabella Formigari** (Médica CRM-SP 282951, sócia fundadora da Fibios) e o **Dr. Franco Merici** (Médico CRM-SP 212567, sócio fundador da Fibios). No Feed e na Loja Oficial você encontra protocolos de saúde, quizzes educativos e agendamentos com acúmulo de pontos!`,
+        text: `O ecossistema conta com os médicos especialistas fundadores da **Clínica Fibios** (Pinheiros, São Paulo): a **Dra. Isabella Formigari** (Médica CRM-SP 282951, sócia fundadora da Fibios) e o **Dr. Franco Merici** (Médico CRM-SP 212567, sócio fundador da Fibios). No Feed você encontra conteúdos educativos sobre longevidade ativa, medicina do estilo de vida, sono regenerador e quizzes de fixação!`,
         actionLabel: "Ver Especialistas no Feed",
         route: "/feed",
         source: "deterministic_fast_path",
@@ -430,7 +431,7 @@ class TokenOptimizerService {
 
       return {
         handled: true,
-        text: `Os pontos nfs possuem validade de **${months} meses (${months * 30.4 > 700 ? 730 : months * 30} dias)** a partir da data em que foram creditados. A plataforma utiliza a política justa **${policyName}**: quando você resgata produtos ou serviços, o sistema consome automaticamente primeiro os pontos com vencimento mais próximo!`,
+        text: `Os pontos nfs possuem validade de **${months} meses (${months * 30.4 > 700 ? 730 : months * 30} dias)** a partir da data em que foram creditados. A plataforma utiliza a política justa **${policyName}**: quando você resgata produtos no Shop, o sistema consome automaticamente primeiro os pontos com vencimento mais próximo!`,
         actionLabel: "Ver Validade na Carteira",
         route: "/wallet",
         source: "deterministic_fast_path",
@@ -466,8 +467,7 @@ class TokenOptimizerService {
       q.includes("meu perfil") ||
       q.includes("meus esportes") ||
       q.includes("meu relógio") ||
-      q.includes("minha academia") ||
-      q.includes("meu plano")
+      q.includes("minha academia")
     ) {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       const sportsList = user?.sports && user.sports.length > 0 ? user.sports.join(", ") : "Nenhum esporte registrado ainda";
@@ -490,7 +490,6 @@ class TokenOptimizerService {
     if (
       q.includes("associado") ||
       q.includes("prescritor") ||
-      q.includes("comissão") ||
       q.includes("repasse") ||
       q.includes("parceiro") ||
       q.includes("selo roxo")
@@ -508,32 +507,40 @@ class TokenOptimizerService {
       };
     }
 
-    // 13. Visão Geral / Como Funciona a Netfits
+    // 13. Visão Geral / Como Funciona a Netfits / O Que Ganho Aqui
     if (
       q.includes("como funciona") ||
       q.includes("o que é") ||
+      q.includes("o que e") ||
       q.includes("como ganho") ||
+      q.includes("o que ganho") ||
+      q.includes("o que eu ganho") ||
+      q.includes("quais benefícios") ||
+      q.includes("quais os benefícios") ||
+      q.includes("benefícios") ||
+      q.includes("beneficios") ||
+      q.includes("vantagens") ||
       q.includes("propósito") ||
       q.includes("regras")
     ) {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       return {
         handled: true,
-        text: `A Netfits é a rede da longevidade ativa que premia seus hábitos saudáveis com a moeda digital **nfs**: 1) **Treinos e Wearables**: ganhe +${params.nfsPerWorkout || 20} nfs por treino validado por sensores (até 5/semana) + bônus Golden Streak de +${params.workoutStreakBonusNfs || 20} nfs; 2) **Feed Oficial**: ganhe +${params.nfsPerPostView || 10} nfs por ler artigos e vídeos com retenção; 3) **Indicações**: ganhe +${params.normalUserNewReferralBonusNfs || 50} nfs ao convidar amigos; 4) **Shop Oficial**: acumule ${params.nfsEarnedPerBrlSpent || 4.0} nfs por R$ 1,00 e use seus pontos (100 nfs = R$ 1,00) para pagar até 100% de produtos!`,
-        actionLabel: "Ver Minha Carteira",
-        route: "/wallet",
+        text: `Na Netfits, a sua constância e busca por longevidade ativa são reconhecidas em pontos **nfs** que abatem até 100% do valor de compras no Netfits Shop! Confira o que você ganha:\n\n**🏃 No Cadastro Gratuito (Atleta Free):**\n• **+50 nfs** de bônus de boas-vindas no cadastro;\n• **+50 nfs** por cada amigo indicado que se cadastrar;\n• **+5 nfs ou +10 nfs** ao acertar Quizzes pedagógicos no Feed educativo;\n• **4 nfs por R$ 1,00 gasto** em compras no Netfits Shop;\n• Uso de pontos para abater compras de tênis, vestuário, suplementos e inscrições de provas.\n\n**👑 No Clube Netfits (Assinatura de R$ 19,90/mês — Opcional):**\n• **250 nfs garantidos todo mês** na ativação e em cada mensalidade;\n• **+20 nfs por treino validado** com relógio (Garmin, Apple Watch, Strava), até 5 treinos/semana;\n• **4,8 nfs por R$ 1,00 gasto** no Shop (+20% de bônus em pontos);\n• **10% de comissão em pontos** sobre todas as compras que seus amigos indicados fizerem no Shop!`,
+        actionLabel: "Conhecer o Clube Netfits",
+        route: "/club",
         source: "deterministic_fast_path",
         tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,
       };
     }
 
-    // Caso não se encaixe em regra específica, síntese personalizada em tempo real com todos os parâmetros
+    // Caso não se encaixe em regra específica, síntese personalizada em tempo real
     this.saveTelemetry();
     return {
       handled: false,
-      text: `Olá! Sobre "${query}": seu saldo atual é de **${nfsBalance.toLocaleString("pt-BR")} nfs** (${balanceBRL}). Você pode acumular pontos treinando (+${params.nfsPerWorkout || 20} nfs/treino com relógios Garmin/Apple Watch), lendo artigos no Feed (+${params.nfsPerPostView || 10} nfs), convidando amigos (+${params.normalUserNewReferralBonusNfs || 50} nfs) ou comprando no Shop Oficial (${params.nfsEarnedPerBrlSpent || 4.0} nfs/R$ 1,00). No Shop, 100 nfs equivalem a R$ 1,00. Gostaria de navegar para alguma dessas áreas?`,
-      actionLabel: "Explorar o Shop",
-      route: "/market",
+      text: `Olá! Sobre "${query}": seu saldo atual é de **${nfsBalance.toLocaleString("pt-BR")} nfs**. Na Netfits você ganha pontos respondendo a Quizzes no Feed (+5 a +10 nfs), indicando amigos (+50 nfs) e comprando no Shop Oficial (4 nfs por R$ 1,00 gasto). Para ganhar pontos treinando com smartwatch (+20 nfs por treino validado), conheça o **Clube Netfits** (R$ 19,90/mês), que garante 250 nfs/mês e bônus exclusivo no Shop! Como posso te ajudar a navegar hoje?`,
+      actionLabel: "Explorar o Clube Netfits",
+      route: "/club",
       source: "context_cached_gemini",
       tokensSaved: Math.round(AVERAGE_TOKENS_PER_CONVERSATION * 0.5),
     };
