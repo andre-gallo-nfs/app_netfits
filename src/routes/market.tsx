@@ -377,9 +377,9 @@ function MarketEmbeddedPage() {
   };
 
   return (
-    <div className="relative w-full min-h-[calc(100dvh-116px)] bg-zinc-950 text-white select-none overflow-y-auto pb-12">
-      {/* 1. Header do Shop: Saldo, Troca de Modo & Ação de Loja Completa */}
-      <div className="sticky top-0 z-20 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 px-4 py-3 space-y-3">
+    <div className="relative w-full bg-zinc-950 text-white select-text pb-12">
+      {/* 1. Header do Shop: Saldo, Ações Rápidas & Busca */}
+      <div className="bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 px-4 py-3 space-y-3">
         <div className="flex items-center justify-between gap-2">
           {/* Lado Esquerdo: Identificação e Saldo */}
           <div className="flex items-center gap-2.5">
@@ -420,7 +420,7 @@ function MarketEmbeddedPage() {
               type="button"
               onClick={handleOpenFullStore}
               disabled={isConnectingStore}
-              className="px-3 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-[#C8F135] hover:bg-[#b8e025] disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
               title="Acessar Loja Oficial Completa Rock Encantech com SSO"
             >
               {isConnectingStore ? (
@@ -439,16 +439,16 @@ function MarketEmbeddedPage() {
           </div>
         </div>
 
-        {/* 2. Barra de Busca de Produtos */}
+        {/* 2. Barra de Busca de Produtos (com tamanho e padding otimizados para evitar auto-zoom no iOS) */}
         {viewMode === "native" && (
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por produto no catálogo (Mizuno, Puma, Dux)..."
-              className="w-full bg-zinc-800/80 border border-zinc-700 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500"
+              placeholder="Buscar no catálogo esportivo (Mizuno, Puma, Dux)..."
+              className="w-full bg-zinc-800/90 border border-zinc-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition shadow-inner"
             />
           </div>
         )}
@@ -457,7 +457,6 @@ function MarketEmbeddedPage() {
       {/* 3. CONTEÚDO PRINCIPAL: MODO CATÁLOGO NATIVO OU LOJA WEB */}
       {viewMode === "native" ? (
         <div className="px-4 py-4 space-y-4">
-          {/* Banner de Cashback Oficial Rock Encantech */}
           {/* Banner Hero de Acesso à Loja Oficial Rock Encantech */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-900/80 via-zinc-900 to-purple-950/80 border border-purple-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
             <div className="flex items-center gap-3">
@@ -506,34 +505,36 @@ function MarketEmbeddedPage() {
             </div>
           </div>
 
-          {/* Categorias em Pílulas */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {SHOP_CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-purple-600 text-white shadow-xs shadow-purple-600/30"
-                    : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+          {/* Categorias em Pílulas com Respiro e Scroll Horizontal Suave */}
+          <div className="py-1">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {SHOP_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer shrink-0 ${
+                    selectedCategory === cat.id
+                      ? "bg-purple-600 text-white shadow-xs shadow-purple-600/30"
+                      : "bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Grid de 10 Produtos Reais com Links Diretos de Compra */}
+          {/* Grid de Produtos com Design Estado da Arte e Acessibilidade */}
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
               {filteredProducts.map((prod) => (
                 <div
                   key={prod.id}
                   onClick={() => handleDirectBuy(prod)}
-                  className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-purple-500/50 transition duration-200 cursor-pointer group shadow-sm"
+                  className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-purple-500/50 transition duration-200 cursor-pointer group shadow-sm focus-within:ring-2 focus-within:ring-purple-500"
                 >
-                  {/* Imagem do Produto com Badge de Cashback */}
+                  {/* Imagem do Produto com Badge de Fornecedor e Cashback */}
                   <div className="relative aspect-square bg-zinc-950 overflow-hidden">
                     {prod.image && (
                       <img
@@ -545,43 +546,44 @@ function MarketEmbeddedPage() {
                       />
                     )}
                     {prod.badge && (
-                      <span className="absolute top-2 left-2 text-[9px] font-black bg-zinc-950/80 backdrop-blur-xs text-white px-2 py-0.5 rounded-full border border-white/10">
+                      <span className="absolute top-2 left-2 text-[9px] font-black bg-zinc-950/85 backdrop-blur-xs text-white px-2 py-0.5 rounded-full border border-white/10">
                         {prod.badge}
                       </span>
                     )}
-                    <span className="absolute bottom-2 right-2 text-[10px] font-extrabold bg-lime-400 text-zinc-950 px-2 py-0.5 rounded-full shadow-md font-mono">
+                    <span className="absolute bottom-2 right-2 text-[10px] font-extrabold bg-[#C8F135] text-zinc-950 px-2 py-0.5 rounded-full shadow-md font-mono">
                       {prod.cashback}
                     </span>
                   </div>
 
                   {/* Informações do Produto */}
-                  <div className="p-3 flex-1 flex flex-col justify-between space-y-2">
+                  <div className="p-3 flex-1 flex flex-col justify-between space-y-2.5">
                     <div>
-                      <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-1">
                         <span className="truncate font-semibold">{prod.seller || "Oficial"}</span>
                         <div className="flex items-center gap-0.5 text-amber-400 font-bold shrink-0">
                           <Star className="size-3 fill-amber-400" />
                           <span>{prod.rating || 4.9}</span>
                         </div>
                       </div>
-                      <h3 className="text-xs font-bold text-white line-clamp-2 leading-snug group-hover:text-purple-300 transition">
+                      <h3 className="text-xs font-bold text-white line-clamp-2 leading-snug group-hover:text-purple-300 transition min-h-[2.25rem]">
                         {prod.title}
                       </h3>
                     </div>
 
-                    <div className="pt-2 border-t border-zinc-800/80 flex items-baseline justify-between gap-1">
-                      <div>
-                        <span className="text-[10px] text-zinc-400 block">Preço</span>
-                        <span className="text-sm font-black text-white">{prod.price}</span>
+                    {/* Preço e Botão em layout vertical elegante (sem quebra de palavras ou números) */}
+                    <div className="pt-2.5 border-t border-zinc-800/80 space-y-2">
+                      <div className="flex items-baseline justify-between gap-1">
+                        <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Preço</span>
+                        <span className="text-sm font-black text-white font-mono tracking-tight whitespace-nowrap">{prod.price}</span>
                       </div>
                       <button
                         type="button"
                         onClick={(e) => handleDirectBuy(prod, e)}
-                        className="px-2.5 py-1.5 rounded-lg bg-[#C8F135] hover:bg-[#b8e025] text-zinc-950 font-black text-[11px] flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer shrink-0"
-                        title="Ir direto para a compra na Loja Oficial Rock Encantech"
+                        className="w-full py-2.5 px-3 rounded-xl bg-[#C8F135] hover:bg-[#b8e025] text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-xs cursor-pointer"
+                        title="Comprar no Shop Oficial Rock Encantech"
                       >
                         <span>Comprar no Shop</span>
-                        <ArrowRight className="size-3" />
+                        <ArrowRight className="size-3.5 shrink-0" />
                       </button>
                     </div>
                   </div>
