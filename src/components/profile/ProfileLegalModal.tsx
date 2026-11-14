@@ -224,7 +224,7 @@ export function ProfileLegalModal({
                 <div className="bg-zinc-800/40 p-2.5 rounded-xl border border-zinc-700/50 space-y-1 text-[10px] text-zinc-300">
                   <p><b>• Trava de Margem:</b> Compras que utilizarem 10% ou mais do valor em pontos não acumulam cashback.</p>
                   <p><b>• Validade FEFO:</b> 24 meses por lote. Expiração suspensa para assinantes ativos do Clube Netfits.</p>
-                  <p><b>• Equivalência:</b> Dinâmica exibida no momento de cada resgate (referência atuarial: 1 nf = R$ 0,010).</p>
+                  <p><b>• Equivalência:</b> Dinâmica e calculada no momento de cada resgate no checkout do Shop, abatendo até 100% do valor da compra.</p>
                 </div>
               </div>
             </>
