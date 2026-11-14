@@ -34,6 +34,7 @@ import {
 } from "@/lib/auth-helpers";
 import { ForgotPasswordCard } from "@/components/auth/ForgotPasswordCard";
 import { TermsModal as TermsOfServiceModal, LgpdPrivacyModal } from "@/components/auth/AuthLegalModals";
+import { getLegalConsent, saveLegalConsent } from "@/lib/legal-consent-store";
 import { PasswordStrengthCard, PasswordCheckRule } from "@/components/auth/PasswordStrengthCard";
 
 export { isValidCPF, formatCepMask };
@@ -113,8 +114,23 @@ function AuthPage() {
   // Estados para Aceite Obrigatório dos Termos e LGPD
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedLgpd, setAcceptedLgpd] = useState(false);
+  const [acceptedTermsAt, setAcceptedTermsAt] = useState<string | null>(null);
+  const [acceptedLgpdAt, setAcceptedLgpdAt] = useState<string | null>(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showLgpdModal, setShowLgpdModal] = useState(false);
+
+  // Restaurar consentimento ativo previamente gravado no dispositivo
+  useEffect(() => {
+    const existing = getLegalConsent();
+    if (existing?.termsAcceptedAt) {
+      setAcceptedTerms(true);
+      setAcceptedTermsAt(existing.termsAcceptedAt);
+    }
+    if (existing?.lgpdAcceptedAt) {
+      setAcceptedLgpd(true);
+      setAcceptedLgpdAt(existing.lgpdAcceptedAt);
+    }
+  }, []);
 
   // Ler código de indicação vindo da URL ou de Deep Links Nativos (App Store / Universal Links)
   useEffect(() => {
@@ -276,6 +292,10 @@ function AuthPage() {
       address: calculatedAddress,
       password: password.trim(),
       referralCode: referralCode.trim(),
+      termsAcceptedAt: acceptedTermsAt || new Date().toISOString(),
+      termsVersion: "1.2",
+      lgpdAcceptedAt: acceptedLgpdAt || new Date().toISOString(),
+      lgpdVersion: "1.0",
     });
 
     if (!res.success) {
@@ -311,6 +331,12 @@ function AuthPage() {
         passwordHash: password.trim(),
         userCategory: "atleta",
         registeredAt: res.user.registeredAt,
+      });
+      saveLegalConsent(res.user.id, {
+        termsAcceptedAt: res.user.termsAcceptedAt || acceptedTermsAt || new Date().toISOString(),
+        termsVersion: "1.2",
+        lgpdAcceptedAt: res.user.lgpdAcceptedAt || acceptedLgpdAt || new Date().toISOString(),
+        lgpdVersion: "1.0",
       });
       passkeyService.registerPasskey(res.user.id, res.user.fullName, res.user.email || email);
 
@@ -1198,6 +1224,7 @@ function AuthPage() {
                 className="text-purple-600 hover:text-purple-700 dark:text-purple-400 underline font-bold cursor-pointer inline-flex items-center gap-1"
               >
                 <span>Termos de Uso & EULA (Apple 1.2)</span>
+                {acceptedTerms && <span className="text-[11px] text-lime-600 dark:text-lime-400 font-black">✓</span>}
               </button>{" "}
               e o{" "}
               <button
@@ -1206,6 +1233,7 @@ function AuthPage() {
                 className="text-purple-600 hover:text-purple-700 dark:text-purple-400 underline font-bold cursor-pointer inline-flex items-center gap-1"
               >
                 <span>Consentimento LGPD</span>
+                {acceptedLgpd && <span className="text-[11px] text-lime-600 dark:text-lime-400 font-black">✓</span>}
               </button>.
             </p>
           </div>
@@ -1218,9 +1246,13 @@ function AuthPage() {
 
       {showTermsModal && (
         <TermsOfServiceModal
+          alreadyAcceptedAt={acceptedTermsAt}
           onClose={() => setShowTermsModal(false)}
           onAgree={() => {
+            const now = new Date().toISOString();
             setAcceptedTerms(true);
+            setAcceptedTermsAt(now);
+            saveLegalConsent(undefined, { termsAcceptedAt: now, termsVersion: "1.2" });
             setShowTermsModal(false);
             setShowLgpdModal(true);
           }}
@@ -1229,9 +1261,13 @@ function AuthPage() {
 
       {showLgpdModal && (
         <LgpdPrivacyModal
+          alreadyAcceptedAt={acceptedLgpdAt}
           onClose={() => setShowLgpdModal(false)}
           onAgree={() => {
+            const now = new Date().toISOString();
             setAcceptedLgpd(true);
+            setAcceptedLgpdAt(now);
+            saveLegalConsent(undefined, { lgpdAcceptedAt: now, lgpdVersion: "1.0" });
             setShowLgpdModal(false);
             toast.success("✨ Aceites dos Termos de Uso e LGPD registrados! O botão de cadastro está liberado.");
           }}

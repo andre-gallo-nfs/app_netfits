@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { formatConsentDate } from "@/lib/legal-consent-store";
 
 /* ============================================================================
    MODAL 1: REGULAMENTO OFICIAL E TERMOS DE USO
@@ -7,9 +8,13 @@ import { CheckCircle2, ShieldCheck } from "lucide-react";
 export function TermsModal({
   onClose,
   onAgree,
+  alreadyAcceptedAt,
+  version = "1.0",
 }: {
   onClose: () => void;
-  onAgree: () => void;
+  onAgree?: () => void;
+  alreadyAcceptedAt?: string | null;
+  version?: string;
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -22,12 +27,21 @@ export function TermsModal({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-zinc-900">Termos de Uso & Regulamento Netfits</h2>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Versão 1.0 Oficial (14/11/2026)</p>
+              {alreadyAcceptedAt ? (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-lime-100 text-lime-800 border border-lime-300">
+                    <CheckCircle2 className="size-3 text-lime-600" />
+                    Consentimento Ativo · Aceito em {formatConsentDate(alreadyAcceptedAt)}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Versão {version} Oficial (14/11/2026)</p>
+              )}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold"
+            className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold cursor-pointer"
           >
             ✕
           </button>
@@ -84,18 +98,49 @@ export function TermsModal({
         </div>
 
         {/* Footer Action */}
-        <div className="shrink-0 pt-2 space-y-2">
-          <button
-            onClick={onAgree}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md shadow-purple-600/20 active:scale-98"
-          >
-            <CheckCircle2 className="size-4 text-lime-400" />
-            Eu concordo com o Regulamento Oficial (Ir para Passo 2)
-          </button>
-          <p className="text-[10px] text-center text-zinc-500">
-            Ao clicar em "Eu concordo", você será direcionado para o Consentimento LGPD.
-          </p>
-        </div>
+        {alreadyAcceptedAt ? (
+          <div className="shrink-0 pt-2 space-y-2">
+            <div className="p-3 bg-lime-50 rounded-2xl border border-lime-200 text-[11px] text-lime-900 flex items-center gap-2">
+              <CheckCircle2 className="size-4 text-lime-600 shrink-0" />
+              <div>
+                <p className="font-extrabold">Você já concordou com este Regulamento Oficial.</p>
+                <p className="text-[10px] text-lime-800">Aceite registrado no seu cadastro em {formatConsentDate(alreadyAcceptedAt)}.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <span>Entendido (Fechar Leitura)</span>
+              </button>
+              {onAgree && (
+                <button
+                  type="button"
+                  onClick={onAgree}
+                  className="px-4 bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold py-3.5 rounded-xl text-xs transition cursor-pointer"
+                  title="Ver Consentimento LGPD"
+                >
+                  Ver LGPD →
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="shrink-0 pt-2 space-y-2">
+            <button
+              onClick={onAgree}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md shadow-purple-600/20 active:scale-98 cursor-pointer"
+            >
+              <CheckCircle2 className="size-4 text-lime-400" />
+              Eu concordo com o Regulamento Oficial (Ir para Passo 2)
+            </button>
+            <p className="text-[10px] text-center text-zinc-500">
+              Ao clicar em "Eu concordo", você será direcionado para o Consentimento LGPD.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -107,9 +152,13 @@ export function TermsModal({
 export function LgpdPrivacyModal({
   onClose,
   onAgree,
+  alreadyAcceptedAt,
+  version = "1.0",
 }: {
   onClose: () => void;
-  onAgree: () => void;
+  onAgree?: () => void;
+  alreadyAcceptedAt?: string | null;
+  version?: string;
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -122,12 +171,21 @@ export function LgpdPrivacyModal({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-zinc-900">Consentimento para Uso de Dados (LGPD)</h2>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 2 de 2 · Versão 1.0 Oficial (14/11/2026)</p>
+              {alreadyAcceptedAt ? (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-lime-100 text-lime-800 border border-lime-300">
+                    <CheckCircle2 className="size-3 text-lime-600" />
+                    Tratamento Autorizado · Aceito em {formatConsentDate(alreadyAcceptedAt)}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 2 de 2 · Versão {version} Oficial (14/11/2026)</p>
+              )}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold"
+            className="size-8 rounded-full bg-zinc-100 hover:bg-zinc-200 grid place-items-center text-zinc-600 transition font-bold cursor-pointer"
           >
             ✕
           </button>
@@ -167,18 +225,37 @@ export function LgpdPrivacyModal({
         </div>
 
         {/* Footer Action */}
-        <div className="shrink-0 pt-2 space-y-2">
-          <button
-            onClick={onAgree}
-            className="w-full bg-lime-500 hover:bg-lime-400 text-zinc-950 font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-98"
-          >
-            <CheckCircle2 className="size-4" />
-            Eu concordo com o Tratamento de Dados (LGPD)
-          </button>
-          <p className="text-[10px] text-center text-zinc-500">
-            Ao aceitar, os 2 aceites estarão validados e o cadastro será habilitado.
-          </p>
-        </div>
+        {alreadyAcceptedAt ? (
+          <div className="shrink-0 pt-2 space-y-2">
+            <div className="p-3 bg-lime-50 rounded-2xl border border-lime-200 text-[11px] text-lime-900 flex items-center gap-2">
+              <CheckCircle2 className="size-4 text-lime-600 shrink-0" />
+              <div>
+                <p className="font-extrabold">Seu consentimento LGPD está ativo e arquivado.</p>
+                <p className="text-[10px] text-lime-800">Autorização registrada em {formatConsentDate(alreadyAcceptedAt)} para os propósitos de longevidade, treinos e marketplace.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+            >
+              <span>Entendido (Fechar Leitura)</span>
+            </button>
+          </div>
+        ) : (
+          <div className="shrink-0 pt-2 space-y-2">
+            <button
+              onClick={onAgree}
+              className="w-full bg-lime-500 hover:bg-lime-400 text-zinc-950 font-extrabold py-3.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-98 cursor-pointer"
+            >
+              <CheckCircle2 className="size-4" />
+              Eu concordo com o Tratamento de Dados (LGPD)
+            </button>
+            <p className="text-[10px] text-center text-zinc-500">
+              Ao aceitar, os 2 aceites estarão validados e o cadastro será habilitado.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

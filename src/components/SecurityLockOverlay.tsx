@@ -15,6 +15,7 @@ import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { appLockStore } from "@/lib/app-lock-store";
 import { authStore } from "@/lib/auth-store";
 import { TermsModal, LgpdPrivacyModal } from "@/components/auth/AuthLegalModals";
+import { getLegalConsent, saveLegalConsent } from "@/lib/legal-consent-store";
 import { toast } from "sonner";
 
 export function SecurityLockOverlay() {
@@ -26,6 +27,10 @@ export function SecurityLockOverlay() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showLgpdModal, setShowLgpdModal] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const consent = getLegalConsent(activeUser?.id);
+  const termsAcceptedAt = activeUser?.termsAcceptedAt || consent?.termsAcceptedAt;
+  const lgpdAcceptedAt = activeUser?.lgpdAcceptedAt || consent?.lgpdAcceptedAt;
 
   // Se não houver usuário autenticado no dispositivo, nunca exibir overlay de bloqueio.
   if (!activeUser || !activeUser.id) {
@@ -246,17 +251,19 @@ export function SecurityLockOverlay() {
           <button
             type="button"
             onClick={() => setShowTermsModal(true)}
-            className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer"
+            className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer flex items-center gap-1"
           >
-            Termos & EULA (Apple 1.2)
+            <span>Termos & EULA (Apple 1.2)</span>
+            {termsAcceptedAt && <span className="text-[10px] text-lime-400 font-bold" title="Consentimento ativo">✓</span>}
           </button>
           <span>&bull;</span>
           <button
             type="button"
             onClick={() => setShowLgpdModal(true)}
-            className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer"
+            className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer flex items-center gap-1"
           >
-            LGPD
+            <span>LGPD</span>
+            {lgpdAcceptedAt && <span className="text-[10px] text-lime-400 font-bold" title="Consentimento ativo">✓</span>}
           </button>
         </div>
 
@@ -267,8 +274,14 @@ export function SecurityLockOverlay() {
 
       {showTermsModal && (
         <TermsModal
+          alreadyAcceptedAt={termsAcceptedAt}
           onClose={() => setShowTermsModal(false)}
           onAgree={() => {
+            const now = new Date().toISOString();
+            saveLegalConsent(activeUser?.id, { termsAcceptedAt: now, termsVersion: "1.2" });
+            if (activeUser?.id) {
+              sharedSandboxStore.updateUser(activeUser.id, { termsAcceptedAt: now, termsVersion: "1.2" });
+            }
             setShowTermsModal(false);
             setShowLgpdModal(true);
           }}
@@ -277,10 +290,33 @@ export function SecurityLockOverlay() {
 
       {showLgpdModal && (
         <LgpdPrivacyModal
+          alreadyAcceptedAt={lgpdAcceptedAt}
           onClose={() => setShowLgpdModal(false)}
           onAgree={() => {
+            const now = new Date().toISOString();
+            saveLegalConsent(activeUser?.id, { lgpdAcceptedAt: now, lgpdVersion: "1.0" });
+            if (activeUser?.id) {
+              sharedSandboxStore.updateUser(activeUser.id, { lgpdAcceptedAt: now, lgpdVersion: "1.0" });
+              // Sincronização em background com o servidor central
+              try {
+                fetch("/api/users-sync", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    user: {
+                      id: activeUser.id,
+                      termsAcceptedAt: termsAcceptedAt || now,
+                      termsVersion: "1.2",
+                      lgpdAcceptedAt: now,
+                      lgpdVersion: "1.0",
+                    },
+                  }),
+                  keepalive: true,
+                }).catch(() => {});
+              } catch {}
+            }
             setShowLgpdModal(false);
-            toast.success("✨ Termos de Uso e Consentimento LGPD confirmados com sucesso!");
+            toast.success("✨ Termos de Uso e Consentimento LGPD registrados com sucesso!");
           }}
         />
       )}
