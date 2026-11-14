@@ -72,8 +72,14 @@ Todas as decisões de negócio, produtos, pontuação, finanças e telas DEVEM r
 
 ---
 
-## 4. 🩺 COMPLIANCE MÉDICO E IDENTIFICAÇÃO DOS SÓCIOS FIBIOS (CFM)
-* **Diretriz Mandatória**: A Dra. Isabella Formigari e o Dr. Franco Merici estão em processo de conclusão de suas especializações médicas. Em estrito cumprimento às normas regulatórias do Conselho Federal de Medicina (CFM / Codame / RQE), é **estritamente vedado** atribuir a eles qualquer titulação de especialista (como Medicina do Esporte, Ortopedia ou Nutrologia) em qualquer tela, card, modal, assistente virtual ou comunicação pública da Netfits.
+## 4. 🩺 COMPLIANCE MÉDICO, IDENTIFICAÇÃO DOS SÓCIOS FIBIOS (CFM) E ESTRUTURA SOCIETÁRIA NETFITS
+* **Fundadores e Sócios Oficiais da Netfits Tecnologia Ltda.**:
+  * **André Gallo**: Cofundador & CEO da Netfits.
+  * **Luisa Formigari**: Cofundadora & Head de Marketing e Comunicação da Netfits.
+  * *Regra Inegociável de Governança*: A Netfits Tecnologia Ltda. foi fundada exclusivamente por André Gallo e Luisa Formigari. A Dra. Isabella Formigari e o Dr. Franco Merici **NÃO possuem participação societária e NÃO são fundadores da Netfits**.
+* **Parceria Estratégica Fibios (Saúde & Longevidade)**:
+  * A Dra. Isabella Formigari e o Dr. Franco Merici são **médicos sócios fundadores da Fibios Longevidade**, clínica e consultoria parceira responsável pela curadoria médica e científica da Netfits.
+  * Em estrito cumprimento às normas regulatórias do Conselho Federal de Medicina (CFM / Codame / RQE), é **estritamente vedado** atribuir a eles qualquer titulação de especialista (como Medicina do Esporte, Ortopedia ou Nutrologia) em qualquer tela, card, modal, assistente virtual ou comunicação pública da Netfits.
 * **Titulação e Assinatura Oficial Única**:
   * **Dr. Franco Merici**: `Médico (CRM-SP 212567) sócio fundador da Fibios`
   * **Dra. Isabella Formigari**: `Médica (CRM-SP 282951) sócia fundadora da Fibios`
@@ -144,4 +150,56 @@ Para eliminar incidentes de subidas indevidas, inconsistências de Key Visual (K
    * Exige `await` e `keepalive: true` em requisições de sincronização que antecedem navegações de tela, blindando contra cancelamento no mobile;
    * Enforçado ativamente por `scripts/knowledge-learning-agent.mjs` com score mandatório 100/100.
 
+9. **Go Live Mode Data Sovereignty & Sacred User Base Gatekeeper (Guardião da Soberania de Dados — LL-012)**:
+   * **PREMISSA FUNDAMENTAL**: Estamos em **Go Live Mode**. Todo usuário cadastrado que não seja gerado como mock temporário de teste é um **usuário real de carne e osso** (fundador, médicos Fibios, familiares, atletas pioneiros e avaliadores);
+   * **Poder de Veto Absoluto contra Perda de Usuários**: É terminantemente proibido qualquer script de seed parcial, migração truncada, reset ou sobrescrita que exclua ou omita usuários reais do banco de dados relacional Cloudflare D1 (`netfits-db`);
+   * **Inviolabilidade da Tabela `users`**: Todas as operações de banco de dados devem ser estritamente cumulativas (UPSERT não destrutivo via `ON CONFLICT(id) DO UPDATE`). Nenhuma rotina pode dropar, truncar ou executar `DELETE` indiscriminado em `users` ou `transactions`;
+   * **Validação Monotônica de Contagem**: Qualquer migração ou sincronização deve assegurar que a contagem de usuários cadastrados seja **monotonamente não-decrescente**;
+   * Violações desta diretriz são classificadas como incidente de severidade máxima (`CRITICAL`).
 
+10. **Double-Entry Parity & Strict Ledger Reconciliation Gatekeeper (Guardião da Paridade por Partidas Dobradas — LL-013)**:
+   * **Poder de Veto Absoluto contra Saldos Órfãos**: É terminantemente proibido qualquer atribuição, atualização ou migração de saldo (`users.nfsBalance`) sem o respectivo registro detalhado de contrapartida na tabela `transactions`;
+   * **Paridade Estrita 1:1**: Para 100% dos usuários cadastrados no Cloudflare D1 (`netfits-db`), a soma das linhas de `transactions.amount` DEVE ser rigorosamente idêntica ao `users.nfsBalance` (diferença contábil zero: $\sum transactions.amount == users.nfsBalance$);
+   * **Atomicidade em Cargas e Migrações**: Toda rotina de seed ou reconciliação de dados deve atualizar sincronamente a tabela `users` e a tabela `transactions` no mesmo lote transacional, impedindo assimetrias entre saldo cadastral e extrato;
+   * Violações desta diretriz disparam veto impeditivo no pipeline de governança (`CRITICAL`).
+
+11. **Mobile Biometric Modal Visibility Guard & Screen Lock Grace Period Gatekeeper (Guardião de Ciclo de Vida Mobile & Biometria — LL-014)**:
+   * **Poder de Veto Absoluto contra Race Conditions de Bloqueio**: Proibido qualquer bloqueio de tela via `visibilitychange` ou timeout sem verificar se uma autenticação biométrica nativa está em curso;
+   * **Flag de Autenticação Ativa**: O fluxo de biometria nativa deve ser blindado por `isAuthenticatingBiometrics`, fazendo com que ouvintes de ciclo de vida ignorem eventos disparados pela abertura/fechamento de modais nativos do sistema operacional (Face ID / Touch ID / Biometria Android);
+   * **Grace Period Pós-Desbloqueio (30s)**: Imediatamente após desbloqueio bem-sucedido, o sistema estabelece carência de 30 segundos (`lastUnlockTimestamp`), proibindo qualquer relock prematuro por timers assíncronos ou eventos concorrentes;
+   * **Paridade de Sessão de Usuários**: Todos os usuários registrados de produção devem constar no catálogo local e possuir recuperação resiliente de perfil em fallback, impedindo que usuários reais caiam na persona de visitante anônimo ("AV").
+
+
+
+
+12. **Automated Runtime & Lifecycle Test Gatekeeper and Strict Cache Invalidation Guard (Guardião de Testes Executáveis & Invalidação de Cache — LL-015)**:
+   * **Poder de Veto Absoluto contra Deploys sem Testes Executáveis de Runtime**: É terminantemente proibido liberar qualquer deploy em produção baseando-se exclusivamente em linters estáticos ou regex AST. O pipeline de governança (`npm run validate` e `npm run build:prod`) DEVE executar testes de runtime reais (`npx vitest run`) cobrindo ciclo de vida mobile, concorrência de biometria, integridade de cabeçalhos e paridade de usuários;
+   * **Invalidação Estrita de Cache para Navegações e SSR**: Respostas de documentos HTML, navegações e SSR no Cloudflare Workers DEVEM injetar obrigatoriamente os headers `Cache-Control: no-cache, no-store, must-revalidate, max-age=0, s-maxage=0`, `Pragma: no-cache` e `Expires: 0`, impedindo que o iOS WKWebView (`NSURLCache`) mantenha bundles defasados em disco;
+   * **Atraso de Segurança no Descarte de Biometria (Grace Delay)**: O estado `isAuthenticatingBiometrics` só pode ser finalizado após um atraso programado de segurança (1500ms) para absorver o fechamento assíncrono dos modais nativos do sistema operacional sem disparar bloqueios espúrios;
+   * Enforçado ativamente por `src/lib/__tests__/cache-headers-guard.test.ts`, `src/lib/__tests__/mobile-lifecycle-auth.test.ts` e pelo 8º Agente do `scripts/multi-agent-orchestrator.mjs`.
+
+13. **Anthropic Single Loop & Progressive Disclosure Architecture (Arquitetura Eficiente de Agentes — LL-016)**:
+   * **Loop Principal Unificado (Main Agent Loop)**: Toda cognição de engenharia e desenvolvimento opera em um único loop cognitivo central, eliminando subagentes intermediários desnecessários que geram o "efeito telefone sem fio" (perda de nuances contextuais);
+   * **Revelação Progressiva de Habilidades (Progressive Skills)**: Diretrizes especializadas (Compliance CFM, Key Visual, regras atuariais FEFO e Acessibilidade WCAG) são estruturadas como *Skills* modulares carregadas sob demanda, sem sobrecarga de subagentes autônomos;
+   * **Gatekeepers Adversariais em Contexto Limpo**: Os 8 guardiões do pipeline (`scripts/multi-agent-orchestrator.mjs` e testes Vitest) atuam como avaliadores determinísticos isolados com poder de veto real, garantindo verificação sem viés;
+   * **Fronteira de Segurança de Runtime**: O *Netfit AI Concierge* opera como agente conversacional isolado no app com prompt enxuto e escopo restrito de atendimento, sem privilégios administrativos.
+
+14. **Orthogonal User Roles & Universal Athlete Substrate Gatekeeper (Guardião da Segregação Ortogonal e Substrato Universal de Atleta — LL-017)**:
+   * **Substrato Universal de Atleta**: Todo ser humano cadastrado na Netfits é, antes de tudo, um praticante de atividade física com direito universal a conectar sensores (Apple Watch, Garmin), responder quizzes, acumular pontos na carteira e assinar o Clube Netfits (R$ 19,90/mês). Especialistas médicos da Fibios, Associados B2B2C e Parceiros lojistas podem treinar, pontuar com wearables e ser membros do Clube;
+   * **Ortogonalidade Estrita**: As categorias institucionais (`userCategory`: `atleta`, `associado`, `especialista`, `parceiro`) representam papéis/habilidades de ecossistema e são completamente ortogonais e independentes dos planos de fidelidade (`plan`: `free` | `club` e `isClubMember: boolean`);
+   * **Poder de Veto Absoluto contra Mutação de Categoria por Assinatura**: É terminantemente proibido qualquer código, endpoint, webhook ou rotina alterar a propriedade `userCategory` em decorrência de adesão ou cancelamento de assinatura do Clube Netfits;
+   * Enforçado ativamente por `src/lib/__tests__/user-category-orthogonal-guard.test.ts` e pelo pipeline de governança (`scripts/multi-agent-orchestrator.mjs`).
+
+15. **Event-Driven Loyalty Architecture & Anti-Destructive Ledger Recalculation Guard (Guardião da Arquitetura Orientada a Eventos & Anti-Esmagamento de Saldo — LL-018)**:
+   * **O Saldo é Apenas Projeção do Evento**: Em sistemas de fidelidade e carteiras digitais, o saldo não existe de forma independente. O fato gerador é sempre o **registro imutável de transação** (`INSERT INTO transactions`). É terminantemente proibido qualquer hotfix escalar (`UPDATE users SET nfsBalance = X`) sem o respectivo evento detalhado gravado no livro-razão;
+   * **Poder de Veto Absoluto contra Esmagamento Descendente Automático**: Rotinas de auditoria e auto-reconciliação (Sentinel / `syncFromCloud`) são **terminantemente proibidas de rebaixar o saldo de um usuário para baixo** (`diff > 0`) sob alegação de "auto-heal". Se o extrato local ou em memória somar menos que o saldo cadastral, o sistema deve disparar veto imediato e flag impeditiva no pipeline para restauração do extrato;
+   * **Isolamento Estrito de Ambientes de Teste**: Testes automatizados (Vitest/CI) são proibidos de disparar mutações em backups ou persistência em nuvem de produção;
+   * **Inviolabilidade da Granularidade do Livro-Razão**: Proibido qualquer truncamento ou fatiamento de transações (`slice(0, 100)`) em rotinas de sincronização;
+   * Enforçado ativamente por `src/lib/__tests__/ledger-parity-guard.test.ts`, `scripts/audit_ledger_sentinel.cjs` e pelo pipeline de governança multiagêntica (`npm run validate` e `npm run build:prod`).
+
+16. **Continuous Adversarial Red Team Challenger & Active Legal Consent Gatekeeper (Guardião de Engenharia Adversarial & Consentimento Ativo — LL-019)**:
+   * **Poder de Veto Absoluto contra Bypasses e Bloqueios Cegos de Consentimento**: Toda proposta de alteração técnica, arquitetural ou de fluxo deve passar pela avaliação crítica do Red Team Challenger (Agente 9) antes de sua implementação, mitigando pontos cegos e soluções improvisadas;
+   * **Modo de Leitura Auditado Inviolável**: É terminantemente proibido desabilitar ou ocultar o acesso aos Termos de Uso e LGPD após o aceite (Art. 8º da LGPD e Diretriz Apple 1.2). Usuários com consentimento ativo devem poder reler as condições a qualquer momento, exibindo badge formal de consentimento ativo com carimbo temporal ISO e versão;
+   * **Persistência de Chave Dupla & Versionamento**: O consentimento legal deve ser obrigatoriamente persistido no dispositivo (`localStorage`) e sincronizado atomicamente com o Cloudflare D1 (`users.metadata`), com versionamento auditado (`termsVersion` e `lgpdVersion`);
+   * **Encadeamento Sequencial Natural**: Processos multi-etapas (Passo 1: Regulamento -> Passo 2: LGPD) devem transicionar automaticamente sem derrubar o usuário em telas de bloqueio intermediárias;
+   * Enforçado ativamente por `src/lib/legal-consent-store.ts`, `src/components/auth/AuthLegalModals.tsx`, `scripts/adversarial-red-team-checker.mjs` e pelo 9º Agente do pipeline (`scripts/multi-agent-orchestrator.mjs`).

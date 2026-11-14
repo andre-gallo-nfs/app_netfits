@@ -261,5 +261,19 @@
       "syncUsersAndTransactionsToCloud durante testes"
     ],
     "enforcedBy": "src/lib/__tests__/ledger-parity-guard.test.ts, scripts/audit_ledger_sentinel.cjs & scripts/multi-agent-orchestrator.mjs"
+  },
+  {
+    "id": "LL-019",
+    "title": "Red Team Challenger Contínuo & Governança de Consentimento Ativo (Modo de Leitura Auditado vs. Bloqueio Cego)",
+    "category": "legal_adversarial_governance",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-14",
+    "context": "Em 14/11/2026, no feedback da atleta pioneira Claudia Noce, o aceite dos Termos de Uso (Passo 1) não conduzia ao Consentimento LGPD (Passo 2) e o sistema não persistia o consentimento em base permanente, fazendo com que o modal voltasse ao estado de não-aceite após fechamento. A solução ingênua seria simplesmente desabilitar os botões após o clique, o que violaria frontalmente o Art. 8º da LGPD e a Diretriz 1.2 da Apple App Store (o usuário tem o direito inalienável de reler os Termos e Políticas a qualquer momento). A convocação do Red Team Challenger estabeleceu o padrão de Engenharia Adversarial: o Red Team deve atuar 100% do tempo avaliando criticamente propostas antes da implementação, convertendo o modal para 'Modo de Leitura Auditado' com carimbo temporal explícito ('Consentimento Ativo · Aceito em DD/MM/AAAA às HH:mm') e sincronização atômica Cloudflare D1 + localStorage.",
+    "rule": "1) Red Team Challenger Mandatório 100% do Tempo: Toda e qualquer proposta de alteração de arquitetura, fluxo ou negócio deve ser submetida à avaliação crítica do Red Team Challenger antes de ser executada, mitigando pontos cegos e soluções improvisadas. 2) Modo de Leitura Auditado Inviolável: Usuários com consentimento legal ativo NUNCA devem ter seu acesso bloqueado aos Termos de Uso ou LGPD; os modais devem abrir em modo de leitura informativa, exibindo carimbo temporal de validade (badge de consentimento ativo) e botão neutro 'Entendido (Fechar Leitura)'. 3) Persistência de Chave Dupla & Versionamento: Consentimentos legais devem ser persistidos com timestamp ISO e versionamento formal tanto no dispositivo (localStorage) quanto no banco central (Cloudflare D1), garantindo prova jurídica irrefutável e integridade multiplataforma. 4) Encadeamento Sequencial Natural: Fluxos multi-etapas de compliance (Passo 1: Regulamento -> Passo 2: LGPD) devem transicionar automaticamente sem derrubar o usuário em telas de bloqueio intermediárias.",
+    "antiPattern": [
+      "disabled={hasAcceptedTerms}",
+      "localStorage.setItem(\"termsAccepted\", \"true\")"
+    ],
+    "enforcedBy": "src/lib/legal-consent-store.ts, src/components/auth/AuthLegalModals.tsx, scripts/adversarial-red-team-checker.mjs & scripts/multi-agent-orchestrator.mjs"
   }
 ]
