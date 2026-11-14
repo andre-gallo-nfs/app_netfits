@@ -51,7 +51,7 @@ function ProfilePage() {
   const [activeUser, setActiveUser] = useState(sharedSandboxStore.getActiveUser());
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showLegalModal, setShowLegalModal] = useState<"terms" | "privacy" | null>(null);
+  const [showLegalModal, setShowLegalModal] = useState<"terms" | "privacy" | "points" | null>(null);
 
   useEffect(() => {
     if (!sharedSandboxStore.hasActiveSession()) {
@@ -1091,7 +1091,7 @@ function ProfilePage() {
             <p className="text-[11px] text-muted-foreground -mt-1 leading-relaxed">
               A Netfits assegura total transparência e conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018) e com as diretrizes globais da Apple Store e Google Play.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setShowLegalModal("terms")}
@@ -1110,7 +1110,18 @@ function ProfilePage() {
               >
                 <div className="flex items-center gap-2">
                   <Shield className="size-3.5 text-purple-500" />
-                  <span>Política de Privacidade</span>
+                  <span>Privacidade</span>
+                </div>
+                <ExternalLink className="size-3 text-muted-foreground" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLegalModal("points")}
+                className="bg-card hover:bg-muted text-foreground border border-border/80 text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-between transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-3.5 text-amber-500" />
+                  <span>Tabela de Pontos</span>
                 </div>
                 <ExternalLink className="size-3 text-muted-foreground" />
               </button>

@@ -22,7 +22,7 @@ export function TermsModal({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-zinc-900">Termos de Uso & Regulamento Netfits</h2>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Transparência & Direitos</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 1 de 2 · Versão 1.0 Oficial (14/11/2026)</p>
             </div>
           </div>
           <button
@@ -36,31 +36,36 @@ export function TermsModal({
         {/* Scrollable Terms Content */}
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 text-xs text-zinc-700 leading-relaxed border-b border-zinc-200 pb-4">
           <div className="bg-purple-50 p-3 rounded-2xl border border-purple-100 text-[11px] text-purple-900">
-            <p className="font-bold">📌 Regulamento Oficial, Termos e Condições de Uso (Rev. 2.0):</p>
-            <p>Este Regulamento rege a participação no Programa Netfits, o acúmulo de pontos nfs, estorno híbrido, validade FEFO e regras estritas de integridade e antifraude.</p>
+            <p className="font-bold">📌 Regulamento Geral e Termos de Uso (Versão 1.0):</p>
+            <p>Este Regulamento rege a participação no Programa Netfits, o acúmulo de pontos nfs, validade FEFO, regras antifraude e governança de alterações conforme o Código de Defesa do Consumidor.</p>
           </div>
 
           <h3 className="font-extrabold text-zinc-900 text-sm">1. Objeto do Programa</h3>
           <p>
-            O Programa Netfits é um ecossistema digital de saúde (*healthspan*) e fidelidade operado pela <b>Netfits Ltda.</b> (CNPJ/MF nº <b>68.930.455/0001-40</b>, com sede na Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba-SP, CEP 06.542-195), destinado a incentivar treinos, consumo de conteúdo e compras no Marketplace com acúmulo de pontos <b>nfs</b>.
+            O Programa Netfits é um ecossistema digital de longevidade ativa (*healthspan*) e fidelidade operado pela <b>Netfits Ltda.</b> (CNPJ/MF nº <b>68.930.455/0001-40</b>, com sede na Alameda das Embaúbas, 365, Quadra 06 Lote 19 sala 01, Alphaville, Santana de Parnaíba-SP, CEP 06.542-195), destinado a incentivar treinos, consumo de conteúdo educativo e compras no Marketplace com pontos <b>nfs</b>.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">2. Matriz Antifraude e Retenção em Vídeos (100% Dwell Time)</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">2. Tabela de Pontuação & Proteção do Consumidor (Aviso de 30 Dias)</h3>
           <p>
-            A atribuição de pontos <b>nfs</b> por visualização de vídeos no Feed exige <b>retenção visual contínua e foco de 100% da duração do vídeo</b>. É terminantemente proibido o uso de automações, scripts, bots, emuladores, alteração de dados de GPS ou criação de contas falsas para geração indevida de pontos.
+            Os critérios de pontuação, limites diários e bônus constam da <b>Tabela de Pontuação</b> no aplicativo. Quaisquer alterações que tornem os critérios menos vantajosos aos Usuários serão informadas no app com antecedência mínima de <b>30 (trinta) dias</b>, produzindo efeitos estritamente futuros sem nunca atingir pontos já conquistados.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">3. Direito Irrevogável de Exclusão Sumária & Perda de Saldo</h3>
-          <p className="font-semibold text-red-700 bg-red-50 p-2.5 rounded-xl border border-red-200">
-            ⚠️ <b>A Netfits Ltda. reserva-se o direito irrevogável, incondicional e incontestável de cancelar, suspender ou excluir sumariamente a conta de qualquer Usuário</b> que descumprir este Regulamento ou em caso de suspeita fundamentada de fraude, implicando na <b>perda imediata e irreversível de 100% dos pontos nfs acumulados</b>, sem direito a qualquer indenização ou ressarcimento.
-          </p>
-
-          <h3 className="font-extrabold text-zinc-900 text-sm">4. Validade, Inatividade (360 dias) e Estorno Híbrido</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">3. Tempo de Permanência em Vídeos & Matriz Antifraude</h3>
           <p>
-            Os pontos <b>nfs</b> possuem validade de 24 meses. Ao utilizá-los, a Netfits consome sempre os pontos mais antigos primeiro, protegendo a sua pontuação. Contas sem atividade por mais de 360 dias expiram de pleno direito. Em compras híbridas (pontos + cartão/Pix) canceladas no Marketplace, a devolução é realizada proporcionalmente na carteira e no gateway conforme o Art. 49 do CDC.
+            O quiz educativo só é liberado após a visualização contínua com tela ativa durante 100% da duração do vídeo (*dwell time*). É terminantemente proibido o uso de automações, bots, adulteração de GPS ou cadastros falsos. Em caso de fraude confirmada, a conta é cancelada com <b>perda total, automática e definitiva de todos os pontos</b>.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">5. Tolerância Zero para Conteúdos Impróprios, Moderação em 24h & EULA (Apple Guideline 1.2)</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">4. Validade, Inatividade (12 Meses) e Estornos</h3>
+          <p>
+            Os pontos possuem validade de 24 meses (ordem FEFO). Contas sem atividade física, login ou compras por <b>12 meses ininterruptos</b> expiram de pleno direito, após notificação prévia de <b>30 dias</b> (basta um login para reativar). Membros do Clube Netfits têm a expiração suspensa. Resgates cancelados sem culpa do usuário devolvem os pontos com nova validade de <b>60 dias</b> caso tenham expirado no período.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">5. Biometria e Segurança em Pagamentos</h3>
+          <p>
+            O app utiliza biometria nativa do aparelho (Face ID/Touch ID) apenas para desbloqueio local, facultada alternativa por senha. <b>Pagamentos ao Programa são realizados exclusivamente dentro do aplicativo</b> (a Netfits nunca solicita Pix ou dados fora da plataforma).
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">6. Tolerância Zero para Conteúdos Impróprios, Moderação em 24h & EULA (Apple Guideline 1.2)</h3>
           <div className="bg-red-50 p-3 rounded-2xl border border-red-200 text-xs text-red-950 space-y-2">
             <p>
               <b>Contrato de Licença de Usuário Final (EULA):</b> A Netfits adota <b>tolerância zero</b> contra qualquer forma de assédio, ódio, discriminação, difamação, nudez, violência, desinformação perigosa ou comportamento abusivo por parte de usuários.
@@ -117,7 +122,7 @@ export function LgpdPrivacyModal({
             </div>
             <div>
               <h2 className="text-base font-extrabold text-zinc-900">Consentimento para Uso de Dados (LGPD)</h2>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 2 de 2 · Lei Federal nº 13.709/2018</p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Passo 2 de 2 · Versão 1.0 Oficial (14/11/2026)</p>
             </div>
           </div>
           <button
@@ -131,23 +136,33 @@ export function LgpdPrivacyModal({
         {/* Scrollable LGPD Content */}
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-2 text-xs text-zinc-700 leading-relaxed border-b border-zinc-200 pb-4">
           <div className="bg-lime-50 p-3 rounded-2xl border border-lime-200 text-[11px] text-lime-950">
-            <p className="font-bold">🔒 Tratamento Transparente & Proteção de Dados:</p>
-            <p>Seus dados cadastrais, transacionais e de telemetria esportiva são tratados com segurança e conformidade rigorosa com a LGPD pela Netfits Ltda.</p>
+            <p className="font-bold">🔒 Resumo em 1 Minuto — Seus Dados Protegidos:</p>
+            <p>Seus dados cadastrais e de telemetria esportiva são tratados com segurança técnica de ponta pela Netfits Ltda. em conformidade estrita com a LGPD.</p>
           </div>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">1. Bases Legais e Controladora</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">1. Bases Legais e Finalidades Específicas</h3>
           <p>
             A <b>Netfits Ltda.</b> atua como Controladora dos dados. O tratamento baseia-se em: <b>Execução de Contrato</b> (Art. 7º, V) para gerenciamento de pontos e marketplace; <b>Obrigação Legal</b> (Art. 7º, II) para guarda de registros do Marco Civil da Internet; e <b>Consentimento Específico</b> (Art. 11, I) para dados de telemetria esportiva.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">2. Garantia de Não-Comercialização de Dados de Saúde</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">2. Finalidades do Dado de Gênero</h3>
           <p>
-            A Netfits compromete-se a <b>não vender, não repassar e não disponibilizar dados de frequência cardíaca, biometria ou telemetria esportiva para seguradoras de saúde ou planos médicos</b> sem sua autorização expressa.
+            O dado de gênero é coletado exclusivamente para: (i) cálculo metabólico basal e estimativa calórica precisa (METs) em treinos; (ii) personalização de artigos educativos de saúde preventiva e longevidade; e (iii) filtros de modelagem e vestuário esportivo no Netfits Shop.
           </p>
 
-          <h3 className="font-extrabold text-zinc-900 text-sm">3. Direitos do Titular (Art. 18 da LGPD)</h3>
+          <h3 className="font-extrabold text-zinc-900 text-sm">3. Garantia de Não-Comercialização de Dados de Saúde</h3>
+          <p className="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-amber-950 font-medium">
+            🚫 A Netfits <b>NÃO vende, não comercializa e não compartilha dados de saúde, frequência cardíaca ou biometria com seguradoras de saúde ou planos médicos</b> para obtenção de vantagem econômica.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">4. Segurança de Cartões e Transferência Internacional</h3>
           <p>
-            Você pode exercer seus direitos de confirmação, acesso, correção, anonimização, portabilidade ou revogação de consentimento contatando nosso Encarregado de Proteção de Dados (DPO) pelo e-mail <b>dpo@netfits.com.br</b>.
+            A Netfits <b>não armazena números de cartões de pagamento</b> (dados tokenizados pelo gateway PCI-DSS). Nossos provedores de nuvem certificados operam nós com custódia segura nos Estados Unidos, sob as cláusulas-padrão contratuais da ANPD.
+          </p>
+
+          <h3 className="font-extrabold text-zinc-900 text-sm">5. Direitos do Titular (Art. 18 da LGPD)</h3>
+          <p>
+            Você pode exercer seus direitos de confirmação, acesso, correção, anonimização, portabilidade ou exclusão da conta a qualquer momento diretamente no app ou contatando o Encarregado de Dados (DPO) pelo e-mail <b>dpo@netfits.com.br</b>.
           </p>
         </div>
 
