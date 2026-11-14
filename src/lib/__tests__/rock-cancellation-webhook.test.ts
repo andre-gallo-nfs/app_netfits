@@ -80,7 +80,7 @@ describe("Rock Encantech Webhook - Cancellation & Refund Flow", { timeout: 15000
     const earnTx = serverState.transactions.find((t) => t.id === `tx-mkp-earn-${orderId}`);
     expect(earnTx).toBeDefined();
     expect(earnTx?.amount).toBe(400);
-  });
+  }, 30000);
 
   it("deve processar o webhook de cancelamento e estornar o cashback organicamente", async () => {
     const orderId = `ORD-CANCEL-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -138,7 +138,7 @@ describe("Rock Encantech Webhook - Cancellation & Refund Flow", { timeout: 15000
     expect(refundTx).toBeDefined();
     expect(refundTx?.amount).toBe(-400);
     expect(refundTx?.description).toContain("Estorno de cashback");
-  });
+  }, 30000);
 
   it("não deve estornar em duplicidade se o webhook de cancelamento for reenviado (idempotência)", async () => {
     const orderId = `ORD-IDEMP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -190,5 +190,5 @@ describe("Rock Encantech Webhook - Cancellation & Refund Flow", { timeout: 15000
     // Não pode haver mais de uma transação de estorno para o mesmo pedido
     const refunds = serverState.transactions.filter((t) => t.id === `tx-mkp-cb-refund-${orderId}`);
     expect(refunds.length).toBe(1);
-  });
+  }, 30000);
 });

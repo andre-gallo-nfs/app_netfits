@@ -525,10 +525,10 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
       const points = feedAntifraud.getRules().pointsPerSponsoredQuiz || 10;
       setHasSubmitted(true);
       setErrorMsg(null);
-      wallet.earn(points, `Desafio Patrocinado: ${item.title}`);
+      wallet.earn(points, `Desafio Educativo: ${item.title}`);
       feedAntifraud.recordAction("quiz", quizId, points);
       trackQuizCompleted(quizId, item.title, true, points, true);
-      toast.success(`🎉 Resposta correta! +${points} netfits patrocinados creditados na sua carteira.`);
+      toast.success(`🎉 Resposta correta! +${points} netfits de aprendizado creditados na sua carteira.`);
     } else {
       setErrorMsg("Resposta incorreta. A Fibios oferece medicina integrativa completa para atletas.");
       toast.error("Resposta incorreta. Tente novamente!");
@@ -539,7 +539,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
     <article className="px-4 space-y-3">
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-          Parceiro Patrocinado · Clínica médica
+          Curadoria de Saúde · Clínica Parceira Oficial
         </span>
       </div>
 
@@ -559,11 +559,11 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
         </div>
         <div className="text-right">
           <span className="text-xs font-semibold text-brand">{item.tier}</span>
-          <span className="block text-[10px] text-muted-foreground">Ganhe Netfits em consultas</span>
+          <span className="block text-[10px] text-muted-foreground">Medicina Integrativa & Longevidade</span>
         </div>
       </div>
 
-      {/* Quiz Patrocinado (+10 netfits) */}
+      {/* Quiz Educativo de Saúde (+10 netfits) */}
       <div className="bg-white border border-zinc-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-2.5">
           <div className="flex items-center gap-2">
@@ -572,7 +572,7 @@ function SpotFeedCard({ item }: { item: Extract<FeedItem, { type: "spot" }> }) {
             </div>
             <div>
               <span className="text-[10px] font-black tracking-widest text-zinc-500 uppercase block">
-                DESAFIO PARCEIRO PATROCINADO
+                DESAFIO EDUCATIVO DE SAÚDE
               </span>
               <span className="text-xs font-bold text-zinc-900">
                 Especialidades Fibios
@@ -718,11 +718,11 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
       const points = feedAntifraud.getRules().pointsPerSponsoredQuiz || 10;
       setHasSubmitted(true);
       setErrorMsg(null);
-      wallet.earn(points, `Desafio Patrocinado: Consulta ${item.name}`);
+      wallet.earn(points, `Desafio Educativo: Curadoria Médica ${item.name}`);
       feedAntifraud.recordAction("quiz", quizId, points);
-      toast.success(`🎉 Resposta correta! +${points} netfits patrocinados creditados na sua carteira.`);
+      toast.success(`🎉 Resposta correta! +${points} netfits de aprendizado creditados na sua carteira.`);
     } else {
-      setErrorMsg("Resposta incorreta. A consulta clínica foca em biomarcadores, sono e longevidade.");
+      setErrorMsg("Resposta incorreta. A curadoria clínica foca em biomarcadores, sono e longevidade.");
       toast.error("Resposta incorreta. Tente novamente!");
     }
   };
@@ -740,23 +740,19 @@ function ExpertFeedCard({ item }: { item: Extract<FeedItem, { type: "expert" }> 
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-bold text-brand uppercase tracking-widest">
-              Profissional verificado · Patrocinado
+              Curadoria Médica Oficial · Fibios Longevidade
             </p>
             <h3 className="text-base font-semibold leading-tight">{item.name}</h3>
             <p className="text-xs text-muted-foreground mb-2">{item.role}</p>
             <p className="text-sm text-muted-foreground text-pretty mb-3">{item.excerpt}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold">
-                {item.price}{" "}
-                <span className="text-[10px] font-medium text-brand">{item.cashback}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+              <div className="flex items-center gap-1.5 text-zinc-600 text-xs">
+                <ShieldCheck className="size-4 text-purple-600 shrink-0" />
+                <span className="font-semibold text-zinc-800">Curadoria Médica & Científica</span>
+              </div>
+              <span className="text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200/60 px-2.5 py-1 rounded-full">
+                Clínica Fibios & Fibios Score
               </span>
-              <button 
-                type="button"
-                onClick={() => toast.success("Redirecionando para agendamento com a especialista...")}
-                className="bg-foreground text-background text-xs font-semibold px-4 py-2 rounded-full cursor-pointer hover:opacity-90 transition"
-              >
-                Agendar
-              </button>
             </div>
           </div>
         </div>

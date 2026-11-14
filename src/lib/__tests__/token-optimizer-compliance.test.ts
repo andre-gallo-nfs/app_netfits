@@ -112,4 +112,18 @@ describe("TokenOptimizer Compliance & Business Rules (Carlos Formigari Directive
       expect(response.text).not.toContain("R$ 11,96");
     }
   });
+
+  it("7. CFM Compliance: Médicos Fibios identificados estritamente como fundadores da Fibios sem cashback de consultas", () => {
+    const res = tokenOptimizer.evaluateQuery("Posso agendar consulta médica na Fibios e ganhar pontos?", dummyContext);
+    expect(res.handled).toBe(true);
+    expect(res.text).toContain("Dra. Isabella Formigari");
+    expect(res.text).toContain("Médica CRM-SP 282951, sócia fundadora da Fibios");
+    expect(res.text).toContain("Dr. Franco Merici");
+    expect(res.text).toContain("Médico CRM-SP 212567, sócio fundador da Fibios");
+    expect(res.text).toContain("curadoria médica e científica");
+    expect(res.text).toContain("Fibios Score");
+    expect(res.text).toContain("não comercializa consultas nem oferece cashback em atos médicos");
+    expect(res.text).not.toContain("médicos especialistas");
+    expect(res.text).not.toContain("agendar consulta com desconto");
+  });
 });

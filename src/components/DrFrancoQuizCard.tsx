@@ -604,22 +604,17 @@ export function DrFrancoQuizCard({ isDailyChallenge = true }: { isDailyChallenge
                 )}
               </div>
 
-              {/* CTA Agendamento na Fibios */}
+              {/* Curadoria Institucional Fibios */}
               <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setArticleOpen(false);
-                    toast.success("Redirecionando para agendamento de consulta médica com a equipe Fibios...");
-                  }}
-                  className="w-full py-3 px-4 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  <Calendar className="size-4" />
-                  <span>Agendar Consulta com Dr. Franco na Fibios</span>
-                </button>
-                <p className="text-[10px] text-center text-zinc-600 mt-1.5 font-medium">
-                  Consultas com cashback exclusivo em pontos Netfits
-                </p>
+                <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200/60 text-center space-y-1">
+                  <p className="text-xs font-bold text-purple-900 flex items-center justify-center gap-1.5">
+                    <ShieldCheck className="size-4 text-purple-600" />
+                    <span>Clínica Fibios & Curadoria Médica Netfits</span>
+                  </p>
+                  <p className="text-[11px] text-purple-700 font-medium leading-relaxed">
+                    Medicina preventiva, longevidade ativa e acompanhamento do Fibios Score para hábitos sustentáveis de vida.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
