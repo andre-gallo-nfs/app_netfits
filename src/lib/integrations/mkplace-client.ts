@@ -109,9 +109,31 @@ export async function getMkplaceStoreUrl(userId?: string, targetQueryOrPath?: st
 
 /**
  * Utilitário para abertura externa da Loja Oficial quando expressamente solicitado.
+ * Blindado contra bloqueadores de pop-up no Safari/iOS e Chrome Mobile:
+ * 1. No Desktop Web, pré-abre a janela no clique antes de chamadas assíncronas de rede.
+ * 2. No Mobile Web (iOS/Android), tenta abrir e se o pop-up for barrado, faz redirect seguro via window.location.assign.
+ * 3. No ambiente nativo (Capacitor), aciona o Chrome Custom Tabs / SFSafariViewController via nativeBridge.
  */
 export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
-  const finalUrl = await getMkplaceStoreUrl(options.userId, options.targetQueryOrPath);
+  const isMobile =
+    typeof window !== "undefined" &&
+    (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768);
+
+  // No desktop, se for abrir em nova aba, pré-abre uma janela imediatamente
+  // no ciclo síncrono do clique do usuário para evitar bloqueio por popup blockers no Chrome/Safari:
+  let preOpenedWindow: Window | null = null;
+  if (
+    typeof window !== "undefined" &&
+    !nativeBridge.isNativePlatform() &&
+    !isMobile &&
+    options.newTab !== false
+  ) {
+    try {
+      preOpenedWindow = window.open("about:blank", "_blank", "noopener,noreferrer");
+    } catch {
+      preOpenedWindow = null;
+    }
+  }
 
   if (!options.silent) {
     toast.info("Conectando à Loja Oficial Netfits...", {
@@ -120,17 +142,31 @@ export async function launchMkplaceShop(options: LaunchShopOptions = {}) {
     });
   }
 
-  const isNative = nativeBridge.isNativePlatform();
-  if (isNative) {
-    const capBrowser = (window as any).Capacitor?.Plugins?.Browser;
-    if (capBrowser && typeof capBrowser.open === "function") {
-      await capBrowser.open({ url: finalUrl, presentationStyle: "popover" });
+  try {
+    const finalUrl = await getMkplaceStoreUrl(options.userId, options.targetQueryOrPath);
+
+    // 1. App Nativo (Capacitor iOS/Android)
+    if (nativeBridge.isNativePlatform()) {
+      await nativeBridge.openExternalUrl(finalUrl);
       return;
     }
-  }
 
-  if (typeof window !== "undefined") {
-    const target = options.newTab === false ? "_self" : "_blank";
-    window.open(finalUrl, target, "noopener,noreferrer");
+    // 2. Desktop com janela pré-aberta com sucesso
+    if (preOpenedWindow && !preOpenedWindow.closed) {
+      preOpenedWindow.location.href = finalUrl;
+      return;
+    }
+
+    // 3. Mobile Web (iOS Safari / Android Chrome / PWA) ou caso o popup blocker tenha fechado a janela:
+    // Tenta abrir via nativeBridge.openExternalUrl; se o navegador bloquear o popup,
+    // ele automaticamente executa window.location.assign(finalUrl), garantindo 100% de abertura!
+    await nativeBridge.openExternalUrl(finalUrl);
+  } catch (err) {
+    console.error("[Mkplace Client] Erro ao abrir a loja:", err);
+    if (preOpenedWindow && !preOpenedWindow.closed) {
+      preOpenedWindow.location.href = "https://loja.netfits.com.br";
+    } else if (typeof window !== "undefined") {
+      window.location.assign("https://loja.netfits.com.br");
+    }
   }
 }

@@ -257,6 +257,7 @@ function MarketEmbeddedPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<"native" | "web">("native");
   const [selectedDetailProduct, setSelectedDetailProduct] = useState<DetailProduct | null>(null);
+  const [isConnectingStore, setIsConnectingStore] = useState<boolean>(false);
 
   // Estados da Loja Iframe
   const [storeUrl, setStoreUrl] = useState<string>("");
@@ -326,13 +327,16 @@ function MarketEmbeddedPage() {
   }, [selectedCategory, searchQuery]);
 
   // Abre a loja oficial completa da Rock Encantech
-  const handleOpenFullStore = () => {
-    toast.info("Conectando à Loja Oficial Rock Encantech...", {
-      description: "Sincronizando saldo de pontos e dados de entrega.",
-    });
-    launchMkplaceShop({
-      userId: activeUser.id,
-    });
+  const handleOpenFullStore = async () => {
+    if (isConnectingStore) return;
+    setIsConnectingStore(true);
+    try {
+      await launchMkplaceShop({
+        userId: activeUser.id,
+      });
+    } finally {
+      setTimeout(() => setIsConnectingStore(false), 2500);
+    }
   };
 
   // Abre diretamente a página do produto na loja oficial da Rock
@@ -379,12 +383,22 @@ function MarketEmbeddedPage() {
             <button
               type="button"
               onClick={handleOpenFullStore}
-              className="px-3 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
+              disabled={isConnectingStore}
+              className="px-3 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
               title="Acessar Loja Oficial Completa Rock Encantech com SSO"
             >
-              <ShoppingBag className="size-3.5" />
-              <span>Loja Completa</span>
-              <ExternalLink className="size-3" />
+              {isConnectingStore ? (
+                <>
+                  <RefreshCw className="size-3.5 animate-spin" />
+                  <span>Conectando...</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="size-3.5" />
+                  <span>Loja Completa</span>
+                  <ExternalLink className="size-3" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -426,10 +440,20 @@ function MarketEmbeddedPage() {
             <button
               type="button"
               onClick={handleOpenFullStore}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md shrink-0"
+              disabled={isConnectingStore}
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md shrink-0"
             >
-              <span>Acessar Loja Completa</span>
-              <ExternalLink className="size-3.5" />
+              {isConnectingStore ? (
+                <>
+                  <RefreshCw className="size-3.5 animate-spin" />
+                  <span>Conectando à Loja...</span>
+                </>
+              ) : (
+                <>
+                  <span>Acessar Loja Completa</span>
+                  <ExternalLink className="size-3.5" />
+                </>
+              )}
             </button>
           </div>
 
