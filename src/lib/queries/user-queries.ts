@@ -26,11 +26,14 @@ export function useWalletData(userId?: string) {
         const res = await fetch(`/loyalty/wallet?token=usr_${targetUserId}`);
         if (res.ok) {
           const data = await res.json();
-          const balance = data.balance ?? data.points ?? 0;
+          const remoteBal = data.balance ?? data.points ?? 0;
+          const user = sharedSandboxStore.getUserById(targetUserId) || activeUser;
           const localTxs = sharedSandboxStore.getUserTransactions(targetUserId);
+          // LL-018: Proteção contra saldo remoto defasado ou esmagamento
+          const safeBalance = Math.max(remoteBal, user?.nfsBalance || 0);
 
           return {
-            balance,
+            balance: safeBalance,
             transactions: localTxs.map(formatFriendlyTx),
             source: "api_remote",
           };

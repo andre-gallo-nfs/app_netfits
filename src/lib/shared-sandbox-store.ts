@@ -59,8 +59,10 @@ export interface SandboxTransaction {
   userName: string;
   amount: number; // positive for gain, negative for spent
   description: string;
-  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post" | "badge" | "feed";
+  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post" | "badge" | "feed" | "shop_refund";
   timestamp: string;
+  orderRef?: string;
+  metadata?: any;
 }
 
 export type TransactionOriginCategory =
@@ -342,7 +344,7 @@ const INITIAL_USERS: SandboxUser[] = [
     "state": "São Paulo",
     "shortState": "SP",
     "zipcode": "06542195",
-    "nfsBalance": 432,
+    "nfsBalance": 1221,
     "userCategory": "atleta",
     "referralCode": "FORMIGARI-NFS",
     "registeredAt": "2026-10-06T00:00:00Z",
@@ -630,6 +632,488 @@ const INITIAL_PARTNERS: SandboxPartner[] = [];
 
 const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
   {
+    "id": "tx-1794668582180-welcome",
+    "userId": "user-1794668582179",
+    "userName": "Márcio Santos Miranda",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+    "category": "welcome",
+    "timestamp": "2026-11-14T15:03:02.180Z"
+  },
+  {
+    "id": "tx-feed-1794649604904-64",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Como Comprar no Shop Gera Pontos: 4 netfits por R$ 1 no Extrato (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-14T09:46:44.792Z"
+  },
+  {
+    "id": "tx-feed-1794649508875-214",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Como Acompanhar Seus Pontos no Dia a Dia: Simples, Transparente e Sem Pegadinhas (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-14T09:45:08.761Z"
+  },
+  {
+    "id": "tx-feed-1794649459681-326",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Leitura Validada: Desafio Netfits: Propósito, Longevidade & Bem-Estar",
+    "category": "feed",
+    "timestamp": "2026-11-14T09:44:19.681Z"
+  },
+  {
+    "id": "tx-feed-1794649362698-800",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-11-14T09:42:42.586Z"
+  },
+  {
+    "id": "tx-feed-1794649284082-880",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 10,
+    "description": "Desafio Quiz Concluído: Quiz Patrocinado: Mizuno Running",
+    "category": "feed",
+    "timestamp": "2026-11-14T09:41:23.970Z"
+  },
+  {
+    "id": "tx-1794500513514-welcome",
+    "userId": "user-1794500513514",
+    "userName": "Ricardo Toledo de Oliveira",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+    "category": "welcome",
+    "timestamp": "2026-11-12T17:41:53.000Z"
+  },
+  {
+    "id": "tx-feed-1794395576828-289",
+    "userId": "user-1793578988883",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-11-11T11:12:56.716Z"
+  },
+  {
+    "id": "tx-feed-1794395447009-581",
+    "userId": "user-1793578988883",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-11-11T11:10:46.892Z"
+  },
+  {
+    "id": "tx_garmin_1794361702539_uqyaqqf",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 20,
+    "description": "Treino Garmin Validado no Clube: Treino Físico Garmin (+20 nfs)",
+    "category": "workout",
+    "timestamp": "2026-11-10T22:48:22.423Z",
+    "orderRef": "pw_garmin_andre_today"
+  },
+  {
+    "id": "tx-feed-1794325159036-815",
+    "userId": "user-1794018495670",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Como Comprar no Shop Gera Pontos: 4 netfits por R$ 1 no Extrato (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-10T15:39:18.917Z"
+  },
+  {
+    "id": "tx-feed-1794325081673-541",
+    "userId": "user-1794018495670",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Síndrome REDs: O Perigo Invisível da Baixa Disponibilidade Energética (Fibios Medicina & Saúde)",
+    "category": "feed",
+    "timestamp": "2026-11-10T15:38:01.555Z"
+  },
+  {
+    "id": "tx-feed-1794325036543-390",
+    "userId": "user-1794018495670",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: A Origem da Netfits: O Suor do Fundador que Virou Moeda (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-10T15:37:16.424Z"
+  },
+  {
+    "id": "tx-feed-1794324792458-418",
+    "userId": "user-1794018495670",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Tendinopatias: Por que o Repouso Absoluto Piora a Dor no Tendão (Dr. Franco Merici)",
+    "category": "feed",
+    "timestamp": "2026-11-10T15:33:12.342Z"
+  },
+  {
+    "id": "tx-feed-1794324638564-327",
+    "userId": "user-1794018495670",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-11-10T15:30:38.450Z"
+  },
+  {
+    "id": "tx-feed-1794324500780-605",
+    "userId": "user-1794018495670",
+    "userName": "",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Cadastro 100% Completo: Segurança LGPD e +50 netfits Imediatos (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-10T15:28:20.661Z"
+  },
+  {
+    "id": "tx-mkp-refund-PFM0610443019",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": -227,
+    "description": "Estorno de Cashback: Pedido Cancelado na Rock #PFM0610443019",
+    "category": "shop_refund",
+    "timestamp": "2026-11-09T18:01:00.000Z",
+    "orderRef": "PFM0610443019"
+  },
+  {
+    "id": "tx-mkp-refund-GTJ0522372096",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": -814,
+    "description": "Estorno de Cashback: Pedido Cancelado na Rock #GTJ0522372096",
+    "category": "shop_refund",
+    "timestamp": "2026-11-09T18:00:00.000Z",
+    "orderRef": "GTJ0522372096"
+  },
+  {
+    "id": "tx-feed-1794179327869-458",
+    "userId": "user-1794018495670",
+    "userName": "Claudia Noce Soares",
+    "amount": 5,
+    "description": "Leitura Validada: Quizz Netfits: Biomarcadores & Longevidade Ativa (Dra. Isabella Formigari)",
+    "category": "feed",
+    "timestamp": "2026-11-08T23:08:47.869Z"
+  },
+  {
+    "id": "tx-feed-1794179288794-513",
+    "userId": "user-1794018495670",
+    "userName": "Claudia Noce Soares",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Desafio Netfits: Biomarcadores & Sono (Dra. Isabella Formigari — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-11-08T23:08:08.679Z"
+  },
+  {
+    "id": "tx-mkp-earn-MTS0816353229",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 699,
+    "description": "✨ Cashback compra Mkplace Pedido #MTS0816353229",
+    "category": "shop",
+    "timestamp": "2026-11-08T16:35:36.619Z",
+    "orderRef": "MTS0816353229"
+  },
+  {
+    "id": "tx-feed-1794143094416-964",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Overtraining: 4 Sinais Biológicos de Sobrecarga e Fadiga Crônica (Dr. Franco Merici)",
+    "category": "feed",
+    "timestamp": "2026-11-08T13:04:54.296Z"
+  },
+  {
+    "id": "tx-feed-1794143051608-140",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Desafio Quiz Concluído: Quiz Diário: Cadastro 100% Completo: Segurança LGPD e +50 netfits Imediatos (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-08T13:04:11.495Z"
+  },
+  {
+    "id": "tx-mkp-earn-JVV0717378181",
+    "userId": "user-1794018495670",
+    "userName": "Claudia Noce Soares",
+    "amount": 139,
+    "description": "✨ Cashback compra Mkplace Pedido #JVV0717378181",
+    "category": "shop",
+    "timestamp": "2026-11-07T17:37:59.111Z"
+  },
+  {
+    "id": "tx-1794056068710-908",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Cadastro 100% Completo: Segurança LGPD e +50 netfits Imediatos (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-07T12:54:28.710Z"
+  },
+  {
+    "id": "tx-1794055590993-243",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Hidratação Inteligente: Eletrólitos e o Risco Real da Hiponatremia (Dra. Isabella Formigari)",
+    "category": "feed",
+    "timestamp": "2026-11-07T12:46:30.993Z"
+  },
+  {
+    "id": "tx-1794055125395-8",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Consistência sem Burnout: A Ciência da Frequência Sustentável (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-07T12:38:45.395Z"
+  },
+  {
+    "id": "tx-1794018495670-welcome",
+    "userId": "user-1794018495670",
+    "userName": "Claudia Noce Soares",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
+    "category": "welcome",
+    "timestamp": "2026-11-07T02:28:15.670Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-alcides",
+    "userId": "usr_alcides",
+    "userName": "Alcides",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-06T09:39:14.000Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-eduardo-ferreira",
+    "userId": "usr_eduardo_ferreira",
+    "userName": "Eduardo Ferreira dos Santos",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-05T23:17:39.000Z"
+  },
+  {
+    "id": "tx-reconcile-referral-eduardo-ferreira",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 50,
+    "description": "Bônus por Indicar Novo Usuário (Eduardo Ferreira dos Santos) — Reconciliação MGM",
+    "category": "referral",
+    "timestamp": "2026-11-05T23:17:39.000Z"
+  },
+  {
+    "id": "tx-1793896767349-311",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Overtraining: 4 Sinais Biológicos de Sobrecarga e Fadiga Crônica (Dr. Franco Merici)",
+    "category": "feed",
+    "timestamp": "2026-11-05T16:39:27.350Z"
+  },
+  {
+    "id": "tx-1793884365611-119",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 10,
+    "description": "Quiz Patrocinado: Mizuno Running",
+    "category": "feed",
+    "timestamp": "2026-11-05T13:12:45.611Z"
+  },
+  {
+    "id": "tx-1793838671148-180",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Síndrome REDs: O Perigo Invisível da Baixa Disponibilidade Energética (Fibios Medicina & Saúde)",
+    "category": "feed",
+    "timestamp": "2026-11-05T00:31:11.148Z"
+  },
+  {
+    "id": "tx-1793838579922-553",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: A Origem da Netfits: O Suor do Fundador que Virou Moeda (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-05T00:29:39.922Z"
+  },
+  {
+    "id": "tx-1793838428165-561",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Acompanhe sua Evolução: Rituais Diários, Sequências e Selos (Time Netfits)",
+    "category": "badge",
+    "timestamp": "2026-11-05T00:27:08.165Z"
+  },
+  {
+    "id": "tx-1793838320746-621",
+    "userId": "usr_carlos_formigari",
+    "userName": "Carlos Rodrigo Formigari",
+    "amount": 5,
+    "description": "Quiz Diário: Como Acompanhar Seus Pontos no Dia a Dia: Simples, Transparente e Sem Pegadinhas (Time Netfits)",
+    "category": "feed",
+    "timestamp": "2026-11-05T00:25:20.746Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-mariana-pizone",
+    "userId": "user-1793802322018",
+    "userName": "Mariana Fernanda Pizone",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-04T14:25:22.000Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-franco-merici",
+    "userId": "usr_franco_merici_gmail",
+    "userName": "Dr. Franco Merici",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-02T18:07:25.000Z"
+  },
+  {
+    "id": "tx-reconcile-referral-isabella-franco",
+    "userId": "usr_isabella_formigari",
+    "userName": "Dra. Isabella Formigari",
+    "amount": 50,
+    "description": "Bônus por Indicar Novo Usuário (Dr. Franco Merici) — MGM",
+    "category": "referral",
+    "timestamp": "2026-11-02T18:07:25.000Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-ana-merici",
+    "userId": "usr_ana_merici_yahoo",
+    "userName": "Ana Merici",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-02T17:22:18.000Z"
+  },
+  {
+    "id": "tx-reconcile-referral-isabella-ana",
+    "userId": "usr_isabella_formigari",
+    "userName": "Dra. Isabella Formigari",
+    "amount": 50,
+    "description": "Bônus por Indicar Novo Usuário (Ana Merici) — MGM",
+    "category": "referral",
+    "timestamp": "2026-11-02T17:22:18.000Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-yuri-bezerra",
+    "userId": "usr_yuri_bezerra",
+    "userName": "Yuri Bezerra",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-02T17:20:17.000Z"
+  },
+  {
+    "id": "tx-reconcile-referral-isabella-yuri",
+    "userId": "usr_isabella_formigari",
+    "userName": "Dra. Isabella Formigari",
+    "amount": 50,
+    "description": "Bônus por Indicar Novo Usuário (Yuri Bezerra) — MGM",
+    "category": "referral",
+    "timestamp": "2026-11-02T17:20:17.000Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-isabella-formigari",
+    "userId": "usr_isabella_formigari",
+    "userName": "Dra. Isabella Formigari",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-02T17:07:56.000Z"
+  },
+  {
+    "id": "tx-reconcile-welcome-luisa-formigari",
+    "userId": "user-1793578988883",
+    "userName": "Luisa Ferreira Formigari",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits — Reconciliação Oficial",
+    "category": "welcome",
+    "timestamp": "2026-11-01T02:40:00.000Z"
+  },
+  {
+    "id": "tx-welcome-jorge-miyane",
+    "userId": "usr_jorge_miyane",
+    "userName": "Jorge Miyane",
+    "amount": 50,
+    "description": "Bônus de Boas-Vindas no Cadastramento Netfits",
+    "category": "welcome",
+    "timestamp": "2026-10-27T22:23:54.000Z"
+  },
+  {
+    "id": "tx-mkp-earn-FFP2716595769",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 359,
+    "description": "✨ Cashback compra Mkplace Pedido #FFP2716595769 (R$ 89,99) — Boné Mizuno Run Sky",
+    "category": "shop",
+    "timestamp": "2026-10-27T16:59:48.251Z",
+    "orderRef": "FFP2716595769"
+  },
+  {
+    "id": "tx-apple-review-shop",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 395,
+    "description": "Cashback Shopping Netfits: Compra Pontuada",
+    "category": "shop",
+    "timestamp": "2026-10-24T10:20:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-referral",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 50,
+    "description": "Indicação de Amigo: Bônus MGM Concluído",
+    "category": "referral",
+    "timestamp": "2026-10-24T10:15:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-feed",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 5,
+    "description": "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)",
+    "category": "feed",
+    "timestamp": "2026-10-24T10:10:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-club",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 1000,
+    "description": "Mensalidade Clube Netfits: Pontuação Recorrente",
+    "category": "associado_bonus",
+    "timestamp": "2026-10-24T10:05:00.000Z"
+  },
+  {
+    "id": "tx-apple-review-welcome",
+    "userId": "usr_apple_review",
+    "userName": "Avaliador Netfits (Apple Review)",
+    "amount": 50,
+    "description": "Boas-vindas à Netfits! Bônus de Cadastro Inicial",
+    "category": "welcome",
+    "timestamp": "2026-10-24T10:00:00.000Z"
+  },
+  {
     "id": "tx-1792096301675-472",
     "userId": "usr_andre",
     "userName": "André Gallo",
@@ -664,6 +1148,15 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "description": "Bônus de Boas-Vindas — Novo Cadastro no App Netfits",
     "category": "welcome",
     "timestamp": "2026-10-15T18:52:14.272Z"
+  },
+  {
+    "id": "tx-referral-cristiane-queli",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 50,
+    "description": "Bônus por Indicar Novo Usuário (Cristiane Queli da Silva Gallo) — MGM",
+    "category": "referral",
+    "timestamp": "2026-10-15T18:52:14.266Z"
   },
   {
     "id": "tx-badge-usr_carlos_formigari-embaixador_netfits",
@@ -769,9 +1262,10 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "userId": "usr_andre",
     "userName": "André Gallo",
     "amount": 130,
-    "description": "✨ Cashback compra Mkplace Pedido #AHK0918295258 (R$ 42,52)",
+    "description": "✨ Cashback compra Mkplace Pedido #AHK0918295258 (R$ 42,52) — Meia Puma",
     "category": "shop",
-    "timestamp": "2026-10-15T13:20:00Z"
+    "timestamp": "2026-10-15T13:20:00Z",
+    "orderRef": "AHK0918295258"
   },
   {
     "id": "tx-1792017877174",
@@ -846,21 +1340,21 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "timestamp": "2026-10-08T16:51:46.897Z"
   },
   {
-    "id": "tx-1791415135742",
-    "userId": "usr_andre",
-    "userName": "André Aparecido da Cruz Gallo",
-    "amount": 10,
-    "description": "Compartilhamento pós-visualização: Fibios Medicina e Saúde",
-    "category": "feed",
-    "timestamp": "2026-10-07T23:18:55.742Z"
-  },
-  {
     "id": "tx-badge-usr_andre-voz_da_tribo",
     "userId": "usr_andre",
     "userName": "André Gallo",
     "amount": 25,
     "description": "🏆 Selo Conquistado: Voz da Tribo",
     "category": "badge",
+    "timestamp": "2026-10-07T23:18:55.742Z"
+  },
+  {
+    "id": "tx-1791415135742",
+    "userId": "usr_andre",
+    "userName": "André Gallo",
+    "amount": 10,
+    "description": "Compartilhamento pós-visualização: Fibios Medicina e Saúde",
+    "category": "feed",
     "timestamp": "2026-10-07T23:18:55.742Z"
   },
   {
@@ -1041,7 +1535,8 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "amount": 227,
     "description": "✨ Cashback compra Mkplace Pedido #PFM0610443019 (R$ 56,85)",
     "category": "shop",
-    "timestamp": "2026-10-06T10:45:38Z"
+    "timestamp": "2026-10-06T10:45:38Z",
+    "orderRef": "PFM0610443019"
   },
   {
     "id": "tx-welcome-carlos",
@@ -1068,7 +1563,8 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "amount": 814,
     "description": "✨ Cashback compra Mkplace Pedido #GTJ0522372096 (R$ 203,50)",
     "category": "shop",
-    "timestamp": "2026-10-05T22:38:35Z"
+    "timestamp": "2026-10-05T22:38:35Z",
+    "orderRef": "GTJ0522372096"
   },
   {
     "id": "tx-badge-usr_andre-explorador_shop",
@@ -1123,88 +1619,7 @@ const INITIAL_TRANSACTIONS: SandboxTransaction[] = [
     "description": "🏆 Selo Conquistado: Atleta de Alta Performance",
     "category": "badge",
     "timestamp": "2026-10-05T00:00:00Z"
-  },
-  {
-    "id": "tx-referral-cristiane-queli",
-    "userId": "usr_andre",
-    "userName": "André Gallo",
-    "amount": 50,
-    "description": "Bônus por Indicar Novo Usuário (Cristiane Queli da Silva Gallo) — MGM",
-    "category": "referral",
-    "timestamp": "2026-10-15T18:52:14.266Z"
-  },
-  {
-    "id": "tx-mkp-earn-FFP2716595769",
-    "userId": "usr_andre",
-    "userName": "André Gallo",
-    "amount": 359,
-    "description": "✨ Cashback compra Mkplace Pedido #FFP2716595769 (R$ 89,99) — Boné Mizuno Run Sky",
-    "category": "shop",
-    "timestamp": "2026-10-27T16:59:48.251Z"
-  },
-  {
-    "id": "tx_garmin_1794361702539_uqyaqqf",
-    "userId": "usr_andre",
-    "userName": "André Gallo",
-    "amount": 20,
-    "description": "Treino Garmin Validado no Clube: Treino Físico Garmin (+20 nfs)",
-    "category": "workout",
-    "timestamp": "2026-11-10T22:48:22.423Z"
-  },
-  {
-    "id": "tx-mkp-refund-GTJ0522372096",
-    "userId": "usr_andre",
-    "userName": "André Gallo",
-    "amount": -814,
-    "description": "Estorno de Cashback: Pedido Cancelado na Rock #GTJ0522372096",
-    "category": "shop",
-    "timestamp": "2026-11-09T18:00:00.000Z"
-  },
-  {
-    "id": "tx-mkp-refund-PFM0610443019",
-    "userId": "usr_andre",
-    "userName": "André Gallo",
-    "amount": -227,
-    "description": "Estorno de Cashback: Pedido Cancelado na Rock #PFM0610443019",
-    "category": "shop",
-    "timestamp": "2026-11-09T18:01:00.000Z"
-  },
-  {
-    "id": "tx-apple-review-welcome",
-    "userId": "usr_apple_review",
-    "userName": "Avaliador Netfits (Apple Review)",
-    "amount": 50,
-    "description": "Boas-vindas à Netfits! Bônus de Cadastro Inicial",
-    "category": "welcome",
-    "timestamp": "2026-10-24T10:00:00.000Z"
-  },
-  {
-    "id": "tx-apple-review-feed",
-    "userId": "usr_apple_review",
-    "userName": "Avaliador Netfits (Apple Review)",
-    "amount": 5,
-    "description": "Desafio Netfits: Força & Longevidade (Dr. Franco Merici — Fibios)",
-    "category": "feed",
-    "timestamp": "2026-10-24T10:10:00.000Z"
-  },
-  {
-    "id": "tx-apple-review-referral",
-    "userId": "usr_apple_review",
-    "userName": "Avaliador Netfits (Apple Review)",
-    "amount": 50,
-    "description": "Indicação de Amigo: Bônus MGM Concluído",
-    "category": "referral",
-    "timestamp": "2026-10-24T10:15:00.000Z"
-  },
-  {
-    "id": "tx-apple-review-shop",
-    "userId": "usr_apple_review",
-    "userName": "Avaliador Netfits (Apple Review)",
-    "amount": 395,
-    "description": "Cashback Shopping Netfits: Compra Pontuada",
-    "category": "shop",
-    "timestamp": "2026-10-24T10:20:00.000Z"
-  },
+  }
 ];
 
 const INITIAL_TICKETS: SandboxTicket[] = [
@@ -1638,10 +2053,22 @@ class HomologationSandboxStore {
             }
           }
           if (Array.isArray(json?.transactions)) {
-            this.state.transactions = json.transactions.filter((tx: any) => {
-              const isGallo = tx.userId === "user-1792090334266" || tx.userId === "usr_cristiane_gallo";
-              return !(isGallo && (tx.category === "badge" || tx.id?.startsWith("tx-badge-") || /selo|conquista/i.test(tx.description || "")));
-            });
+            // MERGE ATÔMICO SEM PERDA (LL-018): Preserva transações locais e canônicas
+            const txMap = new Map<string, SandboxTransaction>();
+            for (const t of this.state.transactions) {
+              if (t && t.id) txMap.set(t.id, t);
+            }
+            for (const rawTx of json.transactions) {
+              if (!rawTx || !rawTx.id) continue;
+              const isGallo = rawTx.userId === "user-1792090334266" || rawTx.userId === "usr_cristiane_gallo";
+              if (isGallo && (rawTx.category === "badge" || rawTx.id?.startsWith("tx-badge-") || /selo|conquista/i.test(rawTx.description || ""))) {
+                continue;
+              }
+              txMap.set(rawTx.id, rawTx);
+            }
+            this.state.transactions = Array.from(txMap.values()).sort(
+              (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
           }
           this.saveToStorageLocally();
           this.notify();
@@ -2357,7 +2784,8 @@ class HomologationSandboxStore {
       const sum = this.state.transactions
         .filter((t) => t.userId === userId)
         .reduce((acc, t) => acc + (t.amount || 0), 0);
-      targetUser.nfsBalance = Math.max(0, sum);
+      // LL-018: Proibição estrita de esmagamento descendente automático
+      targetUser.nfsBalance = Math.max(targetUser.nfsBalance || 0, sum);
       this.saveToStorage();
       return targetUser.nfsBalance;
     }

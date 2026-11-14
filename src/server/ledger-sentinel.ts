@@ -169,7 +169,15 @@ export class RealTimeLedgerSentinel {
           // se a nuvem contiver contagem truncada em relação ao estado pré-semeado canônico!
           if (freshCloud.users.length >= serverState.users.length) {
             serverState.users = freshCloud.users;
-            serverState.transactions = freshCloud.transactions || [];
+            // LL-018: Preservação estrita e merge não destrutivo de transações
+            const txMap = new Map<string, any>();
+            for (const t of serverState.transactions) {
+              if (t && t.id) txMap.set(t.id, t);
+            }
+            for (const t of (freshCloud.transactions || [])) {
+              if (t && t.id) txMap.set(t.id, t);
+            }
+            serverState.transactions = Array.from(txMap.values());
           } else {
             console.warn(
               `[Ledger Sentinel] ⚠️ Nuvem retornou contagem truncada (${freshCloud.users.length} < ${serverState.users.length}). Mantendo base canônica de produção (LL-012).`

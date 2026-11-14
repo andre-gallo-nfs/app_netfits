@@ -79,6 +79,13 @@ export function InstitutionalHomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
             <Link
+              to="/auth"
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-lime-400/20 transition cursor-pointer"
+            >
+              <Lock className="size-4" />
+              Entrar / Acessar o App
+            </Link>
+            <Link
               to="/download"
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white text-zinc-950 hover:bg-zinc-200 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl transition"
             >

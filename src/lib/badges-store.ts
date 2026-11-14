@@ -449,9 +449,6 @@ export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[]
   });
 
   if (hasChanged) {
-    if (activeUser.id !== "usr_andre") {
-      sharedSandboxStore.recalculateUserBalance(activeUser.id);
-    }
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(getBadgesStorageKey(activeUser.id), JSON.stringify(badgesList));

@@ -374,41 +374,16 @@ function MarketEmbeddedPage() {
             </div>
           </div>
 
-          {/* Lado Direito: Alternador de Modo e Botão de Loja Completa */}
+          {/* Lado Direito: Acesso Direto à Loja Completa */}
           <div className="flex items-center gap-2">
-            <div className="bg-zinc-800 p-0.5 rounded-xl flex items-center border border-zinc-700/60">
-              <button
-                type="button"
-                onClick={() => setViewMode("native")}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                  viewMode === "native"
-                    ? "bg-purple-600 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                Catálogo
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("web")}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                  viewMode === "web"
-                    ? "bg-purple-600 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                Loja Web
-              </button>
-            </div>
-
             <button
               type="button"
               onClick={handleOpenFullStore}
-              className="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30 font-bold text-[11px] flex items-center gap-1.5 transition active:scale-95 cursor-pointer"
-              title="Abrir Loja Completa com SSO"
+              className="px-3 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
+              title="Acessar Loja Oficial Completa Rock Encantech com SSO"
             >
-              <span className="hidden sm:inline">Loja</span>
-              <span>Completa</span>
+              <ShoppingBag className="size-3.5" />
+              <span>Loja Completa</span>
               <ExternalLink className="size-3" />
             </button>
           </div>
@@ -433,27 +408,28 @@ function MarketEmbeddedPage() {
       {viewMode === "native" ? (
         <div className="px-4 py-4 space-y-4">
           {/* Banner de Cashback Oficial Rock Encantech */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-900/60 to-purple-950/80 border border-purple-500/30 flex items-center justify-between gap-3 shadow-md">
-            <div className="flex items-center gap-2.5">
-              <div className="size-9 rounded-xl bg-lime-400/20 text-lime-400 grid place-items-center shrink-0">
+          {/* Banner Hero de Acesso à Loja Oficial Rock Encantech */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-900/80 via-zinc-900 to-purple-950/80 border border-purple-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-lime-400/20 text-lime-400 grid place-items-center shrink-0 border border-lime-400/30">
                 <Sparkles className="size-5" />
               </div>
               <div>
-                <span className="text-xs font-black text-white flex items-center gap-1">
-                  Cashback Oficial: <strong className="text-lime-400">4 nfs por R$ 1,00</strong>
+                <span className="text-xs font-black text-white flex items-center gap-1.5">
+                  Loja Oficial Netfits &bull; <strong className="text-lime-400">4 nfs por R$ 1,00 gasto</strong>
                 </span>
-                <p className="text-[10px] text-zinc-300">
-                  Clique em qualquer produto para ir direto à compra com entrega garantida.
+                <p className="text-[11px] text-zinc-300">
+                  Mais de 10.000 produtos esportivos homologados com cashback e entrega garantida.
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={handleOpenFullStore}
-              className="shrink-0 px-2.5 py-1.5 rounded-lg bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-[10px] flex items-center gap-1 transition active:scale-95 cursor-pointer"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md shrink-0"
             >
-              <span>Ver Loja</span>
-              <ArrowRight className="size-3" />
+              <span>Acessar Loja Completa</span>
+              <ExternalLink className="size-3.5" />
             </button>
           </div>
 
@@ -481,7 +457,7 @@ function MarketEmbeddedPage() {
               {filteredProducts.map((prod) => (
                 <div
                   key={prod.id}
-                  onClick={() => handleSelectProduct(prod)}
+                  onClick={() => handleDirectBuy(prod)}
                   className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-purple-500/50 transition duration-200 cursor-pointer group shadow-sm"
                 >
                   {/* Imagem do Produto com Badge de Cashback */}
@@ -529,9 +505,9 @@ function MarketEmbeddedPage() {
                         type="button"
                         onClick={(e) => handleDirectBuy(prod, e)}
                         className="px-2.5 py-1.5 rounded-lg bg-[#C8F135] hover:bg-[#b8e025] text-zinc-950 font-black text-[11px] flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer shrink-0"
-                        title="Ir direto para a compra na Loja Oficial"
+                        title="Ir direto para a compra na Loja Oficial Rock Encantech"
                       >
-                        <span>Comprar</span>
+                        <span>Comprar no Shop</span>
                         <ArrowRight className="size-3" />
                       </button>
                     </div>

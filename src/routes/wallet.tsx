@@ -46,8 +46,11 @@ function WalletPage() {
   const { balance: localBalance, txs: localTxs } = useWallet();
   const activeUser = sharedSandboxStore.useActiveUser();
   const { data: remoteWallet } = useWalletData(activeUser.id);
-  const balance = remoteWallet?.balance ?? localBalance;
-  const txs = remoteWallet?.transactions ?? localTxs;
+  // LL-018: Proteção estrita contra Esmagamento Descendente Automático de Saldo ou Extrato
+  const balance = Math.max(remoteWallet?.balance ?? 0, localBalance ?? 0);
+  const txs = (remoteWallet?.transactions && remoteWallet.transactions.length >= localTxs.length)
+    ? remoteWallet.transactions
+    : localTxs;
   const params = useOperationalParams();
   const [selectedTx, setSelectedTx] = useState<WalletTx | null>(null);
   const [filterPeriod, setFilterPeriod] = useState<PeriodFilter>("last5");

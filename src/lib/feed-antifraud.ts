@@ -1,5 +1,6 @@
 import { operationalParamsStore } from "./operational-params-store";
 import { toast } from "sonner";
+import { sharedSandboxStore } from "./shared-sandbox-store";
 
 export type FeedActionType = "read" | "video_view" | "quiz" | "like" | "share" | "link_click";
 
@@ -96,11 +97,45 @@ export const feedAntifraud = {
   },
 
   /**
-   * Verifica se o usuário já coletou a recompensa desta ação específica neste post
+   * Verifica se o usuário já coletou a recompensa desta ação específica neste post.
+   * Consulta o log local e cruza com as transações históricas do Ledger Soberano (LL-013, LL-018).
    */
-  hasClaimed(action: FeedActionType, postId: string): boolean {
+  hasClaimed(action: FeedActionType, postId: string, userId?: string): boolean {
     const log = loadActionLog();
-    return log.some((item) => item.action === action && item.postId === postId);
+    if (log.some((item) => item.action === action && item.postId === postId)) {
+      return true;
+    }
+
+    // Verificação cruzada no Ledger Soberano (LL-013, LL-018):
+    // Se o usuário já possui transação de quiz/feed registrada, reconhece imediatamente como concluído
+    try {
+      const active = sharedSandboxStore.getActiveUser();
+      const targetUid = userId || active?.id;
+      if (targetUid) {
+        const txs = sharedSandboxStore.getUserTransactions(targetUid);
+        const normPost = postId.toLowerCase().replace(/[-_]/g, " ");
+        const hasTx = txs.some((t) => {
+          if (t.category !== "feed") return false;
+          const desc = (t.description || "").toLowerCase();
+          const tid = (t.id || "").toLowerCase();
+          if (tid.includes(postId.toLowerCase())) return true;
+          if (postId.includes("mizuno") && desc.includes("mizuno")) return true;
+          if (postId.includes("franco") && desc.includes("franco")) return true;
+          if (postId.includes("isabella") && (desc.includes("isabella") || desc.includes("sono") || desc.includes("biomarcadores"))) return true;
+          if (postId.includes("purpose") && desc.includes("propósito")) return true;
+          if (postId.includes("tendinopatias") && desc.includes("tendinopatias")) return true;
+          if (postId.includes("reds") && desc.includes("reds")) return true;
+          if (postId.includes("overtraining") && desc.includes("overtraining")) return true;
+          if (postId.includes("origem") && desc.includes("origem")) return true;
+          if (postId.includes("shop") && desc.includes("comprar no shop")) return true;
+          if (postId.includes("dia-a-dia") && desc.includes("dia a dia")) return true;
+          return normPost.length > 5 && desc.includes(normPost);
+        });
+        if (hasTx) return true;
+      }
+    } catch {}
+
+    return false;
   },
 
   /**
