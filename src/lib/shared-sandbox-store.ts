@@ -51,6 +51,10 @@ export interface SandboxUser {
   loyaltyPointsEstimate?: string;
   gender?: string | null;
   passwordHash?: string;
+  termsAcceptedAt?: string;
+  termsVersion?: string;
+  lgpdAcceptedAt?: string;
+  lgpdVersion?: string;
 }
 
 export interface SandboxTransaction {
@@ -2810,6 +2814,10 @@ class HomologationSandboxStore {
     address?: string;
     password?: string;
     referralCode?: string;
+    termsAcceptedAt?: string;
+    termsVersion?: string;
+    lgpdAcceptedAt?: string;
+    lgpdVersion?: string;
   }): { success: boolean; user?: SandboxUser; error?: string; isDuplicate?: boolean; matchedField?: string } {
     const cleanEmail = data.email.trim().toLowerCase();
     const cleanPhoneDigits = data.phone.replace(/\D/g, "");
@@ -2844,6 +2852,10 @@ class HomologationSandboxStore {
       if (data.shortState?.trim()) existingUser.shortState = data.shortState.trim();
       if (data.address?.trim()) existingUser.address = data.address.trim();
       if (data.password?.trim()) existingUser.passwordHash = data.password.trim();
+      if (data.termsAcceptedAt) existingUser.termsAcceptedAt = data.termsAcceptedAt;
+      if (data.termsVersion) existingUser.termsVersion = data.termsVersion;
+      if (data.lgpdAcceptedAt) existingUser.lgpdAcceptedAt = data.lgpdAcceptedAt;
+      if (data.lgpdVersion) existingUser.lgpdVersion = data.lgpdVersion;
       this.saveToStorage();
       this.setActiveUser(existingUser.id);
       return { success: true, user: existingUser };
@@ -2908,6 +2920,10 @@ class HomologationSandboxStore {
       associatedWith: referrer && referrer.type === "associado" ? referrer.referralCode : undefined,
       registeredAt: new Date().toISOString(),
       passwordHash: data.password?.trim() || "",
+      termsAcceptedAt: data.termsAcceptedAt,
+      termsVersion: data.termsVersion,
+      lgpdAcceptedAt: data.lgpdAcceptedAt,
+      lgpdVersion: data.lgpdVersion,
     };
 
     this.state.users.push(newUser);
