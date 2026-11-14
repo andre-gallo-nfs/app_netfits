@@ -266,14 +266,53 @@ export const nativeBridge = {
       }
     }
 
-    // 2. No ambiente Web convencional: Abre em nova aba ("_blank") com noopener/noreferrer
+    const isStandalonePWA =
+      (typeof window !== "undefined" && (window.navigator as any).standalone === true) ||
+      (typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(display-mode: standalone)").matches);
+
+    // 2. Se for PWA Standalone (iOS / Android instalado na tela de início):
+    // O WebKit do iOS intercepta links <a> com target="_blank" e abre no Safari externo do sistema.
+    // NUNCA fazer window.location.assign(url) para domínios externos em PWA, pois isso substitui o shell
+    // do app por uma webview sem safe-area (cortando o topo no notch/status bar) e sem botão de voltar.
+    if (isStandalonePWA) {
+      try {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return;
+      } catch (ePwa) {
+        console.warn("[NativeBridge] Falha no disparo de âncora PWA:", ePwa);
+      }
+    }
+
+    // 3. No ambiente Web convencional (Safari / Chrome navegando na web):
     try {
       const win = window.open(url, "_blank", "noopener,noreferrer");
       if (!win || win.closed || typeof win.closed === "undefined") {
-        window.location.assign(url);
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       }
     } catch {
-      window.location.assign(url);
+      try {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch {
+        window.location.assign(url);
+      }
     }
   },
   getStoredReferralCode(): string | null {

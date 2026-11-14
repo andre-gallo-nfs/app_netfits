@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Truck,
   CheckCircle2,
+  Package,
 } from "lucide-react";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
@@ -258,9 +259,11 @@ function MarketEmbeddedPage() {
   const [viewMode, setViewMode] = useState<"native" | "web">("native");
   const [selectedDetailProduct, setSelectedDetailProduct] = useState<DetailProduct | null>(null);
   const [isConnectingStore, setIsConnectingStore] = useState<boolean>(false);
+  const [isConnectingOrders, setIsConnectingOrders] = useState<boolean>(false);
 
-  // Estados da Loja Iframe
+  // Estados da Loja & Sessão Autenticada
   const [storeUrl, setStoreUrl] = useState<string>("");
+  const [ordersUrl, setOrdersUrl] = useState<string>("");
   const [isIframeLoading, setIsIframeLoading] = useState<boolean>(false);
   const [reloadKey, setReloadKey] = useState<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -294,22 +297,21 @@ function MarketEmbeddedPage() {
     }
   }, [search.product]);
 
-  // Carrega URL da loja Rock Encantech quando o modo Web for acionado
+  // Pré-carrega a URL da loja Rock Encantech e atalho direto para Meus Pedidos
   useEffect(() => {
-    if (viewMode === "web") {
-      setIsIframeLoading(true);
-      getMkplaceStoreUrl(activeUser.id)
-        .then((url) => {
-          setStoreUrl(url);
-          setIsIframeLoading(false);
-        })
-        .catch(() => {
-          toast.info("Acessando Catálogo Oficial Netfits.");
-          setViewMode("native");
-          setIsIframeLoading(false);
-        });
-    }
-  }, [viewMode, activeUser.id, reloadKey]);
+    getMkplaceStoreUrl(activeUser.id)
+      .then((url) => {
+        setStoreUrl(url);
+        const ordUrl = url.includes("?")
+          ? url.replace("?", "/pedidos?")
+          : `${url}/pedidos`;
+        setOrdersUrl(ordUrl);
+        setIsIframeLoading(false);
+      })
+      .catch(() => {
+        setIsIframeLoading(false);
+      });
+  }, [activeUser.id, reloadKey]);
 
   // Produtos filtrados por categoria e busca
   const filteredProducts = useMemo(() => {
@@ -336,6 +338,23 @@ function MarketEmbeddedPage() {
       });
     } finally {
       setTimeout(() => setIsConnectingStore(false), 2500);
+    }
+  };
+
+  // Abre diretamente a seção de Meus Pedidos na Loja Oficial
+  const handleOpenOrders = async () => {
+    if (isConnectingOrders) return;
+    setIsConnectingOrders(true);
+    try {
+      toast.info("Acessando Meus Pedidos no Shop...", {
+        description: "Abrindo histórico de compras e rastreamento de entregas.",
+      });
+      await launchMkplaceShop({
+        userId: activeUser.id,
+        targetQueryOrPath: "pedidos",
+      });
+    } finally {
+      setTimeout(() => setIsConnectingOrders(false), 2500);
     }
   };
 
@@ -378,8 +397,25 @@ function MarketEmbeddedPage() {
             </div>
           </div>
 
-          {/* Lado Direito: Acesso Direto à Loja Completa */}
-          <div className="flex items-center gap-2">
+          {/* Lado Direito: Ações Rápidas - Meus Pedidos e Loja Completa */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleOpenOrders}
+              disabled={isConnectingOrders}
+              className="px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-60 text-zinc-200 font-bold text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm border border-zinc-700/60 cursor-pointer"
+              title="Acompanhar meus pedidos e entregas na Loja Oficial"
+            >
+              {isConnectingOrders ? (
+                <RefreshCw className="size-3.5 animate-spin text-lime-400" />
+              ) : (
+                <Package className="size-3.5 text-lime-400" />
+              )}
+              <span className="hidden sm:inline">Meus Pedidos</span>
+              <span className="sm:hidden">Pedidos</span>
+              <ExternalLink className="size-3 text-zinc-400" />
+            </button>
+
             <button
               type="button"
               onClick={handleOpenFullStore}
@@ -437,24 +473,37 @@ function MarketEmbeddedPage() {
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleOpenFullStore}
-              disabled={isConnectingStore}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md shrink-0"
-            >
-              {isConnectingStore ? (
-                <>
-                  <RefreshCw className="size-3.5 animate-spin" />
-                  <span>Conectando à Loja...</span>
-                </>
-              ) : (
-                <>
-                  <span>Acessar Loja Completa</span>
-                  <ExternalLink className="size-3.5" />
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+              <button
+                type="button"
+                onClick={handleOpenOrders}
+                disabled={isConnectingOrders}
+                className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-60 text-zinc-200 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md border border-zinc-700/60"
+                title="Acessar Meus Pedidos"
+              >
+                <Package className="size-3.5 text-lime-400" />
+                <span>Meus Pedidos</span>
+                <ExternalLink className="size-3 text-zinc-400" />
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenFullStore}
+                disabled={isConnectingStore}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-lime-400 hover:bg-lime-300 disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md"
+              >
+                {isConnectingStore ? (
+                  <>
+                    <RefreshCw className="size-3.5 animate-spin" />
+                    <span>Conectando à Loja...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Acessar Loja Completa</span>
+                    <ExternalLink className="size-3.5" />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Categorias em Pílulas */}
