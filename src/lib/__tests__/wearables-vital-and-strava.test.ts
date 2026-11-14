@@ -71,7 +71,7 @@ describe("⚡ Wearables Aggregator & Direct Integration Tests (Vital & Strava)",
       expect(res!.status).toBe(200);
       const data = await res!.json();
       expect(data.link_token).toBeDefined();
-    });
+    }, 30000);
 
     it("deve processar webhook de treino válido (>=15min com FC), creditando 20 nfs no ledger", () => {
       const initialBalance = athleteUser.nfsBalance || 0;

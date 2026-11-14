@@ -395,7 +395,7 @@ class TokenOptimizerService {
       };
     }
 
-    // 8. Médicos, Especialistas & Clínica Fibios
+    // 8. Médicos, Curadoria & Clínica Fibios
     if (
       q.includes("médico") ||
       q.includes("especialista") ||
@@ -409,8 +409,8 @@ class TokenOptimizerService {
       this.recordHit(AVERAGE_TOKENS_PER_CONVERSATION);
       return {
         handled: true,
-        text: `O ecossistema conta com os médicos especialistas fundadores da **Clínica Fibios** (Pinheiros, São Paulo): a **Dra. Isabella Formigari** (Médica CRM-SP 282951, sócia fundadora da Fibios) e o **Dr. Franco Merici** (Médico CRM-SP 212567, sócio fundador da Fibios). No Feed você encontra conteúdos educativos sobre longevidade ativa, medicina do estilo de vida, sono regenerador e quizzes de fixação!`,
-        actionLabel: "Ver Especialistas no Feed",
+        text: `A **Clínica Fibios** (Pinheiros, São Paulo) é a parceira responsável pela curadoria médica e científica da Netfits, fundada pela **Dra. Isabella Formigari** (Médica CRM-SP 282951, sócia fundadora da Fibios) e pelo **Dr. Franco Merici** (Médico CRM-SP 212567, sócio fundador da Fibios). No Feed você encontra conteúdos educativos de medicina preventiva, sono regenerador, saúde integrada e o Fibios Score, com quizzes pedagógicos de fixação! Em conformidade com o CFM, o app não comercializa consultas nem oferece cashback em atos médicos.`,
+        actionLabel: "Ver Curadoria Médica no Feed",
         route: "/feed",
         source: "deterministic_fast_path",
         tokensSaved: AVERAGE_TOKENS_PER_CONVERSATION,

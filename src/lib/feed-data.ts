@@ -73,8 +73,8 @@ export type FeedItem =
       name: string;
       role: string;
       excerpt: string;
-      price: string;
-      cashback: string;
+      price?: string;
+      cashback?: string;
     };
 
 export const feedItems: FeedItem[] = [
@@ -93,15 +93,13 @@ export const feedItems: FeedItem[] = [
     role: "Médica (CRM-SP 282951) · Sócia Fundadora da Fibios",
     excerpt:
       "Avaliação clínica integrada, biomarcadores e condutas de recuperação e longevidade para atletas em qualquer nível.",
-    price: "R$ 500,00",
-    cashback: "+500 nfs",
   },
 ];
 
 export const marketCategories = [
   { id: "sup", name: "Suplementos", count: 124 },
   { id: "gear", name: "Equipamentos", count: 86 },
-  { id: "med", name: "Consultas médicas", count: 42 },
+  { id: "rec", name: "Recuperação & Fisioterapia", count: 42 },
   { id: "nut", name: "Nutricionistas", count: 31 },
   { id: "ass", name: "Assessorias", count: 18 },
   { id: "lab", name: "Exames", count: 27 },
@@ -140,13 +138,13 @@ export const activities = [
   { id: "a2", icon: "🏋️", title: "Musculação & Força — 54 min (FC)", date: "Ontem, 18:30", reward: "+20 nfs" },
   { id: "a3", icon: "🚴", title: "Ciclismo Estrada — 38,1 km", date: "12 mai, 07:15", reward: "+20 nfs" },
   { id: "a4", icon: "😴", title: "Sono Reparador 7h42 registrado", date: "Hoje, 07:00", reward: "+10 nfs" },
-  { id: "a5", icon: "🩺", title: "Consulta Dra. Isabella Formigari", date: "10 mai", reward: "+500 nfs" },
+  { id: "a5", icon: "💧", title: "Hidratação & Recuperação Monitorada", date: "10 mai", reward: "+10 nfs" },
 ];
 
 export const walletTxs = [
   { id: "w1", title: "Cashback compra Liquidz de Jaboticaba", date: "Hoje", amount: "+199 nfs", positive: true },
   { id: "w2", title: "Bônus convite — Rafael M.", date: "Ontem", amount: "+120 nfs", positive: true },
-  { id: "w3", title: "Resgate consulta Dra. Isabella Formigari", date: "12 mai", amount: "-500 nfs", positive: false },
+  { id: "w3", title: "Resgate voucher parceiro esportivo", date: "12 mai", amount: "-500 nfs", positive: false },
   { id: "w4", title: "Sincronia Garmin (semana)", date: "10 mai", amount: "+210 nfs", positive: true },
   { id: "w5", title: "Resgate compra NovaBlast 4", date: "08 mai", amount: "-1.290 nfs", positive: false },
 ];

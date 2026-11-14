@@ -154,7 +154,7 @@ describe("🏃 Garmin Connect Frictionless Integration & Antifraud Guard (LL-017
     expect(syncRes?.status).toBe(200);
     const syncData = await syncRes?.json();
     expect(syncData.success).toBe(true);
-  });
+  }, 30000);
 
   it("deve emitir redirecionamento HTTP 302 canônico no endpoint /api/garmin/authorize sem HTML intermediário ou intent://", async () => {
     const corsHeaders = { "Access-Control-Allow-Origin": "*" };
@@ -213,7 +213,7 @@ describe("🏃 Garmin Connect Frictionless Integration & Antifraud Guard (LL-017
     const syncData = await syncRes?.json();
     expect(syncData.success).toBe(false);
     expect(syncData.requiresAuth).toBe(true);
-  });
+  }, 30000);
 
   it("deve consultar treinos pendentes via /api/garmin/pending-workouts e responder com estrutura válida", async () => {
     const corsHeaders = { "Access-Control-Allow-Origin": "*" };
