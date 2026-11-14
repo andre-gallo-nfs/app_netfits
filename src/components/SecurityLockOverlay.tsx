@@ -14,7 +14,8 @@ import netfitsDarkLogo from "@/assets/netfits-logo-dark.png";
 import { sharedSandboxStore } from "@/lib/shared-sandbox-store";
 import { appLockStore } from "@/lib/app-lock-store";
 import { authStore } from "@/lib/auth-store";
-import { TermsModal } from "@/components/auth/AuthLegalModals";
+import { TermsModal, LgpdPrivacyModal } from "@/components/auth/AuthLegalModals";
+import { toast } from "sonner";
 
 export function SecurityLockOverlay() {
   const activeUser = sharedSandboxStore.useActiveUser();
@@ -23,6 +24,7 @@ export function SecurityLockOverlay() {
   const [isAuthenticatingBio, setIsAuthenticatingBio] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showLgpdModal, setShowLgpdModal] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Se não houver usuário autenticado no dispositivo, nunca exibir overlay de bloqueio.
@@ -240,13 +242,23 @@ export function SecurityLockOverlay() {
           <span>Trocar de Conta / Sair</span>
         </button>
 
-        <button
-          type="button"
-          onClick={() => setShowTermsModal(true)}
-          className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer"
-        >
-          Termos & EULA (Apple 1.2)
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setShowTermsModal(true)}
+            className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer"
+          >
+            Termos & EULA (Apple 1.2)
+          </button>
+          <span>&bull;</span>
+          <button
+            type="button"
+            onClick={() => setShowLgpdModal(true)}
+            className="text-purple-400 hover:text-purple-300 text-[11px] underline font-medium transition cursor-pointer"
+          >
+            LGPD
+          </button>
+        </div>
 
         <span className="text-[10px] text-zinc-600">
           Netfits Guard v1.7
@@ -256,7 +268,20 @@ export function SecurityLockOverlay() {
       {showTermsModal && (
         <TermsModal
           onClose={() => setShowTermsModal(false)}
-          onAgree={() => setShowTermsModal(false)}
+          onAgree={() => {
+            setShowTermsModal(false);
+            setShowLgpdModal(true);
+          }}
+        />
+      )}
+
+      {showLgpdModal && (
+        <LgpdPrivacyModal
+          onClose={() => setShowLgpdModal(false)}
+          onAgree={() => {
+            setShowLgpdModal(false);
+            toast.success("✨ Termos de Uso e Consentimento LGPD confirmados com sucesso!");
+          }}
         />
       )}
     </div>
