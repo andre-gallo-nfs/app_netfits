@@ -216,3 +216,31 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
   2. **Ortogonalidade Estrita**: `userCategory` (`'atleta' | 'associado' | 'especialista' | 'parceiro'`) e status de assinatura do Clube (`isClubMember: boolean` / `plan: 'free' | 'club'`) são grandezas completamente independentes.
   3. **Proibição Absoluta de Mutação Concorrente**: NENHUMA rotina de assinatura, cancelamento, webhook ou recálculo de ledger pode alterar a propriedade `userCategory`. Apenas as flags `isClubMember` e `plan` podem ser modificadas.
 * **Agentes Responsáveis**: User Category Orthogonal Guard (`src/lib/__tests__/user-category-orthogonal-guard.test.ts`), Continuous Learning Gatekeeper (`scripts/knowledge-learning-agent.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).
+
+---
+
+### 🧬 LIÇÃO LL-018: ARQUITETURA EVENT-DRIVEN EM LOYALTY: PROIBIÇÃO DE HOTFIX ESCALAR DE SALDO, BLINDAGEM CONTRA ESMAGAMENTO DESCENDENTE E ISOLAMENTO DE TESTES
+* **ID Canônico**: `LL-018`
+* **Gravidade**: `CRITICAL` (Diretriz Canônica de Livro-Razão Contábil)
+* **Origem**: Auditoria de paridade por partidas dobradas em 11/11/2026.
+* **Contexto**: Incidentes críticos de oscilação e regressão de saldos ocorreram devido à falácia do hotfix escalar: atualizou-se o campo `users.nfsBalance` sem a correspondente inserção das transações no ledger central. Como clientes locais e syncFromCloud recalculam o saldo a partir da soma do extrato, o saldo dos usuários foi esmagado para a soma das poucas transações existentes.
+* **Regras Inegociáveis**:
+  1. **O Saldo é Projeção do Evento**: Toda mutação de pontos deve nascer como `INSERT INTO transactions` e refletir sincronamente em `users.nfsBalance`. É terminantemente proibido qualquer hotfix ou `UPDATE users SET nfsBalance` sem o respectivo evento no extrato.
+  2. **Proibição de Esmagamento Descendente Automático**: Rotinas de auto-reconciliação (Sentinel) NUNCA podem rebaixar o saldo de um usuário para baixo (`diff > 0`) sob alegação de auto-heal; se o extrato local somar menos que o saldo cadastral, o sistema deve disparar VETO e flag impeditiva para restaurar as transações faltantes.
+  3. **Isolamento Estrito de Testes**: NENHUM teste automatizado pode disparar mutações em backups ou persistência de produção.
+  4. **Não-Truncamento de Transações**: Proibido o uso de `slice(0, 100)` em extratos ou livros-razão contábeis.
+* **Agentes Responsáveis**: Ledger Parity Guard (`src/lib/__tests__/ledger-parity-guard.test.ts`), Real-Time Online Ledger Sentinel (`scripts/audit_ledger_sentinel.cjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).
+
+---
+
+### 🧬 LIÇÃO LL-019: RED TEAM CHALLENGER CONTÍNUO & GOVERNANÇA DE CONSENTIMENTO ATIVO (MODO DE LEITURA AUDITADO VS. BLOQUEIO CEGO)
+* **ID Canônico**: `LL-019`
+* **Gravidade**: `CRITICAL` (Diretriz Canônica Legal e Governança Adversarial)
+* **Origem**: Feedback de usabilidade e compliance da atleta pioneira Claudia Noce em 14/11/2026.
+* **Contexto**: O aceite dos Termos de Uso (Passo 1) não conduzia ao Consentimento LGPD (Passo 2) e o sistema não persistia o consentimento em base permanente, fazendo com que o modal voltasse ao estado de não-aceite após fechamento. A solução ingênua seria simplesmente desabilitar os botões após o clique, o que violaria o Art. 8º da LGPD e a Diretriz 1.2 da Apple App Store (o usuário tem o direito de reler os Termos e Políticas a qualquer momento). A convocação do Red Team Challenger estabeleceu a conversão do modal para 'Modo de Leitura Auditado' com carimbo temporal explícito (`Consentimento Ativo · Aceito em DD/MM/AAAA às HH:mm`) e sincronização atômica Cloudflare D1 + localStorage.
+* **Regras Inegociáveis**:
+  1. **Red Team Challenger Mandatório 100% do Tempo**: Toda proposta de alteração de arquitetura, fluxo ou negócio deve ser submetida à avaliação crítica do Red Team Challenger antes de ser executada, mitigando pontos cegos e soluções improvisadas.
+  2. **Modo de Leitura Auditado Inviolável**: Usuários com consentimento legal ativo NUNCA devem ter seu acesso bloqueado aos Termos de Uso ou LGPD; os modais devem abrir em modo de leitura informativa, exibindo carimbo temporal de validade (badge de consentimento ativo) e botão neutro 'Entendido (Fechar Leitura)'.
+  3. **Persistência de Chave Dupla & Versionamento**: Consentimentos legais devem ser persistidos com timestamp ISO e versionamento formal tanto no dispositivo (localStorage) quanto no banco central (Cloudflare D1), garantindo prova jurídica irrefutável e integridade multiplataforma.
+  4. **Encadeamento Sequencial Natural**: Fluxos multi-etapas de compliance (Passo 1: Regulamento -> Passo 2: LGPD) devem transicionar automaticamente sem derrubar o usuário em telas de bloqueio intermediárias.
+* **Agentes Responsáveis**: Legal Consent Store (`src/lib/legal-consent-store.ts`), Modais Legais (`src/components/auth/AuthLegalModals.tsx`), Adversarial Red Team Guard (`scripts/adversarial-red-team-checker.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).

@@ -71,6 +71,13 @@ const AGENTS = [
     icon: "🧪",
     description: "Executa a suíte de testes automatizados (Vitest: mobile lifecycle, biometria, headers, FEFO)",
     command: "npx vitest run"
+  },
+  {
+    id: "adversarial-red-team",
+    name: "Adversarial Red Team & Edge Case Guard",
+    icon: "🥊",
+    description: "Auditoria adversarial estrita contra bypass de LGPD, esmagamento de saldo, quebra CFM e race conditions",
+    command: "node scripts/adversarial-red-team-checker.mjs"
   }
 ];
 
