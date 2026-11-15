@@ -2057,19 +2057,71 @@ class HomologationSandboxStore {
             }
           }
           if (Array.isArray(json?.transactions)) {
-            // MERGE ATÔMICO SEM PERDA (LL-018): Preserva transações locais e canônicas
+            // MERGE ATÔMICO SEM PERDA & AUTO-CURA DEDUPLICADORA (Red Team Guard LL-018)
             const txMap = new Map<string, SandboxTransaction>();
-            for (const t of this.state.transactions) {
-              if (t && t.id) txMap.set(t.id, t);
-            }
+
+            // 1. Coleta todas as transações confirmadas do servidor D1
+            const confirmedTxs: SandboxTransaction[] = [];
             for (const rawTx of json.transactions) {
               if (!rawTx || !rawTx.id) continue;
               const isGallo = rawTx.userId === "user-1792090334266" || rawTx.userId === "usr_cristiane_gallo";
               if (isGallo && (rawTx.category === "badge" || rawTx.id?.startsWith("tx-badge-") || /selo|conquista/i.test(rawTx.description || ""))) {
                 continue;
               }
+              confirmedTxs.push(rawTx);
               txMap.set(rawTx.id, rawTx);
             }
+
+            // 2. Mescla transações locais EXPURGANDO rascunhos otimistas que já foram confirmados pelo D1
+            for (const t of this.state.transactions) {
+              if (!t || !t.id) continue;
+              if (txMap.has(t.id)) continue; // Já incluído pela nuvem
+
+              // Red Team Auto-Heal: Detecta se 't' é um rascunho local órfão de uma transação confirmada do D1
+              const isLocalDraft =
+                t.id.startsWith("tx-") &&
+                !t.id.startsWith("tx-feed-") &&
+                !t.id.startsWith("tx-quiz-") &&
+                !t.id.startsWith("tx-mkp-") &&
+                !t.id.startsWith("tx-strava-") &&
+                !t.id.startsWith("tx-vital-") &&
+                !t.id.startsWith("tx-badge-") &&
+                !t.id.startsWith("tx-welcome-");
+
+              if (isLocalDraft) {
+                const normDesc = (t.description || "")
+                  .replace(/^Quiz Diário:\s*|^Desafio Quiz Concluído:\s*|^Leitura Validada:\s*/i, "")
+                  .trim()
+                  .toLowerCase();
+                const tDate = t.timestamp ? t.timestamp.substring(0, 10) : "";
+
+                const duplicateConfirmed = confirmedTxs.find((c) => {
+                  if (c.userId !== t.userId) return false;
+                  if (c.amount !== t.amount) return false;
+                  const cNormDesc = (c.description || "")
+                    .replace(/^Quiz Diário:\s*|^Desafio Quiz Concluído:\s*|^Leitura Validada:\s*/i, "")
+                    .trim()
+                    .toLowerCase();
+                  const cDate = c.timestamp ? c.timestamp.substring(0, 10) : "";
+
+                  // Match por descrição canônica no mesmo dia OU sobreposição de títulos
+                  const descMatch =
+                    normDesc &&
+                    cNormDesc &&
+                    (normDesc.includes(cNormDesc.substring(0, 20)) || cNormDesc.includes(normDesc.substring(0, 20)));
+
+                  return descMatch && (!tDate || !cDate || tDate === cDate);
+                });
+
+                if (duplicateConfirmed) {
+                  // Red Team Auto-Heal: Expurgar rascunho local órfão duplicado!
+                  continue;
+                }
+              }
+
+              txMap.set(t.id, t);
+            }
+
             this.state.transactions = Array.from(txMap.values()).sort(
               (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
             );
@@ -3013,9 +3065,10 @@ class HomologationSandboxStore {
       ? `Clique em link do post: ${postTitle}`
       : `Visualização completa: ${postTitle}`;
 
+    const txId = `tx-eng-${action}-${active.id}-${Date.now()}`;
     active.nfsBalance += amount;
     this.state.transactions.unshift({
-      id: `tx-${Date.now()}`,
+      id: txId,
       userId: active.id,
       userName: active.fullName,
       amount,
@@ -3026,13 +3079,14 @@ class HomologationSandboxStore {
 
     this.saveToStorage();
 
-    // Red Team Guard: Transmissão Atômica para o Servidor Central (Cloudflare D1)
+    // Red Team Guard: Transmissão Atômica para o Servidor Central (Cloudflare D1) com o mesmo ID
     if (typeof window !== "undefined" && active.id && amount > 0) {
       fetch("/api/wallet/credit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         keepalive: true,
         body: JSON.stringify({
+          txId,
           userId: active.id,
           action,
           postTitle: desc,

@@ -413,8 +413,14 @@ export const wallet = {
         ? "share"
         : "quiz";
 
-    // 1. Atualização Otimista no Store Local
+    // Red Team Guard: Gera ID canônico determinístico unificado (evita duplicidade entre client e D1)
+    const canonicalTxId = quizId
+      ? `tx-quiz-${active.id}-${quizId}`
+      : `tx-feed-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    // 1. Atualização Otimista no Store Local com ID Canônico
     sharedSandboxStore.addTransaction({
+      id: canonicalTxId,
       userId: active.id,
       userName: active.fullName,
       amount: credited,
@@ -422,7 +428,7 @@ export const wallet = {
       category: canonicalCategory,
     });
 
-    // 2. Transmissão Atômica para o Servidor Central (Cloudflare D1)
+    // 2. Transmissão Atômica para o Servidor Central (Cloudflare D1) com o mesmo ID
     if (typeof window !== "undefined" && active.id) {
       const action = canonicalCategory === "quiz" || canonicalCategory === "share" ? canonicalCategory : "quiz";
       fetch("/api/wallet/credit", {
@@ -430,6 +436,7 @@ export const wallet = {
         headers: { "Content-Type": "application/json" },
         keepalive: true,
         body: JSON.stringify({
+          txId: canonicalTxId,
           userId: active.id,
           action,
           quizId,

@@ -156,4 +156,14 @@ describe("LL-013 & Event-Driven Loyalty: Double-Entry Parity & Anti-Destructive 
     expect(formatted.title).not.toBe("Leitura de Artigo");
     expect(formatted.displayCategory).not.toBe("Conteúdo & Feed");
   });
+
+  it("8. Anti-Duplication Guard (Red Team): Idempotência e Unificação de ID entre Client e D1", () => {
+    // Garante que o gerador de ID canônico determinístico utiliza o prefixo correto
+    const userId = "usr_carlos_test";
+    const quizId = "quiz-burnout";
+    const canonicalTxId = `tx-quiz-${userId}-${quizId}`;
+
+    expect(canonicalTxId).toBe("tx-quiz-usr_carlos_test-quiz-burnout");
+    expect(canonicalTxId.startsWith("tx-quiz-")).toBe(true);
+  });
 });

@@ -205,6 +205,8 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
   const citations = useMemo(() => getPostCitations(post), [post]);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const submittingRef = useRef<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -339,7 +341,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
   };
 
   const handleSubmitQuiz = () => {
-    if (hasSubmitted) return;
+    if (hasSubmitted || isSubmitting || submittingRef.current) return;
 
     if (!selectedOption) {
       toast.warning("Selecione uma das alternativas antes de confirmar.");
@@ -350,8 +352,12 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
     if (!selectedOptObj) return;
 
     if (selectedOptObj.isCorrect) {
+      submittingRef.current = true;
+      setIsSubmitting(true);
       const validation = feedAntifraud.validateAction("quiz", post.quizPostId);
       if (!validation.allowed) {
+        submittingRef.current = false;
+        setIsSubmitting(false);
         toast.warning(validation.reason || "Ação bloqueada pelas regras antifraude.");
         return;
       }
@@ -360,6 +366,7 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
       wallet.earn(amount, `Quiz Diário: ${post.title} (${post.author})`, "feed", post.quizPostId);
       feedAntifraud.recordAction("quiz", post.quizPostId, amount);
       setHasSubmitted(true);
+      setIsSubmitting(false);
       setErrorMsg(null);
       toast.success(`🎉 Parabéns! Resposta correta (+${amount} nfs creditados na sua carteira)`, {
         description: selectedOptObj.feedback || "Netfits creditados na sua carteira com sucesso.",
@@ -684,9 +691,10 @@ export function ScheduledFeedCard({ post, isDailyChallenge = true }: ScheduledFe
                 <button
                   type="button"
                   onClick={handleSubmitQuiz}
-                  className="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer min-h-[48px] touch-manipulation"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-60 active:scale-[0.99] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-purple-600/20 transition cursor-pointer min-h-[48px] touch-manipulation"
                 >
-                  <span>Responder e conquistar 5 netfits</span>
+                  <span>{isSubmitting ? "Validando resposta..." : "Responder e conquistar 5 netfits"}</span>
                   <ArrowRight className="size-4" />
                 </button>
               ) : (
