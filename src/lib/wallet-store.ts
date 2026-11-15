@@ -131,8 +131,48 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
       eventDescription = "Bônus de indicação creditado pela entrada de um novo membro convidado por você na plataforma Netfits e adicionado com sucesso à sua Tribo.";
     }
   }
-  // 4. SHOP / RESGATE / COMPRA
-  else if (t.category === "shop" || /compra|cashback|pedido|mkplace|resgate|shop/i.test(desc)) {
+  // 4. QUIZZES E DESAFIOS EDUCATIVOS DO FEED
+  // (Identificação independente: nunca deve ser classificado como Shop mesmo que o post trate de compras)
+  else if (
+    t.category === "quiz" ||
+    /quiz/i.test(desc) ||
+    /^(?:desafio\s+quiz|desafio\s+educativo|quizz\s+netfits)/i.test(desc) ||
+    (/^desafio/i.test(desc) && !desc.includes("Selo") && !desc.includes("Conquista"))
+  ) {
+    displayCategory = "Conteúdo & Feed";
+    const isSponsored = t.amount === 10 || /patrocinad[ao]/i.test(desc);
+    title = isSponsored ? "Quiz Patrocinado" : "Quiz Educativo";
+    contentTitle = desc
+      .replace(/^.*(?:Desafio Quiz Concluído:\s*|Quiz Diário:\s*|Quizz Netfits:\s*|Desafio Educativo:\s*|Quiz Patrocinado:\s*|Desafio Netfits:\s*)/i, "")
+      .trim();
+    eventDescription = contentTitle
+      ? `Pontuação conquistada pela resposta correta no Quiz Educativo "${contentTitle}". Parabéns pelo aprendizado e fixação de hábitos sustentáveis!`
+      : "Pontuação conquistada pela resposta correta no Quiz Educativo do Feed Netfits.";
+  }
+  // 5. COMPARTILHAMENTO DE CONTEÚDO
+  // (Identificação independente: nunca deve ser confundido com Leitura de Artigo mesmo que o post tenha 'Artigo' no título)
+  else if (
+    t.category === "share" ||
+    /^compartilhamento/i.test(desc) ||
+    /^compartilhou/i.test(desc)
+  ) {
+    displayCategory = "Comunidade";
+    title = "Compartilhamento no Feed";
+    contentTitle = desc
+      .replace(/^.*(?:Compartilhamento pós-visualização:\s*|Compartilhamento de Conteúdo:\s*|Compartilhamento:\s*|Compartilhou filme\s*)/i, "")
+      .trim();
+    eventDescription = contentTitle
+      ? `Recompensa pelo compartilhamento do conteúdo editorial "${contentTitle}" com a sua rede e comunidade.`
+      : "Recompensa pelo compartilhamento de conteúdo editorial e científico com a sua rede.";
+  }
+  // 6. SHOP / RESGATE / COMPRA (Exclusivo para pedidos e cashbacks reais de e-commerce)
+  else if (
+    t.category === "shop" ||
+    t.orderRef ||
+    desc.includes("#") ||
+    /^(?:✨\s*)?(?:cashback|compra\s+confirmada|compra\s+no\s+shop|ganhe\s+netfits\s+na\s+compra|resgate|estorno)/i.test(desc) ||
+    /pedido\s+#[a-zA-Z0-9_\-]+/i.test(desc)
+  ) {
     displayCategory = "Shop";
     const orderMatch = desc.match(/#([a-zA-Z0-9_\-]+)/);
     let foundOrder: any = null;
@@ -217,38 +257,38 @@ export function formatFriendlyTx(t: SandboxTransaction): WalletTx {
       eventDescription = `Compra confirmada no Shop Netfits${orderPart}.${itemsText} A pontuação recebida pelo pedido foi creditada diretamente na sua carteira de pontos.`;
     }
   }
-  // 5. ARTIGOS & LEITURAS
-  else if (/leitura|artigo/i.test(desc)) {
+  // 7. ARTIGOS & LEITURAS VALIDADAS (Apenas eventos estritos de leitura)
+  else if (
+    t.category === "read" ||
+    /^(?:📖\s*)?leitura(?: completa)?(?: de artigo| validada)?:/i.test(desc) ||
+    /^artigo:/i.test(desc)
+  ) {
     displayCategory = "Conteúdo & Feed";
     title = "Leitura de Artigo";
-    contentTitle = desc.replace(/^.*(?:Leitura Completa de Artigo:\s*|Artigo:\s*)/i, "").trim();
+    contentTitle = desc.replace(/^.*(?:Leitura Completa de Artigo:\s*|Leitura Validada:\s*|Artigo:\s*)/i, "").trim();
     eventDescription = contentTitle
       ? `Pontuação creditada pela leitura do artigo editorial "${contentTitle}" no Feed Netfits com validação de leitura e tempo de tela.`
       : "Pontuação creditada pela leitura e validação de artigo editorial no Feed Netfits.";
   }
-  // 6. COMPARTILHAMENTO
-  else if (t.category === "share" || /compartilhamento/i.test(desc)) {
-    displayCategory = "Comunidade";
-    title = "Compartilhamento";
-    contentTitle = desc.replace(/^.*(?:Compartilhamento pós-visualização:\s*|Compartilhamento:\s*)/i, "").trim();
-    eventDescription = contentTitle
-      ? `Recompensa pelo compartilhamento do conteúdo editorial "${contentTitle}" com a sua rede.`
-      : "Recompensa pelo compartilhamento de conteúdo editorial e científico com a sua rede.";
-  }
-  // 7. VÍDEO EDUCATIVO
-  else if (/vídeo|video/i.test(desc)) {
+  // 8. VÍDEO EDUCATIVO
+  else if (
+    t.category === "video" ||
+    /^(?:▶️\s*)?visualização de vídeo/i.test(desc) ||
+    /^assistiu filme/i.test(desc) ||
+    /^vídeo:/i.test(desc)
+  ) {
     displayCategory = "Conteúdo & Feed";
     title = "Vídeo Educativo";
-    contentTitle = desc.replace(/^.*(?:Visualização de Vídeo[^:]*:\s*)/i, "").trim();
+    contentTitle = desc.replace(/^.*(?:Visualização de Vídeo[^:]*:\s*|Assistiu filme\s*)/i, "").trim();
     eventDescription = contentTitle
       ? `Pontuação creditada pela visualização e engajamento com o vídeo "${contentTitle}" no Feed.`
       : "Pontuação creditada pela visualização de vídeo educativo sobre saúde e bem-estar no Feed.";
   }
-  // 8. CURTIDAS / INTERAÇÕES
-  else if (t.category === "like" || /curtida/i.test(desc)) {
+  // 9. CURTIDAS / INTERAÇÕES
+  else if (t.category === "like" || /^curtida/i.test(desc)) {
     displayCategory = "Comunidade";
     title = "Curtida no Feed";
-    contentTitle = desc.replace(/^.*(?:Curtida no conteúdo:\s*)/i, "").trim();
+    contentTitle = desc.replace(/^.*(?:Curtida no conteúdo:\s*|Curtida em Conteúdo:\s*)/i, "").trim();
     eventDescription = contentTitle
       ? `Pontuação de engajamento social creditada por curtir o conteúdo "${contentTitle}" no Feed.`
       : "Pontuação de engajamento creditada por curtir uma publicação oficial no Feed da comunidade.";
@@ -356,12 +396,22 @@ export const wallet = {
     });
   },
 
-    /** Credita nfs (cashback) e registra a movimentação. Aplica multiplicador do nível e persiste atômico no D1. */
-  earn(amount: number, title: string, category: SandboxTransaction["category"] = "feed", quizId?: string) {
+    /** Credita nfs e registra a movimentação. Aplica multiplicador do nível e persiste atômico no D1. */
+  earn(amount: number, title: string, category: SandboxTransaction["category"] = "quiz", quizId?: string) {
     if (amount <= 0) return;
     const active = sharedSandboxStore.getActiveUser();
     const multiplier = levelStore.getMultiplier();
     const credited = Math.round(amount * multiplier);
+
+    // Red Team Guard: Determina a categoria canônica do fato gerador
+    const canonicalCategory: SandboxTransaction["category"] =
+      category && category !== "feed"
+        ? category
+        : quizId || /quiz|desafio/i.test(title)
+        ? "quiz"
+        : /compartilhamento/i.test(title)
+        ? "share"
+        : "quiz";
 
     // 1. Atualização Otimista no Store Local
     sharedSandboxStore.addTransaction({
@@ -369,12 +419,12 @@ export const wallet = {
       userName: active.fullName,
       amount: credited,
       description: title,
-      category,
+      category: canonicalCategory,
     });
 
     // 2. Transmissão Atômica para o Servidor Central (Cloudflare D1)
     if (typeof window !== "undefined" && active.id) {
-      const action = category === "feed" ? (quizId ? "quiz" : "read") : "activity";
+      const action = canonicalCategory === "quiz" || canonicalCategory === "share" ? canonicalCategory : "quiz";
       fetch("/api/wallet/credit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
