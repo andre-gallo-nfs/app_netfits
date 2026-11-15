@@ -69,7 +69,7 @@ export async function handleSyncRoutes(
     if (req.method === "POST") {
       try {
         const body = await req.json();
-        const { userId, action, quizId, postTitle, points } = body || {};
+        const { txId, userId, action, quizId, postTitle, points } = body || {};
         if (!userId || !points || Number(points) <= 0) {
           return new Response(
             JSON.stringify({ success: false, error: "userId e points > 0 são obrigatórios." }),
@@ -78,6 +78,7 @@ export async function handleSyncRoutes(
         }
 
         const result = await d1Service.creditFeedReward({
+          txId,
           userId,
           action: action || "quiz",
           quizId,

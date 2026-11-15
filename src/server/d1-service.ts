@@ -364,18 +364,38 @@ export class D1Service {
    * Credita pontuação atômica de Quizzes ou Interações de Feed com trava de idempotência
    */
   public async creditFeedReward(params: {
+    txId?: string;
     userId: string;
     action: "quiz" | "read" | "share" | "like";
     quizId?: string;
     postTitle: string;
     points: number;
-  }): Promise<{ success: boolean; newBalance: number; alreadyCompleted: boolean; message: string }> {
-    const { userId, action, quizId, postTitle, points } = params;
+  }): Promise<{ success: boolean; txId?: string; newBalance: number; alreadyCompleted: boolean; message: string }> {
+    const { txId, userId, action, quizId, postTitle, points } = params;
     const now = new Date().toISOString();
 
     if (this.isAvailable()) {
       try {
-        // 1. Trava de Idempotência: Se for quiz, verifica se já foi respondido
+        const finalTxId = txId || `tx-feed-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+        // Red Team Guard 1: Idempotência de Transação por ID
+        const existingTx = await this.db
+          .prepare("SELECT id FROM transactions WHERE id = ? LIMIT 1")
+          .bind(finalTxId)
+          .first();
+
+        if (existingTx) {
+          const currentBal = await this.getBalance(userId);
+          return {
+            success: true,
+            txId: finalTxId,
+            newBalance: currentBal,
+            alreadyCompleted: true,
+            message: "Transação já registrada anteriormente.",
+          };
+        }
+
+        // Red Team Guard 2: Idempotência por Quiz
         if (action === "quiz" && quizId) {
           const existing = await this.db
             .prepare("SELECT id FROM quiz_completions WHERE userId = ? AND quizId = ? LIMIT 1")
@@ -386,6 +406,7 @@ export class D1Service {
             const currentBal = await this.getBalance(userId);
             return {
               success: false,
+              txId: finalTxId,
               newBalance: currentBal,
               alreadyCompleted: true,
               message: "Desafio/Quiz já pontuado anteriormente por este usuário.",
@@ -394,7 +415,6 @@ export class D1Service {
         }
 
         // 2. Transação atômica em batch no D1
-        const txId = `tx-feed-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         const quizCompId = `qc-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
         const description =
           action === "quiz"
@@ -414,21 +434,21 @@ export class D1Service {
             .bind(points, now, userId)
         );
 
-        // Registra transação no extrato com categoria independente do evento (LL-013 / LL-018)
+        // Registra transação no extrato com categoria independente e INSERT OR IGNORE (Red Team Guard)
         batchStatements.push(
           this.db
             .prepare(
-              "INSERT INTO transactions (id, userId, amount, description, category, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
+              "INSERT OR IGNORE INTO transactions (id, userId, amount, description, category, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
             )
-            .bind(txId, userId, points, description, action, now)
+            .bind(finalTxId, userId, points, description, action, now)
         );
 
-        // Se for quiz, registra conclusão na tabela de quizzes
+        // Se for quiz, registra conclusão na tabela de quizzes com INSERT OR IGNORE
         if (action === "quiz" && quizId) {
           batchStatements.push(
             this.db
               .prepare(
-                "INSERT INTO quiz_completions (id, userId, quizId, postTitle, pointsAwarded, completedAt) VALUES (?, ?, ?, ?, ?, ?)"
+                "INSERT OR IGNORE INTO quiz_completions (id, userId, quizId, postTitle, pointsAwarded, completedAt) VALUES (?, ?, ?, ?, ?, ?)"
               )
               .bind(quizCompId, userId, quizId, postTitle, points, now)
           );
