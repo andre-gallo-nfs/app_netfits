@@ -63,7 +63,7 @@ export interface SandboxTransaction {
   userName: string;
   amount: number; // positive for gain, negative for spent
   description: string;
-  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post" | "badge" | "feed" | "shop_refund";
+  category: "welcome" | "referral" | "like" | "share" | "shop" | "workout" | "associado_bonus" | "view" | "click" | "post" | "badge" | "feed" | "shop_refund" | "quiz" | "read" | "video";
   timestamp: string;
   orderRef?: string;
   metadata?: any;
@@ -3025,6 +3025,30 @@ class HomologationSandboxStore {
     });
 
     this.saveToStorage();
+
+    // Red Team Guard: Transmissão Atômica para o Servidor Central (Cloudflare D1)
+    if (typeof window !== "undefined" && active.id && amount > 0) {
+      fetch("/api/wallet/credit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({
+          userId: active.id,
+          action,
+          postTitle: desc,
+          points: amount,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data: any) => {
+          if (data && data.success && typeof data.newBalance === "number") {
+            this.syncActiveUserBalance(data.newBalance);
+          }
+        })
+        .catch((err) => {
+          console.warn("[sharedSandboxStore.rewardEngagement] Erro ao sincronizar com D1:", err);
+        });
+    }
   }
 
   // 8. Compra no Shop com Pontos

@@ -414,13 +414,13 @@ export class D1Service {
             .bind(points, now, userId)
         );
 
-        // Registra transação no extrato
+        // Registra transação no extrato com categoria independente do evento (LL-013 / LL-018)
         batchStatements.push(
           this.db
             .prepare(
               "INSERT INTO transactions (id, userId, amount, description, category, timestamp) VALUES (?, ?, ?, ?, ?, ?)"
             )
-            .bind(txId, userId, points, description, "feed", now)
+            .bind(txId, userId, points, description, action, now)
         );
 
         // Se for quiz, registra conclusão na tabela de quizzes

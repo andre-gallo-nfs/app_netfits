@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { realTimeLedgerSentinel } from "../../server/ledger-sentinel.ts";
 import { serverState } from "../../server/server-state.ts";
+import { formatFriendlyTx } from "../wallet-store.ts";
 
 describe("LL-013 & Event-Driven Loyalty: Double-Entry Parity & Anti-Destructive Ledger Guard", () => {
   const rootDir = process.cwd();
@@ -118,5 +119,41 @@ describe("LL-013 & Event-Driven Loyalty: Double-Entry Parity & Anti-Destructive 
     expect(sqlContent).toContain("usr_carlos_formigari");
     expect(sqlContent).toContain("user-1793578988883");
     expect(sqlContent).toContain("usr_andre");
+  });
+
+  it("6. Rotulagem Independente no Extrato: Quiz que aborda tema de Shop NUNCA deve ser classificado como Cashback no Shop", () => {
+    const quizShopTx = {
+      id: "tx-feed-1794736692961-986",
+      userId: "usr_carlos_test",
+      userName: "Carlos Rodrigo Formigari",
+      amount: 5,
+      category: "quiz" as const,
+      description: "Desafio Quiz Concluído: Quiz Diário: Como Comprar no Shop Gera Pontos: 4 netfits por R$ 1 no Extrato (Time Netfits)",
+      timestamp: "2026-11-15T09:58:12.848Z",
+    };
+
+    const formatted = formatFriendlyTx(quizShopTx as any);
+    expect(formatted.title).toBe("Quiz Educativo");
+    expect(formatted.displayCategory).toBe("Conteúdo & Feed");
+    expect(formatted.title).not.toBe("Cashback no Shop");
+    expect(formatted.displayCategory).not.toBe("Compras no Shop");
+  });
+
+  it("7. Rotulagem Independente no Extrato: Compartilhamento de post que contém a palavra 'Artigo' NUNCA deve ser classificado como Leitura de Artigo", () => {
+    const shareArticleTx = {
+      id: "tx-share-12345",
+      userId: "usr_carlos_test",
+      userName: "Carlos Rodrigo Formigari",
+      amount: 1,
+      category: "share" as const,
+      description: "Compartilhamento pós-visualização: Artigo Dra. Isabella Formigari — Biomarcadores e Sono",
+      timestamp: "2026-11-15T10:00:00.000Z",
+    };
+
+    const formatted = formatFriendlyTx(shareArticleTx as any);
+    expect(formatted.title).toBe("Compartilhamento no Feed");
+    expect(formatted.displayCategory).toBe("Comunidade");
+    expect(formatted.title).not.toBe("Leitura de Artigo");
+    expect(formatted.displayCategory).not.toBe("Conteúdo & Feed");
   });
 });
