@@ -138,7 +138,7 @@
     "severity": "HIGH",
     "learnedAt": "2026-11-05",
     "context": "Divergências pontuais de valores de pontuação do Clube entre telas geravam atrito com os parâmetros acordados no Business Case.",
-    "rule": "Os parâmetros oficiais do Clube Netfits são: R$ 19,90/mês, 250 nfs na assinatura e a cada renovação, 20 nfs por treino validado com smartwatch/sensores (Terra API), 20% mais pontos no Shop (4,8 nfs/R$ 1) e 10% de comissão MGM sobre compras de indicados.",
+    "rule": "Os parâmetros oficiais do Clube Netfits são: R$ 19,90/mês, 250 nfs na assinatura e a cada renovação, 20 nfs por treino validado com smartwatch/sensores (Garmin Developer Program e ROOK Connect SDK), 20% mais pontos no Shop (4,8 nfs/R$ 1) e 10% de comissão MGM sobre compras de indicados.",
     "antiPattern": [
       "R$ 29,90 para Clube",
       "25 nfs por treino",
@@ -275,5 +275,21 @@
       "localStorage.setItem(\"termsAccepted\", \"true\")"
     ],
     "enforcedBy": "src/lib/legal-consent-store.ts, src/components/auth/AuthLegalModals.tsx, scripts/adversarial-red-team-checker.mjs & scripts/multi-agent-orchestrator.mjs"
+  },
+  {
+    "id": "LL-020",
+    "title": "Precedência Temporal de Documentos, Soberania do Runtime de Produção e Eliminação de Rascunhos Obsoletos",
+    "category": "documentation_runtime_sovereignty",
+    "severity": "CRITICAL",
+    "learnedAt": "2026-11-15",
+    "context": "Em 15/11/2026, identificou-se que respostas automatizadas citaram middlewares e estudos de viabilidade teóricos antigos (ex: 'Terra API' constante em minutas de outubro de 2026), em vez de se referenciarem no ecossistema e runtime reais em produção (Garmin Health API direta e ROOK Connect SDK para Apple Watch e Health Connect), bem como citaram literais legadas de leitura que violam a premissa de negócio de que leitura/vídeo pontuam 0 nfs. Justificativas superficiais de 'vício de repetição teórica' foram expressamente rejeitadas pelo fundador André Gallo. O sistema exige que agentes sempre se referenciem nos documentos canônicos mais recentes e no código vivo de produção.",
+    "rule": "1) Precedência Temporal e Revogação Automática: Todo documento oficial ou regulatório mais recente (Tabela de Pontuação v1.0 de 14/11/2026, Manifesto v3.0, Business Case v5/v7 e GEMINI.md) revoga de forma automática e mandatória quaisquer menções divergentes em minutas, relatórios ou estudos preliminares passados. 2) Soberania do Runtime de Produção: A verdade fática do ecossistema é o código-fonte em execução em produção (main) e o banco Cloudflare D1 (netfits-db). É terminantemente proibido citar middlewares conceituais ou arquiteturas abandonadas. 3) Proibição Incondicional de 'Vício de Repetição': Respostas mecânicas sem conferência contra o repositório de produção e documentos vigentes são estritamente vedadas. 4) Ordem Canônica de Consulta: 1º Código em Produção (main) & Banco D1; 2º Documentos Oficiais Vigentes; 3º Base Institucional de Lições Aprendidas.",
+    "antiPattern": [
+      "Terra API para wearables",
+      "Leitura de Artigo gera pontos no extrato",
+      "Citar minutas ou estudos preliminares desatualizados",
+      "Ignorar código em produção para responder sobre o produto"
+    ],
+    "enforcedBy": "c:/Users/aacga/OneDrive/netfits/GEMINI.md, scripts/knowledge-learning-agent.mjs & scripts/multi-agent-orchestrator.mjs"
   }
 ]

@@ -100,7 +100,7 @@ flowchart TD
 * **Regra Inegociável**:
   * Assinatura: **R$ 19,90 / mês**
   * Pontos fixos: **250 nfs** na adesão e a cada mensalidade
-  * Treinos com relógio/sensores: **20 nfs por treino validado via Terra API**
+  * Treinos com relógio/sensores: **20 nfs por treino validado via Garmin Developer Program e ROOK Connect SDK**
   * Shop: **20% mais pontos** (4,8 nfs por R$ 1,00)
   * MGM: **10% de comissão** em pontos sobre as compras de todos os seus indicados.
 
@@ -244,3 +244,21 @@ Sempre que uma nova regra for decidida ou um incidente for resolvido:
   3. **Persistência de Chave Dupla & Versionamento**: Consentimentos legais devem ser persistidos com timestamp ISO e versionamento formal tanto no dispositivo (localStorage) quanto no banco central (Cloudflare D1), garantindo prova jurídica irrefutável e integridade multiplataforma.
   4. **Encadeamento Sequencial Natural**: Fluxos multi-etapas de compliance (Passo 1: Regulamento -> Passo 2: LGPD) devem transicionar automaticamente sem derrubar o usuário em telas de bloqueio intermediárias.
 * **Agentes Responsáveis**: Legal Consent Store (`src/lib/legal-consent-store.ts`), Modais Legais (`src/components/auth/AuthLegalModals.tsx`), Adversarial Red Team Guard (`scripts/adversarial-red-team-checker.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).
+
+---
+
+### 🧬 LIÇÃO LL-020: PRECEDÊNCIA TEMPORAL DE DOCUMENTOS, SOBERANIA DO RUNTIME DE PRODUÇÃO E ELIMINAÇÃO DE RASCUNHOS OBSOLETOS
+* **ID Canônico**: `LL-020`
+* **Gravidade**: `CRITICAL` (Diretriz Canônica de Governança Documental e Engenharia de Produção)
+* **Origem**: Incidente de governança em 15/11/2026 com o fundador André Gallo (citação de estudos teóricos obsoletos como "Terra API" e literais legadas de leitura).
+* **Contexto**: Respostas automatizadas citaram middlewares e estudos de viabilidade teóricos antigos (ex: "Terra API" constante em minutas de outubro de 2026), em vez de se referenciarem no ecossistema e runtime reais em produção (Garmin Health API direta e ROOK Connect SDK para Apple Watch e Health Connect), bem como citaram literais legadas de leitura que violam a premissa de negócio de que leitura/vídeo pontuam 0 nfs. Justificativas superficiais de "vício de repetição teórica" foram expressamente rejeitadas pelo fundador André Gallo. O sistema exige que agentes sempre se referenciem nos documentos canônicos mais recentes e no código vivo de produção.
+* **Regras Inegociáveis**:
+  1. **Precedência Temporal e Revogação Automática**: Todo documento oficial ou regulatório mais recente (Tabela Oficial de Pontuação v1.0 de 14/11/2026, Manifesto v3.0, Business Case v5/v7 e GEMINI.md) revoga de forma automática e mandatória quaisquer menções divergentes em minutas, relatórios ou estudos preliminares passados.
+  2. **Soberania do Runtime de Produção**: A verdade fática do ecossistema é o código-fonte em execução em produção (`main`) e o banco Cloudflare D1 (`netfits-db`). É terminantemente proibido citar middlewares conceituais ou arquiteturas abandonadas.
+  3. **Proibição Incondicional de 'Vício de Repetição'**: Respostas mecânicas sem conferência contra o repositório de produção e documentos vigentes são estritamente vedadas.
+  4. **Hierarquia Obrigatória de Consulta Normativa**:
+     - 1º: Código-fonte em Produção (`main`) & Banco D1 (`netfits-db`);
+     - 2º: Documentos Oficiais Vigentes (Tabela de Pontuação de 14/11/2026, GEMINI.md atualizado, Regulamento v1.0, Business Case v5/v7);
+     - 3º: Base Institucional de Lições Aprendidas (`src/lib/knowledge/LESSONS_LEARNED.json` e `LESSONS_LEARNED.md`).
+     - Documentos anteriores a novembro de 2026 têm valor puramente histórico e não podem ser citados como norma ativa.
+* **Agentes Responsáveis**: GEMINI.md, Knowledge Learning Agent (`scripts/knowledge-learning-agent.mjs`) e Multi-Agent Orchestrator (`scripts/multi-agent-orchestrator.mjs`).
