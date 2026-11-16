@@ -119,3 +119,32 @@ CREATE TABLE IF NOT EXISTS operational_params (
   value TEXT NOT NULL,
   updatedAt TEXT NOT NULL
 );
+
+-- 7. TABELA DE SELOS & CONQUISTAS DO USUÁRIO (BADGES PERSISTIDOS NA NUVEM - SSOT D1)
+CREATE TABLE IF NOT EXISTS user_badges (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  badgeId TEXT NOT NULL,
+  unlockedAt TEXT NOT NULL,
+  rewardNfs INTEGER NOT NULL DEFAULT 0,
+  metadata TEXT,
+  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(userId, badgeId)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_badges_user ON user_badges(userId);
+
+-- 8. TABELA DE LEITURAS E VÍDEOS DE CONTEÚDO AUDITADOS (FEED READ RECEIPTS - SSOT D1)
+CREATE TABLE IF NOT EXISTS feed_read_receipts (
+  id TEXT PRIMARY KEY,
+  userId TEXT NOT NULL,
+  postId TEXT NOT NULL,
+  action TEXT NOT NULL DEFAULT 'read',
+  dwellTimeSeconds INTEGER NOT NULL DEFAULT 0,
+  completedAt TEXT NOT NULL,
+  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE(userId, postId, action)
+);
+
+CREATE INDEX IF NOT EXISTS idx_feed_read_receipts_user ON feed_read_receipts(userId);
+

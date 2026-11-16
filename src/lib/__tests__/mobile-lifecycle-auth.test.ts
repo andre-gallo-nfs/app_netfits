@@ -119,4 +119,24 @@ describe("Mobile Runtime Lifecycle, Biometrics & Screen Lock Security (LL-014)",
     expect(loginRes.user?.id).toBe("user-1793802322018");
     expect(loginRes.user?.fullName).toBe("Mariana Fernanda Pizone");
   });
+
+  it("8. Apple Review Demo Credentials: deve autenticar demo@netfits.com.br tanto com senha demo@netfits.com.br quanto Netfits@2026!", () => {
+    // Teste 1: Senha informada no App Store Connect (demo@netfits.com.br)
+    const resConnect = authStore.loginUser("demo@netfits.com.br", "demo@netfits.com.br");
+    expect(resConnect.success).toBe(true);
+    expect(resConnect.user?.id).toBe("usr_apple_review");
+    expect(resConnect.user?.email).toBe("demo@netfits.com.br");
+
+    // Teste 2: Senha alternativa canônica (Netfits@2026!)
+    const resMaster = authStore.loginUser("demo@netfits.com.br", "Netfits@2026!");
+    expect(resMaster.success).toBe(true);
+    expect(resMaster.user?.id).toBe("usr_apple_review");
+
+    // Teste 3: AppLock com credencial demo
+    appLockStore.setUnlocked(false);
+    expect(appLockStore.isUnlocked()).toBe(false);
+    const unlockRes = appLockStore.unlockWithPassword("demo@netfits.com.br");
+    expect(unlockRes.success).toBe(true);
+    expect(appLockStore.isUnlocked()).toBe(true);
+  });
 });

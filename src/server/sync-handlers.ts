@@ -100,6 +100,77 @@ export async function handleSyncRoutes(
   }
 
   // ==========================================
+  // ENDPOINT ATÔMICO SERVER-AUTHORITATIVE: DESBLOQUEIO DE SELOS/BADGES (SSOT D1)
+  // ==========================================
+  if (url.pathname === "/api/badges/unlock" || url.pathname === "/api/badges/unlock/") {
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        const { id, userId, badgeId, rewardNfs, metadata } = body || {};
+        if (!userId || !badgeId) {
+          return new Response(
+            JSON.stringify({ success: false, error: "userId e badgeId são obrigatórios." }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        const result = await d1Service.unlockBadge({
+          id,
+          userId,
+          badgeId,
+          rewardNfs: Number(rewardNfs) || 0,
+          metadata,
+        });
+
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 500,
+          headers: corsHeaders,
+        });
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({ success: false, error: err?.message || String(err) }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
+    }
+  }
+
+  // ==========================================
+  // ENDPOINT ATÔMICO SERVER-AUTHORITATIVE: LEITURAS E VÍDEOS DE FEED AUDITADOS (SSOT D1)
+  // ==========================================
+  if (url.pathname === "/api/feed/read-receipt" || url.pathname === "/api/feed/read-receipt/") {
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        const { userId, postId, action, dwellTimeSeconds } = body || {};
+        if (!userId || !postId) {
+          return new Response(
+            JSON.stringify({ success: false, error: "userId e postId são obrigatórios." }),
+            { status: 400, headers: corsHeaders }
+          );
+        }
+
+        const result = await d1Service.recordFeedReadReceipt({
+          userId,
+          postId,
+          action: action || "read",
+          dwellTimeSeconds: Number(dwellTimeSeconds) || 0,
+        });
+
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 500,
+          headers: corsHeaders,
+        });
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify({ success: false, error: err?.message || String(err) }),
+          { status: 500, headers: corsHeaders }
+        );
+      }
+    }
+  }
+
+  // ==========================================
   // ENDPOINTS DE SINCRONIZAÇÃO DE USUÁRIOS
   // ==========================================
   if (url.pathname === "/api/users-sync" || url.pathname === "/api/users-sync/") {
@@ -493,6 +564,20 @@ export async function handleSyncRoutes(
       paidAt: ord.paidAt,
     }));
 
+    let serverQuizCompletions: any[] = [];
+    let serverUserBadges: any[] = [];
+    let serverReadReceipts: any[] = [];
+
+    if (d1Service.isAvailable()) {
+      try {
+        serverQuizCompletions = await d1Service.getQuizCompletions();
+        serverUserBadges = await d1Service.getUserBadges();
+        serverReadReceipts = await d1Service.getFeedReadReceipts();
+      } catch (err) {
+        console.warn("[GET users-sync] Erro ao carregar SSOT D1 (quizzes/badges):", err);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -502,6 +587,9 @@ export async function handleSyncRoutes(
         transactionsCount: serverState.transactions.length,
         orders: sanitizedOrders,
         ordersCount: sanitizedOrders.length,
+        quizCompletions: serverQuizCompletions,
+        userBadges: serverUserBadges,
+        readReceipts: serverReadReceipts,
         updatedAt: serverState.lastSyncTimestamp,
       }),
       { status: 200, headers: corsHeaders }

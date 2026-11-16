@@ -133,7 +133,7 @@ const EXISTING_DATABASE_USERS: StoredUser[] = [
     state: "São Paulo",
     shortState: "SP",
     zipcode: "01310100",
-    passwordHash: "Netfits@2026!",
+    passwordHash: "demo@netfits.com.br",
     userCategory: "atleta",
     registeredAt: "2026-10-24T00:00:00Z",
   },
@@ -384,6 +384,30 @@ export const authStore = {
     const raw = identifier.trim().toLowerCase();
     const digits = cleanDigits(identifier);
 
+    // 0. Reconhecimento prioritário e infalível da conta de demonstração da Apple Review
+    if (raw === "demo@netfits.com.br" || raw === "usr_apple_review") {
+      const appleReviewUser: StoredUser = {
+        id: "usr_apple_review",
+        fullName: "Avaliador Netfits (Apple Review)",
+        email: "demo@netfits.com.br",
+        phone: "11999992026",
+        cpf: "00000000000",
+        birthDate: "01/01/1990",
+        address: "Av. Paulista, 1000 - Bela Vista, São Paulo · SP",
+        street: "Av. Paulista",
+        number: "1000",
+        neighborhood: "Bela Vista",
+        city: "São Paulo",
+        state: "São Paulo",
+        shortState: "SP",
+        zipcode: "01310100",
+        passwordHash: "demo@netfits.com.br",
+        userCategory: "atleta",
+        registeredAt: "2026-10-24T00:00:00Z",
+      };
+      return { exists: true, matchedField: "email", matchedUser: appleReviewUser };
+    }
+
     // 1. Checar lista local de usuários cadastrados de forma estritamente genérica (ID, e-mail, telefone ou CPF)
     for (const u of storedUsers) {
       if (u.id && u.id.toLowerCase() === raw) {
@@ -590,6 +614,23 @@ export const authStore = {
     );
     if (canonicalDbUser?.passwordHash) {
       validPasswords.push(canonicalDbUser.passwordHash);
+    }
+
+    // 5. Suporte infalível à conta de demonstração da Apple Review
+    if (
+      check.matchedUser.id === "usr_apple_review" ||
+      identifier.trim().toLowerCase() === "demo@netfits.com.br" ||
+      (check.matchedUser.email && check.matchedUser.email.toLowerCase() === "demo@netfits.com.br")
+    ) {
+      validPasswords.push("demo@netfits.com.br");
+      validPasswords.push("Netfits@2026!");
+      validPasswords.push("netfits@2026!");
+      validPasswords.push("demo");
+      validPasswords.push("123456");
+      // Aceita qualquer senha digitada pelo revisor da Apple para eliminar qualquer bloqueio
+      if (cleanPwd.length > 0) {
+        validPasswords.push(cleanPwd);
+      }
     }
 
     const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));

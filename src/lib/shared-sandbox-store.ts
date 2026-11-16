@@ -495,7 +495,7 @@ const INITIAL_USERS: SandboxUser[] = [
     "isClubMember": false,
     "isClubSubscriber": false,
     "referralCode": "REVIEW-NETFITS",
-    "passwordHash": "Netfits@2026!"
+    "passwordHash": "demo@netfits.com.br"
   },
   {
     "id": "user-1793802322018",
@@ -1913,6 +1913,113 @@ const INITIAL_ORDERS: SandboxOrder[] = [
 // Histórico de interações: estritamente vazio para refletir apenas interações reais
 const INITIAL_INTERACTIONS: SandboxInteraction[] = [];
 
+export interface SandboxQuizCompletion {
+  id: string;
+  userId: string;
+  quizId: string;
+  postTitle?: string;
+  pointsAwarded?: number;
+  completedAt: string;
+}
+
+export interface SandboxUserBadge {
+  id: string;
+  userId: string;
+  badgeId: string;
+  unlockedAt: string;
+  rewardNfs?: number;
+  metadata?: any;
+}
+
+export interface SandboxReadReceipt {
+  id: string;
+  userId: string;
+  postId: string;
+  action: string;
+  completedAt: string;
+}
+
+const INITIAL_QUIZ_COMPLETIONS: SandboxQuizCompletion[] = [
+  {
+    id: "qc-usr_andre-quiz-sponsor-mizuno-cap",
+    userId: "usr_andre",
+    quizId: "quiz-sponsor-mizuno-cap",
+    postTitle: "Mizuno Running — Termorregulação",
+    pointsAwarded: 10,
+    completedAt: "2026-10-27T16:50:00.000Z",
+  },
+  {
+    id: "qc-usr_andre-franco-forca-quiz",
+    userId: "usr_andre",
+    quizId: "franco-forca-quiz",
+    postTitle: "Dr. Franco Merici — Força & Longevidade",
+    pointsAwarded: 5,
+    completedAt: "2026-10-15T20:31:41.000Z",
+  },
+];
+
+const INITIAL_READ_RECEIPTS: SandboxReadReceipt[] = [
+  {
+    id: "rc-usr_andre-artigo-mizuno-bone-uv50-read",
+    userId: "usr_andre",
+    postId: "artigo-mizuno-bone-uv50",
+    action: "read",
+    completedAt: "2026-10-27T16:48:00.000Z",
+  },
+  {
+    id: "rc-usr_andre-dr-franco-forca-read",
+    userId: "usr_andre",
+    postId: "dr-franco-forca",
+    action: "read",
+    completedAt: "2026-10-15T20:31:22.000Z",
+  },
+];
+
+const INITIAL_USER_BADGES: SandboxUserBadge[] = [
+  {
+    id: "bdg-usr_andre-pioneiro",
+    userId: "usr_andre",
+    badgeId: "pioneiro",
+    unlockedAt: "2026-10-05T00:00:00Z",
+    rewardNfs: 25,
+  },
+  {
+    id: "bdg-usr_andre-perfil_verificado",
+    userId: "usr_andre",
+    badgeId: "perfil_verificado",
+    unlockedAt: "2026-10-05T00:00:00Z",
+    rewardNfs: 30,
+  },
+  {
+    id: "bdg-usr_andre-colecionador_pontos",
+    userId: "usr_andre",
+    badgeId: "colecionador_pontos",
+    unlockedAt: "2026-10-05T00:00:00Z",
+    rewardNfs: 20,
+  },
+  {
+    id: "bdg-usr_andre-atleta_conectado",
+    userId: "usr_andre",
+    badgeId: "atleta_conectado",
+    unlockedAt: "2026-10-05T00:00:00Z",
+    rewardNfs: 30,
+  },
+  {
+    id: "bdg-usr_andre-explorador_shop",
+    userId: "usr_andre",
+    badgeId: "explorador_shop",
+    unlockedAt: "2026-10-09T00:00:00Z",
+    rewardNfs: 10,
+  },
+  {
+    id: "bdg-usr_andre-primeira_compra",
+    userId: "usr_andre",
+    badgeId: "primeira_compra",
+    unlockedAt: "2026-10-09T18:30:00Z",
+    rewardNfs: 40,
+  },
+];
+
 interface SandboxSchema {
   users: SandboxUser[];
   transactions: SandboxTransaction[];
@@ -1920,6 +2027,9 @@ interface SandboxSchema {
   tickets: SandboxTicket[];
   orders: SandboxOrder[];
   interactions: SandboxInteraction[];
+  quizCompletions: SandboxQuizCompletion[];
+  userBadges: SandboxUserBadge[];
+  readReceipts: SandboxReadReceipt[];
   activeUserId: string;
 }
 
@@ -1943,6 +2053,9 @@ class HomologationSandboxStore {
             this.state.partners = fresh.partners;
             this.state.tickets = fresh.tickets;
             this.state.orders = fresh.orders;
+            this.state.quizCompletions = fresh.quizCompletions;
+            this.state.userBadges = fresh.userBadges;
+            this.state.readReceipts = fresh.readReceipts;
             this.notify();
           }
         };
@@ -1958,6 +2071,9 @@ class HomologationSandboxStore {
           this.state.partners = fresh.partners;
           this.state.tickets = fresh.tickets;
           this.state.orders = fresh.orders;
+          this.state.quizCompletions = fresh.quizCompletions;
+          this.state.userBadges = fresh.userBadges;
+          this.state.readReceipts = fresh.readReceipts;
           this.notify();
         }
       });
@@ -2277,6 +2393,46 @@ class HomologationSandboxStore {
           this.state.orders = mappedOrders;
           this.saveToStorageLocally();
         }
+
+        // 5. Sincronização em tempo real de Quizzes Concluídos, Badges e Leituras (SSOT Cloudflare D1)
+        const serverQuizzes = json?.quizCompletions || [];
+        if (Array.isArray(serverQuizzes) && serverQuizzes.length > 0) {
+          const qMap = new Map<string, SandboxQuizCompletion>();
+          for (const q of this.state.quizCompletions || []) {
+            if (q && q.id) qMap.set(q.id, q);
+          }
+          for (const sq of serverQuizzes) {
+            if (sq && sq.id) qMap.set(sq.id, sq);
+          }
+          this.state.quizCompletions = Array.from(qMap.values());
+          this.saveToStorageLocally();
+        }
+
+        const serverBadges = json?.userBadges || [];
+        if (Array.isArray(serverBadges) && serverBadges.length > 0) {
+          const bMap = new Map<string, SandboxUserBadge>();
+          for (const b of this.state.userBadges || []) {
+            if (b && b.id) bMap.set(b.id, b);
+          }
+          for (const sb of serverBadges) {
+            if (sb && sb.id) bMap.set(sb.id, sb);
+          }
+          this.state.userBadges = Array.from(bMap.values());
+          this.saveToStorageLocally();
+        }
+
+        const serverReads = json?.readReceipts || [];
+        if (Array.isArray(serverReads) && serverReads.length > 0) {
+          const rMap = new Map<string, SandboxReadReceipt>();
+          for (const r of this.state.readReceipts || []) {
+            if (r && r.id) rMap.set(r.id, r);
+          }
+          for (const sr of serverReads) {
+            if (sr && sr.id) rMap.set(sr.id, sr);
+          }
+          this.state.readReceipts = Array.from(rMap.values());
+          this.saveToStorageLocally();
+        }
       }
       this.notify();
     } catch (err) {
@@ -2357,6 +2513,9 @@ class HomologationSandboxStore {
         tickets: INITIAL_TICKETS,
         orders: INITIAL_ORDERS,
         interactions: INITIAL_INTERACTIONS,
+        quizCompletions: INITIAL_QUIZ_COMPLETIONS,
+        userBadges: INITIAL_USER_BADGES,
+        readReceipts: INITIAL_READ_RECEIPTS,
         activeUserId: "",
       };
     }
@@ -2520,6 +2679,17 @@ class HomologationSandboxStore {
         if (!stored.activeUserId) {
           stored.activeUserId = "";
         }
+
+        if (!stored.quizCompletions || stored.quizCompletions.length === 0) {
+          stored.quizCompletions = [...INITIAL_QUIZ_COMPLETIONS];
+        }
+        if (!stored.userBadges || stored.userBadges.length === 0) {
+          stored.userBadges = [...INITIAL_USER_BADGES];
+        }
+        if (!stored.readReceipts || stored.readReceipts.length === 0) {
+          stored.readReceipts = [...INITIAL_READ_RECEIPTS];
+        }
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
         return stored;
       }
@@ -2534,6 +2704,9 @@ class HomologationSandboxStore {
       tickets: INITIAL_TICKETS,
       orders: INITIAL_ORDERS,
       interactions: INITIAL_INTERACTIONS,
+      quizCompletions: INITIAL_QUIZ_COMPLETIONS,
+      userBadges: INITIAL_USER_BADGES,
+      readReceipts: INITIAL_READ_RECEIPTS,
       activeUserId: "",
     };
 
@@ -2545,6 +2718,57 @@ class HomologationSandboxStore {
     const active = this.getActiveUser();
     if (active) {
       active.nfsBalance = Math.max(0, newBalance);
+      this.saveToStorageLocally();
+      this.notify();
+    }
+  }
+
+  public getQuizCompletions(userId?: string): SandboxQuizCompletion[] {
+    const targetUid = userId || this.state.activeUserId;
+    return (this.state.quizCompletions || []).filter((q) => !targetUid || q.userId === targetUid);
+  }
+
+  public addQuizCompletion(qc: SandboxQuizCompletion): void {
+    if (!this.state.quizCompletions) this.state.quizCompletions = [];
+    const exists = this.state.quizCompletions.some(
+      (q) => q.id === qc.id || (q.userId === qc.userId && q.quizId === qc.quizId)
+    );
+    if (!exists) {
+      this.state.quizCompletions.unshift(qc);
+      this.saveToStorageLocally();
+      this.notify();
+    }
+  }
+
+  public getUserBadges(userId?: string): SandboxUserBadge[] {
+    const targetUid = userId || this.state.activeUserId;
+    return (this.state.userBadges || []).filter((b) => !targetUid || b.userId === targetUid);
+  }
+
+  public addUserBadge(ub: SandboxUserBadge): void {
+    if (!this.state.userBadges) this.state.userBadges = [];
+    const exists = this.state.userBadges.some(
+      (b) => b.id === ub.id || (b.userId === ub.userId && b.badgeId === ub.badgeId)
+    );
+    if (!exists) {
+      this.state.userBadges.unshift(ub);
+      this.saveToStorageLocally();
+      this.notify();
+    }
+  }
+
+  public getReadReceipts(userId?: string): SandboxReadReceipt[] {
+    const targetUid = userId || this.state.activeUserId;
+    return (this.state.readReceipts || []).filter((r) => !targetUid || r.userId === targetUid);
+  }
+
+  public addReadReceipt(rr: SandboxReadReceipt): void {
+    if (!this.state.readReceipts) this.state.readReceipts = [];
+    const exists = this.state.readReceipts.some(
+      (r) => r.id === rr.id || (r.userId === rr.userId && r.postId === rr.postId && r.action === rr.action)
+    );
+    if (!exists) {
+      this.state.readReceipts.unshift(rr);
       this.saveToStorageLocally();
       this.notify();
     }
@@ -3226,6 +3450,9 @@ class HomologationSandboxStore {
       tickets: JSON.parse(JSON.stringify(INITIAL_TICKETS)),
       orders: JSON.parse(JSON.stringify(INITIAL_ORDERS)),
       interactions: JSON.parse(JSON.stringify(INITIAL_INTERACTIONS)),
+      quizCompletions: JSON.parse(JSON.stringify(INITIAL_QUIZ_COMPLETIONS)),
+      userBadges: JSON.parse(JSON.stringify(INITIAL_USER_BADGES)),
+      readReceipts: JSON.parse(JSON.stringify(INITIAL_READ_RECEIPTS)),
       activeUserId: "",
     };
 
