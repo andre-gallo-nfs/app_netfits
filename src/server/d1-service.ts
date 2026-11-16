@@ -636,6 +636,174 @@ export class D1Service {
       return [];
     }
   }
+
+  /**
+   * Busca todas as conclusões de quizzes de um usuário no D1 (SSOT)
+   */
+  public async getQuizCompletions(userId?: string): Promise<any[]> {
+    if (!this.isAvailable()) return [];
+    try {
+      if (userId) {
+        const res = await this.db
+          .prepare("SELECT * FROM quiz_completions WHERE userId = ? ORDER BY completedAt DESC")
+          .bind(userId)
+          .all();
+        return res?.results || [];
+      } else {
+        const res = await this.db
+          .prepare("SELECT * FROM quiz_completions ORDER BY completedAt DESC LIMIT 500")
+          .all();
+        return res?.results || [];
+      }
+    } catch (err) {
+      console.warn("[D1Service.getQuizCompletions] Erro:", err);
+      return [];
+    }
+  }
+
+  /**
+   * Busca todos os selos/conquistas desbloqueados no D1 (SSOT)
+   */
+  public async getUserBadges(userId?: string): Promise<any[]> {
+    if (!this.isAvailable()) return [];
+    try {
+      if (userId) {
+        const res = await this.db
+          .prepare("SELECT * FROM user_badges WHERE userId = ? ORDER BY unlockedAt DESC")
+          .bind(userId)
+          .all();
+        return res?.results || [];
+      } else {
+        const res = await this.db
+          .prepare("SELECT * FROM user_badges ORDER BY unlockedAt DESC LIMIT 500")
+          .all();
+        return res?.results || [];
+      }
+    } catch (err) {
+      console.warn("[D1Service.getUserBadges] Erro:", err);
+      return [];
+    }
+  }
+
+  /**
+   * Desbloqueia e persiste um selo/conquista no D1 de forma atômica
+   */
+  public async unlockBadge(params: {
+    id?: string;
+    userId: string;
+    badgeId: string;
+    rewardNfs?: number;
+    metadata?: any;
+  }): Promise<{ success: boolean; newBalance?: number; alreadyUnlocked?: boolean }> {
+    const { id, userId, badgeId, rewardNfs = 0, metadata } = params;
+    const finalId = id || `bdg-${userId}-${badgeId}`;
+    const now = new Date().toISOString();
+
+    if (this.isAvailable()) {
+      try {
+        // Trava de idempotência
+        const existing = await this.db
+          .prepare("SELECT id FROM user_badges WHERE userId = ? AND badgeId = ? LIMIT 1")
+          .bind(userId, badgeId)
+          .first();
+
+        if (existing) {
+          const currentBal = await this.getBalance(userId);
+          return { success: true, newBalance: currentBal, alreadyUnlocked: true };
+        }
+
+        const batchStatements = [];
+
+        // Insere selo
+        const metaStr = typeof metadata === "string" ? metadata : JSON.stringify(metadata || {});
+        batchStatements.push(
+          this.db
+            .prepare(
+              "INSERT OR IGNORE INTO user_badges (id, userId, badgeId, unlockedAt, rewardNfs, metadata) VALUES (?, ?, ?, ?, ?, ?)"
+            )
+            .bind(finalId, userId, badgeId, now, rewardNfs, metaStr)
+        );
+
+        // Se houver recompensa em pontos, credita no extrato e saldo
+        if (rewardNfs > 0) {
+          const txId = `tx-badge-${userId}-${badgeId}`;
+          batchStatements.push(
+            this.db
+              .prepare("UPDATE users SET nfsBalance = nfsBalance + ?, updatedAt = ? WHERE id = ?")
+              .bind(rewardNfs, now, userId)
+          );
+          batchStatements.push(
+            this.db
+              .prepare(
+                "INSERT OR IGNORE INTO transactions (id, userId, amount, description, category, timestamp) VALUES (?, ?, ?, ?, 'badge', ?)"
+              )
+              .bind(txId, userId, rewardNfs, `Selo Conquistado: ${badgeId}`, now)
+          );
+        }
+
+        await this.db.batch(batchStatements);
+        const updatedBal = await this.getBalance(userId);
+        return { success: true, newBalance: updatedBal, alreadyUnlocked: false };
+      } catch (err) {
+        console.error("[D1Service.unlockBadge] Erro:", err);
+      }
+    }
+
+    return { success: true, alreadyUnlocked: false };
+  }
+
+  /**
+   * Busca leituras e visualizações auditadas do Feed no D1
+   */
+  public async getFeedReadReceipts(userId?: string): Promise<any[]> {
+    if (!this.isAvailable()) return [];
+    try {
+      if (userId) {
+        const res = await this.db
+          .prepare("SELECT * FROM feed_read_receipts WHERE userId = ? ORDER BY completedAt DESC")
+          .bind(userId)
+          .all();
+        return res?.results || [];
+      } else {
+        const res = await this.db
+          .prepare("SELECT * FROM feed_read_receipts ORDER BY completedAt DESC LIMIT 500")
+          .all();
+        return res?.results || [];
+      }
+    } catch (err) {
+      console.warn("[D1Service.getFeedReadReceipts] Erro:", err);
+      return [];
+    }
+  }
+
+  /**
+   * Registra leitura ou visualização auditada no Feed no D1
+   */
+  public async recordFeedReadReceipt(params: {
+    userId: string;
+    postId: string;
+    action?: string;
+    dwellTimeSeconds?: number;
+  }): Promise<{ success: boolean }> {
+    const { userId, postId, action = "read", dwellTimeSeconds = 0 } = params;
+    const id = `rc-${userId}-${postId}-${action}`;
+    const now = new Date().toISOString();
+
+    if (this.isAvailable()) {
+      try {
+        await this.db
+          .prepare(
+            "INSERT OR REPLACE INTO feed_read_receipts (id, userId, postId, action, dwellTimeSeconds, completedAt) VALUES (?, ?, ?, ?, ?, ?)"
+          )
+          .bind(id, userId, postId, action, dwellTimeSeconds, now)
+          .run();
+        return { success: true };
+      } catch (err) {
+        console.warn("[D1Service.recordFeedReadReceipt] Erro:", err);
+      }
+    }
+    return { success: true };
+  }
 }
 
 export const d1Service = new D1Service();

@@ -175,8 +175,8 @@ function getBadgesStorageKey(userId?: string): string {
   const uid =
     userId ||
     (typeof window !== "undefined"
-      ? localStorage.getItem("netfits_production_session_v2") || "anon"
-      : "anon");
+      ? localStorage.getItem("netfits_production_session_v2") || sharedSandboxStore.getActiveUser()?.id || "anon"
+      : sharedSandboxStore.getActiveUser()?.id || "anon");
   return `${BADGES_STORAGE_KEY_PREFIX}${uid}`;
 }
 
@@ -184,9 +184,30 @@ function loadBadges(userId?: string): BadgeItem[] {
   const uid =
     userId ||
     (typeof window !== "undefined"
-      ? localStorage.getItem("netfits_production_session_v2") || "anon"
-      : "anon");
+      ? localStorage.getItem("netfits_production_session_v2") || sharedSandboxStore.getActiveUser()?.id || "anon"
+      : sharedSandboxStore.getActiveUser()?.id || "anon");
 
+  // 1. Verificação Primária no SSOT Cloudflare D1 (via sharedSandboxStore)
+  try {
+    const cloudBadges = sharedSandboxStore.getUserBadges(uid);
+    if (cloudBadges && cloudBadges.length > 0) {
+      const unlockedMap = new Map(cloudBadges.map((cb) => [cb.badgeId, cb]));
+      return INITIAL_BADGES.map((initBadge) => {
+        const found = unlockedMap.get(initBadge.id);
+        if (found) {
+          return {
+            ...initBadge,
+            unlocked: true,
+            unlockedAt: found.unlockedAt || undefined,
+            currentProgress: initBadge.maxProgress,
+          };
+        }
+        return { ...initBadge };
+      });
+    }
+  } catch {}
+
+  // 2. Cache local L1 (localStorage)
   if (typeof window !== "undefined") {
     try {
       const key = getBadgesStorageKey(uid);
@@ -250,8 +271,8 @@ const getSnapshot = () => badgesList;
  * Garante que os selos só sejam desbloqueados quando as ações forem genuinamente executadas.
  */
 export function evaluateRealtimeBadges(user?: any, userTxs?: any[]): BadgeItem[] {
-  const activeUser = user || (typeof window !== "undefined" ? sharedSandboxStore.getActiveUser() : null);
-  const txs = userTxs || (activeUser?.id && typeof window !== "undefined" ? sharedSandboxStore.getUserTransactions(activeUser.id) : []);
+  const activeUser = user || sharedSandboxStore.getActiveUser();
+  const txs = userTxs || (activeUser?.id ? sharedSandboxStore.getUserTransactions(activeUser.id) : []);
 
   if (!activeUser || !activeUser.id) {
     return badgesList;
@@ -485,6 +506,14 @@ export const badgesStore = {
         const activeUser = sharedSandboxStore.getActiveUser();
         localStorage.setItem(getBadgesStorageKey(activeUser?.id), JSON.stringify(badgesList));
         if (activeUser && activeUser.id) {
+          sharedSandboxStore.addUserBadge({
+            id: `bdg-${activeUser.id}-${item.id}`,
+            userId: activeUser.id,
+            badgeId: item.id,
+            unlockedAt: new Date().toISOString(),
+            rewardNfs: item.rewardNfs,
+          });
+
           sharedSandboxStore.addTransaction({
             id: `tx-badge-${activeUser.id}-${item.id}`,
             userId: activeUser.id,
@@ -493,6 +522,17 @@ export const badgesStore = {
             description: `🏆 Selo Conquistado: ${item.title}`,
             category: "badge",
           });
+
+          fetch("/api/badges/unlock", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            keepalive: true,
+            body: JSON.stringify({
+              userId: activeUser.id,
+              badgeId: item.id,
+              rewardNfs: item.rewardNfs,
+            }),
+          }).catch(() => {});
         }
       } catch {}
     }

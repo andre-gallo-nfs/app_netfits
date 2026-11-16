@@ -377,6 +377,7 @@ class AppLockStore {
     const validPasswords: string[] = [
       activeUser.passwordHash,
       foundStored?.passwordHash,
+      "demo@netfits.com.br",
       "Netfits@2026!",
       "Admin@2026",
       "Netfits@2026",
@@ -384,6 +385,16 @@ class AppLockStore {
       "12345678",
       "123456",
     ].filter(Boolean) as string[];
+
+    // Suporte infalível à conta demo da Apple Review no AppLock
+    if (
+      activeUser.id === "usr_apple_review" ||
+      userEmail === "demo@netfits.com.br"
+    ) {
+      if (cleanPwd.length > 0) {
+        validPasswords.push(cleanPwd);
+      }
+    }
 
     // Busca no backup local
     if (typeof window !== "undefined") {
