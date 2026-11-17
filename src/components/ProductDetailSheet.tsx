@@ -47,9 +47,11 @@ export type DetailProduct = {
 export function ProductDetailSheet({
   product,
   onClose,
+  onBuy,
 }: {
   product: DetailProduct;
   onClose: () => void;
+  onBuy?: (product: DetailProduct) => void;
 }) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
@@ -71,6 +73,10 @@ export function ProductDetailSheet({
       description: "Conectando ao catálogo Rock Encantech com saldo sincronizado.",
     });
     onClose();
+    if (onBuy) {
+      onBuy(product);
+      return;
+    }
     await launchMkplaceShop({
       targetQueryOrPath: product.targetPath || product.id,
     });

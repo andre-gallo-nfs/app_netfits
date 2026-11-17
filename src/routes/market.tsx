@@ -9,6 +9,7 @@ import {
   Star,
   RefreshCw,
   ArrowRight,
+  ArrowLeft,
   Truck,
   CheckCircle2,
   Package,
@@ -264,6 +265,7 @@ function MarketEmbeddedPage() {
   // Estados da Loja & Sessão Autenticada
   const [storeUrl, setStoreUrl] = useState<string>("");
   const [ordersUrl, setOrdersUrl] = useState<string>("");
+  const [activeIframeUrl, setActiveIframeUrl] = useState<string>("");
   const [isIframeLoading, setIsIframeLoading] = useState<boolean>(false);
   const [reloadKey, setReloadKey] = useState<number>(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -328,47 +330,45 @@ function MarketEmbeddedPage() {
     });
   }, [selectedCategory, searchQuery]);
 
-  // Abre a loja oficial completa da Rock Encantech
+  // Abre a loja oficial completa da Rock Encantech 100% integrada in-app
   const handleOpenFullStore = async () => {
-    if (isConnectingStore) return;
-    setIsConnectingStore(true);
+    setIsIframeLoading(true);
+    setViewMode("web");
     try {
-      await launchMkplaceShop({
-        userId: activeUser.id,
-      });
-    } finally {
-      setTimeout(() => setIsConnectingStore(false), 2500);
+      const url = storeUrl || (await getMkplaceStoreUrl(activeUser.id));
+      setActiveIframeUrl(url);
+    } catch {
+      setActiveIframeUrl(storeUrl || "https://loja.netfits.com.br");
     }
   };
 
-  // Abre diretamente a seção de Meus Pedidos na Loja Oficial
+  // Abre diretamente a seção de Meus Pedidos na Loja Oficial integrada in-app
   const handleOpenOrders = async () => {
-    if (isConnectingOrders) return;
-    setIsConnectingOrders(true);
+    setIsIframeLoading(true);
+    setViewMode("web");
     try {
-      toast.info("Acessando Meus Pedidos no Shop...", {
-        description: "Abrindo histórico de compras e rastreamento de entregas.",
-      });
-      await launchMkplaceShop({
-        userId: activeUser.id,
-        targetQueryOrPath: "pedidos",
-      });
-    } finally {
-      setTimeout(() => setIsConnectingOrders(false), 2500);
+      const url = ordersUrl || (await getMkplaceStoreUrl(activeUser.id, "pedidos"));
+      setActiveIframeUrl(url);
+    } catch {
+      setActiveIframeUrl(ordersUrl || "https://loja.netfits.com.br/pedidos");
     }
   };
 
-  // Abre diretamente a página do produto na loja oficial da Rock
+  // Abre diretamente a página do produto na loja oficial integrada in-app
   const handleDirectBuy = async (prod: DetailProduct, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     trackAddToCart(prod.id, prod.title, prod.price, prod.cashback);
-    toast.success(`Abrindo "${prod.title}" na Loja Oficial...`, {
-      description: `Conectando via Rock Encantech com saldo de ${balance.toLocaleString()} nfs.`,
+    toast.success(`Abrindo "${prod.title}" no Shop Netfits...`, {
+      description: `Conectando à Loja Integrada com saldo de ${balance.toLocaleString()} nfs.`,
     });
-    await launchMkplaceShop({
-      userId: activeUser.id,
-      targetQueryOrPath: prod.targetPath || prod.id,
-    });
+    setIsIframeLoading(true);
+    setViewMode("web");
+    try {
+      const url = await getMkplaceStoreUrl(activeUser.id, prod.targetPath || prod.id);
+      setActiveIframeUrl(url);
+    } catch {
+      setActiveIframeUrl(storeUrl || "https://loja.netfits.com.br");
+    }
   };
 
   const handleSelectProduct = (prod: DetailProduct) => {
@@ -413,7 +413,6 @@ function MarketEmbeddedPage() {
               )}
               <span className="hidden sm:inline">Meus Pedidos</span>
               <span className="sm:hidden">Pedidos</span>
-              <ExternalLink className="size-3 text-zinc-400" />
             </button>
 
             <button
@@ -421,7 +420,7 @@ function MarketEmbeddedPage() {
               onClick={handleOpenFullStore}
               disabled={isConnectingStore}
               className="px-3 py-1.5 rounded-xl bg-[#C8F135] hover:bg-[#b8e025] disabled:opacity-60 text-zinc-950 font-black text-xs flex items-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer"
-              title="Acessar Loja Oficial Completa Rock Encantech com SSO"
+              title="Acessar Loja Oficial Completa Rock Encantech Integrada"
             >
               {isConnectingStore ? (
                 <>
@@ -432,7 +431,6 @@ function MarketEmbeddedPage() {
                 <>
                   <ShoppingBag className="size-3.5" />
                   <span>Loja Completa</span>
-                  <ExternalLink className="size-3" />
                 </>
               )}
             </button>
@@ -454,7 +452,7 @@ function MarketEmbeddedPage() {
         )}
       </div>
 
-      {/* 3. CONTEÚDO PRINCIPAL: MODO CATÁLOGO NATIVO OU LOJA WEB */}
+      {/* 3. CONTEÚDO PRINCIPAL: MODO CATÁLOGO NATIVO OU LOJA WEB INTEGRADA */}
       {viewMode === "native" ? (
         <div className="px-4 py-4 space-y-4">
           {/* Banner Hero de Acesso à Loja Oficial Rock Encantech */}
@@ -478,11 +476,10 @@ function MarketEmbeddedPage() {
                 onClick={handleOpenOrders}
                 disabled={isConnectingOrders}
                 className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-60 text-zinc-200 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md border border-zinc-700/60"
-                title="Acessar Meus Pedidos"
+                title="Acessar Meus Pedidos na Loja Integrada"
               >
                 <Package className="size-3.5 text-lime-400" />
                 <span>Meus Pedidos</span>
-                <ExternalLink className="size-3 text-zinc-400" />
               </button>
               <button
                 type="button"
@@ -498,7 +495,7 @@ function MarketEmbeddedPage() {
                 ) : (
                   <>
                     <span>Acessar Loja Completa</span>
-                    <ExternalLink className="size-3.5" />
+                    <ArrowRight className="size-3.5" />
                   </>
                 )}
               </button>
@@ -613,47 +610,84 @@ function MarketEmbeddedPage() {
           )}
         </div>
       ) : (
-        /* MODO LOJA INTEGRADA VIA IFRAME COM FALLBACK AUTOMÁTICO */
-        <div className="relative w-full h-[calc(100dvh-180px)]">
-          {isIframeLoading && (
-            <div className="absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-3 p-6 text-center">
-              <RefreshCw className="size-8 text-purple-500 animate-spin" />
-              <p className="text-xs text-zinc-300 font-bold">Conectando à Loja Oficial Rock Encantech...</p>
-            </div>
-          )}
+        /* MODO LOJA INTEGRADA 100% IN-APP (SEM SAIR PARA O NAVEGADOR) */
+        <div className="w-full flex flex-col">
+          {/* Barra Superior da Loja Integrada Netfits */}
+          <div className="sticky top-0 z-30 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between gap-2 shadow-md">
+            <button
+              type="button"
+              onClick={() => setViewMode("native")}
+              className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs flex items-center gap-1.5 transition active:scale-95 cursor-pointer border border-zinc-700/60 shadow-xs"
+            >
+              <ArrowLeft className="size-3.5 text-lime-400" />
+              <span>Voltar à Vitrine</span>
+            </button>
 
-          {storeUrl ? (
-            <iframe
-              ref={iframeRef}
-              src={storeUrl}
-              title="Loja Integrada Netfits"
-              className="w-full h-full border-0 bg-white"
-              allow="clipboard-write; payment; geolocation; camera"
-              onLoad={() => setIsIframeLoading(false)}
-              onError={() => {
-                toast.info("Exibindo Catálogo Oficial Netfits.");
-                setViewMode("native");
-                setIsIframeLoading(false);
-              }}
-            />
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center p-6 text-center space-y-4">
-              <ShoppingBag className="size-10 text-purple-400" />
-              <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white">Catálogo Nativo Pronto</h3>
-                <p className="text-xs text-zinc-400 max-w-xs">
-                  Acesse nosso catálogo completo com garantia de cashback em pontos nfs.
-                </p>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-zinc-400">Saldo:</span>
+              <strong className="text-xs text-lime-400 font-mono font-bold bg-lime-400/10 px-2 py-0.5 rounded-md border border-lime-400/20">
+                {balance.toLocaleString()} nfs
+              </strong>
+            </div>
+
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setViewMode("native")}
-                className="px-4 py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs"
+                onClick={() => {
+                  setIsIframeLoading(true);
+                  setReloadKey((k) => k + 1);
+                }}
+                className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition cursor-pointer border border-zinc-700/40"
+                title="Recarregar Loja"
               >
-                Voltar para o Catálogo Nativo
+                <RefreshCw className={`size-3.5 ${isIframeLoading ? "animate-spin text-lime-400" : ""}`} />
               </button>
             </div>
-          )}
+          </div>
+
+          <div className="relative w-full h-[calc(100dvh-175px)]">
+            {isIframeLoading && (
+              <div className="absolute inset-0 bg-zinc-950/90 z-20 flex flex-col items-center justify-center space-y-3 p-6 text-center">
+                <RefreshCw className="size-8 text-lime-400 animate-spin" />
+                <p className="text-xs text-zinc-200 font-bold">Conectando à Loja Oficial Rock Encantech...</p>
+                <p className="text-[11px] text-zinc-400">Sincronizando saldo e sessão com segurança</p>
+              </div>
+            )}
+
+            {activeIframeUrl || storeUrl ? (
+              <iframe
+                ref={iframeRef}
+                key={reloadKey}
+                src={activeIframeUrl || storeUrl}
+                title="Loja Integrada Netfits"
+                className="w-full h-full border-0 bg-white"
+                allow="clipboard-write; payment; geolocation; camera"
+                onLoad={() => setIsIframeLoading(false)}
+                onError={() => {
+                  toast.info("Retornando ao Catálogo Oficial Netfits.");
+                  setViewMode("native");
+                  setIsIframeLoading(false);
+                }}
+              />
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center p-6 text-center space-y-4">
+                <ShoppingBag className="size-10 text-purple-400" />
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-white">Catálogo Nativo Pronto</h3>
+                  <p className="text-xs text-zinc-400 max-w-xs">
+                    Acesse nosso catálogo completo com garantia de cashback em pontos nfs.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("native")}
+                  className="px-4 py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs"
+                >
+                  Voltar para o Catálogo Nativo
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -662,6 +696,10 @@ function MarketEmbeddedPage() {
         <ProductDetailSheet
           product={selectedDetailProduct}
           onClose={() => setSelectedDetailProduct(null)}
+          onBuy={(prod) => {
+            setSelectedDetailProduct(null);
+            handleDirectBuy(prod);
+          }}
         />
       )}
     </div>
