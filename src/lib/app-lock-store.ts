@@ -373,24 +373,27 @@ class AppLockStore {
       (u) => u.id === activeUser.id || (u.email && u.email.toLowerCase() === userEmail)
     );
 
-    // Senhas válidas abrangentes: senha do usuário, senhas do ecossistema e padrões
+    const isAppleReview =
+      activeUser.id === "usr_apple_review" ||
+      userEmail === "demo@netfits.com.br";
+
+    // Senhas válidas do usuário (respeitando maiúsculas e minúsculas originais)
     const validPasswords: string[] = [
       activeUser.passwordHash,
       foundStored?.passwordHash,
-      "demo@netfits.com.br",
-      "Netfits@2026!",
-      "Admin@2026",
-      "Netfits@2026",
-      "netfits",
-      "12345678",
-      "123456",
     ].filter(Boolean) as string[];
 
     // Suporte infalível à conta demo da Apple Review no AppLock
-    if (
-      activeUser.id === "usr_apple_review" ||
-      userEmail === "demo@netfits.com.br"
-    ) {
+    if (isAppleReview) {
+      validPasswords.push(
+        "demo@netfits.com.br",
+        "Netfits@2026!",
+        "netfits@2026!",
+        "Admin@2026",
+        "demo",
+        "123456",
+        "12345678"
+      );
       if (cleanPwd.length > 0) {
         validPasswords.push(cleanPwd);
       }
@@ -425,24 +428,29 @@ class AppLockStore {
       }
     }
 
-    // Expande variações tolerantes a pontuação final (ex: ponto final no teclado iOS), espaços e maiúsculas
+    // Expande variações tolerantes a pontuação final acidental (ex: ponto final inserido por duplo espaço no teclado iOS)
     const expandedPasswords = new Set<string>();
     validPasswords.filter(Boolean).forEach((p) => {
       expandedPasswords.add(p);
-      expandedPasswords.add(p.toLowerCase());
       if (p.endsWith(".")) {
         const withoutDot = p.slice(0, -1);
         expandedPasswords.add(withoutDot);
-        expandedPasswords.add(withoutDot.toLowerCase());
       } else {
         expandedPasswords.add(`${p}.`);
-        expandedPasswords.add(`${p.toLowerCase()}.`);
+      }
+      if (isAppleReview) {
+        expandedPasswords.add(p.toLowerCase());
       }
     });
 
-    const isCorrect = Array.from(expandedPasswords).some(
-      (vp) => vp === cleanPwd || (typeof vp === "string" && vp.toLowerCase() === cleanPwd.toLowerCase())
-    );
+    // Validação estritamente case-sensitive (respeita maiúsculas e minúsculas).
+    // Tolerância mantida exclusivamente para a conta de demonstração da Apple Review.
+    const isCorrect = Array.from(expandedPasswords).some((vp) => {
+      if (typeof vp !== "string") return false;
+      if (vp === cleanPwd) return true;
+      if (isAppleReview && vp.toLowerCase() === cleanPwd.toLowerCase()) return true;
+      return false;
+    });
 
     if (isCorrect) {
       this.setUnlocked(true);

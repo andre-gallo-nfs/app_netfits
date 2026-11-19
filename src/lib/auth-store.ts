@@ -617,11 +617,12 @@ export const authStore = {
     }
 
     // 5. Suporte infalível à conta de demonstração da Apple Review
-    if (
+    const isAppleReview =
       check.matchedUser.id === "usr_apple_review" ||
       identifier.trim().toLowerCase() === "demo@netfits.com.br" ||
-      (check.matchedUser.email && check.matchedUser.email.toLowerCase() === "demo@netfits.com.br")
-    ) {
+      (check.matchedUser.email && check.matchedUser.email.toLowerCase() === "demo@netfits.com.br");
+
+    if (isAppleReview) {
       validPasswords.push("demo@netfits.com.br");
       validPasswords.push("Netfits@2026!");
       validPasswords.push("netfits@2026!");
@@ -635,9 +636,14 @@ export const authStore = {
 
     const uniqueValidPasswords = Array.from(new Set(validPasswords.filter(Boolean)));
 
-    const isCorrect = uniqueValidPasswords.some(
-      (vp) => vp === cleanPwd || (typeof vp === "string" && vp.toLowerCase() === cleanPwd.toLowerCase())
-    );
+    // Validação estritamente case-sensitive (respeita maiúsculas e minúsculas).
+    // Tolerância case-insensitive mantida exclusivamente para a conta de demonstração da Apple Review.
+    const isCorrect = uniqueValidPasswords.some((vp) => {
+      if (typeof vp !== "string") return false;
+      if (vp === cleanPwd) return true;
+      if (isAppleReview && vp.toLowerCase() === cleanPwd.toLowerCase()) return true;
+      return false;
+    });
 
     if (!isCorrect) {
       return {

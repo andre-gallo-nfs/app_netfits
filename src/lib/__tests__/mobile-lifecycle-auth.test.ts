@@ -139,4 +139,33 @@ describe("Mobile Runtime Lifecycle, Biometrics & Screen Lock Security (LL-014)",
     expect(unlockRes.success).toBe(true);
     expect(appLockStore.isUnlocked()).toBe(true);
   });
+
+  it("9. Strict Case Sensitivity Guard: senhas devem diferenciar estritamente maiúsculas e minúsculas", () => {
+    // 1. Senha com caixa incorreta (minúsculas) DEVE falhar
+    const failLower = authStore.loginUser("claudia.noce@icloud.com", "noce@1992");
+    expect(failLower.success).toBe(false);
+    expect(failLower.error).toContain("Senha incorreta");
+
+    // 2. Senha com caixa incorreta (maiúsculas) DEVE falhar
+    const failUpper = authStore.loginUser("claudia.noce@icloud.com", "NOCE@1992");
+    expect(failUpper.success).toBe(false);
+    expect(failUpper.error).toContain("Senha incorreta");
+
+    // 3. Senha com caixa exata cadastrada (Noce@1992) DEVE autenticar com sucesso
+    const successExact = authStore.loginUser("claudia.noce@icloud.com", "Noce@1992");
+    expect(successExact.success).toBe(true);
+    expect(successExact.user?.fullName).toBe("Claudia Noce Soares");
+
+    // 4. No AppLock: tentativa com caixa incorreta DEVE falhar
+    appLockStore.setUnlocked(false);
+    expect(appLockStore.isUnlocked()).toBe(false);
+    const unlockFail = appLockStore.unlockWithPassword("noce@1992");
+    expect(unlockFail.success).toBe(false);
+    expect(appLockStore.isUnlocked()).toBe(false);
+
+    // 5. No AppLock: com caixa exata DEVE desbloquear
+    const unlockOk = appLockStore.unlockWithPassword("Noce@1992");
+    expect(unlockOk.success).toBe(true);
+    expect(appLockStore.isUnlocked()).toBe(true);
+  });
 });
